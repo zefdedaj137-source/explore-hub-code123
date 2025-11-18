@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Migration Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .step-content {
+            color: #555;
+            line-height: 1.6;
+        }
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: #5568d3;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .success-text {
+            margin-top: 15px;
+            color: #28a745;
+            font-weight: 600;
+        }
+        .policy-text {
+            margin-top: 15px;
+        }
+        .footer-text {
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+        }
+        .credits-text {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Supabase Migration Helper</h1>
+        <p class="subtitle">Follow these steps to fix the console errors</p>
+
+        <div class="step warning">
+            <div class="step-title">
+                <span class="step-number">⚠️</span>
+                Current Errors
+            </div>
+            <div class="step-content">
+                <ul>
+                    <li>❌ <strong>get_spotlight_profiles</strong> function not found (400 error)</li>
+                    <li>❌ <strong>Storage bucket</strong> 'avatars' doesn't exist</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Run Database Migration
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>Open <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" class="button">Supabase Dashboard →</a></li>
+                    <li>Select your project: <span class="highlight">gh-explore-hub</span></li>
+                    <li>Click <strong>"SQL Editor"</strong> in the left sidebar</li>
+                    <li>Click <strong>"+ New Query"</strong></li>
+                    <li>Open the file: <code>supabase/migrations/20251024_add_spotlight_booster.sql</code></li>
+                    <li>Copy ALL content (Ctrl+A, Ctrl+C)</li>
+                    <li>Paste into Supabase SQL Editor</li>
+                    <li>Click <strong>"Run"</strong> or press Ctrl+Enter</li>
+                    <li>Wait for "✅ Success. No rows returned"</li>
+                </ol>
+                <p class="success-text">
+                    This creates all boost columns, functions, and triggers!
+                </p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">2</span>
+                Create Storage Bucket
+            </div>
+            <div class="step-content">
+                <ol>
+                    <li>In Supabase Dashboard, click <strong>"Storage"</strong></li>
+                    <li>Click <strong>"Create a new bucket"</strong></li>
+                    <li>Bucket name: <span class="highlight">avatars</span></li>
+                    <li>✅ Check <strong>"Public bucket"</strong></li>
+                    <li>Click <strong>"Create bucket"</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">3</span>
+                Add Storage Policies
+            </div>
+            <div class="step-content">
+                <p>Click on the <strong>avatars</strong> bucket, then <strong>Policies</strong> tab, and add these 3 policies:</p>
+                
+                <p class="policy-text"><strong>Policy 1: Public Read</strong></p>
+                <div class="code-block">CREATE POLICY "Public read access"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'avatars');</div>
+
+                <p class="policy-text"><strong>Policy 2: User Upload</strong></p>
+                <div class="code-block">CREATE POLICY "Users can upload their own avatars"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'avatars');</div>
+
+                <p class="policy-text"><strong>Policy 3: User Update</strong></p>
+                <div class="code-block">CREATE POLICY "Users can update their own avatars"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (bucket_id = 'avatars');</div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">4</span>
+                Grant Boost Credits (Testing)
+            </div>
+            <div class="step-content">
+                <p>Go back to <strong>SQL Editor</strong> and run:</p>
+                <div class="code-block">UPDATE profiles 
+SET boost_credits = 5 
+WHERE id = '596116f8-cde5-4a9e-bb4c-6e91f7b94eae';</div>
+                <p class="credits-text">This gives you 5 free boosts to test with!</p>
+            </div>
+        </div>
+
+        <div class="step success">
+            <div class="step-title">
+                <span class="step-number">✅</span>
+                Done!
+            </div>
+            <div class="step-content">
+                After completing all steps:
+                <ul>
+                    <li>Refresh your app (Ctrl+R)</li>
+                    <li>Navigate to <strong>Discover</strong> page</li>
+                    <li>Click <strong>BOOST</strong> button (you'll see "5" credits)</li>
+                    <li>Click <strong>"Last Active"</strong> tab to see boosted profiles</li>
+                    <li>Go to <strong>My Profile</strong> to upload photos</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-text">
+            <p>Need help? Check <strong>SETUP_GUIDE.md</strong> for detailed instructions</p>
+        </div>
+    </div>
+</body>
+</html>

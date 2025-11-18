@@ -1,0 +1,351 @@
+/* stylelint-disable at-rule-no-unknown */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Luxurious bright elegant theme */
+    --background: 345 25% 20%;
+    --foreground: 30 30% 98%;
+
+    --card: 345 30% 25%;
+    --card-foreground: 30 30% 98%;
+
+    --popover: 345 35% 22%;
+    --popover-foreground: 30 30% 98%;
+
+    /* Rich burgundy red - primary brand color */
+    --primary: 345 70% 55%;
+    --primary-foreground: 345 25% 10%;
+    --primary-glow: 345 80% 65%;
+
+    /* Warm mahogany secondary */
+    --secondary: 15 40% 35%;
+    --secondary-foreground: 30 30% 98%;
+
+    /* Bright rose gold accent for premium features */
+    --accent: 25 85% 70%;
+    --accent-foreground: 345 50% 15%;
+
+    --muted: 345 20% 30%;
+    --muted-foreground: 30 15% 75%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 345 35% 35%;
+    --input: 345 30% 30%;
+    --ring: 345 70% 60%;
+
+    --radius: 1rem;
+
+    /* Brighter luxurious gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(345, 70%, 45%), hsl(345, 65%, 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(345, 55%, 25%) 0%, hsl(345, 65%, 40%) 50%, hsl(15, 50%, 35%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(35, 90%, 65%), hsl(25, 85%, 70%));
+    --gradient-luxury: linear-gradient(135deg, hsl(345, 50%, 22%), hsl(345, 55%, 28%), hsl(15, 45%, 30%));
+    --gradient-eagle: radial-gradient(circle at center, hsl(345, 70%, 50%) 0%, hsl(15, 55%, 35%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(345, 25%, 20%), hsl(345, 35%, 26%));
+    --gradient-velvet: linear-gradient(135deg, hsl(345, 50%, 20%) 0%, hsl(340, 50%, 28%) 50%, hsl(345, 45%, 22%) 100%);
+
+    /* Elegant shadows */
+    --shadow-elegant: 0 20px 60px -15px hsl(345, 70%, 40%, 0.5);
+    --shadow-card: 0 8px 32px hsl(0, 0%, 0%, 0.4);
+    --shadow-glow: 0 0 60px hsl(345, 80%, 50%, 0.3);
+    --shadow-luxury: 0 30px 100px -25px hsl(0, 0%, 0%, 0.7);
+    --shadow-gold: 0 8px 40px hsl(35, 90%, 65%, 0.4);
+
+    /* Transitions */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Light Theme - Soft and warm */
+  .light {
+    --background: 0 0% 96%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 355 85% 45%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 355 85% 60%;
+
+    --secondary: 12 20% 92%;
+    --secondary-foreground: 0 0% 10%;
+
+    --accent: 48 96% 53%;
+    --accent-foreground: 0 0% 10%;
+
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 45%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 85%;
+    --input: 0 0% 90%;
+    --ring: 355 85% 45%;
+
+    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 96%), hsl(355, 20%, 94%));
+    --shadow-elegant: 0 20px 60px -15px hsl(355, 85%, 45%, 0.3);
+    --shadow-card: 0 4px 20px hsl(0, 0%, 0%, 0.1);
+    --shadow-glow: 0 0 40px hsl(355, 85%, 45%, 0.3);
+    --shadow-luxury: 0 25px 80px -20px hsl(0, 0%, 0%, 0.15);
+  }
+
+  /* White Theme - Pure and bright */
+  .white {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+
+    --primary: 355 85% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 355 85% 60%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    --accent: 48 96% 53%;
+    --accent-foreground: 0 0% 10%;
+
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 40%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 95%;
+    --ring: 355 85% 45%;
+
+    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 100%), hsl(0, 0%, 98%));
+    --shadow-elegant: 0 20px 60px -15px hsl(355, 85%, 45%, 0.25);
+    --shadow-card: 0 4px 20px hsl(0, 0%, 0%, 0.08);
+    --shadow-glow: 0 0 40px hsl(355, 85%, 45%, 0.25);
+    --shadow-luxury: 0 25px 80px -20px hsl(0, 0%, 0%, 0.12);
+  }
+
+  /* Dark Theme - Default elegant dark */
+  .dark {
+    --background: 15 10% 7%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 5% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 5% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 355 85% 45%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 355 85% 60%;
+
+    --secondary: 12 20% 18%;
+    --secondary-foreground: 0 0% 98%;
+
+    --accent: 48 96% 53%;
+    --accent-foreground: 0 0% 10%;
+
+    --muted: 0 5% 15%;
+    --muted-foreground: 0 0% 60%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 8% 20%;
+    --input: 0 8% 20%;
+    --ring: 355 85% 45%;
+
+    --shadow-elegant: 0 20px 60px -15px hsl(355, 85%, 45%, 0.5);
+    --shadow-card: 0 4px 20px hsl(0, 0%, 0%, 0.3);
+    --shadow-glow: 0 0 60px hsl(355, 85%, 45%, 0.6);
+    --shadow-luxury: 0 25px 80px -20px hsl(0, 0%, 0%, 0.8);
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Phone Input Styling */
+.phone-input {
+  @apply w-full;
+}
+
+.phone-input .PhoneInputInput {
+  @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.phone-input .PhoneInputCountrySelect {
+  @apply mr-2;
+}
+
+/* Hide scrollbar for horizontal scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Custom animation classes to replace inline styles */
+.animate-pulse-delayed {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation-delay: 1s;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-fade-in-delayed {
+  animation: fadeIn 2s ease-in-out;
+  animation-delay: 0.5s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Staggered animation classes */
+.animate-scale-in-1 {
+  animation: scale-in 0.3s ease-out;
+  animation-delay: 0ms;
+  animation-fill-mode: both;
+}
+
+.animate-scale-in-2 {
+  animation: scale-in 0.3s ease-out;
+  animation-delay: 150ms;
+  animation-fill-mode: both;
+}
+
+.animate-scale-in-3 {
+  animation: scale-in 0.3s ease-out;
+  animation-delay: 300ms;
+  animation-fill-mode: both;
+}
+
+/* Booster thunder shine animation */
+.animate-zap-shine {
+  animation: zap-shine 1.5s ease-in-out infinite;
+}
+
+@keyframes zap-shine {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+  50% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 8px currentColor);
+    transform: scale(1.1);
+  }
+}
+
+/* Slow spin animation for roses */
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Luxurious UI enhancements */
+@layer utilities {
+  .bg-luxury {
+    background: var(--gradient-luxury);
+  }
+  
+  .bg-velvet {
+    background: var(--gradient-velvet);
+  }
+  
+  .text-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .shadow-luxury {
+    box-shadow: var(--shadow-luxury);
+  }
+  
+  .shadow-gold {
+    box-shadow: var(--shadow-gold);
+  }
+  
+  .border-luxury {
+    border: 1px solid hsl(345, 40%, 25%);
+    box-shadow: inset 0 1px 0 hsl(345, 50%, 30%);
+  }
+  
+  .glass-luxury {
+    background: linear-gradient(
+      135deg,
+      hsl(345, 50%, 15%, 0.8) 0%,
+      hsl(345, 45%, 12%, 0.9) 100%
+    );
+    backdrop-filter: blur(20px);
+    border: 1px solid hsl(345, 50%, 25%, 0.3);
+  }
+  
+  .glow-burgundy {
+    box-shadow: 0 0 20px hsl(345, 75%, 45%, 0.5),
+                0 0 40px hsl(345, 70%, 40%, 0.3);
+  }
+  
+  .glow-gold {
+    box-shadow: 0 0 20px hsl(35, 90%, 60%, 0.5),
+                0 0 40px hsl(25, 85%, 55%, 0.3);
+  }
+}
