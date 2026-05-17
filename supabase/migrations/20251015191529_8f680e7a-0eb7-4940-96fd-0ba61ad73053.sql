@@ -10,6 +10,8 @@ CREATE TABLE public.dancing_channel_participants (
 ALTER TABLE public.dancing_channel_participants ENABLE ROW LEVEL SECURITY;
 
 -- Users can view all participants
+DROP POLICY IF EXISTS "Anyone can view dancing channel participants" ON public;
+DROP POLICY IF EXISTS "Anyone can view dancing channel participants" ON public;
 CREATE POLICY "Anyone can view dancing channel participants"
 ON public.dancing_channel_participants
 FOR SELECT
@@ -17,6 +19,8 @@ TO authenticated
 USING (true);
 
 -- Users can join the channel
+DROP POLICY IF EXISTS "Users can join dancing channel" ON public;
+DROP POLICY IF EXISTS "Users can join dancing channel" ON public;
 CREATE POLICY "Users can join dancing channel"
 ON public.dancing_channel_participants
 FOR INSERT
@@ -24,6 +28,8 @@ TO authenticated
 WITH CHECK (auth.uid() = user_id);
 
 -- Users can leave the channel
+DROP POLICY IF EXISTS "Users can leave dancing channel" ON public;
+DROP POLICY IF EXISTS "Users can leave dancing channel" ON public;
 CREATE POLICY "Users can leave dancing channel"
 ON public.dancing_channel_participants
 FOR DELETE
@@ -33,6 +39,8 @@ USING (auth.uid() = user_id);
 -- Update dancing_videos RLS to only show videos to channel participants
 DROP POLICY IF EXISTS "Anyone can view dancing videos" ON public.dancing_videos;
 
+DROP POLICY IF EXISTS "Channel participants can view dancing videos" ON public;
+DROP POLICY IF EXISTS "Channel participants can view dancing videos" ON public;
 CREATE POLICY "Channel participants can view dancing videos"
 ON public.dancing_videos
 FOR SELECT

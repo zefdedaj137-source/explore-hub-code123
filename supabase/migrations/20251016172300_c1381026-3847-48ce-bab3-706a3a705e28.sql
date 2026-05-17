@@ -12,6 +12,8 @@ DROP POLICY IF EXISTS "Users can view public profile data" ON public.profiles;
 -- Users can only see:
 --   - Their own profile (for editing)
 --   - Profiles that match their discovery criteria (gender preferences, age, etc.)
+DROP POLICY IF EXISTS "Users can view discoverable profiles" ON public;
+DROP POLICY IF EXISTS "Users can view discoverable profiles" ON public;
 CREATE POLICY "Users can view discoverable profiles"
 ON public.profiles
 FOR SELECT

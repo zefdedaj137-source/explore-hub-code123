@@ -7,6 +7,8 @@ DROP POLICY IF EXISTS "Users can view discoverable profiles" ON public.profiles;
 
 -- Create a simple, non-recursive policy for viewing profiles
 -- This allows users to view all profiles except for sensitive operations
+DROP POLICY IF EXISTS "Users can view all profiles" ON public;
+DROP POLICY IF EXISTS "Users can view all profiles" ON public;
 CREATE POLICY "Users can view all profiles"
 ON public.profiles
 FOR SELECT

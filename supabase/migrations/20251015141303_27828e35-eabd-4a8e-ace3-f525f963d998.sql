@@ -18,14 +18,20 @@ CREATE TABLE public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
+DROP POLICY IF EXISTS "Users can view all profiles" ON public;
+DROP POLICY IF EXISTS "Users can view all profiles" ON public;
 CREATE POLICY "Users can view all profiles"
   ON public.profiles FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public;
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public;
 CREATE POLICY "Users can insert their own profile"
   ON public.profiles FOR INSERT
   WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update their own profile" ON public;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public;
 CREATE POLICY "Users can update their own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
@@ -44,10 +50,14 @@ CREATE TABLE public.likes (
 ALTER TABLE public.likes ENABLE ROW LEVEL SECURITY;
 
 -- Likes policies
+DROP POLICY IF EXISTS "Users can view their own likes" ON public;
+DROP POLICY IF EXISTS "Users can view their own likes" ON public;
 CREATE POLICY "Users can view their own likes"
   ON public.likes FOR SELECT
   USING (auth.uid() = liker_id);
 
+DROP POLICY IF EXISTS "Users can insert their own likes" ON public;
+DROP POLICY IF EXISTS "Users can insert their own likes" ON public;
 CREATE POLICY "Users can insert their own likes"
   ON public.likes FOR INSERT
   WITH CHECK (auth.uid() = liker_id);
@@ -66,6 +76,8 @@ CREATE TABLE public.matches (
 ALTER TABLE public.matches ENABLE ROW LEVEL SECURITY;
 
 -- Matches policies
+DROP POLICY IF EXISTS "Users can view their own matches" ON public;
+DROP POLICY IF EXISTS "Users can view their own matches" ON public;
 CREATE POLICY "Users can view their own matches"
   ON public.matches FOR SELECT
   USING (auth.uid() = user1_id OR auth.uid() = user2_id);
@@ -83,6 +95,8 @@ CREATE TABLE public.messages (
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 
 -- Messages policies
+DROP POLICY IF EXISTS "Users can view messages from their matches" ON public;
+DROP POLICY IF EXISTS "Users can view messages from their matches" ON public;
 CREATE POLICY "Users can view messages from their matches"
   ON public.messages FOR SELECT
   USING (
@@ -93,6 +107,8 @@ CREATE POLICY "Users can view messages from their matches"
     )
   );
 
+DROP POLICY IF EXISTS "Users can send messages to their matches" ON public;
+DROP POLICY IF EXISTS "Users can send messages to their matches" ON public;
 CREATE POLICY "Users can send messages to their matches"
   ON public.messages FOR INSERT
   WITH CHECK (

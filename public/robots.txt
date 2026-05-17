@@ -12,3 +12,15 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /profile-setup
+Disallow: /auth/callback
+Disallow: /reset-password
+Disallow: /chat/
+Disallow: /settings
+Disallow: /edit-profile
+Disallow: /wallet
+Disallow: /blocked
+Disallow: /notifications
+
+Sitemap: https://shqiponja.app/sitemap.xml

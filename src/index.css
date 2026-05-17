@@ -10,59 +10,80 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Luxurious bright elegant theme */
-    --background: 345 25% 20%;
-    --foreground: 30 30% 98%;
+    /* Tinder-inspired warm white & reddish theme */
+    --background: 350 30% 99%;
+    --foreground: 350 15% 13%;
 
-    --card: 345 30% 25%;
-    --card-foreground: 30 30% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 350 15% 13%;
 
-    --popover: 345 35% 22%;
-    --popover-foreground: 30 30% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 350 15% 13%;
 
-    /* Rich burgundy red - primary brand color */
-    --primary: 345 70% 55%;
-    --primary-foreground: 345 25% 10%;
-    --primary-glow: 345 80% 65%;
+    /* Tinder coral/red-orange - primary brand color */
+    --primary: 350 98% 62%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 350 98% 68%;
 
-    /* Warm mahogany secondary */
-    --secondary: 15 40% 35%;
-    --secondary-foreground: 30 30% 98%;
+    /* Light reddish-white secondary */
+    --secondary: 350 25% 96%;
+    --secondary-foreground: 350 15% 13%;
 
-    /* Bright rose gold accent for premium features */
-    --accent: 25 85% 70%;
-    --accent-foreground: 345 50% 15%;
+    /* Tinder gold accent */
+    --accent: 38 100% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --muted: 345 20% 30%;
-    --muted-foreground: 30 15% 75%;
+    --muted: 350 20% 95%;
+    --muted-foreground: 350 10% 45%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 345 35% 35%;
-    --input: 345 30% 30%;
-    --ring: 345 70% 60%;
+    --border: 350 18% 92%;
+    --input: 350 20% 97%;
+    --ring: 350 98% 62%;
 
     --radius: 1rem;
 
-    /* Brighter luxurious gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(345, 70%, 45%), hsl(345, 65%, 60%));
-    --gradient-hero: linear-gradient(135deg, hsl(345, 55%, 25%) 0%, hsl(345, 65%, 40%) 50%, hsl(15, 50%, 35%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(35, 90%, 65%), hsl(25, 85%, 70%));
-    --gradient-luxury: linear-gradient(135deg, hsl(345, 50%, 22%), hsl(345, 55%, 28%), hsl(15, 45%, 30%));
-    --gradient-eagle: radial-gradient(circle at center, hsl(345, 70%, 50%) 0%, hsl(15, 55%, 35%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(345, 25%, 20%), hsl(345, 35%, 26%));
-    --gradient-velvet: linear-gradient(135deg, hsl(345, 50%, 20%) 0%, hsl(340, 50%, 28%) 50%, hsl(345, 45%, 22%) 100%);
+    /* Tinder-style gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(350, 98%, 62%), hsl(15, 100%, 60%));
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(0, 0%, 100%) 0%,
+      hsl(350, 60%, 97%) 50%,
+      hsl(350, 40%, 95%) 100%
+    );
+    --gradient-gold: linear-gradient(135deg, hsl(38, 100%, 55%), hsl(28, 100%, 60%));
+    --gradient-luxury: linear-gradient(
+      135deg,
+      hsl(350, 60%, 97%),
+      hsl(0, 0%, 98%),
+      hsl(350, 40%, 96%)
+    );
+    --gradient-eagle: radial-gradient(
+      circle at center,
+      hsl(350, 98%, 62%) 0%,
+      hsl(15, 100%, 60%) 100%
+    );
+    --gradient-subtle: linear-gradient(180deg, hsl(350, 30%, 99%), hsl(350, 20%, 96%));
+    --gradient-velvet: linear-gradient(
+      135deg,
+      hsl(0, 0%, 100%) 0%,
+      hsl(350, 30%, 97%) 50%,
+      hsl(0, 0%, 100%) 100%
+    );
 
-    /* Elegant shadows */
-    --shadow-elegant: 0 20px 60px -15px hsl(345, 70%, 40%, 0.5);
-    --shadow-card: 0 8px 32px hsl(0, 0%, 0%, 0.4);
-    --shadow-glow: 0 0 60px hsl(345, 80%, 50%, 0.3);
-    --shadow-luxury: 0 30px 100px -25px hsl(0, 0%, 0%, 0.7);
-    --shadow-gold: 0 8px 40px hsl(35, 90%, 65%, 0.4);
+    /* Soft shadows */
+    --shadow-elegant: 0 4px 20px -4px rgba(0, 0, 0, 0.08);
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
+    --shadow-glow: 0 0 40px hsl(350, 98%, 62%, 0.15);
+    --shadow-luxury: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+    --shadow-gold: 0 4px 20px hsl(38, 100%, 55%, 0.2);
 
     /* Transitions */
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Animation delay utilities */
   }
 
   /* Respect user's motion preferences */
@@ -77,117 +98,200 @@ All colors MUST be HSL.
     }
   }
 
-  /* Light Theme - Soft and warm */
+  /* Light Theme — warm ivory, refined */
   .light {
-    --background: 0 0% 96%;
-    --foreground: 0 0% 10%;
-
-    --card: 0 0% 98%;
-    --card-foreground: 0 0% 10%;
-
-    --popover: 0 0% 98%;
-    --popover-foreground: 0 0% 10%;
-
-    --primary: 355 85% 45%;
-    --primary-foreground: 0 0% 98%;
-    --primary-glow: 355 85% 60%;
-
-    --secondary: 12 20% 92%;
-    --secondary-foreground: 0 0% 10%;
-
-    --accent: 48 96% 53%;
-    --accent-foreground: 0 0% 10%;
-
-    --muted: 0 0% 90%;
-    --muted-foreground: 0 0% 45%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 85%;
-    --input: 0 0% 90%;
-    --ring: 355 85% 45%;
-
-    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 96%), hsl(355, 20%, 94%));
-    --shadow-elegant: 0 20px 60px -15px hsl(355, 85%, 45%, 0.3);
-    --shadow-card: 0 4px 20px hsl(0, 0%, 0%, 0.1);
-    --shadow-glow: 0 0 40px hsl(355, 85%, 45%, 0.3);
-    --shadow-luxury: 0 25px 80px -20px hsl(0, 0%, 0%, 0.15);
-  }
-
-  /* White Theme - Pure and bright */
-  .white {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 5%;
+    --background: 30 20% 97%;
+    --foreground: 350 15% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 5%;
+    --card-foreground: 350 15% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5%;
+    --popover-foreground: 350 15% 10%;
 
-    --primary: 355 85% 45%;
+    --primary: 350 70% 54%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 355 85% 60%;
+    --primary-glow: 350 70% 64%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 30 15% 94%;
+    --secondary-foreground: 350 15% 10%;
 
-    --accent: 48 96% 53%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 38 65% 48%;
+    --accent-foreground: 0 0% 100%;
 
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 30 12% 94%;
+    --muted-foreground: 350 8% 42%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 95%;
-    --ring: 355 85% 45%;
+    --border: 30 12% 88%;
+    --input: 30 15% 96%;
+    --ring: 350 70% 54%;
 
-    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 100%), hsl(0, 0%, 98%));
-    --shadow-elegant: 0 20px 60px -15px hsl(355, 85%, 45%, 0.25);
-    --shadow-card: 0 4px 20px hsl(0, 0%, 0%, 0.08);
-    --shadow-glow: 0 0 40px hsl(355, 85%, 45%, 0.25);
-    --shadow-luxury: 0 25px 80px -20px hsl(0, 0%, 0%, 0.12);
+    --gradient-subtle: linear-gradient(180deg, hsl(30, 20%, 97%), hsl(30, 15%, 93%));
+    --shadow-elegant: 0 4px 24px -4px rgba(0, 0, 0, 0.08);
+    --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.06);
+    --shadow-glow: 0 0 30px hsl(350, 70%, 54%, 0.12);
+    --shadow-luxury: 0 12px 48px -10px rgba(0, 0, 0, 0.1);
   }
 
-  /* Dark Theme - Default elegant dark */
+  /* White Theme - White with reddish warmth */
+  .white {
+    --background: 350 15% 100%;
+    --foreground: 350 10% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 350 10% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 350 10% 8%;
+
+    --primary: 350 98% 62%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 350 98% 68%;
+
+    --secondary: 350 20% 97%;
+    --secondary-foreground: 350 10% 10%;
+
+    --accent: 38 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 350 15% 97%;
+    --muted-foreground: 350 8% 40%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 350 12% 93%;
+    --input: 350 15% 97%;
+    --ring: 350 98% 62%;
+
+    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 100%), hsl(350, 15%, 99%));
+    --shadow-elegant: 0 4px 16px -4px rgba(0, 0, 0, 0.06);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-glow: 0 0 30px hsl(350, 98%, 62%, 0.1);
+    --shadow-luxury: 0 8px 30px -8px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Dark Theme — Deep luxury, warm charcoal */
   .dark {
-    --background: 15 10% 7%;
-    --foreground: 0 0% 98%;
+    --background: 350 8% 5%;
+    --foreground: 40 8% 92%;
 
-    --card: 0 5% 10%;
-    --card-foreground: 0 0% 98%;
+    --card: 350 8% 10%;
+    --card-foreground: 40 8% 92%;
 
-    --popover: 0 5% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 350 8% 12%;
+    --popover-foreground: 40 8% 92%;
 
-    --primary: 355 85% 45%;
-    --primary-foreground: 0 0% 98%;
-    --primary-glow: 355 85% 60%;
+    /* Muted rose — refined, not harsh coral */
+    --primary: 350 65% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 350 65% 70%;
 
-    --secondary: 12 20% 18%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 350 8% 16%;
+    --secondary-foreground: 40 8% 88%;
 
-    --accent: 48 96% 53%;
-    --accent-foreground: 0 0% 10%;
+    /* Champagne gold — luxurious accent */
+    --accent: 38 55% 62%;
+    --accent-foreground: 0 0% 100%;
 
-    --muted: 0 5% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 350 8% 14%;
+    --muted-foreground: 350 5% 55%;
 
     --destructive: 0 62.8% 50%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 8% 20%;
-    --input: 0 8% 20%;
-    --ring: 355 85% 45%;
+    --border: 350 8% 18%;
+    --input: 350 8% 14%;
+    --ring: 350 65% 60%;
 
-    --shadow-elegant: 0 20px 60px -15px hsl(355, 85%, 45%, 0.5);
-    --shadow-card: 0 4px 20px hsl(0, 0%, 0%, 0.3);
-    --shadow-glow: 0 0 60px hsl(355, 85%, 45%, 0.6);
-    --shadow-luxury: 0 25px 80px -20px hsl(0, 0%, 0%, 0.8);
+    /* Luxury gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(350, 65%, 60%), hsl(18, 72%, 55%));
+    --gradient-hero: linear-gradient(160deg, hsl(350, 8%, 6%) 0%, hsl(350, 10%, 12%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(38, 55%, 62%), hsl(28, 65%, 55%));
+    --gradient-subtle: linear-gradient(180deg, hsl(350, 8%, 7%), hsl(350, 8%, 5%));
+    --gradient-velvet: linear-gradient(135deg, hsl(350, 8%, 14%) 0%, hsl(350, 8%, 8%) 100%);
+    --gradient-luxury: linear-gradient(135deg, hsl(350, 8%, 14%), hsl(350, 8%, 8%));
+    --gradient-eagle: radial-gradient(
+      circle at center,
+      hsl(350, 65%, 60%) 0%,
+      hsl(18, 72%, 55%) 100%
+    );
+
+    /* Deep layered shadows */
+    --shadow-elegant: 0 8px 32px -8px rgba(0, 0, 0, 0.65);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.45);
+    --shadow-glow: 0 0 40px hsl(350, 65%, 60%, 0.18);
+    --shadow-luxury: 0 20px 60px -12px rgba(0, 0, 0, 0.75);
+    --shadow-gold: 0 4px 20px hsl(38, 55%, 62%, 0.2);
+  }
+
+  /* Blue Theme — light sky blue */
+  .blue {
+    --background: 210 50% 97%;
+    --foreground: 215 30% 12%;
+
+    --card: 210 40% 100%;
+    --card-foreground: 215 30% 12%;
+
+    --popover: 210 40% 100%;
+    --popover-foreground: 215 30% 12%;
+
+    /* Sky / ocean blue as brand accent */
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 210 100% 60%;
+
+    --secondary: 210 35% 92%;
+    --secondary-foreground: 215 30% 12%;
+
+    --accent: 196 100% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 210 30% 93%;
+    --muted-foreground: 215 15% 45%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 25% 87%;
+    --input: 210 30% 96%;
+    --ring: 210 100% 50%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(210, 100%, 50%), hsl(196, 100%, 42%));
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(0, 0%, 100%) 0%,
+      hsl(210, 60%, 96%) 50%,
+      hsl(210, 40%, 92%) 100%
+    );
+    --gradient-gold: linear-gradient(135deg, hsl(196, 100%, 42%), hsl(210, 100%, 55%));
+    --gradient-subtle: linear-gradient(180deg, hsl(210, 50%, 97%), hsl(210, 30%, 93%));
+    --gradient-velvet: linear-gradient(
+      135deg,
+      hsl(0, 0%, 100%) 0%,
+      hsl(210, 40%, 96%) 50%,
+      hsl(0, 0%, 100%) 100%
+    );
+    --gradient-luxury: linear-gradient(
+      135deg,
+      hsl(210, 40%, 96%),
+      hsl(0, 0%, 98%),
+      hsl(210, 30%, 95%) 100%
+    );
+    --gradient-eagle: radial-gradient(
+      circle at center,
+      hsl(210, 100%, 50%) 0%,
+      hsl(196, 100%, 42%) 100%
+    );
+
+    --shadow-elegant: 0 4px 20px -4px rgba(0, 100, 220, 0.12);
+    --shadow-card: 0 2px 12px rgba(0, 100, 220, 0.07);
+    --shadow-glow: 0 0 40px hsl(210, 100%, 50%, 0.18);
+    --shadow-luxury: 0 10px 40px -10px rgba(0, 100, 220, 0.15);
+    --shadow-gold: 0 4px 20px hsl(196, 100%, 42%, 0.2);
   }
 }
 
@@ -216,12 +320,12 @@ All colors MUST be HSL.
 
 /* Hide scrollbar for horizontal scrolling */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none; /* Chrome, Safari and Opera */
 }
 
 /* Custom animation classes to replace inline styles */
@@ -274,7 +378,8 @@ All colors MUST be HSL.
 }
 
 @keyframes zap-shine {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     filter: drop-shadow(0 0 2px currentColor);
   }
@@ -285,6 +390,27 @@ All colors MUST be HSL.
   }
 }
 
+.delay-0 {
+  animation-delay: 0ms;
+}
+.delay-50 {
+  animation-delay: 50ms;
+}
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-150 {
+  animation-delay: 150ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-250 {
+  animation-delay: 250ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
 /* Slow spin animation for roses */
 .animate-spin-slow {
   animation: spin 8s linear infinite;
@@ -304,48 +430,57 @@ All colors MUST be HSL.
   .bg-luxury {
     background: var(--gradient-luxury);
   }
-  
+
   .bg-velvet {
     background: var(--gradient-velvet);
   }
-  
+
   .text-gold {
     background: var(--gradient-gold);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   .shadow-luxury {
     box-shadow: var(--shadow-luxury);
   }
-  
+
   .shadow-gold {
     box-shadow: var(--shadow-gold);
   }
-  
+
   .border-luxury {
-    border: 1px solid hsl(345, 40%, 25%);
-    box-shadow: inset 0 1px 0 hsl(345, 50%, 30%);
+    border: 1px solid hsl(210, 40%, 50%);
+    box-shadow: inset 0 1px 0 hsl(210, 50%, 60%);
   }
-  
+
   .glass-luxury {
-    background: linear-gradient(
-      135deg,
-      hsl(345, 50%, 15%, 0.8) 0%,
-      hsl(345, 45%, 12%, 0.9) 100%
-    );
+    background: linear-gradient(135deg, hsl(210, 50%, 85%, 0.8) 0%, hsl(210, 45%, 90%, 0.9) 100%);
     backdrop-filter: blur(20px);
-    border: 1px solid hsl(345, 50%, 25%, 0.3);
+    border: 1px solid hsl(210, 50%, 70%, 0.3);
   }
-  
+
   .glow-burgundy {
-    box-shadow: 0 0 20px hsl(345, 75%, 45%, 0.5),
-                0 0 40px hsl(345, 70%, 40%, 0.3);
+    box-shadow:
+      0 0 20px hsl(210, 75%, 50%, 0.5),
+      0 0 40px hsl(210, 70%, 60%, 0.3);
   }
-  
+
   .glow-gold {
-    box-shadow: 0 0 20px hsl(35, 90%, 60%, 0.5),
-                0 0 40px hsl(25, 85%, 55%, 0.3);
+    box-shadow:
+      0 0 20px hsl(210, 90%, 60%, 0.5),
+      0 0 40px hsl(200, 85%, 65%, 0.3);
+  }
+
+  /* iOS safe-area bottom padding — used by BottomNav to clear the home indicator */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Bottom offset for fixed elements that sit just above the bottom nav.
+     The nav is h-16 (4rem) + pb-3 (0.75rem) plus safe-area. */
+  .bottom-nav-offset {
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   }
 }

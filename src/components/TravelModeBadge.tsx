@@ -16,7 +16,7 @@ export const TravelModeBadge = ({ travelCity, size = "md" }: TravelModeBadgeProp
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className={`inline-flex items-center gap-1 text-blue-500 ${textSize}`}>
+          <div className={`inline-flex items-center gap-1 text-primary ${textSize}`}>
             <Plane className={iconSize} />
           </div>
         </TooltipTrigger>

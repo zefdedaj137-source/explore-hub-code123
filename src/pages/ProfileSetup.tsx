@@ -1,39 +1,50 @@
-import { useState, useRef } from "react";
+﻿import { useState, useRef, useEffect, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { compressImage } from "@/lib/imageCompress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 import { Upload, Camera, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
+import { getOrCreateVariant, Variant } from "@/lib/experiments";
+import { containsProfanity } from "@/lib/profanityFilter";
 
 const profileSchema = z.object({
-  full_name: z.string()
+  full_name: z
+    .string()
     .trim()
     .min(2, { message: "Name must be at least 2 characters" })
     .max(100, { message: "Name must be less than 100 characters" }),
-  age: z.number()
+  age: z
+    .number()
     .int()
     .min(18, { message: "You must be at least 18 years old" })
     .max(100, { message: "Age must be less than 100" }),
-  city: z.string()
+  city: z
+    .string()
     .trim()
     .min(2, { message: "City is required" })
     .max(100, { message: "City name is too long" }),
-  country: z.string()
+  country: z
+    .string()
     .trim()
     .min(2, { message: "Country is required" })
     .max(100, { message: "Country name is too long" }),
-  bio: z.string()
-    .max(500, { message: "Bio must be less than 500 characters" })
-    .optional(),
-  interests: z.string()
-    .max(500, { message: "Interests must be less than 500 characters" })
+  bio: z.string().max(500, { message: "Bio must be less than 500 characters" }).optional(),
+  interests: z.string().max(500, { message: "Interests must be less than 500 characters" }),
 });
 
 const ProfileSetup = () => {
@@ -46,7 +57,7 @@ const ProfileSetup = () => {
   const [userCoordinates, setUserCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const profilePhotoRef = useRef<HTMLInputElement>(null);
   const selfieRef = useRef<HTMLInputElement>(null);
-  
+
   const [formData, setFormData] = useState({
     full_name: "",
     age: "",
@@ -59,10 +70,16 @@ const ProfileSetup = () => {
     zodiac_sign: "",
     religion: "",
   });
-  
+
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [selfiePhoto, setSelfiePhoto] = useState<string | null>(null);
   const [verified, setVerified] = useState(false);
+  const [variant, setVariant] = useState<Variant>("A");
+
+  useEffect(() => {
+    if (!user) return;
+    getOrCreateVariant(user.id, "onboarding_prompt").then(setVariant);
+  }, [user]);
 
   const requestLocation = async () => {
     if (!navigator.geolocation) {
@@ -76,19 +93,21 @@ const ProfileSetup = () => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 0
+          maximumAge: 0,
         });
       });
 
       setUserCoordinates({
         lat: position.coords.latitude,
-        lng: position.coords.longitude
+        lng: position.coords.longitude,
       });
       toast.success("Location detected!");
     } catch (error) {
       const geoError = error as GeolocationPositionError;
       if (geoError.code === 1) {
-        toast.error("Location permission denied. You can still use the app but distance won't be shown.");
+        toast.error(
+          "Location permission denied. You can still use the app but distance won't be shown."
+        );
       } else if (geoError.code === 2) {
         toast.error("Location unavailable. Check your device settings.");
       } else {
@@ -101,142 +120,151 @@ const ProfileSetup = () => {
 
   const uploadToStorage = async (file: File, bucket: string, userId: string) => {
     try {
-      console.log("Starting upload...", { fileName: file.name, size: file.size, bucket, userId });
-      
+      logger.log("Starting upload...", { fileName: file.name, size: file.size, bucket, userId });
+
       // Test authentication before upload
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-      console.log("🔍 Current authenticated user:", { 
-        hasUser: !!currentUser, 
+      const {
+        data: { user: currentUser },
+        error: userError,
+      } = await supabase.auth.getUser();
+      logger.log("🔍 Current authenticated user:", {
+        hasUser: !!currentUser,
         userIdMatch: currentUser?.id === userId,
-        userError 
+        userError,
       });
-      
+
       if (!currentUser) {
         throw new Error("User not authenticated for upload");
       }
-      
-      const fileExt = file.name.split('.').pop();
+
+      const compressed = await compressImage(file);
+      const fileExt = compressed.name.split(".").pop();
       const fileName = `${userId}/${Math.random()}.${fileExt}`;
-      
-      console.log("Uploading to:", fileName);
-      
+
+      logger.log("Uploading to:", fileName, `(${(compressed.size / 1024).toFixed(0)}KB)`);
+
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file);
+        .upload(fileName, compressed);
 
       if (uploadError) {
-        console.error("Upload error:", uploadError);
+        logger.error("Upload error:", uploadError);
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
-      console.log("Upload successful:", uploadData);
+      logger.log("Upload successful:", uploadData);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(bucket).getPublicUrl(fileName);
 
-      console.log("Public URL:", publicUrl);
+      logger.log("Public URL:", publicUrl);
       return publicUrl;
-      
     } catch (error) {
-      console.error("Storage upload error:", error);
+      logger.error("Storage upload error:", error);
       throw error;
     }
   };
 
-    const handleProfilePhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    console.log('🚀 handleProfilePhotoUpload called');
-    console.log('📥 Event target:', event.target);
-    console.log('📁 All files:', event.target.files);
+  const handleProfilePhotoUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    logger.log("🚀 handleProfilePhotoUpload called");
+    logger.log("📥 Event target:", event.target);
+    logger.log("📁 All files:", event.target.files);
     const file = event.target.files?.[0];
-    console.log('📁 Selected file:', file);
-    console.log('📊 File details:', file ? { name: file.name, size: file.size, type: file.type } : 'No file');
-    
+    logger.log("📁 Selected file:", file);
+    logger.log(
+      "📊 File details:",
+      file ? { name: file.name, size: file.size, type: file.type } : "No file"
+    );
+
     if (!file) {
-      console.log('❌ No file selected');
+      logger.log("❌ No file selected");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      console.log('❌ File too large:', file.size);
+      logger.log("❌ File too large:", file.size);
       toast.error("Image must be less than 5MB");
       return;
     }
 
     if (authLoading) {
-      console.log('⏳ Authentication still loading...');
+      logger.log("⏳ Authentication still loading...");
       toast.error("Please wait for authentication to complete");
       return;
     }
 
-    console.log('📤 Starting upload process...');
+    logger.log("📤 Starting upload process...");
     setUploading(true);
-    
+
     try {
-      console.log('🔐 Current user:', user);
-      console.log('🆔 User ID:', user?.id);
-      console.log('🔄 Auth loading:', authLoading);
-      
+      logger.log("🔐 Current user:", user);
+      logger.log("🆔 User ID:", user?.id);
+      logger.log("🔄 Auth loading:", authLoading);
+
       // Wait for auth to load if it's still loading
       if (authLoading) {
-        console.log('⏳ Still loading, waiting...');
+        logger.log("⏳ Still loading, waiting...");
         toast.error("Please wait for authentication to complete");
         return;
       }
-      
+
       // Check current session directly
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log('📋 Direct session check:', { 
-        hasSession: !!session, 
-        userId: session?.user?.id, 
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+      logger.log("📋 Direct session check:", {
+        hasSession: !!session,
+        userId: session?.user?.id,
         contextUserId: user?.id,
-        sessionError 
+        sessionError,
       });
-      
+
       const userId = session?.user?.id || user?.id;
-      
+
       if (!userId) {
-        console.log('❌ No user ID available');
+        logger.log("❌ No user ID available");
         toast.error("Authentication required. Please refresh and sign in again.");
         return;
       }
-      
-      console.log('✅ Using user ID:', userId);
 
-      console.log('💾 Uploading to storage...');
-      console.log('👤 Using user ID for upload:', userId);
-      
+      logger.log("✅ Using user ID:", userId);
+
+      logger.log("💾 Uploading to storage...");
+      logger.log("👤 Using user ID for upload:", userId);
+
       if (!userId) {
         toast.error("Cannot upload: User ID not available");
         return;
       }
-      
-      const publicUrl = await uploadToStorage(file, 'profile-photos', userId);
-      console.log('✅ Upload successful, URL:', publicUrl);
-      
+
+      const publicUrl = await uploadToStorage(file, "profile-photos", userId);
+      logger.log("✅ Upload successful, URL:", publicUrl);
+
       setProfilePhoto(publicUrl);
       toast.success("Profile photo uploaded! ✓");
     } catch (error) {
-      console.error('❌ Upload failed:', error);
-      console.error('❌ Error details:', {
+      logger.error("❌ Upload failed:", error);
+      logger.error("❌ Error details:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
-        name: (error as Error).name
+        name: (error as Error).name,
       });
-      
+
       const errorMessage = (error as Error).message || "Failed to upload photo";
-      
-      if (errorMessage.includes('bucket')) {
+
+      if (errorMessage.includes("bucket")) {
         toast.error("Storage bucket not configured. Please run database fix first.");
-      } else if (errorMessage.includes('policy') || errorMessage.includes('permission')) {
+      } else if (errorMessage.includes("policy") || errorMessage.includes("permission")) {
         toast.error("Storage permissions not configured. Please run database fix first.");
-      } else if (errorMessage.includes('file')) {
+      } else if (errorMessage.includes("file")) {
         toast.error("Invalid file format. Please select a valid image.");
       } else {
         toast.error(`Upload failed: ${errorMessage}`);
       }
     } finally {
-      console.log('🏁 Upload process finished');
+      logger.log("🏁 Upload process finished");
       setUploading(false);
     }
   };
@@ -252,7 +280,7 @@ const ProfileSetup = () => {
 
     setVerifying(true);
     try {
-      const publicUrl = await uploadToStorage(file, 'profile-photos', user.id);
+      const publicUrl = await uploadToStorage(file, "profile-photos", user.id);
       setSelfiePhoto(publicUrl);
       setVerified(true);
       toast.success("Verification selfie uploaded! ✓");
@@ -264,18 +292,38 @@ const ProfileSetup = () => {
   };
 
   const zodiacSigns = [
-    "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
-    "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+    "Aries",
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Leo",
+    "Virgo",
+    "Libra",
+    "Scorpio",
+    "Sagittarius",
+    "Capricorn",
+    "Aquarius",
+    "Pisces",
   ];
 
   const religions = [
-    "Muslim", "Christian", "Catholic", "Orthodox", "Jewish", 
-    "Hindu", "Buddhist", "Atheist", "Agnostic", "Spiritual", "Other", "Prefer not to say"
+    "Muslim",
+    "Christian",
+    "Catholic",
+    "Orthodox",
+    "Jewish",
+    "Hindu",
+    "Buddhist",
+    "Atheist",
+    "Agnostic",
+    "Spiritual",
+    "Other",
+    "Prefer not to say",
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast.error("You must be logged in");
       return;
@@ -289,6 +337,13 @@ const ProfileSetup = () => {
     setLoading(true);
 
     try {
+      // Check for profanity in bio
+      if (formData.bio && containsProfanity(formData.bio)) {
+        toast.error("Your bio contains inappropriate language. Please revise it.");
+        setLoading(false);
+        return;
+      }
+
       // Validate profile data
       const validationResult = profileSchema.safeParse({
         full_name: formData.full_name,
@@ -310,12 +365,13 @@ const ProfileSetup = () => {
         .map((i) => i.trim())
         .filter((i) => i.length > 0);
 
-      const { error } = await supabase.from("profiles").insert({
+      const { error } = await supabase.from("profiles").upsert({
         id: user.id,
         full_name: validationResult.data.full_name,
         age: validationResult.data.age,
         gender: formData.gender,
-        looking_for: formData.looking_for,
+        looking_for: formData.looking_for ? [formData.looking_for] : [],
+        gender_preference: formData.looking_for || "everyone",
         location: `${validationResult.data.city}, ${validationResult.data.country}`,
         city: validationResult.data.city,
         country: validationResult.data.country,
@@ -342,14 +398,26 @@ const ProfileSetup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-luxury p-4 py-12">
+    <div className="min-h-dvh flex items-center justify-center bg-gradient-luxury p-4 py-12">
       <Card className="w-full max-w-3xl p-8 shadow-luxury border-2 border-accent/20">
-        <h1 className="font-serif text-4xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-gold">
+        <h1 className="text-4xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-gold">
           Complete Your Profile
         </h1>
-        <p className="text-muted-foreground mb-8">
-          Tell us about yourself to start meeting people
-        </p>
+        <p className="text-muted-foreground mb-8">Tell us about yourself to start meeting people</p>
+
+        {variant === "A" ? (
+          <Card className="p-4 mb-6 bg-card/70 border border-accent/20">
+            <p className="text-sm text-muted-foreground">
+              Tip: Profiles with 3+ photos and a short bio get up to 3x more matches.
+            </p>
+          </Card>
+        ) : (
+          <Card className="p-4 mb-6 bg-card/70 border border-accent/20">
+            <p className="text-sm text-muted-foreground">
+              Quick checklist: add a clear face photo, one lifestyle photo, and 3 interests.
+            </p>
+          </Card>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Photo Uploads */}
@@ -362,8 +430,10 @@ const ProfileSetup = () => {
                     <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
                   </div>
                 ) : (
-                  <div className="aspect-square rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-card hover:bg-muted/50 transition-colors cursor-pointer"
-                       onClick={() => profilePhotoRef.current?.click()}>
+                  <div
+                    className="aspect-square rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-card hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => profilePhotoRef.current?.click()}
+                  >
                     <div className="text-center">
                       <Upload className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
                       <p className="text-sm text-muted-foreground">Click to upload</p>
@@ -384,27 +454,36 @@ const ProfileSetup = () => {
                   size="sm"
                   className="mt-3 w-full"
                   onClick={async () => {
-                    console.log('Upload button clicked!');
-                    console.log('Current user state:', user);
-                    console.log('Auth loading state:', authLoading);
-                    
+                    logger.log("Upload button clicked!");
+                    logger.log("Current user state:", user);
+                    logger.log("Auth loading state:", authLoading);
+
                     // Test authentication
                     try {
-                      const { data: { session }, error } = await supabase.auth.getSession();
-                      console.log('Session test:', { 
-                        hasSession: !!session, 
+                      const {
+                        data: { session },
+                        error,
+                      } = await supabase.auth.getSession();
+                      logger.log("Session test:", {
+                        hasSession: !!session,
                         userId: session?.user?.id,
-                        error: error?.message 
+                        error: error?.message,
                       });
                     } catch (err) {
-                      console.error('Session check failed:', err);
+                      logger.error("Session check failed:", err);
                     }
-                    
+
                     profilePhotoRef.current?.click();
                   }}
                   disabled={uploading || authLoading}
                 >
-                  {authLoading ? "Loading..." : uploading ? "Uploading..." : profilePhoto ? "Change Photo" : "Upload Photo"}
+                  {authLoading
+                    ? "Loading..."
+                    : uploading
+                      ? "Uploading..."
+                      : profilePhoto
+                        ? "Change Photo"
+                        : "Upload Photo"}
                 </Button>
               </div>
             </div>
@@ -417,11 +496,17 @@ const ProfileSetup = () => {
               <div className="relative">
                 {selfiePhoto ? (
                   <div className="relative aspect-square rounded-xl overflow-hidden border-4 border-accent/30">
-                    <img src={selfiePhoto} alt="Verification" className="w-full h-full object-cover" />
+                    <img
+                      src={selfiePhoto}
+                      alt="Verification"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ) : (
-                  <div className="aspect-square rounded-xl border-2 border-dashed border-accent/50 flex items-center justify-center bg-card hover:bg-muted/50 transition-colors cursor-pointer"
-                       onClick={() => selfieRef.current?.click()}>
+                  <div
+                    className="aspect-square rounded-xl border-2 border-dashed border-accent/50 flex items-center justify-center bg-card hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => selfieRef.current?.click()}
+                  >
                     <div className="text-center">
                       <Camera className="h-12 w-12 mx-auto mb-2 text-accent" />
                       <p className="text-sm text-muted-foreground">Verify your identity</p>
@@ -498,14 +583,14 @@ const ProfileSetup = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Looking For *</Label>
+              <Label>Who do you want to date? *</Label>
               <Select
                 value={formData.looking_for}
                 onValueChange={(value) => setFormData({ ...formData, looking_for: value })}
                 required
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Interested in" />
+                  <SelectValue placeholder="Select who you want to search" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="male">Men</SelectItem>
@@ -553,7 +638,11 @@ const ProfileSetup = () => {
               onClick={requestLocation}
               disabled={gettingLocation || !!userCoordinates}
             >
-              {gettingLocation ? "Getting location..." : userCoordinates ? "✓ Location enabled" : "Enable Location"}
+              {gettingLocation
+                ? "Getting location..."
+                : userCoordinates
+                  ? "✓ Location enabled"
+                  : "Enable Location"}
             </Button>
           </div>
 
@@ -570,7 +659,9 @@ const ProfileSetup = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {zodiacSigns.map((sign) => (
-                    <SelectItem key={sign} value={sign.toLowerCase()}>{sign}</SelectItem>
+                    <SelectItem key={sign} value={sign.toLowerCase()}>
+                      {sign}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -587,7 +678,9 @@ const ProfileSetup = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {religions.map((religion) => (
-                    <SelectItem key={religion} value={religion.toLowerCase()}>{religion}</SelectItem>
+                    <SelectItem key={religion} value={religion.toLowerCase()}>
+                      {religion}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

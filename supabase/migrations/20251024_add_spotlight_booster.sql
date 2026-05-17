@@ -160,6 +160,9 @@ BEGIN
   WHERE p.id != requesting_user_id
     AND p.booster_active = TRUE
     AND p.booster_expires_at > NOW()
+    AND p.id NOT IN (
+      SELECT liked_id FROM likes WHERE liker_id = requesting_user_id
+    )
     AND p.latitude IS NOT NULL
     AND p.longitude IS NOT NULL
     AND (

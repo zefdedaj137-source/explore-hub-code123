@@ -1,7 +1,8 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { AlertTriangle } from 'lucide-react';
+import { Component, ErrorInfo, ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { AlertTriangle } from "lucide-react";
+import { Sentry } from "@/lib/sentry";
 
 interface Props {
   children: ReactNode;
@@ -24,15 +25,12 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log to error reporting service in production
-    if (import.meta.env.PROD) {
-      // TODO: Send to error tracking service (e.g., Sentry)
-    }
+    Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
   }
 
   handleReset = () => {
     this.setState({ hasError: false, error: null });
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   render() {
@@ -42,10 +40,10 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
+        <div className="min-h-dvh flex items-center justify-center bg-gradient-subtle p-4">
           <Card className="max-w-md w-full p-8 text-center">
             <AlertTriangle className="h-16 w-16 mx-auto mb-4 text-destructive" />
-            <h1 className="text-2xl font-serif font-bold mb-2">Something went wrong</h1>
+            <h1 className="text-xl font-bold mb-2">Something went wrong</h1>
             <p className="text-muted-foreground mb-6">
               We encountered an unexpected error. Please try refreshing the page.
             </p>
@@ -55,11 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
             )}
             <div className="flex gap-2">
-              <Button
-                onClick={() => window.location.reload()}
-                className="flex-1"
-                variant="outline"
-              >
+              <Button onClick={() => window.location.reload()} className="flex-1" variant="outline">
                 Refresh Page
               </Button>
               <Button

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MapPin, Heart, X } from "lucide-react";
+import { sanitizeText } from "@/lib/sanitize";
 import albanianEagle from "@/assets/albanian-eagle.png";
 
 import arberesheImg from "@/assets/arbereshe.jpg";
@@ -37,7 +38,7 @@ const RadarNearby = () => {
 
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
             <span className="text-transparent bg-clip-text bg-gradient-gold">Radar</span>{" "}
             <span className="text-foreground">Nearby</span>
           </h2>
@@ -51,7 +52,7 @@ const RadarNearby = () => {
           <div className="relative aspect-square max-w-lg mx-auto">
             {/* Radar background */}
             <div className="absolute inset-0 rounded-full bg-gradient-eagle opacity-10 blur-2xl" />
-            
+
             {/* Radar circles */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="absolute w-full h-full rounded-full border-2 border-primary/20" />
@@ -103,45 +104,46 @@ const RadarNearby = () => {
 
         {/* Nearby Profiles Grid */}
         {showProfiles && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 animate-fade-in">
             {nearbyProfiles.map((profile, index) => (
-              <Card 
-                key={profile.id} 
-                className="overflow-hidden hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 border-border bg-card animate-scale-in"
+              <Card
+                key={profile.id}
+                className="overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.4)] hover:shadow-[0_20px_56px_rgba(0,0,0,0.55)] transition-all duration-300 hover:-translate-y-1.5 border border-white/6 bg-card rounded-3xl group animate-scale-in"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="relative aspect-[3/4]">
-                  <img 
-                    src={profile.image} 
+                <div className="relative aspect-[3/4] overflow-hidden rounded-3xl">
+                  <img
+                    src={profile.image}
                     alt={profile.name}
-                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+
                   {/* Distance badge */}
-                  <div className="absolute top-4 right-4 bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 shadow-elegant">
+                  <div className="absolute top-3 right-3 bg-black/30 backdrop-blur-md text-white/90 px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1 border border-white/15">
                     <MapPin className="h-3 w-3" />
                     {profile.distance} km
                   </div>
 
                   {/* Profile info */}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="font-serif text-2xl font-bold text-foreground mb-1">
-                      {profile.name}, {profile.age}
+                    <h3 className="text-lg font-bold font-serif text-white mb-3">
+                      {sanitizeText(profile.name)}, {profile.age}
                     </h3>
-                    
+
                     {/* Action buttons */}
-                    <div className="flex gap-3 mt-4">
+                    <div className="flex gap-2">
                       <Button
                         size="sm"
-                        variant="outline"
-                        className="flex-1 border-destructive/50 text-destructive hover:bg-destructive/10 rounded-xl"
+                        variant="ghost"
+                        className="flex-1 bg-white/10 backdrop-blur-sm border border-white/15 text-white/80 hover:bg-white/20 rounded-xl h-9"
                       >
                         <X className="h-4 w-4" />
                       </Button>
                       <Button
                         size="sm"
-                        className="flex-1 bg-gradient-primary text-primary-foreground hover:opacity-90 rounded-xl shadow-elegant"
+                        className="flex-1 bg-gradient-to-r from-[hsl(350,65%,60%)] to-[hsl(18,72%,55%)] text-white border-0 shadow-[0_4px_12px_hsl(350,65%,60%,0.35)] hover:brightness-110 rounded-xl h-9"
                       >
                         <Heart className="h-4 w-4 mr-1" />
                         Like

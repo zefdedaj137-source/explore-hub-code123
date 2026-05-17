@@ -27,10 +27,14 @@ ALTER TABLE public.call_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.call_signals ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for call_sessions
+DROP POLICY IF EXISTS "Users can view their own call sessions" ON public;
+DROP POLICY IF EXISTS "Users can view their own call sessions" ON public;
 CREATE POLICY "Users can view their own call sessions"
   ON public.call_sessions FOR SELECT
   USING (auth.uid() = caller_id OR auth.uid() = receiver_id);
 
+DROP POLICY IF EXISTS "Premium users can create call sessions" ON public;
+DROP POLICY IF EXISTS "Premium users can create call sessions" ON public;
 CREATE POLICY "Premium users can create call sessions"
   ON public.call_sessions FOR INSERT
   WITH CHECK (
@@ -41,11 +45,15 @@ CREATE POLICY "Premium users can create call sessions"
     )
   );
 
+DROP POLICY IF EXISTS "Users can update their own call sessions" ON public;
+DROP POLICY IF EXISTS "Users can update their own call sessions" ON public;
 CREATE POLICY "Users can update their own call sessions"
   ON public.call_sessions FOR UPDATE
   USING (auth.uid() = caller_id OR auth.uid() = receiver_id);
 
 -- RLS Policies for call_signals
+DROP POLICY IF EXISTS "Users can view signals for their calls" ON public;
+DROP POLICY IF EXISTS "Users can view signals for their calls" ON public;
 CREATE POLICY "Users can view signals for their calls"
   ON public.call_signals FOR SELECT
   USING (
@@ -56,6 +64,8 @@ CREATE POLICY "Users can view signals for their calls"
     )
   );
 
+DROP POLICY IF EXISTS "Users can insert signals for their calls" ON public;
+DROP POLICY IF EXISTS "Users can insert signals for their calls" ON public;
 CREATE POLICY "Users can insert signals for their calls"
   ON public.call_signals FOR INSERT
   WITH CHECK (

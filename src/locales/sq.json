@@ -1,0 +1,94 @@
+{
+  "common": {
+    "loading": "Duke ngarkuar...",
+    "save": "Ruaj",
+    "cancel": "Anulo",
+    "delete": "Fshij",
+    "edit": "Redakto",
+    "back": "Kthehu",
+    "next": "Vazhdo",
+    "confirm": "Konfirmo",
+    "search": "Kërko",
+    "noResults": "Nuk u gjetën rezultate",
+    "error": "Diçka shkoi keq",
+    "retry": "Provo përsëri"
+  },
+  "auth": {
+    "signIn": "Hyr",
+    "signUp": "Regjistrohu",
+    "signOut": "Dil",
+    "email": "Email",
+    "password": "Fjalëkalimi",
+    "forgotPassword": "Keni harruar fjalëkalimin?",
+    "noAccount": "Nuk keni llogari?",
+    "hasAccount": "Keni tashmë një llogari?",
+    "orContinueWith": "Ose vazhdo me",
+    "google": "Vazhdo me Google"
+  },
+  "discover": {
+    "title": "Zbulo",
+    "noMoreProfiles": "Nuk ka më profile për të treguar",
+    "like": "Pëlqej",
+    "pass": "Kalo",
+    "superlike": "Super Pëlqim",
+    "itsAMatch": "Është një Përputhje!",
+    "sendMessage": "Dërgo Mesazh",
+    "keepSwiping": "Vazhdo të Rrëshqasësh",
+    "filters": "Filtrat",
+    "age": "Mosha",
+    "distance": "Distanca",
+    "gender": "Gjinia"
+  },
+  "matches": {
+    "title": "Përputhjet",
+    "noMatches": "Nuk ka përputhje ende",
+    "startSwiping": "Fillo të rrëshqasësh për të gjetur përputhjen!",
+    "newMatch": "Përputhje e Re"
+  },
+  "chat": {
+    "title": "Biseda",
+    "typeMessage": "Shkruaj një mesazh...",
+    "send": "Dërgo",
+    "voiceCall": "Thirrje me Zë",
+    "videoCall": "Thirrje Video",
+    "online": "Në linjë",
+    "offline": "Jashtë linje",
+    "typing": "duke shkruar..."
+  },
+  "profile": {
+    "myProfile": "Profili Im",
+    "editProfile": "Redakto Profilin",
+    "bio": "Biografia",
+    "interests": "Interesat",
+    "photos": "Fotot",
+    "age": "Mosha",
+    "location": "Vendndodhja",
+    "verified": "I Verifikuar"
+  },
+  "settings": {
+    "title": "Cilësimet",
+    "notifications": "Njoftimet",
+    "privacy": "Privatësia",
+    "language": "Gjuha",
+    "theme": "Tema",
+    "account": "Llogaria",
+    "deactivate": "Çaktivizo Llogarinë",
+    "deleteAccount": "Fshij Llogarinë",
+    "pushNotifications": "Njoftimet Push",
+    "enablePush": "Aktivizo",
+    "disablePush": "Çaktivizo"
+  },
+  "notifications": {
+    "newMatch": "Keni një përputhje të re!",
+    "newMessage": "Keni një mesazh të ri",
+    "newLike": "Dikush ju pëlqeu",
+    "pushEnabled": "Njoftimet push u aktivizuan",
+    "pushDisabled": "Njoftimet push u çaktivizuan"
+  },
+  "wallet": {
+    "title": "Portofoli",
+    "coins": "Monedha",
+    "buy": "Bli",
+    "balance": "Bilanci"
+  }
+}

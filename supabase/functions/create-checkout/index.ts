@@ -23,17 +23,17 @@ serve(async (req) => {
     if (!authHeader) {
       throw new Error("Missing authorization header");
     }
-    
+
     const token = authHeader.replace("Bearer ", "");
     const { data } = await supabaseClient.auth.getUser(token);
     const user = data.user;
-    
+
     if (!user?.email) {
       throw new Error("User not authenticated");
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { 
-      apiVersion: "2025-08-27.basil" 
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil",
     });
 
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -41,6 +41,10 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
     }
+
+    const body = (await req.json().catch(() => ({}))) as { origin?: string };
+    const origin =
+      body.origin || req.headers.get("origin") || "https://fqmleivxlqqnlokconux.supabase.co";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -52,8 +56,8 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/premium-success`,
-      cancel_url: `${req.headers.get("origin")}/discover`,
+      success_url: `${origin}/premium-success`,
+      cancel_url: `${origin}/discover`,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

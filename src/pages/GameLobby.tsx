@@ -1,12 +1,22 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Gamepad2, Users, Trophy, Sparkles, Send, Music, PartyPopper } from "lucide-react";
+import {
+  ArrowLeft,
+  Gamepad2,
+  Users,
+  Trophy,
+  Sparkles,
+  Send,
+  Music,
+  PartyPopper,
+} from "lucide-react";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 import BottomNav from "@/components/BottomNav";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -23,15 +33,15 @@ interface OnlinePlayer {
   age: number;
   profile_image_url: string | null;
   city?: string;
-  status: 'available' | 'in-game' | 'invited';
+  status: "available" | "in-game" | "invited";
 }
 
 interface GameInvite {
   id: string;
   from_user_id: string;
   to_user_id: string;
-  status: 'pending' | 'accepted' | 'declined';
-  game_mode?: 'history' | 'music' | 'dance';
+  status: "pending" | "accepted" | "declined";
+  game_mode?: "history" | "music" | "dance";
   created_at: string;
   from_user: {
     full_name: string;
@@ -42,7 +52,7 @@ interface GameInvite {
 const GameLobby = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingInvites, setPendingInvites] = useState<GameInvite[]>([]);
@@ -52,16 +62,18 @@ const GameLobby = () => {
 
   useEffect(() => {
     if (user) {
+      setSentInvites(new Set()); // reset on mount so re-entering lobby clears stale UI state
       fetchOnlinePlayers();
-      listenForInvites();
-      updateUserStatus('available');
-      
+      const cleanupInvites = listenForInvites();
+      updateUserStatus("available");
+
       // Refresh online players every 10 seconds
       const interval = setInterval(fetchOnlinePlayers, 10000);
-      
+
       return () => {
         clearInterval(interval);
-        updateUserStatus('offline');
+        cleanupInvites?.();
+        updateUserStatus("offline");
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,19 +81,17 @@ const GameLobby = () => {
 
   const updateUserStatus = async (status: string) => {
     if (!user) return;
-    
+
     try {
-      // Use any to bypass TypeScript until types are regenerated
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any)
-        .from('profiles')
-        .update({ 
+      await supabase
+        .from("profiles")
+        .update({
           game_status: status,
-          last_seen: new Date().toISOString()
+          last_seen: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
     } catch (error) {
-      console.error('Error updating status:', error);
+      logger.error("Error updating status:", error);
     }
   };
 
@@ -90,27 +100,38 @@ const GameLobby = () => {
 
     try {
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-      
-      // Use any to bypass TypeScript until types are regenerated
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: players, error } = await (supabase as any)
-        .from('profiles')
-        .select('id, full_name, age, profile_image_url, city, game_status, last_seen')
-        .neq('id', user.id)
-        .gte('last_seen', fiveMinutesAgo)
-        .in('game_status', ['available', 'in-game']);
+
+      // Fetch current user's matches so we can exclude them from the lobby
+      const { data: matchRows } = await supabase
+        .from("matches")
+        .select("user1_id, user2_id")
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+
+      const matchedIds = new Set(
+        (matchRows ?? []).map((m) => (m.user1_id === user.id ? m.user2_id : m.user1_id))
+      );
+
+      const { data: players, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, age, profile_image_url, city, game_status, last_seen")
+        .neq("id", user.id)
+        .gte("last_seen", fiveMinutesAgo)
+        .in("game_status", ["available", "in-game"]);
 
       if (error) throw error;
 
       if (players) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setOnlinePlayers(players.map((p: any) => ({
-          ...p,
-          status: (p.game_status as 'available' | 'in-game') || 'available'
-        })));
+        setOnlinePlayers(
+          players
+            .filter((p) => !matchedIds.has(p.id))
+            .map((p) => ({
+              ...p,
+              status: (p.game_status as "available" | "in-game") || "available",
+            }))
+        );
       }
     } catch (error) {
-      console.error('Error fetching online players:', error);
+      logger.error("Error fetching online players:", error);
     } finally {
       setLoading(false);
     }
@@ -121,24 +142,24 @@ const GameLobby = () => {
 
     // Listen for incoming invites (when someone invites you)
     const incomingChannel = supabase
-      .channel('game-invites-incoming')
+      .channel("game-invites-incoming")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'game_invites',
-          filter: `to_user_id=eq.${user.id}`
+          event: "*",
+          schema: "public",
+          table: "game_invites",
+          filter: `to_user_id=eq.${user.id}`,
         },
         async (payload) => {
-          console.log('📨 Invite received:', payload);
-          
-          if (payload.eventType === 'INSERT' && payload.new.status === 'pending') {
+          logger.log("📨 Invite received:", payload);
+
+          if (payload.eventType === "INSERT" && payload.new.status === "pending") {
             // Fetch full invite details
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data } = await (supabase as any)
-              .from('game_invites')
-              .select(`
+            const { data } = await supabase
+              .from("game_invites")
+              .select(
+                `
                 id,
                 from_user_id,
                 to_user_id,
@@ -146,14 +167,15 @@ const GameLobby = () => {
                 game_mode,
                 created_at,
                 from_user:profiles!game_invites_from_user_id_fkey(full_name, profile_image_url)
-              `)
-              .eq('id', payload.new.id)
+              `
+              )
+              .eq("id", payload.new.id)
               .single();
 
             if (data) {
-              setPendingInvites(prev => [...prev, data]);
-              toast.info(`${data.from_user.full_name} invited you to play!`, {
-                duration: 5000
+              setPendingInvites((prev) => [...prev, data]);
+              toast.info(`Someone invited you to play!`, {
+                duration: 5000,
               });
             }
           }
@@ -163,34 +185,34 @@ const GameLobby = () => {
 
     // Listen for outgoing invites being accepted (when someone accepts your invite)
     const outgoingChannel = supabase
-      .channel('game-invites-outgoing')
+      .channel("game-invites-outgoing")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'game_invites',
-          filter: `from_user_id=eq.${user.id}`
+          event: "UPDATE",
+          schema: "public",
+          table: "game_invites",
+          filter: `from_user_id=eq.${user.id}`,
         },
         async (payload) => {
-          console.log('✅ Invite status updated:', payload);
-          
-          if (payload.new.status === 'accepted') {
-            const gameMode = payload.new.game_mode || 'history';
+          logger.log("✅ Invite status updated:", payload);
+
+          if (payload.new.status === "accepted") {
+            const gameMode = payload.new.game_mode || "history";
             const sessionId = payload.new.id;
-            const modeEmoji = gameMode === 'history' ? '🏛️' : gameMode === 'music' ? '🎵' : '💃';
-            
-            console.log(`🎮 SENDER: Navigating to ${gameMode} session:`, sessionId);
+            const modeEmoji = gameMode === "history" ? "🏛️" : gameMode === "music" ? "🎵" : "💃";
+
+            logger.log(`🎮 SENDER: Navigating to ${gameMode} session:`, sessionId);
             toast.success(`${modeEmoji} Challenge accepted! Starting game...`);
-            
+
             // Update status before navigating
-            await updateUserStatus('in-game');
-            
+            await updateUserStatus("in-game");
+
             // Navigate to correct game session based on mode
             const routeMap = {
               history: `/game-session/${sessionId}`,
               music: `/game-session-music/${sessionId}`,
-              dance: `/game-session-dance/${sessionId}`
+              dance: `/game-session-dance/${sessionId}`,
             };
             navigate(routeMap[gameMode]);
           }
@@ -209,126 +231,125 @@ const GameLobby = () => {
     setShowGameModeDialog(true);
   };
 
-  const sendInvite = async (gameMode: 'history' | 'music' | 'dance') => {
+  const sendInvite = async (gameMode: "history" | "music" | "dance") => {
     if (!user || !selectedPlayer) return;
 
     try {
-      // Check if invite already exists
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: existing } = await (supabase as any)
-        .from('game_invites')
-        .select('id')
-        .eq('from_user_id', user.id)
-        .eq('to_user_id', selectedPlayer.id)
-        .eq('status', 'pending')
+      // Guard: prevent sending an invite to a matched user
+      const { data: existingMatch } = await supabase
+        .from("matches")
+        .select("id")
+        .or(
+          `and(user1_id.eq.${user.id},user2_id.eq.${selectedPlayer.id}),and(user1_id.eq.${selectedPlayer.id},user2_id.eq.${user.id})`
+        )
         .maybeSingle();
 
-      if (existing) {
-        toast.info("You already sent an invite to this player");
+      if (existingMatch) {
+        toast.error("You can't play games with someone you've matched with.");
         setShowGameModeDialog(false);
+        setSelectedPlayer(null);
         return;
       }
+      // Remove any stale pending invite before sending a new one
+      await supabase
+        .from("game_invites")
+        .delete()
+        .eq("from_user_id", user.id)
+        .eq("to_user_id", selectedPlayer.id)
+        .eq("status", "pending");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data, error } = await (supabase as any)
-        .from('game_invites')
+      const { data, error } = await supabase
+        .from("game_invites")
         .insert({
           from_user_id: user.id,
           to_user_id: selectedPlayer.id,
-          status: 'pending',
-          game_mode: gameMode
+          status: "pending",
+          game_mode: gameMode,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      setSentInvites(prev => new Set([...prev, selectedPlayer.id]));
-      toast.success(`${gameMode === 'history' ? '🏛️ History' : gameMode === 'music' ? '🎵 Music' : '💃 Dance'} challenge sent to ${selectedPlayer.name}!`);
+      setSentInvites((prev) => new Set([...prev, selectedPlayer.id]));
+      toast.success(
+        `${gameMode === "history" ? "🏛️ History" : gameMode === "music" ? "🎵 Music" : "💃 Dance"} challenge sent to ${selectedPlayer.name}!`
+      );
       setShowGameModeDialog(false);
       setSelectedPlayer(null);
     } catch (error) {
-      console.error('Error sending invite:', error);
+      logger.error("Error sending invite:", error);
       toast.error("Failed to send invite");
     }
   };
 
   const handleAcceptInvite = async (invite: GameInvite) => {
     try {
-      console.log(`🎮 RECEIVER: Accepting invite ${invite.id} for ${invite.game_mode} game`);
-      
+      logger.log(`🎮 RECEIVER: Accepting invite ${invite.id} for ${invite.game_mode} game`);
+
       // Update invite status
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase as any)
-        .from('game_invites')
-        .update({ status: 'accepted' })
-        .eq('id', invite.id);
+      const { error } = await supabase
+        .from("game_invites")
+        .update({ status: "accepted" })
+        .eq("id", invite.id);
 
       if (error) throw error;
 
       // Update both users' game status
-      await updateUserStatus('in-game');
-      
-      const gameMode = invite.game_mode || 'history';
-      const modeEmoji = gameMode === 'history' ? '🏛️' : gameMode === 'music' ? '🎵' : '💃';
-      
-      console.log(`🎮 RECEIVER: Navigating to ${gameMode} session:`, invite.id);
+      await updateUserStatus("in-game");
+
+      const gameMode = invite.game_mode || "history";
+      const modeEmoji = gameMode === "history" ? "🏛️" : gameMode === "music" ? "🎵" : "💃";
+
+      logger.log(`🎮 RECEIVER: Navigating to ${gameMode} session:`, invite.id);
       toast.success(`${modeEmoji} Challenge accepted! Starting game...`);
-      
+
       // Navigate to correct game session based on mode
       const routeMap = {
         history: `/game-session/${invite.id}`,
         music: `/game-session-music/${invite.id}`,
-        dance: `/game-session-dance/${invite.id}`
+        dance: `/game-session-dance/${invite.id}`,
       };
       navigate(routeMap[gameMode]);
     } catch (error) {
-      console.error('Error accepting invite:', error);
+      logger.error("Error accepting invite:", error);
       toast.error("Failed to accept invite");
     }
   };
 
   const handleDeclineInvite = async (inviteId: string) => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any)
-        .from('game_invites')
-        .update({ status: 'declined' })
-        .eq('id', inviteId);
+      await supabase.from("game_invites").update({ status: "declined" }).eq("id", inviteId);
 
-      setPendingInvites(prev => prev.filter(inv => inv.id !== inviteId));
+      setPendingInvites((prev) => prev.filter((inv) => inv.id !== inviteId));
       toast.info("Invite declined");
     } catch (error) {
-      console.error('Error declining invite:', error);
+      logger.error("Error declining invite:", error);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+      <div className="min-h-dvh bg-gradient-subtle flex items-center justify-center">
         <div className="text-center">
-          <Users className="h-16 w-16 text-pink-500 animate-pulse mx-auto mb-4" />
-          <p className="text-lg text-gray-600">Loading game lobby...</p>
+          <Users className="h-16 w-16 text-primary animate-pulse mx-auto mb-4" />
+          <p className="text-lg text-muted-foreground">Loading game lobby...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle pb-20">
+    <div className="min-h-dvh bg-gradient-subtle pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-gradient-subtle/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-10 bg-gradient-subtle/95 backdrop-blur-sm border-b border-border shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-2">
-              <Gamepad2 className="h-6 w-6 text-pink-500" />
+              <Gamepad2 className="h-6 w-6 text-primary" />
               <h1 className="text-xl font-bold">Game Lobby</h1>
             </div>
             <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
@@ -344,37 +365,49 @@ const GameLobby = () => {
         {pendingInvites.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-yellow-500" />
-              <h2 className="text-lg font-bold text-gray-800">Pending Challenges</h2>
+              <Trophy className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold text-foreground">Pending Challenges</h2>
             </div>
-            
-            {pendingInvites.map(invite => {
-              const gameMode = invite.game_mode || 'history';
+
+            {pendingInvites.map((invite) => {
+              const gameMode = invite.game_mode || "history";
               const modeInfo = {
-                history: { emoji: '🏛️', name: 'History Lovers', color: 'from-pink-50 to-purple-50' },
-                music: { emoji: '🎵', name: 'Music Lovers', color: 'from-purple-50 to-pink-50' },
-                dance: { emoji: '💃', name: 'Dance Challenge', color: 'from-orange-50 to-yellow-50' }
+                history: { emoji: "🏛️", name: "History Lovers", color: "from-background to-muted" },
+                music: {
+                  emoji: "🎵",
+                  name: "Music Lovers",
+                  color: "from-primary/10 to-primary/10",
+                },
+                dance: {
+                  emoji: "💃",
+                  name: "Dance Challenge",
+                  color: "from-orange-50 to-yellow-50",
+                },
               };
               const mode = modeInfo[gameMode];
-              
+
               return (
-                <Card key={invite.id} className={`p-4 bg-gradient-to-r ${mode.color} border-2 border-yellow-300 shadow-lg`}>
+                <Card
+                  key={invite.id}
+                  className={`p-4 bg-gradient-to-r ${mode.color} border-2 border-yellow-300 shadow-lg`}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12 border-2 border-yellow-400">
-                        <AvatarImage src={invite.from_user.profile_image_url || ''} />
-                        <AvatarFallback className="bg-gradient-to-br from-pink-400 to-purple-400 text-white">
-                          {invite.from_user.full_name[0]}
+                      <Avatar className="h-12 w-12 border-2 border-yellow-400 blur-md">
+                        <AvatarFallback className="bg-gradient-to-br from-primary/80 to-primary/80 text-white">
+                          ?
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-semibold text-gray-800">
-                          {invite.from_user.full_name} challenges you!
+                        <p className="font-semibold text-foreground">
+                          Anonymous Player challenges you!
                         </p>
-                        <p className="text-sm text-gray-600">{mode.emoji} {mode.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {mode.emoji} {mode.name}
+                        </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <Button
                         onClick={() => handleAcceptInvite(invite)}
@@ -401,9 +434,9 @@ const GameLobby = () => {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-pink-500" />
-              <h2 className="text-lg font-bold text-gray-800">Online Players</h2>
-              <Badge variant="outline" className="text-pink-600">
+              <Users className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold text-foreground">Online Players</h2>
+              <Badge variant="outline" className="text-primary">
                 {onlinePlayers.length} online
               </Badge>
             </div>
@@ -411,30 +444,31 @@ const GameLobby = () => {
 
           {onlinePlayers.length === 0 ? (
             <Card className="p-12 text-center">
-              <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2 text-gray-700">No Players Online</h3>
-              <p className="text-gray-600 mb-4">Be the first one here! Other players will join soon.</p>
-              <p className="text-sm text-gray-500">This list updates automatically every 10 seconds</p>
+              <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2 text-foreground">No Players Online</h3>
+              <p className="text-muted-foreground mb-4">
+                Be the first one here! Other players will join soon.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                This list updates automatically every 10 seconds
+              </p>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {onlinePlayers.map(player => (
+              {onlinePlayers.map((player) => (
                 <Card key={player.id} className="p-4 hover:shadow-lg transition-all duration-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
-                      <Avatar className="h-14 w-14 border-2 border-pink-300">
-                        <AvatarImage src={player.profile_image_url || ''} />
-                        <AvatarFallback className="bg-gradient-to-br from-pink-400 to-purple-400 text-white text-lg">
-                          {player.full_name[0]}
+                      <Avatar className="h-14 w-14 border-2 border-border blur-md">
+                        <AvatarFallback className="bg-gradient-to-br from-primary/80 to-primary/80 text-white text-lg">
+                          ?
                         </AvatarFallback>
                       </Avatar>
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-gray-800">
-                            {player.full_name}, {player.age}
-                          </h3>
-                          {player.status === 'available' ? (
+                          <h3 className="font-semibold text-foreground">Anonymous Player</h3>
+                          {player.status === "available" ? (
                             <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">
                               Available
                             </Badge>
@@ -445,15 +479,15 @@ const GameLobby = () => {
                           )}
                         </div>
                         {player.city && (
-                          <p className="text-sm text-gray-600">📍 {player.city}</p>
+                          <p className="text-sm text-muted-foreground">📍 {player.city}</p>
                         )}
                       </div>
                     </div>
-                    
+
                     <Button
                       onClick={() => openGameModeDialog(player.id, player.full_name)}
-                      disabled={player.status === 'in-game' || sentInvites.has(player.id)}
-                      className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50"
+                      disabled={player.status === "in-game" || sentInvites.has(player.id)}
+                      className="disabled:opacity-50"
                     >
                       {sentInvites.has(player.id) ? (
                         <>
@@ -475,12 +509,12 @@ const GameLobby = () => {
         </div>
 
         {/* Info Card */}
-        <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <Card className="p-6 bg-gradient-to-r from-primary/10 to-primary/10 border-border">
           <div className="flex items-start gap-3">
-            <Sparkles className="h-6 w-6 text-blue-500 mt-1" />
+            <Sparkles className="h-6 w-6 text-primary mt-1" />
             <div>
-              <h3 className="font-semibold text-gray-800 mb-2">How it works:</h3>
-              <ul className="text-sm text-gray-700 space-y-1">
+              <h3 className="font-semibold text-foreground mb-2">How it works:</h3>
+              <ul className="text-sm text-foreground space-y-1">
                 <li>• Send invites to players you want to play with</li>
                 <li>• Accept challenges from others to start a game</li>
                 <li>• Play Albanian Trivia together in real-time</li>
@@ -495,17 +529,19 @@ const GameLobby = () => {
       <Dialog open={showGameModeDialog} onOpenChange={setShowGameModeDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">Choose Your Game! 🎮</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-center">
+              Choose Your Game! 🎮
+            </DialogTitle>
             <DialogDescription className="text-center">
               Pick a game mode to challenge {selectedPlayer?.name}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             {/* History Lovers */}
             <Button
-              onClick={() => sendInvite('history')}
-              className="h-auto py-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+              onClick={() => sendInvite("history")}
+              className="h-auto py-6 bg-gradient-to-r from-amber-700 to-amber-600 hover:from-amber-800 hover:to-amber-700"
             >
               <div className="flex flex-col items-center gap-2 w-full">
                 <div className="flex items-center gap-2">
@@ -518,8 +554,8 @@ const GameLobby = () => {
 
             {/* Music Lovers */}
             <Button
-              onClick={() => sendInvite('music')}
-              className="h-auto py-6 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+              onClick={() => sendInvite("music")}
+              className="h-auto py-6 bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary"
             >
               <div className="flex flex-col items-center gap-2 w-full">
                 <div className="flex items-center gap-2">
@@ -532,8 +568,8 @@ const GameLobby = () => {
 
             {/* Dance Challenge */}
             <Button
-              onClick={() => sendInvite('dance')}
-              className="h-auto py-6 bg-gradient-to-r from-orange-500 to-yellow-600 hover:from-orange-600 hover:to-yellow-700"
+              onClick={() => sendInvite("dance")}
+              className="h-auto py-6 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800"
             >
               <div className="flex flex-col items-center gap-2 w-full">
                 <div className="flex items-center gap-2">

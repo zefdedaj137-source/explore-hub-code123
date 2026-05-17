@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://fonts.googleapis.com https://fonts.gstatic.com https://nominatim.openstreetmap.org https://tenor.googleapis.com; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://youtube.com;" />
     <title>Shqiponja - Premium Dating for Albanian Diaspora</title>
     <meta name="description" content="Connect with Albanian singles worldwide. Premium dating platform for the Albanian diaspora. Find meaningful relationships with verified profiles." />
     <meta name="author" content="Shqiponja" />
@@ -16,27 +17,60 @@
     <meta property="og:url" content="https://shqiponja.app" />
     <meta property="og:title" content="Shqiponja - Premium Dating for Albanian Diaspora" />
     <meta property="og:description" content="Connect with Albanian singles worldwide. Premium dating platform for the Albanian diaspora." />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:image" content="https://shqiponja.app/eagle-logo-512.png" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://shqiponja.app" />
     <meta name="twitter:title" content="Shqiponja - Premium Dating for Albanian Diaspora" />
     <meta name="twitter:description" content="Connect with Albanian singles worldwide. Premium dating platform for the Albanian diaspora." />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:image" content="https://shqiponja.app/eagle-logo-512.png" />
     <meta name="twitter:site" content="@shqiponja" />
 
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#c4303c" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#c4303c" media="(prefers-color-scheme: light)" />
+    <!-- Theme Color for Chrome/Edge/Safari/Firefox 93+ PWA theming -->
+    <meta name="theme-color" content="#c4303c" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Shqiponja" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="/eagle-logo.png" />
+    <link rel="apple-touch-startup-image" href="/eagle-logo-512.png" />
     
-    <!-- Fonts with display=swap for better performance -->
+    <!-- Fonts with display=swap for Inter (UI text), optional for Playfair (decorative headings — skip if slow) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=optional&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Preconnect to Supabase to eliminate DNS+TLS setup on first API call -->
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin>
+    <link rel="dns-prefetch" href="%VITE_SUPABASE_URL%">
+
+    <!-- Inline critical CSS: prevent white flash and reserve space while JS loads -->
+    <style>
+      html, body { margin: 0; padding: 0; background: #0f0f0f; }
+      #root:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100dvh;
+        background: #0f0f0f;
+      }
+      #root:empty::after {
+        content: '';
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(196,48,60,0.25);
+        border-top-color: #c4303c;
+        border-radius: 50%;
+        animation: _spin 0.75s linear infinite;
+      }
+      @keyframes _spin { to { transform: rotate(360deg); } }
+    </style>
   </head>
 
   <body>
+    <a href="#root" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded">Skip to content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

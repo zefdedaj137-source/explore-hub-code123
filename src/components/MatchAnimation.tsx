@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, Sparkles, X, Flower2 } from "lucide-react";
 import { Button } from "./ui/button";
+import roseBouquet from "@/assets/rose-bouquet.png";
+import albanianEagle from "@/assets/albanian-eagle.png";
 
 interface MatchAnimationProps {
   show: boolean;
@@ -10,9 +12,14 @@ interface MatchAnimationProps {
   isPremiumRoses?: boolean;
 }
 
-export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = false }: MatchAnimationProps) => {
+export const MatchAnimation = ({
+  show,
+  matchName,
+  onComplete,
+  isPremiumRoses = false,
+}: MatchAnimationProps) => {
   const [phase, setPhase] = useState<"eagle" | "transform" | "heart">("eagle");
-  
+
   useEffect(() => {
     if (!show) {
       setPhase("eagle");
@@ -32,7 +39,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
       audio.volume = 0.6;
       audio.currentTime = 3; // Start at 3 seconds
     }
-    
+
     audio.play().catch(() => {
       // Audio playback failed - browser may have autoplay restrictions
     });
@@ -66,7 +73,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-primary/80 backdrop-blur-sm"
           onClick={onComplete}
         >
           {/* Close button */}
@@ -74,7 +81,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
             variant="ghost"
             size="icon"
             onClick={onComplete}
-            className="absolute top-4 right-4 z-50 text-white hover:text-red-400 hover:bg-white/10"
+            className="absolute top-4 right-4 z-50 text-white hover:text-red-400 hover:bg-card/10"
           >
             <X className="h-6 w-6" />
           </Button>
@@ -114,7 +121,10 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
           </div>
 
           {/* Main animation container */}
-          <div className="relative flex flex-col items-center gap-8" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative flex flex-col items-center gap-8"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Conditional animation: Roses for Premium, Eagle for Regular */}
             <motion.div
               className="relative"
@@ -126,7 +136,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
             >
               {/* Glow effect - less intense for transparent roses */}
               <motion.div
-                className={`absolute inset-0 rounded-full blur-3xl ${isPremiumRoses ? 'bg-red-500/20' : 'bg-accent/30'}`}
+                className={`absolute inset-0 rounded-full blur-3xl ${isPremiumRoses ? "bg-red-500/20" : "bg-accent/30"}`}
                 animate={{
                   scale: [1, 1.5, 1],
                   opacity: [0.3, 0.6, 0.3],
@@ -144,8 +154,8 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                     <motion.div
                       key="roses-initial"
                       initial={{ scale: 0, opacity: 0, rotate: -30 }}
-                      animate={{ 
-                        scale: 1, 
+                      animate={{
+                        scale: 1,
                         opacity: 1,
                         rotate: 0,
                       }}
@@ -154,7 +164,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                       className="relative z-10 flex items-center justify-center"
                     >
                       <img
-                        src="/src/assets/rose-bouquet.png"
+                        src={roseBouquet}
                         alt="Premium Rose Bouquet"
                         className="w-64 h-64 object-contain drop-shadow-[0_20px_40px_rgba(220,38,38,0.5)]"
                       />
@@ -173,7 +183,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                       transition={{ duration: 0.8 }}
                     >
                       <motion.img
-                        src="/src/assets/rose-bouquet.png"
+                        src={roseBouquet}
                         alt="Premium Rose Bouquet"
                         className="w-64 h-64 object-contain drop-shadow-[0_20px_40px_rgba(220,38,38,0.5)]"
                         animate={{ opacity: [1, 0] }}
@@ -184,7 +194,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                         animate={{ opacity: [0, 1] }}
                         transition={{ duration: 0.8 }}
                       >
-                        <Heart className="w-48 h-48 text-red-500 fill-red-500 drop-shadow-2xl" />
+                        <Heart className="w-48 h-48 text-red-500 fill-red-500 drop-shadow-card" />
                       </motion.div>
                     </motion.div>
                   )}
@@ -211,7 +221,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                         }}
                         className="relative"
                       >
-                        <Heart className="w-48 h-48 text-red-500 fill-red-500 drop-shadow-2xl" />
+                        <Heart className="w-48 h-48 text-red-500 fill-red-500 drop-shadow-card" />
                         {/* Small roses around heart */}
                         <Flower2 className="w-12 h-12 text-red-600 fill-red-600 absolute -top-4 -left-4 animate-pulse" />
                         <Flower2 className="w-12 h-12 text-red-600 fill-red-600 absolute -top-4 -right-4 animate-pulse" />
@@ -232,9 +242,9 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                       className="relative z-10"
                     >
                       <img
-                        src="/src/assets/albanian-eagle.png"
+                        src={albanianEagle}
                         alt="Albanian Eagle"
-                        className="w-48 h-48 object-contain drop-shadow-2xl"
+                        className="w-48 h-48 object-contain drop-shadow-card"
                       />
                     </motion.div>
                   )}
@@ -250,7 +260,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                       transition={{ duration: 0.8 }}
                     >
                       <motion.img
-                        src="/src/assets/albanian-eagle.png"
+                        src={albanianEagle}
                         alt="Albanian Eagle"
                         className="absolute inset-0 w-48 h-48 object-contain"
                         animate={{ opacity: [1, 0] }}
@@ -261,7 +271,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                         animate={{ opacity: [0, 1] }}
                         transition={{ duration: 0.8 }}
                       >
-                        <Heart className="w-32 h-32 text-red-500 fill-red-500 drop-shadow-2xl" />
+                        <Heart className="w-32 h-32 text-red-500 fill-red-500 drop-shadow-card" />
                       </motion.div>
                     </motion.div>
                   )}
@@ -287,7 +297,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                           repeat: Infinity,
                         }}
                       >
-                        <Heart className="w-48 h-48 text-red-500 fill-red-500 drop-shadow-2xl" />
+                        <Heart className="w-48 h-48 text-red-500 fill-red-500 drop-shadow-card" />
                       </motion.div>
                     </motion.div>
                   )}
@@ -303,7 +313,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
               className="text-center space-y-2"
             >
               <motion.h2
-                className="font-serif text-5xl font-bold text-white"
+                className="text-5xl font-bold text-foreground"
                 animate={{
                   scale: [1, 1.05, 1],
                 }}
@@ -312,7 +322,7 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                   repeat: Infinity,
                 }}
               >
-                {isPremiumRoses ? '💐 Premium Roses Match! 🌹' : "It's a Match! 🎉"}
+                {isPremiumRoses ? "💐 Premium Roses Match! 🌹" : "It's a Match! 🎉"}
               </motion.h2>
               <motion.p
                 className="text-xl text-white/90"
@@ -320,10 +330,9 @@ export const MatchAnimation = ({ show, matchName, onComplete, isPremiumRoses = f
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
               >
-                {isPremiumRoses 
+                {isPremiumRoses
                   ? `You sent Premium Roses to ${matchName}!`
-                  : `You and ${matchName} liked each other!`
-                }
+                  : `You and ${matchName} liked each other!`}
               </motion.p>
             </motion.div>
 

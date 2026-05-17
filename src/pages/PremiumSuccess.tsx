@@ -17,7 +17,7 @@ const PremiumSuccess = () => {
   const checkSubscription = async () => {
     try {
       const { data, error } = await supabase.functions.invoke("check-subscription");
-      
+
       if (error) throw error;
 
       if (data.subscribed) {
@@ -29,12 +29,10 @@ const PremiumSuccess = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
+    <div className="min-h-dvh flex items-center justify-center bg-gradient-hero p-4">
       <Card className="w-full max-w-md p-8 text-center shadow-elegant">
         <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-        <h1 className="font-serif text-3xl font-bold mb-4">
-          Welcome to Premium!
-        </h1>
+        <h1 className="text-3xl font-bold mb-4">Welcome to Premium!</h1>
         <p className="text-muted-foreground mb-6">
           Your subscription is now active. Enjoy all premium features!
         </p>

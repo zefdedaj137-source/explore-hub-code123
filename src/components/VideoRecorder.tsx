@@ -16,7 +16,7 @@ const DANCE_SONGS = [
   "Opinga",
   "Labëria",
   "Rugova",
-  "Valle Pogradeci"
+  "Valle Pogradeci",
 ];
 
 export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void }) => {
@@ -35,19 +35,19 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
       });
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
 
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm'
+        mimeType: "video/webm",
       });
-      
+
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -58,10 +58,10 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
       };
 
       mediaRecorder.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const blob = new Blob(chunksRef.current, { type: "video/webm" });
         await uploadVideo(blob);
-        
-        stream.getTracks().forEach(track => track.stop());
+
+        stream.getTracks().forEach((track) => track.stop());
         if (videoRef.current) {
           videoRef.current.srcObject = null;
         }
@@ -71,7 +71,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
       setCurrentSong(newSong);
       mediaRecorder.start();
       setIsRecording(true);
-      
+
       toast.success(`Dance to: ${newSong}! 💃`);
     } catch (error) {
       toast.error("Could not access camera: " + (error as Error).message);
@@ -91,24 +91,22 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
     setUploading(true);
     try {
       const fileName = `${user.id}/${Date.now()}.webm`;
-      
+
       const { error: uploadError } = await supabase.storage
-        .from('dance-videos')
+        .from("dance-videos")
         .upload(fileName, videoBlob);
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('dance-videos')
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("dance-videos").getPublicUrl(fileName);
 
-      const { error: dbError } = await supabase
-        .from('dancing_videos')
-        .insert({
-          user_id: user.id,
-          video_url: publicUrl,
-          song_name: currentSong
-        });
+      const { error: dbError } = await supabase.from("dancing_videos").insert({
+        user_id: user.id,
+        video_url: publicUrl,
+        song_name: currentSong,
+      });
 
       if (dbError) throw dbError;
 
@@ -130,25 +128,23 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
     setUploading(true);
 
     try {
-      const fileName = `${user.id}/${Date.now()}.${file.name.split('.').pop()}`;
-      
+      const fileName = `${user.id}/${Date.now()}.${file.name.split(".").pop()}`;
+
       const { error: uploadError } = await supabase.storage
-        .from('dance-videos')
+        .from("dance-videos")
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('dance-videos')
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("dance-videos").getPublicUrl(fileName);
 
-      const { error: dbError } = await supabase
-        .from('dancing_videos')
-        .insert({
-          user_id: user.id,
-          video_url: publicUrl,
-          song_name: newSong
-        });
+      const { error: dbError } = await supabase.from("dancing_videos").insert({
+        user_id: user.id,
+        video_url: publicUrl,
+        song_name: newSong,
+      });
 
       if (dbError) throw dbError;
 
@@ -166,7 +162,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <Video className="h-6 w-6 text-primary" />
-          <h3 className="font-serif text-xl font-bold">Record Your Valle</h3>
+          <h3 className="text-xl font-bold">Record Your Valle</h3>
         </div>
 
         {currentSong && (
@@ -181,7 +177,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
           autoPlay
           muted
           playsInline
-          className="w-full aspect-video bg-black rounded-lg"
+          className="w-full aspect-video bg-gradient-to-br from-muted to-muted rounded-lg"
         />
 
         <div className="flex gap-3">
@@ -215,11 +211,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
               />
             </>
           ) : (
-            <Button
-              onClick={stopRecording}
-              variant="destructive"
-              className="flex-1"
-            >
+            <Button onClick={stopRecording} variant="destructive" className="flex-1">
               <StopCircle className="h-5 w-5 mr-2" />
               Stop Recording
             </Button>

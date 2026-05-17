@@ -1,0 +1,94 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "search": "Search",
+    "noResults": "No results found",
+    "error": "Something went wrong",
+    "retry": "Try again"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "orContinueWith": "Or continue with",
+    "google": "Continue with Google"
+  },
+  "discover": {
+    "title": "Discover",
+    "noMoreProfiles": "No more profiles to show",
+    "like": "Like",
+    "pass": "Pass",
+    "superlike": "Super Like",
+    "itsAMatch": "It's a Match!",
+    "sendMessage": "Send Message",
+    "keepSwiping": "Keep Swiping",
+    "filters": "Filters",
+    "age": "Age",
+    "distance": "Distance",
+    "gender": "Gender"
+  },
+  "matches": {
+    "title": "Matches",
+    "noMatches": "No matches yet",
+    "startSwiping": "Start swiping to find your match!",
+    "newMatch": "New Match"
+  },
+  "chat": {
+    "title": "Chat",
+    "typeMessage": "Type a message...",
+    "send": "Send",
+    "voiceCall": "Voice Call",
+    "videoCall": "Video Call",
+    "online": "Online",
+    "offline": "Offline",
+    "typing": "typing..."
+  },
+  "profile": {
+    "myProfile": "My Profile",
+    "editProfile": "Edit Profile",
+    "bio": "Bio",
+    "interests": "Interests",
+    "photos": "Photos",
+    "age": "Age",
+    "location": "Location",
+    "verified": "Verified"
+  },
+  "settings": {
+    "title": "Settings",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "language": "Language",
+    "theme": "Theme",
+    "account": "Account",
+    "deactivate": "Deactivate Account",
+    "deleteAccount": "Delete Account",
+    "pushNotifications": "Push Notifications",
+    "enablePush": "Enable",
+    "disablePush": "Disable"
+  },
+  "notifications": {
+    "newMatch": "You have a new match!",
+    "newMessage": "You have a new message",
+    "newLike": "Someone liked you",
+    "pushEnabled": "Push notifications enabled",
+    "pushDisabled": "Push notifications disabled"
+  },
+  "wallet": {
+    "title": "Wallet",
+    "coins": "Coins",
+    "buy": "Buy",
+    "balance": "Balance"
+  }
+}

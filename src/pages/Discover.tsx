@@ -1,86 +1,115 @@
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
+import { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeText } from "@/lib/sanitize";
+import { OptimizedImage } from "@/components/OptimizedImage";
+import { analytics } from "@/lib/analytics";
+import { enqueue } from "@/lib/offlineQueue";
 import { useAuth } from "@/contexts/AuthContext";
 import { recordProfileView } from "@/lib/profileTracking";
+import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, X, MapPin, LogOut, MessageCircle, Settings, Crown, Filter, Home, Users, Menu, Navigation, Info, ChevronLeft, ChevronRight, Sparkles, Gamepad2, Zap, MessageSquare, Flower2, Bell, Eye, RotateCcw, User, Briefcase, GraduationCap, Ruler, Church, SlidersHorizontal } from "lucide-react";
+import {
+  Heart,
+  X,
+  MapPin,
+  LogOut,
+  MessageCircle,
+  Settings,
+  Crown,
+  Filter,
+  Home,
+  Users,
+  Menu,
+  Navigation,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Gamepad2,
+  Zap,
+  MessageSquare,
+  Flower2,
+  Bell,
+  Eye,
+  RotateCcw,
+  User,
+  Briefcase,
+  GraduationCap,
+  Ruler,
+  Church,
+  SlidersHorizontal,
+  MoreVertical,
+  Coins,
+  Bookmark,
+  Smile,
+  Ghost,
+  Star,
+  Undo2,
+  Loader2,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import ReportUserDialog from "@/components/ReportUserDialog";
+import { TravelMode } from "@/components/TravelMode";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { calculateDistance, formatDistance } from "@/lib/distance";
 import { MatchAnimation } from "@/components/MatchAnimation";
 import { ProfileCardSkeleton } from "@/components/LoadingSkeleton";
 import BottomNav from "@/components/BottomNav";
-
-interface Profile {
-  id: string;
-  full_name: string;
-  age: number;
-  location: string;
-  city: string | null;
-  country: string | null;
-  bio: string | null;
-  interests: string[];
-  profile_image_url: string | null;
-  profile_images?: string[];
-  verified: boolean | null;
-  zodiac_sign: string | null;
-  religion: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  travel_mode_active?: boolean | null;
-  travel_city?: string | null;
-  travel_latitude?: number | null;
-  travel_longitude?: number | null;
-  distance_km?: number;
-  work?: string | null;
-  education?: string | null;
-  height?: string | null;
-  height_cm?: number | null;
-  timestamp?: string; // For notifications - viewed_at or created_at
-  looking_for?: string[];
-  lifestyle?: string | null;
-  drinking?: string | null;
-  smoking?: string | null;
-  pets?: string | null;
-  last_active?: string | null;
-  booster_active?: boolean | null;
-  booster_expires_at?: string | null;
-}
-
-// Helper function to format time ago
-const formatTimeAgo = (timestamp: string | undefined): string => {
-  if (!timestamp) return "";
-  
-  const now = new Date();
-  const past = new Date(timestamp);
-  const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
-  
-  if (diffInSeconds < 60) return "Just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  return `${Math.floor(diffInSeconds / 604800)}w ago`;
-};
+import type { Profile, StoryItem } from "@/types/profile";
+import {
+  extractYouTubeId,
+  extractSpotifyTrackId,
+  formatTimeAgo,
+  computeMatchScore,
+  isOnline,
+} from "@/utils/discover-utils";
+import { ProfileGridCard } from "@/components/discover/ProfileGridCard";
 
 const Discover = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [spotlightProfiles, setSpotlightProfiles] = useState<Profile[]>([]);
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [myProfile, setMyProfile] = useState<Profile | null>(null);
   const [likedProfiles, setLikedProfiles] = useState<Set<string>>(new Set());
   const [passedProfiles, setPassedProfiles] = useState<Set<string>>(new Set());
   const [showMatchAnimation, setShowMatchAnimation] = useState(false);
@@ -89,11 +118,12 @@ const Discover = () => {
   const [swipeLimit, setSwipeLimit] = useState({
     remainingSwipes: 15,
     minutesUntilReset: 0,
-    isPremium: false
+    isPremium: false,
   });
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [showSuperlikeDialog, setShowSuperlikeDialog] = useState(false);
+  const [superlikeCheckoutLoading, setSuperlikeCheckoutLoading] = useState<number | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [profileViews, setProfileViews] = useState<Profile[]>([]);
   const [profileLikes, setProfileLikes] = useState<Profile[]>([]);
@@ -107,6 +137,7 @@ const Discover = () => {
     return saved ? parseInt(saved, 10) : 0;
   });
   const [superlikesRemaining, setSuperlikesRemaining] = useState(0);
+  const [isSuperliking, setIsSuperliking] = useState(false);
   const [boosterActive, setBoosterActive] = useState(false);
   const [boosterExpiresAt, setBoosterExpiresAt] = useState<string | null>(null);
   const [boosterTimeRemaining, setBoosterTimeRemaining] = useState<string>("");
@@ -114,28 +145,231 @@ const Discover = () => {
   const [showBoostDialog, setShowBoostDialog] = useState(false);
   const [showBoostStatusDialog, setShowBoostStatusDialog] = useState(false);
   const [instantMessageCredits, setInstantMessageCredits] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [savedProfiles, setSavedProfiles] = useState<Set<string>>(new Set());
   const [travelModeActive, setTravelModeActive] = useState(false);
   const [travelLatitude, setTravelLatitude] = useState<number | null>(null);
   const [travelLongitude, setTravelLongitude] = useState<number | null>(null);
   const [travelCity, setTravelCity] = useState<string | null>(null);
+
+  // Swipe gesture state
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [swipeStartX, setSwipeStartX] = useState<number | null>(null);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const [swipeExiting, setSwipeExiting] = useState<"left" | "right" | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const likeOverlayRef = useRef<HTMLDivElement>(null);
+  const nopeOverlayRef = useRef<HTMLDivElement>(null);
+  const lastLikeTime = useRef(0);
+  const lastSuperlikeTime = useRef(0);
+  const swipeResetPushScheduled = useRef(false);
+
+  const SWIPE_THRESHOLD = 100;
+
+  const handleSwipeStart = useCallback((clientX: number) => {
+    setSwipeStartX(clientX);
+    setIsSwiping(true);
+  }, []);
+
+  const handleSwipeMove = useCallback(
+    (clientX: number) => {
+      if (swipeStartX === null) return;
+      setSwipeOffset(clientX - swipeStartX);
+    },
+    [swipeStartX]
+  );
+
+  const handleSwipeEnd = useCallback(() => {
+    if (!isSwiping) return;
+    const currentProfile = profiles[currentProfileIndex];
+    if (Math.abs(swipeOffset) > SWIPE_THRESHOLD && currentProfile) {
+      const direction = swipeOffset > 0 ? "right" : "left";
+      setSwipeExiting(direction);
+      setTimeout(() => {
+        if (direction === "right") {
+          handleLike(currentProfile.id);
+        } else {
+          handlePass(currentProfile.id);
+        }
+        setSwipeExiting(null);
+        setSwipeOffset(0);
+        setSwipeStartX(null);
+        setIsSwiping(false);
+      }, 300);
+    } else {
+      setSwipeOffset(0);
+      setSwipeStartX(null);
+      setIsSwiping(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSwiping, swipeOffset, profiles, currentProfileIndex]);
+
+  const swipeRotation = swipeExiting
+    ? swipeExiting === "right"
+      ? 15
+      : -15
+    : Math.min(Math.max(swipeOffset * 0.08, -15), 15);
+  const swipeTranslateX = swipeExiting ? (swipeExiting === "right" ? 500 : -500) : swipeOffset;
+  const swipeOpacity = swipeExiting ? 0 : 1;
+  const likeOpacity = Math.min(Math.max(swipeOffset / SWIPE_THRESHOLD, 0), 1);
+  const nopeOpacity = Math.min(Math.max(-swipeOffset / SWIPE_THRESHOLD, 0), 1);
+
+  useEffect(() => {
+    if (cardRef.current) {
+      cardRef.current.style.transform = `translateX(${swipeTranslateX}px) rotate(${swipeRotation}deg)`;
+      cardRef.current.style.opacity = String(swipeOpacity);
+      cardRef.current.style.transition =
+        isSwiping && !swipeExiting ? "none" : "transform 0.3s ease-out, opacity 0.3s ease-out";
+    }
+    if (likeOverlayRef.current) {
+      likeOverlayRef.current.style.opacity = String(likeOpacity);
+    }
+    if (nopeOverlayRef.current) {
+      nopeOverlayRef.current.style.opacity = String(nopeOpacity);
+    }
+  }, [
+    swipeTranslateX,
+    swipeRotation,
+    swipeOpacity,
+    isSwiping,
+    swipeExiting,
+    likeOpacity,
+    nopeOpacity,
+  ]);
+
+  const cacheKey = user
+    ? `discover_profiles_cache_${user.id}_${travelModeActive ? "travel" : "home"}`
+    : null;
+
+  const dailyPicks = useMemo(() => {
+    if (!profiles.length) return [] as Profile[];
+    const seed = new Date().toISOString().slice(0, 10);
+    const hash = (input: string) => {
+      let h = 0;
+      for (let i = 0; i < input.length; i += 1) {
+        h = (h << 5) - h + input.charCodeAt(i);
+        h |= 0;
+      }
+      return Math.abs(h);
+    };
+
+    return profiles
+      .map((p) => ({ p, score: hash(`${p.id}-${seed}`) }))
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 5)
+      .map((item) => item.p);
+  }, [profiles]);
+
+  const savedKey = user ? `saved_profiles_${user.id}` : null;
+
+  const loadSavedProfiles = useCallback(() => {
+    if (!savedKey) return;
+    const raw = localStorage.getItem(savedKey);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw) as string[];
+      if (Array.isArray(parsed)) setSavedProfiles(new Set(parsed));
+    } catch {
+      // ignore parsing errors
+    }
+  }, [savedKey]);
+
+  const toggleSaveProfile = (profileId: string) => {
+    if (!savedKey) return;
+    setSavedProfiles((prev) => {
+      const next = new Set(prev);
+      if (next.has(profileId)) {
+        next.delete(profileId);
+      } else {
+        next.add(profileId);
+      }
+      localStorage.setItem(savedKey, JSON.stringify(Array.from(next)));
+      return next;
+    });
+  };
+
+  const hasLoadedCacheRef = useRef(false);
+  const prevCacheKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    // Clear cache when user changes (privacy: prevent cross-user cache leaks)
+    if (cacheKey !== prevCacheKeyRef.current) {
+      prevCacheKeyRef.current = cacheKey;
+      hasLoadedCacheRef.current = false;
+    }
+    // Skip loading cache on very first mount - initializeData will fetch fresh data
+    // This prevents stale home-location profiles from showing when travel mode is active
+    if (!cacheKey || !hasLoadedCacheRef.current) {
+      hasLoadedCacheRef.current = true;
+      return;
+    }
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as Profile[];
+        if (parsed.length) {
+          setProfiles(parsed);
+          setCurrentProfileIndex(0);
+        }
+      } catch (error) {
+        logger.warn("Failed to parse cached profiles", error);
+      }
+    }
+  }, [cacheKey]);
+
+  const cacheProfiles = useCallback(
+    (items: Profile[]) => {
+      if (!cacheKey) return;
+      localStorage.setItem(cacheKey, JSON.stringify(items.slice(0, 100)));
+    },
+    [cacheKey]
+  );
+
+  const fetchWallet = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!data) {
+      await supabase.from("wallets").insert({ user_id: user.id, balance: 0 });
+      setWalletBalance(0);
+    } else {
+      setWalletBalance(data.balance || 0);
+    }
+  }, [user]);
   const [showInstantMessageDialog, setShowInstantMessageDialog] = useState(false);
   const [instantMessageText, setInstantMessageText] = useState("");
-  const [instantMessageTargetProfile, setInstantMessageTargetProfile] = useState<Profile | null>(null);
+  const [instantMessageTargetProfile, setInstantMessageTargetProfile] = useState<Profile | null>(
+    null
+  );
   const [showPremiumRosesDialog, setShowPremiumRosesDialog] = useState(false);
   const [rosesTargetProfile, setRosesTargetProfile] = useState<Profile | null>(null);
   const [activeTab, setActiveTab] = useState<"for-you" | "last-active">("for-you");
   const [rewindsRemaining, setRewindsRemaining] = useState(3);
-  const [lastActionHistory, setLastActionHistory] = useState<Array<{ type: 'like' | 'pass', profileId: string, timestamp: number }>>([]);
+  const [lastActionHistory, setLastActionHistory] = useState<
+    Array<{ type: "like" | "pass"; profileId: string; timestamp: number }>
+  >([]);
   const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [showFilterDiscardConfirm, setShowFilterDiscardConfirm] = useState(false);
   const [showNotificationProfileDialog, setShowNotificationProfileDialog] = useState(false);
   const [notificationProfile, setNotificationProfile] = useState<Profile | null>(null);
   const [notificationProfileImageIndex, setNotificationProfileImageIndex] = useState(0);
   const [showNotificationFullProfile, setShowNotificationFullProfile] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [profileStories, setProfileStories] = useState<StoryItem[]>([]);
+  const [showStoryViewer, setShowStoryViewer] = useState(false);
+  const [showDailyPicks, setShowDailyPicks] = useState(false);
+  const [showLastActiveProfile, setShowLastActiveProfile] = useState(false);
+  const [lastActiveProfile, setLastActiveProfile] = useState<Profile | null>(null);
+  const [lastActiveImageIndex, setLastActiveImageIndex] = useState(0);
+  const [storyViewerIndex, setStoryViewerIndex] = useState(0);
   const [tempFilters, setTempFilters] = useState({
     minAge: 18,
     maxAge: 50,
     maxDistance: 100,
     gender: "everyone",
+    smartSort: true,
     // Premium filters
     verifiedOnly: false,
     hasProfileImage: true,
@@ -145,13 +379,16 @@ const Discover = () => {
     education: "any",
     smoking: "any",
     drinking: "any",
-    religion: "any"
+    religion: "any",
+    lookingFor: "any",
+    zodiacSign: "any",
   });
   const [filters, setFilters] = useState({
     minAge: 18,
     maxAge: 50,
     maxDistance: 100,
     gender: "everyone",
+    smartSort: true,
     // Premium filters
     verifiedOnly: false,
     hasProfileImage: true,
@@ -161,21 +398,23 @@ const Discover = () => {
     education: "any",
     smoking: "any",
     drinking: "any",
-    religion: "any"
+    religion: "any",
+    lookingFor: "any",
+    zodiacSign: "any",
   });
 
   // Fetch current user's profile
   const fetchMyProfile = useCallback(async () => {
     if (!user) return null;
-    
+
     try {
       const { data: myProfile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
-      
-      // Update booster status
+
+      // Update booster status and discovery settings from profile
       if (myProfile) {
         setBoosterActive(myProfile.booster_active || false);
         setBoosterExpiresAt(myProfile.booster_expires_at || null);
@@ -185,11 +424,12 @@ const Discover = () => {
         setTravelLatitude(myProfile.travel_latitude || null);
         setTravelLongitude(myProfile.travel_longitude || null);
         setTravelCity(myProfile.travel_city || null);
+        setMyProfile(myProfile as Profile);
       }
-      
+
       return myProfile;
     } catch (error) {
-      console.error("Error fetching my profile:", error);
+      logger.error("Error fetching my profile:", error);
       return null;
     }
   }, [user]);
@@ -197,18 +437,18 @@ const Discover = () => {
   // Fetch superlike count
   const fetchSuperlikeCount = useCallback(async () => {
     if (!user) return;
-    
+
     try {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("profiles")
         .select("superlikes_remaining")
         .eq("id", user.id)
-        .single() as { data: { superlikes_remaining: number } | null; error: unknown };
-      
+        .single()) as { data: { superlikes_remaining: number } | null; error: unknown };
+
       if (error) throw error;
       setSuperlikesRemaining(data?.superlikes_remaining || 0);
     } catch (error) {
-      console.error("Error fetching superlike count:", error);
+      logger.error("Error fetching superlike count:", error);
     }
   }, [user]);
 
@@ -216,12 +456,14 @@ const Discover = () => {
   const checkSwipeLimit = useCallback(async () => {
     try {
       if (!user) return;
-      
+
       // Get remaining swipes and subscription status
-      const { data, error } = await supabase
-        .rpc('get_remaining_swipes', {
-          user_id: user.id
-        }) as { data: { remaining_swipes: number; minutes_until_reset: number; is_premium: boolean } | null; error: unknown };
+      const { data, error } = (await supabase.rpc("get_remaining_swipes", {
+        user_id: user.id,
+      })) as {
+        data: { remaining_swipes: number; minutes_until_reset: number; is_premium: boolean } | null;
+        error: unknown;
+      };
 
       if (error) throw error;
 
@@ -229,72 +471,131 @@ const Discover = () => {
         setSwipeLimit({
           remainingSwipes: data.remaining_swipes,
           minutesUntilReset: Math.ceil(data.minutes_until_reset),
-          isPremium: data.is_premium
+          isPremium: data.is_premium,
         });
       }
 
       // Also fetch superlike count
       await fetchSuperlikeCount();
-
     } catch (error) {
-      console.error("Error checking swipe limits:", error);
+      logger.error("Error checking swipe limits:", error);
     }
   }, [user, fetchSuperlikeCount]);
 
   // Fetch rewind count
   const fetchRewindCount = useCallback(async () => {
     if (!user) return;
-    
+
     try {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("profiles")
         .select("rewinds_remaining")
         .eq("id", user.id)
-        .single() as { data: { rewinds_remaining: number } | null; error: unknown };
-      
+        .single()) as { data: { rewinds_remaining: number } | null; error: unknown };
+
       if (error) {
         // Column doesn't exist yet, default to 3
-        console.warn("rewinds_remaining column not found, using default value");
+        logger.warn("rewinds_remaining column not found, using default value");
         setRewindsRemaining(3);
         return;
       }
       setRewindsRemaining(data?.rewinds_remaining || 3);
     } catch (error) {
-      console.error("Error fetching rewind count:", error);
+      logger.error("Error fetching rewind count:", error);
       setRewindsRemaining(3); // Default value
     }
   }, [user]);
 
+  // Helpers to persist passed/liked IDs in sessionStorage so component remounts don't undo them
+  const addLocalExcluded = useCallback(
+    (id: string) => {
+      if (!user?.id) return;
+      const key = `local_excluded_${user.id}`;
+      try {
+        const existing: string[] = JSON.parse(sessionStorage.getItem(key) ?? "[]");
+        sessionStorage.setItem(key, JSON.stringify([...new Set([...existing, id])]));
+      } catch {
+        /* ignore */
+      }
+    },
+    [user?.id]
+  );
+
+  const getLocalExcluded = useCallback((): Set<string> => {
+    if (!user?.id) return new Set();
+    const key = `local_excluded_${user.id}`;
+    try {
+      return new Set(JSON.parse(sessionStorage.getItem(key) ?? "[]") as string[]);
+    } catch {
+      return new Set();
+    }
+  }, [user?.id]);
+
+  const removeLocalExcluded = useCallback(
+    (id: string) => {
+      if (!user?.id) return;
+      const key = `local_excluded_${user.id}`;
+      try {
+        const existing: string[] = JSON.parse(sessionStorage.getItem(key) ?? "[]");
+        sessionStorage.setItem(key, JSON.stringify(existing.filter((x) => x !== id)));
+      } catch {
+        /* ignore */
+      }
+    },
+    [user?.id]
+  );
+
   // Load liked profiles from database
   const loadLikedProfiles = useCallback(async () => {
     if (!user) return;
-    
+
     try {
       const { data, error } = await supabase
         .from("likes")
-        .select("liked_id")
+        .select("liked_id, action")
         .eq("liker_id", user.id);
 
       if (error) throw error;
 
-      if (data) {
-        const likedIds = data.map(like => like.liked_id);
-        setLikedProfiles(new Set(likedIds));
-        console.log("Loaded liked profiles:", likedIds.length);
-      }
+      const likedIds = data ? data.filter((l) => l.action !== "pass").map((l) => l.liked_id) : [];
+      const passedIds = data ? data.filter((l) => l.action === "pass").map((l) => l.liked_id) : [];
+
+      // Also fetch matched user IDs so they are excluded from discovery
+      const { data: matchData } = await supabase
+        .from("matches")
+        .select("user1_id, user2_id")
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+
+      const matchedIds = (matchData || []).map((m) =>
+        m.user1_id === user.id ? m.user2_id : m.user1_id
+      );
+
+      const allExcluded = new Set([...likedIds, ...passedIds, ...matchedIds]);
+      setLikedProfiles(new Set([...likedIds, ...matchedIds]));
+      const localExcluded = getLocalExcluded();
+      setPassedProfiles(new Set([...passedIds, ...localExcluded]));
+      logger.log(
+        "Loaded liked profiles:",
+        likedIds.length,
+        "passed:",
+        passedIds.length,
+        "matched:",
+        matchedIds.length
+      );
     } catch (error) {
-      console.error("Error loading liked profiles:", error);
+      logger.error("Error loading liked profiles:", error);
     }
-  }, [user]);
+  }, [user, getLocalExcluded]);
 
   // Fetch profile views (users who viewed your profile)
   const fetchProfileViews = useCallback(async () => {
     if (!user) return;
-    
+
     try {
       const { data, error } = await supabase
         .from("profile_views")
-        .select(`
+        .select(
+          `
           viewer_id,
           viewed_at,
           profiles!profile_views_viewer_id_fkey (
@@ -306,6 +607,7 @@ const Discover = () => {
             location,
             profile_images,
             verified,
+            is_premium,
             work,
             education,
             height,
@@ -313,33 +615,46 @@ const Discover = () => {
             zodiac_sign,
             religion,
             interests,
+            looking_for,
+            lifestyle,
+            drinking,
+            smoking,
+            pets,
             latitude,
             longitude,
             city,
-            country
+            country,
+            mood_emoji,
+            mood_text,
+            video_intro_url,
+            soundtrack_url,
+            soundtrack_source,
+            soundtrack_title,
+            soundtrack_artist
           )
-        `)
+        `
+        )
         .eq("viewed_id", user.id)
         .order("viewed_at", { ascending: false })
         .limit(50);
 
       if (error) {
-        console.error("Error fetching profile views:", error);
+        logger.error("Error fetching profile views:", error);
         setProfileViews([]);
         return;
       }
 
       if (data) {
         const viewers = data
-          .filter(view => view.profiles)
-          .map(view => ({
+          .filter((view) => view.profiles)
+          .map((view) => ({
             ...(view.profiles as unknown as Profile),
-            timestamp: view.viewed_at
+            timestamp: view.viewed_at,
           }));
         setProfileViews(viewers);
       }
     } catch (error) {
-      console.error("Error fetching profile views:", error);
+      logger.error("Error fetching profile views:", error);
       setProfileViews([]);
     }
   }, [user]);
@@ -347,11 +662,12 @@ const Discover = () => {
   // Fetch profile likes (users who liked you)
   const fetchProfileLikes = useCallback(async () => {
     if (!user) return;
-    
+
     try {
       const { data, error } = await supabase
         .from("likes")
-        .select(`
+        .select(
+          `
           liker_id,
           created_at,
           profiles!likes_liker_id_fkey (
@@ -363,6 +679,7 @@ const Discover = () => {
             location,
             profile_images,
             verified,
+            is_premium,
             work,
             education,
             height,
@@ -370,12 +687,25 @@ const Discover = () => {
             zodiac_sign,
             religion,
             interests,
+            looking_for,
+            lifestyle,
+            drinking,
+            smoking,
+            pets,
             latitude,
             longitude,
             city,
-            country
+            country,
+            mood_emoji,
+            mood_text,
+            video_intro_url,
+            soundtrack_url,
+            soundtrack_source,
+            soundtrack_title,
+            soundtrack_artist
           )
-        `)
+        `
+        )
         .eq("liked_id", user.id)
         .order("created_at", { ascending: false })
         .limit(50);
@@ -384,281 +714,263 @@ const Discover = () => {
 
       if (data) {
         const likers = data
-          .filter(like => like.profiles)
-          .map(like => ({
+          .filter((like) => like.profiles)
+          .map((like) => ({
             ...(like.profiles as unknown as Profile),
-            timestamp: like.created_at
+            timestamp: like.created_at,
           }));
         setProfileLikes(likers);
-        
+
         // Calculate total notifications
         const totalNotifications = profileViews.length + likers.length;
-        
+
         // Only show count for NEW notifications (since last time user opened the dialog)
         const newNotificationCount = Math.max(0, totalNotifications - lastSeenNotificationCount);
         setNotificationCount(newNotificationCount);
+
+        if (
+          newNotificationCount > 0 &&
+          "Notification" in window &&
+          Notification.permission === "granted"
+        ) {
+          new Notification("New activity", {
+            body: `${newNotificationCount} new ${newNotificationCount === 1 ? "notification" : "notifications"} on your profile`,
+          });
+        }
       }
     } catch (error) {
-      console.error("Error fetching profile likes:", error);
+      logger.error("Error fetching profile likes:", error);
       setProfileLikes([]);
     }
   }, [user, profileViews.length, lastSeenNotificationCount]);
 
-  // Fetch profiles for discovery
-  const fetchProfiles = useCallback(async () => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
-      
-      const myProfile = await fetchMyProfile();
-      if (!myProfile) {
-        navigate("/profile-setup");
-        return;
+  // Fetch profiles for discovery — uses server-side RPC to avoid downloading
+  // the entire profiles table. All filters run in PostgreSQL; only 50 rows
+  // are returned per call. When the card stack runs low the component calls
+  // fetchMoreProfiles() which advances the offset.
+  const discoverOffset = useRef(0);
+
+  const fetchProfiles = useCallback(
+    async (offset = 0) => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+
+        const myProfile = await fetchMyProfile();
+        if (!myProfile) {
+          navigate("/profile-setup");
+          return;
+        }
+
+        // Effective coordinates: prefer travel-mode location
+        const userLat: number =
+          (myProfile.travel_mode_active && myProfile.travel_latitude
+            ? myProfile.travel_latitude
+            : myProfile.latitude) ?? 0;
+        const userLon: number =
+          (myProfile.travel_mode_active && myProfile.travel_longitude
+            ? myProfile.travel_longitude
+            : myProfile.longitude) ?? 0;
+
+        const { data, error } = await supabase.rpc("get_discover_profiles", {
+          current_user_id: user.id,
+          user_latitude: userLat,
+          user_longitude: userLon,
+          p_min_age: filters.minAge,
+          p_max_age: filters.maxAge,
+          p_max_distance_km: filters.maxDistance,
+          p_gender_pref: myProfile.gender_preference || filters.gender || "everyone",
+          p_my_gender: myProfile.gender || "",
+          p_is_premium: swipeLimit.isPremium,
+          p_verified_only: filters.verifiedOnly,
+          p_has_profile_image: filters.hasProfileImage,
+          p_interests: filters.specificInterests,
+          p_min_height: filters.minHeight,
+          p_max_height: filters.maxHeight,
+          p_education: filters.education,
+          p_smoking: filters.smoking,
+          p_drinking: filters.drinking,
+          p_religion: filters.religion,
+          p_looking_for: filters.lookingFor,
+          p_zodiac_sign: filters.zodiacSign,
+          p_offset: offset,
+          p_limit: 50,
+        });
+
+        if (error) {
+          // Graceful fallback: RPC not yet deployed — tell the user to run migration
+          const rpcError = error as { code?: string; message?: string };
+          if (rpcError.code === "PGRST202" || rpcError.message?.includes("not found")) {
+            logger.error("get_discover_profiles RPC not found — run migration 20260517000001");
+            toast.error("Discovery update required. Please contact support.");
+            return;
+          }
+          throw error;
+        }
+
+        const fetched: Profile[] = (data || []).map((p: Record<string, unknown>) => ({
+          ...p,
+          interests: p.interests || [],
+        }));
+
+        const sorted = filters.smartSort
+          ? [...fetched].sort(
+              (a, b) => computeMatchScore(b, myProfile) - computeMatchScore(a, myProfile)
+            )
+          : fetched;
+
+        if (offset === 0) {
+          discoverOffset.current = sorted.length;
+          setProfiles(sorted);
+          cacheProfiles(sorted);
+          setCurrentProfileIndex(0);
+        } else {
+          discoverOffset.current = offset + sorted.length;
+          setProfiles((prev) => [...prev, ...sorted]);
+        }
+      } catch (error) {
+        logger.error("Error in fetchProfiles:", error);
+        toast.error("Failed to load profiles");
+      } finally {
+        setLoading(false);
       }
+    },
+    [user, filters, fetchMyProfile, navigate, swipeLimit.isPremium, cacheProfiles]
+  );
 
-      // Get all profiles except current user and ones already interacted with
-      // Note: We don't exclude spotlight profiles here to avoid dependency issues
-      const excludedIds = Array.from(new Set([
-        ...Array.from(likedProfiles),
-        ...Array.from(passedProfiles)
-      ]));
-
-      let query = supabase
-        .from("profiles")
-        .select("*")
-        .neq("id", user.id);
-
-      // Only add the NOT IN filter if there are excluded IDs
-      if (excludedIds.length > 0) {
-        query = query.not("id", "in", `(${excludedIds.join(",")})`);
-      }
-
-      const { data: profiles, error } = await query.order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      // Determine which coordinates to use (travel or regular)
-      const userLat = myProfile.travel_mode_active && myProfile.travel_latitude 
-        ? myProfile.travel_latitude 
-        : myProfile.latitude;
-      const userLon = myProfile.travel_mode_active && myProfile.travel_longitude
-        ? myProfile.travel_longitude
-        : myProfile.longitude;
-
-      // Add distance to each profile if location available
-      const profilesWithDistance = (profiles || []).map((profile: Profile) => {
-        let distance_km = undefined;
-        if (userLat && userLon) {
-          // Check if the profile user is in travel mode and use their travel coordinates
-          const profileLat = profile.travel_mode_active && profile.travel_latitude
-            ? profile.travel_latitude
-            : profile.latitude;
-          const profileLon = profile.travel_mode_active && profile.travel_longitude
-            ? profile.travel_longitude
-            : profile.longitude;
-          
-          if (profileLat && profileLon) {
-            distance_km = calculateDistance(
-              userLat,
-              userLon,
-              profileLat,
-              profileLon
-            );
-            
-            // Debug log for all profiles
-            console.log(`📍 Profile ${profile.full_name} (${profile.id}):`, {
-              city: profile.city,
-              travelMode: profile.travel_mode_active,
-              travelCity: profile.travel_city,
-              distance: distance_km ? Math.round(distance_km) + 'km' : 'N/A',
-              profileLat,
-              profileLon,
-              homeCity: profile.city
-            });
-          }
-        }
-
-        return {
-          ...profile,
-          distance_km,
-          interests: profile.interests || []
-        };
-      }).filter((profile: Profile) => {
-        // Apply age filter (always applied, not premium-only)
-        if (profile.age < filters.minAge || profile.age > filters.maxAge) {
-          return false;
-        }
-        
-        // Apply distance filter (always applied, not premium-only)
-        if (profile.distance_km !== undefined && profile.distance_km > filters.maxDistance) {
-          console.log(`🚫 Filtering out ${profile.full_name}: ${Math.round(profile.distance_km)}km > ${filters.maxDistance}km`);
-          return false;
-        }
-        
-        // Premium filters (only apply if user is premium)
-        if (swipeLimit.isPremium) {
-          // Verified only filter
-          if (filters.verifiedOnly && !profile.verified) {
-            return false;
-          }
-          
-          // Profile image filter
-          if (filters.hasProfileImage && !profile.profile_image_url) {
-            return false;
-          }
-          
-          // Specific interests filter
-          if (filters.specificInterests.length > 0) {
-            const hasMatchingInterest = filters.specificInterests.some(interest =>
-              profile.interests.includes(interest)
-            );
-            if (!hasMatchingInterest) {
-              return false;
-            }
-          }
-          
-          // Height filter
-          if (profile.height_cm) {
-            if (filters.minHeight > 0 && profile.height_cm < filters.minHeight) {
-              return false;
-            }
-            if (filters.maxHeight < 250 && profile.height_cm > filters.maxHeight) {
-              return false;
-            }
-          }
-          
-          // Education filter
-          if (filters.education !== "any" && profile.education !== filters.education) {
-            return false;
-          }
-          
-          // Smoking filter
-          if (filters.smoking !== "any" && profile.smoking !== filters.smoking) {
-            return false;
-          }
-          
-          // Drinking filter
-          if (filters.drinking !== "any" && profile.drinking !== filters.drinking) {
-            return false;
-          }
-          
-          // Religion filter
-          if (filters.religion !== "any" && profile.religion !== filters.religion) {
-            return false;
-          }
-        }
-        
-        return true;
-      }) || [];
-
-      setProfiles(profilesWithDistance);
-      setCurrentProfileIndex(0);
-    } catch (error) {
-      console.error("Error in fetchProfiles:", error);
-      toast.error("Failed to load profiles");
-    } finally {
-      setLoading(false);
+  // Automatically fetch the next page when fewer than 5 cards remain
+  const fetchMoreProfiles = useCallback(() => {
+    if (!loading) {
+      fetchProfiles(discoverOffset.current);
     }
-  }, [user, filters, likedProfiles, passedProfiles, fetchMyProfile, navigate, swipeLimit.isPremium]);
+  }, [loading, fetchProfiles]);
 
   // Fetch spotlight/boosted profiles
   const fetchSpotlightProfiles = useCallback(async () => {
     if (!user) return;
-    
+
     try {
       // Get user's location first
       const myProfile = await fetchMyProfile();
-      
+
       // Determine which coordinates to use (travel or regular)
-      const userLat = myProfile?.travel_mode_active && myProfile?.travel_latitude 
-        ? myProfile.travel_latitude 
-        : myProfile?.latitude;
-      const userLon = myProfile?.travel_mode_active && myProfile?.travel_longitude
-        ? myProfile.travel_longitude
-        : myProfile?.longitude;
-      
+      const userLat =
+        myProfile?.travel_mode_active && myProfile?.travel_latitude
+          ? myProfile.travel_latitude
+          : myProfile?.latitude;
+      const userLon =
+        myProfile?.travel_mode_active && myProfile?.travel_longitude
+          ? myProfile.travel_longitude
+          : myProfile?.longitude;
+
       if (!myProfile || !userLat || !userLon) {
-        console.log("Cannot fetch spotlight profiles: user location not available");
+        logger.log("Cannot fetch spotlight profiles: user location not available");
         return;
       }
 
-      const { data, error } = await supabase
-        .rpc('get_spotlight_profiles', {
-          current_user_id: user.id,
-          user_latitude: userLat,
-          user_longitude: userLon,
-          max_distance_km: filters.maxDistance
-        }) as { data: Profile[] | null; error: unknown };
+      const { data, error } = (await supabase.rpc("get_spotlight_profiles", {
+        current_user_id: user.id,
+        user_latitude: userLat,
+        user_longitude: userLon,
+        max_distance_km: filters.maxDistance,
+      })) as { data: Profile[] | null; error: unknown };
 
       if (error) {
         const errorObj = error as { code?: string; message?: string };
         // Silently handle missing function (user hasn't run migration yet)
-        if (errorObj.code === 'PGRST202' || errorObj.message?.includes('not found')) {
-          console.log("Spotlight function not available yet. Run migration: 20251031_add_spotlight_profiles_function.sql");
+        if (errorObj.code === "PGRST202" || errorObj.message?.includes("not found")) {
+          logger.log(
+            "Spotlight function not available yet. Run migration: 20251031_add_spotlight_profiles_function.sql"
+          );
           return;
         }
-        console.error("Error fetching spotlight profiles:", error);
+        logger.error("Error fetching spotlight profiles:", error);
         return;
       }
 
       if (data) {
         // Add distance to spotlight profiles
-        const profilesWithDistance = data.map((profile: Profile) => {
-          let distance_km = undefined;
-          if (userLat && userLon) {
-            // Check if the profile user is in travel mode and use their travel coordinates
-            const profileLat = profile.travel_mode_active && profile.travel_latitude
-              ? profile.travel_latitude
-              : profile.latitude;
-            const profileLon = profile.travel_mode_active && profile.travel_longitude
-              ? profile.travel_longitude
-              : profile.longitude;
-            
-            if (profileLat && profileLon) {
-              distance_km = calculateDistance(
-                userLat,
-                userLon,
-                profileLat,
-                profileLon
-              );
+        const profilesWithDistance = data
+          .map((profile: Profile) => {
+            let distance_km = undefined;
+            if (userLat && userLon) {
+              // Check if the profile user is in travel mode and use their travel coordinates
+              const profileLat =
+                profile.travel_mode_active && profile.travel_latitude
+                  ? profile.travel_latitude
+                  : profile.latitude;
+              const profileLon =
+                profile.travel_mode_active && profile.travel_longitude
+                  ? profile.travel_longitude
+                  : profile.longitude;
+
+              if (profileLat && profileLon) {
+                distance_km = calculateDistance(userLat, userLon, profileLat, profileLon);
+              }
             }
-          }
 
-          return {
-            ...profile,
-            distance_km,
-            interests: profile.interests || []
-          };
-        }).filter((profile: Profile) => {
-          // Filter spotlight profiles by distance when in travel mode or always
-          if (profile.distance_km !== undefined && profile.distance_km > filters.maxDistance) {
-            console.log(`🚫 Filtering out spotlight ${profile.full_name}: ${Math.round(profile.distance_km)}km > ${filters.maxDistance}km`);
-            return false;
-          }
-          return true;
-        });
+            return {
+              ...profile,
+              distance_km,
+              interests: profile.interests || [],
+            };
+          })
+          .filter((profile: Profile) => {
+            // Exclude already liked/passed profiles
+            if (likedProfiles.has(profile.id) || passedProfiles.has(profile.id)) return false;
 
-        console.log(`Found ${profilesWithDistance.length} boosted profiles`);
+            // Apply gender filter (mutual matching)
+            const myGenderPref = (
+              myProfile?.gender_preference ||
+              filters.gender ||
+              "everyone"
+            ).toLowerCase();
+            const myGender = (myProfile?.gender || "").toLowerCase();
+            const theirGenderPref = (profile.gender_preference || "everyone").toLowerCase();
+            const theirGender = (profile.gender || "").toLowerCase();
+
+            // 1. Do I want to see their gender? (skip if their gender is unknown)
+            if (myGenderPref !== "everyone" && theirGender && theirGender !== myGenderPref) {
+              return false;
+            }
+            // 2. Do they want to see my gender? (skip if their preference is unknown)
+            if (theirGenderPref !== "everyone" && myGender && myGender !== theirGenderPref) {
+              return false;
+            }
+
+            // Filter spotlight profiles by distance when in travel mode or always
+            if (profile.distance_km !== undefined && profile.distance_km > filters.maxDistance) {
+              logger.log(
+                `🚫 Filtering out spotlight ${profile.full_name}: ${Math.round(profile.distance_km)}km > ${filters.maxDistance}km`
+              );
+              return false;
+            }
+            return true;
+          });
+
+        logger.log(`Found ${profilesWithDistance.length} boosted profiles`);
         setSpotlightProfiles(profilesWithDistance);
       }
     } catch (error) {
-      console.error("Error fetching spotlight profiles:", error);
+      logger.error("Error fetching spotlight profiles:", error);
     }
-  }, [user, filters.maxDistance, fetchMyProfile]);
+  }, [user, filters.maxDistance, filters.gender, fetchMyProfile]);
 
   // Handle premium upgrade
   const handleUpgrade = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout");
-      
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { origin: window.location.origin },
+      });
+
       if (error) throw error;
-      
+
       if (data?.url) {
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
       }
     } catch (error) {
-      console.error("Error creating checkout:", error);
+      logger.error("Error creating checkout:", error);
       toast.error("Failed to start upgrade process");
     }
   };
@@ -666,17 +978,38 @@ const Discover = () => {
   // Handle like action
   const handleLike = async (profileId: string) => {
     if (!user) return;
+    // Haptic feedback
+    if (navigator.vibrate) navigator.vibrate(15);
+    // Rate limit: 1 like per 500ms
+    const now = Date.now();
+    // Track immediately for rewind (before async so rewind works right away)
+    setLastActionHistory((prev) => [
+      ...prev,
+      { type: "like" as const, profileId, timestamp: Date.now() },
+    ]);
+    if (now - lastLikeTime.current < 500) return;
+    lastLikeTime.current = now;
+    analytics.like(profileId);
 
     try {
       // Use the like_user RPC function which handles swipe limits
-      const { data, error } = await supabase
-        .rpc('like_user', {
-          current_user_id: user.id,
-          target_user_id: profileId
-        }) as { data: { success: boolean; error?: string; remaining_swipes: number; minutes_until_reset: number; is_premium: boolean; is_match: boolean } | null; error: unknown };
+      const { data, error } = (await supabase.rpc("like_user", {
+        current_user_id: user.id,
+        target_user_id: profileId,
+      })) as {
+        data: {
+          success: boolean;
+          error?: string;
+          remaining_swipes: number;
+          minutes_until_reset: number;
+          is_premium: boolean;
+          is_match: boolean;
+        } | null;
+        error: unknown;
+      };
 
       if (error) {
-        console.error("Supabase RPC error:", error);
+        logger.error("Supabase RPC error:", error);
         throw error;
       }
 
@@ -684,12 +1017,30 @@ const Discover = () => {
         throw new Error("No data returned from like_user function");
       }
 
-      console.log("Like user response:", data);
+      logger.log("Like user response:", data);
 
       if (!data.success) {
         // Show upgrade dialog if out of swipes
         setShowUpgradeDialog(true);
         toast.info(data.error || "Out of swipes!");
+        // Schedule a midnight push so user knows when swipes reset (once per session)
+        if (!swipeResetPushScheduled.current) {
+          swipeResetPushScheduled.current = true;
+          const midnight = new Date();
+          midnight.setHours(24, 0, 5, 0);
+          supabase
+            .from("scheduled_push_notifications")
+            .insert({
+              target_user_id: user.id,
+              title: "Your swipes are back! 🦅",
+              body: "10 new swipes ready — discover someone new on Shqiponja",
+              url: "/discover",
+              status: "pending",
+              send_at: midnight.toISOString(),
+            })
+            .then(() => {})
+            .catch(() => {});
+        }
         return;
       }
 
@@ -697,39 +1048,65 @@ const Discover = () => {
       setSwipeLimit({
         remainingSwipes: data.remaining_swipes || 0,
         minutesUntilReset: Math.ceil(data.minutes_until_reset || 0),
-        isPremium: data.is_premium || false
+        isPremium: data.is_premium || false,
       });
 
       // Add to liked profiles
-      setLikedProfiles(prev => new Set([...prev, profileId]));
-
-      // Track this action for rewind
-      setLastActionHistory(prev => [...prev, { type: 'like', profileId, timestamp: Date.now() }]);
+      setLikedProfiles((prev) => new Set([...prev, profileId]));
 
       // Handle match if it occurred
       if (data.is_match) {
-        const matchedUserProfile = profiles.find(p => p.id === profileId);
+        const matchedUserProfile = profiles.find((p) => p.id === profileId);
         if (matchedUserProfile) {
           setMatchedProfile(matchedUserProfile);
           setIsPremiumRosesMatch(false); // Regular match
           setShowMatchAnimation(true);
         }
-        toast.success("It's a match! 🎉");
+        toast.success(t("discover.itsAMatch") + " 🎉");
+        // Notify the other person of match (fire-and-forget)
+        supabase.functions
+          .invoke("send-push", {
+            body: {
+              user_id: profileId,
+              title: "It's a match! 💜",
+              body: "You matched on Shqiponja — say hello!",
+              url: "/matches",
+            },
+          })
+          .catch((err) => logger.error("send-push (match) failed:", err));
       } else {
         toast.success("Profile liked!");
+        // Notify the liked person (fire-and-forget)
+        supabase.functions
+          .invoke("send-push", {
+            body: {
+              user_id: profileId,
+              title: "Someone liked your profile! 🦅",
+              body: "You have a new like on Shqiponja — tap to see who",
+              url: "/who-liked-you",
+            },
+          })
+          .catch((err) => logger.error("send-push (like) failed:", err));
       }
 
       // Move to next profile
-      setCurrentProfileIndex(prev => prev + 1);
+      setCurrentProfileIndex((prev) => prev + 1);
     } catch (error) {
-      console.error("Error liking profile:", error);
-      toast.error(`Failed to like profile: ${error.message || "Unknown error"}`);
+      logger.error("Error liking profile:", error);
+      const errorMessage = (error as { message?: string } | null)?.message ?? "Unknown error";
+      toast.error(`Failed to like profile: ${errorMessage}`);
     }
   };
 
   // Handle superlike action
   const handleSuperlike = async () => {
+    // Haptic feedback — stronger for superlike
+    if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
     if (!user || !currentProfile) return;
+    // Rate limit: 1 superlike per 1s
+    const now = Date.now();
+    if (now - lastSuperlikeTime.current < 1000) return;
+    lastSuperlikeTime.current = now;
 
     // Check if user has superlikes
     if (superlikesRemaining <= 0) {
@@ -737,14 +1114,14 @@ const Discover = () => {
       return;
     }
 
+    setIsSuperliking(true);
     const profileId = currentProfile.id;
 
     try {
       // Use superlike
-      const { data: usageData, error: usageError } = await supabase
-        .rpc('use_superlike', {
-          p_user_id: user.id
-        }) as { data: { success: boolean; superlikes_remaining: number } | null; error: unknown };
+      const { data: usageData, error: usageError } = (await supabase.rpc("use_superlike", {
+        p_user_id: user.id,
+      })) as { data: { success: boolean; superlikes_remaining: number } | null; error: unknown };
 
       if (usageError) throw usageError;
 
@@ -756,55 +1133,75 @@ const Discover = () => {
       // Update superlike count
       setSuperlikesRemaining(usageData.superlikes_remaining || 0);
 
-      // Create the superlike
-      const { error: likeError } = await supabase
-        .from("likes")
-        .insert({
-          liker_id: user.id,
-          liked_id: profileId,
-          is_superlike: true,
-        });
+      // Use like_user RPC with is_superlike flag — enforces swipe limits & atomic match creation
+      const { data: likeData, error: likeError } = (await supabase.rpc("like_user", {
+        current_user_id: user.id,
+        target_user_id: profileId,
+        p_is_superlike: true,
+      })) as {
+        data: {
+          success: boolean;
+          error?: string;
+          remaining_swipes: number;
+          minutes_until_reset: number;
+          is_premium: boolean;
+          is_match: boolean;
+        } | null;
+        error: unknown;
+      };
 
       if (likeError) throw likeError;
 
-      // Check if they liked us back
-      const { data: reciprocalLike } = await supabase
-        .from("likes")
-        .select("*")
-        .eq("liker_id", profileId)
-        .eq("liked_id", user.id)
-        .single();
+      if (!likeData) {
+        throw new Error("No data returned from like_user function");
+      }
 
-      if (reciprocalLike) {
-        // Create match
-        const { error: matchError } = await supabase
-          .from("matches")
-          .insert({
-            user1_id: user.id,
-            user2_id: profileId,
-          });
+      if (!likeData.success) {
+        // Swipe limit reached even for superlike
+        setShowUpgradeDialog(true);
+        toast.info(likeData.error || "Out of swipes!");
+        return;
+      }
 
-        if (matchError) throw matchError;
+      // Update local swipe limit state
+      setSwipeLimit({
+        remainingSwipes: likeData.remaining_swipes || 0,
+        minutesUntilReset: Math.ceil(likeData.minutes_until_reset || 0),
+        isPremium: likeData.is_premium || false,
+      });
 
-        const matchedUserProfile = profiles.find(p => p.id === profileId);
+      if (likeData.is_match) {
+        const matchedUserProfile = profiles.find((p) => p.id === profileId);
         if (matchedUserProfile) {
           setMatchedProfile(matchedUserProfile);
-          setIsPremiumRosesMatch(false); // Regular match
+          setIsPremiumRosesMatch(false);
           setShowMatchAnimation(true);
         }
-        toast.success("It's a match! 🎉");
+        toast.success(t("discover.itsAMatch") + " 🎉");
       } else {
         toast.success("⚡ Superlike sent!");
       }
 
       // Add to liked profiles
-      setLikedProfiles(prev => new Set([...prev, profileId]));
-      
+      setLikedProfiles((prev) => new Set([...prev, profileId]));
+
       // Move to next profile
-      setCurrentProfileIndex(prev => prev + 1);
+      setCurrentProfileIndex((prev) => prev + 1);
     } catch (error) {
-      console.error("Error sending superlike:", error);
-      toast.error("Failed to send superlike");
+      logger.error("Error sending superlike:", error);
+      if (!navigator.onLine) {
+        enqueue({
+          table: "like_user",
+          method: "rpc",
+          payload: { current_user_id: user.id, target_user_id: currentProfile.id },
+        });
+        toast.info("You're offline. Superlike will be sent when connection returns.");
+        setCurrentProfileIndex((prev) => prev + 1);
+      } else {
+        toast.error("Failed to send superlike");
+      }
+    } finally {
+      setIsSuperliking(false);
     }
   };
 
@@ -812,7 +1209,12 @@ const Discover = () => {
   const handlePremiumRoses = async () => {
     if (!user || !rosesTargetProfile) return;
 
-    console.log('🌹 Sending Premium Roses to:', rosesTargetProfile.full_name);
+    if (walletBalance < 1) {
+      toast.error("Not enough coins. Please top up your wallet.");
+      return;
+    }
+
+    logger.log("🌹 Sending Premium Roses to:", rosesTargetProfile.full_name);
 
     try {
       const profileId = rosesTargetProfile.id;
@@ -821,7 +1223,9 @@ const Discover = () => {
       const { data: existingMatch } = await supabase
         .from("matches")
         .select("id")
-        .or(`and(user1_id.eq.${user.id},user2_id.eq.${profileId}),and(user1_id.eq.${profileId},user2_id.eq.${user.id})`)
+        .or(
+          `and(user1_id.eq.${user.id},user2_id.eq.${profileId}),and(user1_id.eq.${profileId},user2_id.eq.${user.id})`
+        )
         .maybeSingle();
 
       if (existingMatch) {
@@ -832,112 +1236,143 @@ const Discover = () => {
 
       // Premium Roses: Only create like from current user (no need for reciprocal like)
       // The match will be created directly, bypassing normal mutual-like requirement
-      console.log('💝 Creating your like (Premium Roses bypass mutual requirement)...');
-      
-      // Delete any existing likes first to avoid conflicts
-      await supabase
-        .from("likes")
-        .delete()
-        .eq('liker_id', user.id)
-        .eq('liked_id', profileId);
+      logger.log("💝 Creating your like (Premium Roses bypass mutual requirement)...");
 
-      const { error: likeError } = await supabase
-        .from("likes")
-        .insert({
-          liker_id: user.id,
-          liked_id: profileId,
-        });
+      // Delete any existing likes first to avoid conflicts
+      await supabase.from("likes").delete().eq("liker_id", user.id).eq("liked_id", profileId);
+
+      const { error: likeError } = await supabase.from("likes").insert({
+        liker_id: user.id,
+        liked_id: profileId,
+      });
 
       if (likeError) {
-        console.error('Error creating like:', likeError);
+        logger.error("Error creating like:", likeError);
         // Don't throw - Premium Roses should create match regardless
-        console.log('⚠️ Like creation failed, but continuing with Premium Roses match...');
+        logger.log("⚠️ Like creation failed, but continuing with Premium Roses match...");
       }
 
       // Create match with special rose type
-      console.log('💐 Creating Premium Roses match...');
+      logger.log("💐 Creating Premium Roses match...");
+      const [u1, u2] = user.id < profileId ? [user.id, profileId] : [profileId, user.id];
       const { data: matchData, error: matchError } = await supabase
         .from("matches")
         .insert({
-          user1_id: user.id,
-          user2_id: profileId,
-          special_match_type: 'premium_roses',
+          user1_id: u1,
+          user2_id: u2,
+          special_match_type: "premium_roses",
         })
         .select()
         .single();
 
       if (matchError) {
-        console.error('Error creating match:', matchError);
+        logger.error("Error creating match:", matchError);
         throw matchError;
       }
 
-      console.log('✅ Premium Roses match created successfully!', matchData);
+      // Deduct coin - use current DB balance to avoid stale-state race condition
+      const { data: walletData } = await supabase
+        .from("wallets")
+        .select("balance")
+        .eq("user_id", user.id)
+        .single();
+      const currentBalance = (walletData as { balance: number } | null)?.balance ?? walletBalance;
+      await supabase
+        .from("wallets")
+        .update({ balance: Math.max(currentBalance - 1, 0), updated_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+      await supabase
+        .from("wallet_transactions")
+        .insert({ user_id: user.id, amount: -1, type: "spend", item: "premium_roses" });
+      setWalletBalance((prev) => Math.max(prev - 1, 0));
+
+      logger.log("✅ Premium Roses match created successfully!", matchData);
 
       // Show match animation with Premium Roses theme
       setMatchedProfile(rosesTargetProfile);
       setIsPremiumRosesMatch(true);
       setShowMatchAnimation(true);
-      
+
       toast.success("💐 Premium Roses sent! Instant match created with rose-themed chat!");
-      
+
+      // Add to liked profiles so they're excluded from discovery
+      setLikedProfiles((prev) => new Set([...prev, profileId]));
+
+      // Remove the profile from the profiles array and update cache
+      setProfiles((prev) => {
+        const updated = prev.filter((p) => p.id !== profileId);
+        if (cacheKey) {
+          localStorage.setItem(cacheKey, JSON.stringify(updated.slice(0, 100)));
+        }
+        return updated;
+      });
+
       // Close dialog
       setShowPremiumRosesDialog(false);
       setRosesTargetProfile(null);
-      
-      // Move to next profile if current
-      if (currentProfile?.id === profileId) {
-        setCurrentProfileIndex(prev => prev + 1);
-      }
     } catch (error: unknown) {
-      console.error("❌ Error sending premium roses:", error);
+      logger.error("❌ Error sending premium roses:", error);
       const err = error as { message?: string; details?: string; hint?: string };
-      console.error("Error details:", err?.message, err?.details, err?.hint);
+      logger.error("Error details:", err?.message, err?.details, err?.hint);
       toast.error(err?.message || "Failed to send premium roses");
     }
   };
 
-  // Purchase superlikes
+  // Purchase superlikes via Stripe
   const handlePurchaseSuperlikes = async (amount: number) => {
     if (!user) return;
-
+    setSuperlikeCheckoutLoading(amount);
     try {
-      const price = amount * 3; // €3 per superlike
-      
-      // In a real app, you would integrate with Stripe here
-      // For now, we'll directly add the superlikes
-      const { data, error } = await supabase
-        .rpc('add_purchased_superlikes', {
-          p_user_id: user.id,
-          p_amount: amount,
-          p_price: price
-        }) as { data: { success: boolean; superlikes_remaining: number } | null; error: unknown };
+      const { data, error } = await supabase.functions.invoke("create-superlike-checkout", {
+        body: { amount, origin: window.location.origin },
+      });
 
       if (error) throw error;
 
-      if (data?.success) {
-        setSuperlikesRemaining(data.superlikes_remaining || 0);
-        toast.success(`${amount} Superlike${amount > 1 ? 's' : ''} added!`);
+      if (data?.url) {
         setShowSuperlikeDialog(false);
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
       }
     } catch (error) {
-      console.error("Error purchasing superlikes:", error);
-      toast.error("Failed to purchase superlikes");
+      logger.error("Error starting superlike checkout:", error);
+      const msg = error instanceof Error ? error.message : String(error);
+      toast.error(`Checkout failed: ${msg}`);
+    } finally {
+      setSuperlikeCheckoutLoading(null);
     }
   };
 
   // Handle pass action
+  // Helper to persist excluded profile IDs in sessionStorage so remounts don't bring them back
   const handlePass = async (profileId: string) => {
     if (!user) return;
+    // Haptic feedback
+    if (navigator.vibrate) navigator.vibrate(10);
+    analytics.pass(profileId);
+
+    // Cache locally BEFORE async DB write so remounts during await don't bring it back
+    addLocalExcluded(profileId);
+    setPassedProfiles((prev) => new Set([...prev, profileId]));
+    // Track immediately for rewind (before async so rewind works right away)
+    setLastActionHistory((prev) => [
+      ...prev,
+      { type: "pass" as const, profileId, timestamp: Date.now() },
+    ]);
+    setCurrentProfileIndex((prev) => prev + 1);
 
     try {
       // Check swipe limits
-      const { data, error } = await supabase
-        .rpc('get_remaining_swipes', {
-          user_id: user.id
-        }) as { data: { remaining_swipes: number; minutes_until_reset: number; is_premium: boolean } | null; error: unknown };
+      const { data, error } = (await supabase.rpc("get_remaining_swipes", {
+        user_id: user.id,
+      })) as {
+        data: { remaining_swipes: number; minutes_until_reset: number; is_premium: boolean } | null;
+        error: unknown;
+      };
 
       if (error) {
-        console.error("Error checking swipe limits:", error);
+        logger.error("Error checking swipe limits:", error);
         throw error;
       }
 
@@ -945,13 +1380,13 @@ const Discover = () => {
         throw new Error("No data returned from get_remaining_swipes");
       }
 
-      console.log("Swipe limits:", data);
+      logger.log("Swipe limits:", data);
 
       // Update swipe limit state
       setSwipeLimit({
         remainingSwipes: data.remaining_swipes || 0,
         minutesUntilReset: Math.ceil(data.minutes_until_reset || 0),
-        isPremium: data.is_premium || false
+        isPremium: data.is_premium || false,
       });
 
       // Show upgrade dialog if out of swipes
@@ -961,35 +1396,44 @@ const Discover = () => {
         return;
       }
 
-      setPassedProfiles(prev => new Set([...prev, profileId]));
-      
-      // Track this action for rewind
-      setLastActionHistory(prev => [...prev, { type: 'pass', profileId, timestamp: Date.now() }]);
-      
-      setCurrentProfileIndex(prev => prev + 1);
+      // Store pass in database so it persists across sessions
+      const { error: passError } = await supabase
+        .from("likes")
+        .upsert(
+          { liker_id: user.id, liked_id: profileId, action: "pass" },
+          { onConflict: "liker_id,liked_id" }
+        );
+
+      if (passError) {
+        logger.error("Error storing pass:", passError);
+      }
+
       toast.success("Profile passed");
 
       // Increment swipe count in database for non-premium users
       if (!data.is_premium) {
         const newCount = Math.max(0, 10 - (data.remaining_swipes - 1));
-        await supabase.from('daily_swipes')
-          .upsert({ 
+        await supabase.from("daily_swipes").upsert(
+          {
             user_id: user.id,
             swipe_count: newCount,
-            last_reset: new Date().toISOString()
-          }, {
-            onConflict: 'user_id'
-          });
-        
+            last_reset: new Date().toISOString(),
+          },
+          {
+            onConflict: "user_id",
+          }
+        );
+
         // Update local state
-        setSwipeLimit(prev => ({
+        setSwipeLimit((prev) => ({
           ...prev,
-          remainingSwipes: Math.max(0, prev.remainingSwipes - 1)
+          remainingSwipes: Math.max(0, prev.remainingSwipes - 1),
         }));
       }
     } catch (error) {
-      console.error("Error passing profile:", error);
-      toast.error(`Failed to pass profile: ${error.message || "Unknown error"}`);
+      logger.error("Error passing profile:", error);
+      const errorMessage = (error as { message?: string } | null)?.message ?? "Unknown error";
+      toast.error(`Failed to pass profile: ${errorMessage}`);
     }
   };
 
@@ -1004,26 +1448,46 @@ const Discover = () => {
 
     try {
       const lastAction = lastActionHistory[lastActionHistory.length - 1];
-      
+
       // Undo the last action in the database
-      if (lastAction.type === 'like') {
+      if (lastAction.type === "like") {
         // Remove the like
         await supabase
-          .from('likes')
+          .from("likes")
           .delete()
-          .eq('liker_id', user.id)
-          .eq('liked_id', lastAction.profileId);
-        
+          .eq("liker_id", user.id)
+          .eq("liked_id", lastAction.profileId);
+
+        // Also delete any match that was created from this like
+        const { error: matchDeleteError } = await supabase
+          .from("matches")
+          .delete()
+          .or(
+            `and(user1_id.eq.${user.id},user2_id.eq.${lastAction.profileId}),and(user1_id.eq.${lastAction.profileId},user2_id.eq.${user.id})`
+          );
+
+        if (matchDeleteError) {
+          logger.warn("Could not delete match on rewind:", matchDeleteError);
+        }
+
         // Remove from local state
-        setLikedProfiles(prev => {
+        setLikedProfiles((prev) => {
           const newSet = new Set(prev);
           newSet.delete(lastAction.profileId);
           return newSet;
         });
       }
-      // Note: passes aren't stored in DB, just remove from local state
-      else if (lastAction.type === 'pass') {
-        setPassedProfiles(prev => {
+      // Delete pass from DB and remove from local state
+      else if (lastAction.type === "pass") {
+        await supabase
+          .from("likes")
+          .delete()
+          .eq("liker_id", user.id)
+          .eq("liked_id", lastAction.profileId)
+          .eq("action", "pass");
+
+        removeLocalExcluded(lastAction.profileId);
+        setPassedProfiles((prev) => {
           const newSet = new Set(prev);
           newSet.delete(lastAction.profileId);
           return newSet;
@@ -1033,29 +1497,29 @@ const Discover = () => {
       // Decrease rewind count in database (if column exists)
       try {
         const { error } = await supabase
-          .from('profiles')
+          .from("profiles")
           .update({ rewinds_remaining: rewindsRemaining - 1 } as never)
-          .eq('id', user.id);
+          .eq("id", user.id);
 
-        if (error && !error.message?.includes('does not exist')) {
+        if (error && !error.message?.includes("does not exist")) {
           throw error;
         }
       } catch (dbError) {
-        console.warn('Could not update rewinds_remaining in database:', dbError);
+        logger.warn("Could not update rewinds_remaining in database:", dbError);
       }
 
       // Update local state
-      setRewindsRemaining(prev => prev - 1);
-      
-      // Go back one profile
-      setCurrentProfileIndex(prev => Math.max(0, prev - 1));
-      
-      // Remove last action from history
-      setLastActionHistory(prev => prev.slice(0, -1));
+      setRewindsRemaining((prev) => prev - 1);
 
-      toast.success(`${lastAction.type === 'like' ? 'Like' : 'Pass'} undone!`);
+      // Go back one profile
+      setCurrentProfileIndex((prev) => Math.max(0, prev - 1));
+
+      // Remove last action from history
+      setLastActionHistory((prev) => prev.slice(0, -1));
+
+      toast.success(`${lastAction.type === "like" ? "Like" : "Pass"} undone!`);
     } catch (error) {
-      console.error("Error rewinding:", error);
+      logger.error("Error rewinding:", error);
       toast.error("Failed to undo action");
     }
   };
@@ -1078,15 +1542,17 @@ const Discover = () => {
     }
 
     try {
-      const { data, error } = await supabase
-        .rpc('send_instant_message', {
-          sender_user_id: user.id,
-          receiver_user_id: instantMessageTargetProfile.id,
-          message_text: instantMessageText.trim()
-        }) as { data: { success: boolean; error?: string; credits_remaining?: number } | null; error: unknown };
+      const { data, error } = (await supabase.rpc("send_instant_message", {
+        sender_user_id: user.id,
+        receiver_user_id: instantMessageTargetProfile.id,
+        message_text: instantMessageText.trim(),
+      })) as {
+        data: { success: boolean; error?: string; credits_remaining?: number } | null;
+        error: unknown;
+      };
 
       if (error) {
-        console.error("Supabase error:", error);
+        logger.error("Supabase error:", error);
         throw error;
       }
 
@@ -1103,8 +1569,8 @@ const Discover = () => {
         setInstantMessageTargetProfile(null);
       }
     } catch (error) {
-      console.error("Error sending instant message:", error);
-      console.error("Error details:", JSON.stringify(error, null, 2));
+      logger.error("Error sending instant message:", error);
+      logger.error("Error details:", JSON.stringify(error, null, 2));
       toast.error("Failed to send message");
     }
   };
@@ -1117,7 +1583,7 @@ const Discover = () => {
       // Then navigate to auth page
       navigate("/auth", { replace: true });
     } catch (error) {
-      console.error('Sign out error:', error);
+      logger.error("Sign out error:", error);
       // Navigate anyway even if sign out fails
       navigate("/auth", { replace: true });
     }
@@ -1130,6 +1596,18 @@ const Discover = () => {
     setShowFilterSheet(true);
   };
 
+  // Handle closing filter sheet — warn if there are unsaved changes
+  const handleFilterSheetOpenChange = (open: boolean) => {
+    if (!open) {
+      const hasChanges = JSON.stringify(tempFilters) !== JSON.stringify(filters);
+      if (hasChanges) {
+        setShowFilterDiscardConfirm(true);
+        return;
+      }
+    }
+    setShowFilterSheet(open);
+  };
+
   // Handle saving filters
   const handleSaveFilters = () => {
     // Apply temp filters to actual filters
@@ -1137,19 +1615,28 @@ const Discover = () => {
     // Close the sheet
     setShowFilterSheet(false);
     // Filters will automatically trigger refetch via useEffect
+
+    // Persist gender preference to DB so it stays in sync with Settings
+    if (user && tempFilters.gender !== filters.gender) {
+      supabase
+        .from("profiles")
+        .update({ gender_preference: tempFilters.gender })
+        .eq("id", user.id)
+        .then(() => {});
+    }
   };
 
   // Handle opening notifications - mark as seen
   const handleOpenNotifications = () => {
     // Calculate current total notifications
     const totalNotifications = profileViews.length + profileLikes.length;
-    
+
     // Mark current count as "seen"
     setLastSeenNotificationCount(totalNotifications);
-    
+
     // Reset notification badge to 0
     setNotificationCount(0);
-    
+
     // Open the dialog
     setShowNotifications(true);
   };
@@ -1157,110 +1644,174 @@ const Discover = () => {
   // Memoize data initialization to prevent recreation on every render
   const initializeData = useCallback(async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
 
-      // 1. Load liked profiles from database
+      // Clean up old cache key format (without travel suffix)
+      localStorage.removeItem(`discover_profiles_cache_${user.id}`);
+
+      // 1. Load liked profiles + matched users from database
       const { data: likesData } = await supabase
         .from("likes")
-        .select("liked_id")
+        .select("liked_id, action")
         .eq("liker_id", user.id);
 
-      if (likesData) {
-        const likedIds = likesData.map(like => like.liked_id);
-        setLikedProfiles(new Set(likedIds));
-        console.log("Loaded liked profiles:", likedIds.length);
-      }
+      const likedIds = likesData
+        ? likesData.filter((l) => l.action !== "pass").map((l) => l.liked_id)
+        : [];
+      const passedIds = likesData
+        ? likesData.filter((l) => l.action === "pass").map((l) => l.liked_id)
+        : [];
+
+      // Also fetch matched user IDs so they are excluded from discovery
+      const { data: matchData } = await supabase
+        .from("matches")
+        .select("user1_id, user2_id")
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+
+      const matchedIds = (matchData || []).map((m) =>
+        m.user1_id === user.id ? m.user2_id : m.user1_id
+      );
+
+      const localExcluded = getLocalExcluded();
+      const allPassed = new Set([...passedIds, ...localExcluded]);
+      const allExcluded = new Set([...likedIds, ...allPassed, ...matchedIds]);
+      setLikedProfiles(new Set([...likedIds, ...matchedIds]));
+      setPassedProfiles(allPassed);
+      logger.log(
+        "Loaded liked profiles:",
+        likedIds.length,
+        "passed:",
+        allPassed.size,
+        "matched:",
+        matchedIds.length
+      );
 
       // 2. Check swipe limits and premium status
-      const { data: swipeData } = await supabase
-        .rpc('get_remaining_swipes', {
-          user_id: user.id
-        }) as { data: { remaining_swipes: number; minutes_until_reset: number; is_premium: boolean } | null };
+      const { data: swipeData } = (await supabase.rpc("get_remaining_swipes", {
+        user_id: user.id,
+      })) as {
+        data: { remaining_swipes: number; minutes_until_reset: number; is_premium: boolean } | null;
+      };
 
       // Also check premium status directly from profile to ensure accuracy
       const { data: profileData } = await supabase
-        .from('profiles')
-        .select('is_premium')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("is_premium, superlikes_remaining")
+        .eq("id", user.id)
         .single();
 
       const actualPremiumStatus = profileData?.is_premium || swipeData?.is_premium || false;
+      setSuperlikesRemaining(profileData?.superlikes_remaining ?? 0);
 
       if (swipeData) {
         setSwipeLimit({
           remainingSwipes: swipeData.remaining_swipes,
           minutesUntilReset: Math.ceil(swipeData.minutes_until_reset),
-          isPremium: actualPremiumStatus
+          isPremium: actualPremiumStatus,
         });
       }
 
       // 2.5. Fetch spotlight profiles
       const myProfileForSpotlight = await fetchMyProfile();
-      
+
       // Determine which coordinates to use (travel or regular)
-      const userLatForSpotlight = myProfileForSpotlight?.travel_mode_active && myProfileForSpotlight?.travel_latitude 
-        ? myProfileForSpotlight.travel_latitude 
-        : myProfileForSpotlight?.latitude;
-      const userLonForSpotlight = myProfileForSpotlight?.travel_mode_active && myProfileForSpotlight?.travel_longitude
-        ? myProfileForSpotlight.travel_longitude
-        : myProfileForSpotlight?.longitude;
-      
+      const userLatForSpotlight =
+        myProfileForSpotlight?.travel_mode_active && myProfileForSpotlight?.travel_latitude
+          ? myProfileForSpotlight.travel_latitude
+          : myProfileForSpotlight?.latitude;
+      const userLonForSpotlight =
+        myProfileForSpotlight?.travel_mode_active && myProfileForSpotlight?.travel_longitude
+          ? myProfileForSpotlight.travel_longitude
+          : myProfileForSpotlight?.longitude;
+
       if (userLatForSpotlight && userLonForSpotlight) {
-        const { data: spotlightData, error: spotlightError } = await supabase
-          .rpc('get_spotlight_profiles', {
+        const { data: spotlightData, error: spotlightError } = (await supabase.rpc(
+          "get_spotlight_profiles",
+          {
             current_user_id: user.id,
             user_latitude: userLatForSpotlight,
             user_longitude: userLonForSpotlight,
-            max_distance_km: filters.maxDistance
-          }) as { data: Profile[] | null; error: unknown };
+            max_distance_km: filters.maxDistance,
+          }
+        )) as { data: Profile[] | null; error: unknown };
 
         // Silently handle missing function
         if (spotlightError) {
           const errorObj = spotlightError as { code?: string; message?: string };
-          if (errorObj.code === 'PGRST202' || errorObj.message?.includes('not found')) {
-            console.log("Spotlight function not available yet. Run migration: 20251031_add_spotlight_profiles_function.sql");
+          if (errorObj.code === "PGRST202" || errorObj.message?.includes("not found")) {
+            logger.log(
+              "Spotlight function not available yet. Run migration: 20251031_add_spotlight_profiles_function.sql"
+            );
           } else {
-            console.error("Error fetching spotlight profiles:", spotlightError);
+            logger.error("Error fetching spotlight profiles:", spotlightError);
           }
         }
 
         if (spotlightData && !spotlightError) {
-          const spotlightWithDistance = spotlightData.map((profile: Profile) => {
-            let distance_km = undefined;
-            if (userLatForSpotlight && userLonForSpotlight) {
-              // Check if the profile user is in travel mode and use their travel coordinates
-              const profileLat = profile.travel_mode_active && profile.travel_latitude
-                ? profile.travel_latitude
-                : profile.latitude;
-              const profileLon = profile.travel_mode_active && profile.travel_longitude
-                ? profile.travel_longitude
-                : profile.longitude;
-              
-              if (profileLat && profileLon) {
-                distance_km = calculateDistance(
-                  userLatForSpotlight,
-                  userLonForSpotlight,
-                  profileLat,
-                  profileLon
-                );
+          const spotlightWithDistance = spotlightData
+            .map((profile: Profile) => {
+              let distance_km = undefined;
+              if (userLatForSpotlight && userLonForSpotlight) {
+                // Check if the profile user is in travel mode and use their travel coordinates
+                const profileLat =
+                  profile.travel_mode_active && profile.travel_latitude
+                    ? profile.travel_latitude
+                    : profile.latitude;
+                const profileLon =
+                  profile.travel_mode_active && profile.travel_longitude
+                    ? profile.travel_longitude
+                    : profile.longitude;
+
+                if (profileLat && profileLon) {
+                  distance_km = calculateDistance(
+                    userLatForSpotlight,
+                    userLonForSpotlight,
+                    profileLat,
+                    profileLon
+                  );
+                }
               }
-            }
-            return {
-              ...profile,
-              distance_km,
-              interests: profile.interests || []
-            };
-          }).filter((profile: Profile) => {
-            // Filter spotlight profiles by distance when in travel mode or always
-            if (profile.distance_km !== undefined && profile.distance_km > filters.maxDistance) {
-              console.log(`🚫 Filtering out initial spotlight ${profile.full_name}: ${Math.round(profile.distance_km)}km > ${filters.maxDistance}km`);
-              return false;
-            }
-            return true;
-          });
-          console.log(`Loaded ${spotlightWithDistance.length} spotlight profiles`);
+              return {
+                ...profile,
+                distance_km,
+                interests: profile.interests || [],
+              };
+            })
+            .filter((profile: Profile) => {
+              // Exclude already liked/passed profiles
+              if (allExcluded.has(profile.id)) return false;
+
+              // Apply gender filter (mutual matching)
+              const myGenderPref = (
+                myProfileForSpotlight?.gender_preference ||
+                filters.gender ||
+                "everyone"
+              ).toLowerCase();
+              const myGender = (myProfileForSpotlight?.gender || "").toLowerCase();
+              const theirGenderPref = (profile.gender_preference || "everyone").toLowerCase();
+              const theirGender = (profile.gender || "").toLowerCase();
+
+              // 1. Do I want to see their gender? (skip if their gender is unknown)
+              if (myGenderPref !== "everyone" && theirGender && theirGender !== myGenderPref) {
+                return false;
+              }
+              // 2. Do they want to see my gender? (skip if their preference is unknown)
+              if (theirGenderPref !== "everyone" && myGender && myGender !== theirGenderPref) {
+                return false;
+              }
+
+              // Filter spotlight profiles by distance when in travel mode or always
+              if (profile.distance_km !== undefined && profile.distance_km > filters.maxDistance) {
+                logger.log(
+                  `🚫 Filtering out initial spotlight ${profile.full_name}: ${Math.round(profile.distance_km)}km > ${filters.maxDistance}km`
+                );
+                return false;
+              }
+              return true;
+            });
+          logger.log(`Loaded ${spotlightWithDistance.length} spotlight profiles`);
           setSpotlightProfiles(spotlightWithDistance);
         }
       }
@@ -1272,13 +1823,19 @@ const Discover = () => {
         return;
       }
 
-      // Get excluded IDs
-      const excludedIds = likesData ? likesData.map(like => like.liked_id) : [];
+      // Sync gender preference from DB into filters (only during init, not in fetchMyProfile to avoid loops)
+      if (myProfile.gender_preference && myProfile.gender_preference !== filters.gender) {
+        setFilters((prev) => ({ ...prev, gender: myProfile.gender_preference || "everyone" }));
+      }
+
+      // Get excluded IDs (liked + matched)
+      const excludedIds = Array.from(allExcluded);
 
       let query = supabase
         .from("profiles")
         .select("*")
-        .neq("id", user.id);
+        .neq("id", user.id)
+        .is("deactivated_at", null);
 
       if (excludedIds.length > 0) {
         query = query.not("id", "in", `(${excludedIds.join(",")})`);
@@ -1289,63 +1846,184 @@ const Discover = () => {
       if (error) throw error;
 
       if (profilesData) {
-        const profilesWithDistance = profilesData.map((profile: Profile) => {
-          let distance_km = undefined;
-          if (
-            myProfile.latitude && myProfile.longitude &&
-            profile.latitude && profile.longitude
-          ) {
-            distance_km = calculateDistance(
-              myProfile.latitude,
-              myProfile.longitude,
-              profile.latitude,
-              profile.longitude
-            );
-          }
+        // Determine which coordinates to use (travel or regular)
+        const userLat =
+          myProfile.travel_mode_active && myProfile.travel_latitude
+            ? myProfile.travel_latitude
+            : myProfile.latitude;
+        const userLon =
+          myProfile.travel_mode_active && myProfile.travel_longitude
+            ? myProfile.travel_longitude
+            : myProfile.longitude;
 
-          return {
-            ...profile,
-            distance_km,
-            interests: profile.interests || []
-          };
-        }).filter((profile: Profile) => {
-          // Apply age filter
-          if (profile.age < filters.minAge || profile.age > filters.maxAge) {
-            return false;
-          }
-          
-          // Apply distance filter
-          if (profile.distance_km !== undefined && profile.distance_km > filters.maxDistance) {
-            return false;
-          }
-          return true;
+        logger.log("🗺️ Init discovery coords:", {
+          travelMode: myProfile.travel_mode_active,
+          travelLat: myProfile.travel_latitude,
+          travelLon: myProfile.travel_longitude,
+          homeLat: myProfile.latitude,
+          homeLon: myProfile.longitude,
+          usingLat: userLat,
+          usingLon: userLon,
+          travelCity: myProfile.travel_city,
+          homeCity: myProfile.city,
+          maxDistance: filters.maxDistance,
+          profileCount: profilesData.length,
         });
 
-        setProfiles(profilesWithDistance);
+        const profilesWithDistance = profilesData
+          .map((profile: Profile) => {
+            let distance_km = undefined;
+            if (userLat && userLon) {
+              // Check if the profile user is in travel mode and use their travel coordinates
+              const profileLat =
+                profile.travel_mode_active && profile.travel_latitude
+                  ? profile.travel_latitude
+                  : profile.latitude;
+              const profileLon =
+                profile.travel_mode_active && profile.travel_longitude
+                  ? profile.travel_longitude
+                  : profile.longitude;
+
+              if (profileLat && profileLon) {
+                distance_km = calculateDistance(userLat, userLon, profileLat, profileLon);
+                logger.log(
+                  `📍 Init: ${profile.full_name} (${profile.city}) = ${Math.round(distance_km)}km`
+                );
+              } else {
+                logger.log(`📍 Init: ${profile.full_name} (${profile.city}) = NO COORDS`);
+              }
+            }
+
+            return {
+              ...profile,
+              distance_km,
+              interests: profile.interests || [],
+            };
+          })
+          .filter((profile: Profile) => {
+            // Apply gender filter (mutual matching)
+            // Prefer DB-stored preference since filters.gender may still be default "everyone"
+            const myGenderPref = (
+              myProfile.gender_preference ||
+              filters.gender ||
+              "everyone"
+            ).toLowerCase();
+            const myGender = (myProfile.gender || "").toLowerCase();
+            const theirGenderPref = (profile.gender_preference || "everyone").toLowerCase();
+            const theirGender = (profile.gender || "").toLowerCase();
+
+            // 1. Do I want to see their gender? (skip if their gender is unknown)
+            if (myGenderPref !== "everyone" && theirGender && theirGender !== myGenderPref) {
+              return false;
+            }
+            // 2. Do they want to see my gender? (skip if my gender is unknown)
+            if (theirGenderPref !== "everyone" && myGender && myGender !== theirGenderPref) {
+              return false;
+            }
+
+            // Apply age filter
+            if (profile.age < filters.minAge || profile.age > filters.maxAge) {
+              return false;
+            }
+
+            // In travel mode, exclude profiles with no coordinates (can't verify proximity)
+            if (myProfile.travel_mode_active && profile.distance_km === undefined) {
+              logger.log(
+                `🚫 Init: Filtering out ${profile.full_name}: no coordinates (travel mode)`
+              );
+              return false;
+            }
+
+            // Apply distance filter
+            if (profile.distance_km !== undefined && profile.distance_km > filters.maxDistance) {
+              logger.log(
+                `🚫 Init: Filtering out ${profile.full_name}: ${Math.round(profile.distance_km)}km > ${filters.maxDistance}km`
+              );
+              return false;
+            }
+            return true;
+          });
+
+        const sortedProfiles = filters.smartSort
+          ? [...profilesWithDistance].sort(
+              (a, b) => computeMatchScore(b, myProfile) - computeMatchScore(a, myProfile)
+            )
+          : profilesWithDistance;
+
+        setProfiles(sortedProfiles);
+        cacheProfiles(sortedProfiles);
         setCurrentProfileIndex(0);
       }
-
     } catch (error) {
-      console.error("Error initializing:", error);
+      logger.error("Error initializing:", error);
     } finally {
       setLoading(false);
     }
-  }, [user, filters.maxDistance, filters.minAge, filters.maxAge, navigate, fetchMyProfile]);
+  }, [
+    user,
+    filters.maxDistance,
+    filters.minAge,
+    filters.maxAge,
+    filters.gender,
+    filters.smartSort,
+    navigate,
+    fetchMyProfile,
+    cacheProfiles,
+    getLocalExcluded,
+  ]);
 
   // Initialize - Load data on mount only
+  const initRef = useRef(false);
+  // Suppress filter-change refetch while initializeData is running (it syncs setFilters internally)
+  const isInitializingRef = useRef(false);
   useEffect(() => {
-    initializeData();
-  }, [initializeData]);  // Save last seen notification count to localStorage (user-specific)
+    if (initRef.current || !user) return;
+    initRef.current = true;
+    isInitializingRef.current = true;
+    let cancelled = false;
+    initializeData().finally(() => {
+      if (!cancelled) isInitializingRef.current = false;
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]); // Only run once when user is available
+
   useEffect(() => {
     if (!user) return;
-    localStorage.setItem(`lastSeenNotificationCount_${user.id}`, lastSeenNotificationCount.toString());
+    fetchWallet();
+  }, [user, fetchWallet]);
+
+  useEffect(() => {
+    loadSavedProfiles();
+  }, [loadSavedProfiles]);
+
+  useEffect(() => {
+    if (!user) return;
+    localStorage.setItem(
+      `lastSeenNotificationCount_${user.id}`,
+      lastSeenNotificationCount.toString()
+    );
   }, [lastSeenNotificationCount, user]);
 
   // Auto-update location on page load/login
   useEffect(() => {
     if (!user || !navigator.geolocation) return;
 
-    const updateLocationSilently = () => {
+    const updateLocationSilently = async () => {
+      // Check travel mode from database to avoid race conditions with state
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("travel_mode_active")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.travel_mode_active) {
+        logger.log("Skipping auto-location update: travel mode is active");
+        return;
+      }
+
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -1356,8 +2034,8 @@ const Discover = () => {
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
               {
                 headers: {
-                  'User-Agent': 'ShqiponjaApp/1.0'
-                }
+                  "User-Agent": "ShqiponjaApp/1.0",
+                },
               }
             );
 
@@ -1365,26 +2043,27 @@ const Discover = () => {
 
             const data = await response.json();
             const address = data.address;
-            const city = address.city || address.town || address.village || address.municipality || "";
+            const city =
+              address.city || address.town || address.village || address.municipality || "";
             const country = address.country || "";
 
             if (city && country) {
               // Update location in database silently
               await supabase
-                .from('profiles')
+                .from("profiles")
                 .update({
                   city: city,
                   country: country,
                   location: `${city}, ${country}`,
                   latitude: latitude,
-                  longitude: longitude
+                  longitude: longitude,
                 })
-                .eq('id', user.id);
+                .eq("id", user.id);
 
-              console.log('Location updated automatically:', city, country);
+              logger.log("Location updated automatically:", city, country);
             }
           } catch (error) {
-            console.error("Silent location update failed:", error);
+            logger.error("Silent location update failed:", error);
           }
         },
         () => {
@@ -1393,7 +2072,7 @@ const Discover = () => {
         {
           enableHighAccuracy: true,
           timeout: 5000,
-          maximumAge: 0
+          maximumAge: 0,
         }
       );
     };
@@ -1409,18 +2088,18 @@ const Discover = () => {
     const channel = supabase
       .channel(`booster:${user.id}`)
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'profiles',
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
           filter: `id=eq.${user.id}`,
         },
         (payload) => {
           const newProfile = payload.new as Profile;
           setBoosterActive(newProfile.booster_active || false);
           setBoosterExpiresAt(newProfile.booster_expires_at || null);
-          
+
           // Show toast when booster expires
           if (!newProfile.booster_active && boosterActive) {
             toast.info("Your Spotlight Booster has expired");
@@ -1433,6 +2112,48 @@ const Discover = () => {
       supabase.removeChannel(channel);
     };
   }, [user, boosterActive]);
+
+  // Subscribe to new matches so matched users are removed from discovery in real-time
+  // (e.g. when someone sends you Premium Roses while you're browsing)
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`discovery-matches:${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "matches",
+          filter: `user1_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const matchedUserId = (payload.new as { user2_id: string }).user2_id;
+          setLikedProfiles((prev) => new Set([...prev, matchedUserId]));
+          setProfiles((prev) => prev.filter((p) => p.id !== matchedUserId));
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "matches",
+          filter: `user2_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const matchedUserId = (payload.new as { user1_id: string }).user1_id;
+          setLikedProfiles((prev) => new Set([...prev, matchedUserId]));
+          setProfiles((prev) => prev.filter((p) => p.id !== matchedUserId));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   // Update booster countdown timer
   useEffect(() => {
@@ -1463,14 +2184,65 @@ const Discover = () => {
     return () => clearInterval(interval);
   }, [boosterActive, boosterExpiresAt]);
 
-  // Refetch profiles when filters change
+  // Get current profile - memoized for performance
+  const currentProfile = useMemo(
+    () => profiles[currentProfileIndex],
+    [profiles, currentProfileIndex]
+  );
+
+  // Auto-fetch next page when fewer than 5 cards remain
+  const cardsRemaining = profiles.length - currentProfileIndex;
   useEffect(() => {
-    // Only refetch if we already have profiles loaded (not on initial mount)
-    if (profiles.length > 0 || likedProfiles.size > 0 || passedProfiles.size > 0) {
-      console.log("Filters changed, refetching profiles...");
-      fetchProfiles();
+    if (!loading && cardsRemaining > 0 && cardsRemaining <= 5) {
+      fetchMoreProfiles();
     }
-  }, [fetchProfiles, profiles.length, likedProfiles.size, passedProfiles.size]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardsRemaining]);
+
+  // Memoized interests for the swipe card — avoids re-rendering on unrelated state changes
+  const swipeCardInterests = useMemo(
+    () => currentProfile?.interests?.slice(0, 5) ?? [],
+    [currentProfile?.id, currentProfile?.interests] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  // Fetch active stories for current profile
+  useEffect(() => {
+    if (!currentProfile?.id) {
+      setProfileStories([]);
+      return;
+    }
+    const now = new Date().toISOString();
+    supabase
+      .from("stories")
+      .select("id, media_type, media_url, caption, created_at, expires_at")
+      .eq("user_id", currentProfile.id)
+      .gt("expires_at", now)
+      .order("created_at", { ascending: true })
+      .then(({ data }) => {
+        setProfileStories((data as StoryItem[]) || []);
+      });
+  }, [currentProfile?.id]);
+
+  // Refetch profiles when filters change
+  const hasInitializedRef = useRef(false);
+  useEffect(() => {
+    // Skip the very first render (initializeData handles that)
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      return;
+    }
+    // Skip if initializeData is still running (it already fetches profiles internally)
+    if (isInitializingRef.current) return;
+    logger.log("Filters changed, refetching profiles...");
+    let cancelled = false;
+    fetchProfiles().catch(() => {
+      /* cancelled */
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   // Fetch notifications on mount and when user changes
   useEffect(() => {
@@ -1481,15 +2253,9 @@ const Discover = () => {
     }
   }, [user, fetchProfileViews, fetchProfileLikes, fetchRewindCount]);
 
-  // Get current profile - memoized for performance
-  const currentProfile = useMemo(() => 
-    profiles[currentProfileIndex], 
-    [profiles, currentProfileIndex]
-  );
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-subtle p-4">
+      <div className="min-h-dvh bg-gradient-subtle p-4">
         <div className="max-w-sm mx-auto">
           <ProfileCardSkeleton />
         </div>
@@ -1498,339 +2264,606 @@ const Discover = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black p-4 pb-24">
+    <div className="min-h-dvh bg-background p-4 pb-24">
       {/* Header */}
-      <div className="flex flex-col max-w-2xl mx-auto mb-6">
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl border border-gray-700 p-6 shadow-2xl">
-          <div className="flex justify-between items-center mb-6">
+      <div className="container mx-auto max-w-2xl p-4">
+        <div className="bg-card rounded-2xl p-5 mb-6 shadow-card">
+          <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <img src="/eagle-logo.png" alt="Shqiponja" className="h-12 w-12 object-contain" />
-              <span className="text-2xl font-bold text-yellow-500 font-serif">Shqiponja</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] bg-clip-text text-transparent">
+                Shqiponja
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setShowBoostDialog(true)}
-                className="p-2 hover:bg-blue-600/20 rounded-full transition-colors group"
+                onClick={() =>
+                  boosterActive ? setShowBoostStatusDialog(true) : setShowBoostDialog(true)
+                }
+                className={`relative p-2.5 rounded-full transition-colors group ${boosterActive ? "bg-primary/10" : "hover:bg-muted"}`}
                 aria-label="Boost"
               >
-                <Zap className="h-6 w-6 text-blue-500 animate-pulse group-hover:text-blue-400" />
+                <Zap
+                  className={`h-6 w-6 ${boosterActive ? "text-primary animate-pulse" : "text-muted-foreground group-hover:text-primary"}`}
+                  fill={boosterActive ? "currentColor" : "none"}
+                />
+                {boosterActive && (
+                  <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary animate-ping" />
+                )}
               </button>
               <button
-                onClick={() => swipeLimit.isPremium ? navigate("/settings") : setShowUpgradeDialog(true)}
-                className="p-2 hover:bg-gray-700/50 rounded-full transition-colors"
+                onClick={() =>
+                  swipeLimit.isPremium ? navigate("/settings") : setShowUpgradeDialog(true)
+                }
+                className="p-2.5 hover:bg-muted rounded-full transition-colors"
                 aria-label="Premium"
               >
-                <Crown className={`h-6 w-6 ${swipeLimit.isPremium ? 'text-yellow-500 animate-pulse' : 'text-gray-400 hover:text-yellow-500'}`} />
+                <Crown
+                  className={`h-6 w-6 ${swipeLimit.isPremium ? "text-accent animate-pulse" : "text-muted-foreground hover:text-accent"}`}
+                />
               </button>
               <button
                 onClick={handleOpenNotifications}
-                className="relative p-2 hover:bg-gray-700/50 rounded-full transition-colors"
+                className="relative p-2.5 hover:bg-muted rounded-full transition-colors"
                 aria-label="Notifications"
               >
-                <Bell className="h-6 w-6 text-yellow-500" />
+                <Bell className="h-6 w-6 text-foreground" />
                 {notificationCount > 0 && (
                   <Badge
                     variant="destructive"
                     className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
                   >
-                    {notificationCount > 99 ? '99+' : notificationCount}
+                    {notificationCount > 99 ? "99+" : notificationCount}
                   </Badge>
                 )}
               </button>
               <Sheet>
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-gray-700/50 rounded-full transition-colors" aria-label="Menu">
-                    <Menu className="h-6 w-6 text-yellow-500" />
+                  <button
+                    className="p-2.5 hover:bg-muted rounded-full transition-colors"
+                    aria-label="Menu"
+                  >
+                    <Menu className="h-6 w-6 text-primary" />
                   </button>
                 </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                  <SheetDescription>
-                    Navigation and account options
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="py-6 space-y-4">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => navigate("/game-lobby")}
-                  >
-                    <Gamepad2 className="h-4 w-4 mr-2" />
-                    Multiplayer Games
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => navigate("/settings")}
-                  >
-                    <Settings className="h-4 w-4 mr-2" />
-                    Settings
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => navigate("/edit-profile")}
-                  >
-                    <User className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-red-600"
-                    onClick={handleSignOut}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
-            <Sheet open={showFilterSheet} onOpenChange={setShowFilterSheet}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" onClick={handleOpenFilterSheet}>
-                  <SlidersHorizontal className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>Filters</SheetTitle>
-                  <SheetDescription>
-                    Customize your profile discovery preferences
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="py-6 space-y-6">
-                  {/* Basic Filters */}
-                  <div className="space-y-2">
-                    <Label>Maximum Distance (km)</Label>
-                    <Input 
-                      type="number" 
-                      value={tempFilters.maxDistance}
-                      onChange={(e) => setTempFilters(prev => ({
-                        ...prev,
-                        maxDistance: parseInt(e.target.value) || 0
-                      }))}
-                      min={1}
-                      max={500}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Age Range</Label>
-                    <div className="flex gap-4">
-                      <Input 
-                        type="number"
-                        placeholder="Min"
-                        value={tempFilters.minAge}
-                        onChange={(e) => setTempFilters(prev => ({
-                          ...prev,
-                          minAge: parseInt(e.target.value) || 18
-                        }))}
-                        min={18}
-                        max={99}
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Menu</SheetTitle>
+                    <SheetDescription>Navigation and account options</SheetDescription>
+                  </SheetHeader>
+                  <div className="py-4 space-y-1 max-h-[70vh] overflow-y-auto">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
+                      Discover
+                    </p>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10"
+                      onClick={() => {
+                        setShowDailyPicks(true);
+                      }}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2 text-primary" /> Daily Picks
+                      <Badge className="ml-auto bg-primary text-white border-none text-[10px] px-1.5 py-0">
+                        {dailyPicks.length}
+                      </Badge>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10"
+                      onClick={() => navigate("/ai-matchmaker")}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2 text-primary" /> AI Matchmaker
+                    </Button>
+                    {user && (
+                      <TravelMode
+                        userId={user.id}
+                        isPremium={swipeLimit.isPremium}
+                        travelModeActive={travelModeActive}
+                        travelCity={travelCity}
+                        triggerClassName="w-full justify-start h-10"
+                        onTravelModeChange={async () => {
+                          const { data } = await supabase
+                            .from("profiles")
+                            .select(
+                              "travel_mode_active, travel_city, travel_latitude, travel_longitude"
+                            )
+                            .eq("id", user.id)
+                            .single();
+                          if (data) {
+                            setTravelModeActive(data.travel_mode_active || false);
+                            setTravelCity(data.travel_city || null);
+                            setTravelLatitude(data.travel_latitude || null);
+                            setTravelLongitude(data.travel_longitude || null);
+                          }
+                          // Clear cache and refresh profiles with new location
+                          if (cacheKey) {
+                            localStorage.removeItem(cacheKey);
+                          }
+                          fetchProfiles();
+                        }}
                       />
-                      <Input 
+                    )}
+
+                    <Separator className="my-2" />
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
+                      Fun & Games
+                    </p>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10"
+                      onClick={() => navigate("/game-lobby")}
+                    >
+                      <Gamepad2 className="h-4 w-4 mr-2 text-green-500" /> Dating Games
+                    </Button>
+
+                    <Separator className="my-2" />
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
+                      Dating Tools
+                    </p>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10"
+                      onClick={() => navigate("/mood-status")}
+                    >
+                      <Smile className="h-4 w-4 mr-2 text-yellow-400" /> Mood Status
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10"
+                      onClick={() => navigate("/ghost-alerts")}
+                    >
+                      <Ghost className="h-4 w-4 mr-2 text-muted-foreground" /> Ghost Alerts
+                    </Button>
+
+                    <Separator className="my-2" />
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
+                      Account
+                    </p>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10"
+                      onClick={() => navigate("/features")}
+                    >
+                      <Star className="h-4 w-4 mr-2 text-primary" /> Features
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10"
+                      onClick={() => navigate("/edit-profile")}
+                    >
+                      <User className="h-4 w-4 mr-2" /> Edit Profile
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10"
+                      onClick={() => navigate("/settings")}
+                    >
+                      <Settings className="h-4 w-4 mr-2" /> Settings
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10 text-red-500 hover:text-red-600"
+                      onClick={handleSignOut}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+              <Sheet open={showFilterSheet} onOpenChange={handleFilterSheetOpenChange}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Open filters"
+                    onClick={handleOpenFilterSheet}
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>Filters</SheetTitle>
+                    <SheetDescription>
+                      Customize your profile discovery preferences
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="py-6 space-y-6">
+                    {/* Basic Filters */}
+                    <div className="space-y-2">
+                      <Label>{t("discover.distance")} (km)</Label>
+                      <Input
                         type="number"
-                        placeholder="Max"
-                        value={tempFilters.maxAge}
-                        onChange={(e) => setTempFilters(prev => ({
-                          ...prev,
-                          maxAge: parseInt(e.target.value) || 99
-                        }))}
-                        min={18}
-                        max={99}
+                        value={tempFilters.maxDistance}
+                        onChange={(e) =>
+                          setTempFilters((prev) => ({
+                            ...prev,
+                            maxDistance: parseInt(e.target.value) || 0,
+                          }))
+                        }
+                        min={1}
+                        max={500}
                       />
                     </div>
-                  </div>
-                  
-                  {/* Premium Filters */}
-                  {swipeLimit.isPremium && (
-                    <>
-                      <Separator />
-                      <div className="flex items-center gap-2 text-sm font-semibold text-yellow-600">
-                        <Crown className="h-4 w-4" />
-                        <span>Premium Filters</span>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="smart-sort">Smart Recommendations</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Prioritize closer matches with shared interests
+                        </p>
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="verified-only">Verified Profiles Only</Label>
-                        <Switch
-                          id="verified-only"
-                          checked={tempFilters.verifiedOnly}
-                          onCheckedChange={(checked) => setTempFilters(prev => ({
+                      <Switch
+                        id="smart-sort"
+                        checked={tempFilters.smartSort}
+                        onCheckedChange={(checked) =>
+                          setTempFilters((prev) => ({
                             ...prev,
-                            verifiedOnly: checked
-                          }))}
+                            smartSort: checked,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t("discover.age")}</Label>
+                      <div className="flex gap-4">
+                        <Input
+                          type="number"
+                          placeholder="Min"
+                          value={tempFilters.minAge}
+                          onChange={(e) =>
+                            setTempFilters((prev) => ({
+                              ...prev,
+                              minAge: parseInt(e.target.value) || 18,
+                            }))
+                          }
+                          min={18}
+                          max={99}
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Max"
+                          value={tempFilters.maxAge}
+                          onChange={(e) =>
+                            setTempFilters((prev) => ({
+                              ...prev,
+                              maxAge: parseInt(e.target.value) || 99,
+                            }))
+                          }
+                          min={18}
+                          max={99}
                         />
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="has-image">Has Profile Image</Label>
-                        <Switch
-                          id="has-image"
-                          checked={tempFilters.hasProfileImage}
-                          onCheckedChange={(checked) => setTempFilters(prev => ({
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>{t("discover.gender")}</Label>
+                      <Select
+                        value={tempFilters.gender}
+                        onValueChange={(value) =>
+                          setTempFilters((prev) => ({
                             ...prev,
-                            hasProfileImage: checked
-                          }))}
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Height Range (cm)</Label>
-                        <div className="flex gap-4">
-                          <Input 
-                            type="number"
-                            placeholder="Min"
-                            value={tempFilters.minHeight || ""}
-                            onChange={(e) => setTempFilters(prev => ({
-                              ...prev,
-                              minHeight: parseInt(e.target.value) || 0
-                            }))}
-                            min={0}
-                            max={250}
-                          />
-                          <Input 
-                            type="number"
-                            placeholder="Max"
-                            value={tempFilters.maxHeight === 250 ? "" : tempFilters.maxHeight}
-                            onChange={(e) => setTempFilters(prev => ({
-                              ...prev,
-                              maxHeight: parseInt(e.target.value) || 250
-                            }))}
-                            min={0}
-                            max={250}
+                            gender: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Everyone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="everyone">Everyone</SelectItem>
+                          <SelectItem value="male">Men</SelectItem>
+                          <SelectItem value="female">Women</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Premium Filters */}
+                    {swipeLimit.isPremium && (
+                      <>
+                        <Separator />
+                        <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                          <Crown className="h-4 w-4" />
+                          <span>Premium Filters</span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="verified-only">Verified Profiles Only</Label>
+                          <Switch
+                            id="verified-only"
+                            checked={tempFilters.verifiedOnly}
+                            onCheckedChange={(checked) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                verifiedOnly: checked,
+                              }))
+                            }
                           />
                         </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Smoking</Label>
-                        <Select 
-                          value={tempFilters.smoking}
-                          onValueChange={(value) => setTempFilters(prev => ({
-                            ...prev,
-                            smoking: value
-                          }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Any" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="any">Any</SelectItem>
-                            <SelectItem value="Non-smoker">Non-smoker</SelectItem>
-                            <SelectItem value="Social smoker">Social smoker</SelectItem>
-                            <SelectItem value="Regular smoker">Regular smoker</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Drinking</Label>
-                        <Select 
-                          value={tempFilters.drinking}
-                          onValueChange={(value) => setTempFilters(prev => ({
-                            ...prev,
-                            drinking: value
-                          }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Any" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="any">Any</SelectItem>
-                            <SelectItem value="Never">Never</SelectItem>
-                            <SelectItem value="Socially">Socially</SelectItem>
-                            <SelectItem value="Regularly">Regularly</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Religion</Label>
-                        <Select 
-                          value={tempFilters.religion}
-                          onValueChange={(value) => setTempFilters(prev => ({
-                            ...prev,
-                            religion: value
-                          }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Any" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="any">Any</SelectItem>
-                            <SelectItem value="Christian">Christian</SelectItem>
-                            <SelectItem value="Muslim">Muslim</SelectItem>
-                            <SelectItem value="Hindu">Hindu</SelectItem>
-                            <SelectItem value="Buddhist">Buddhist</SelectItem>
-                            <SelectItem value="Jewish">Jewish</SelectItem>
-                            <SelectItem value="Atheist">Atheist</SelectItem>
-                            <SelectItem value="Agnostic">Agnostic</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </>
-                  )}
-                  
-                  {!swipeLimit.isPremium && (
-                    <Card className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-400">
-                      <div className="text-center space-y-2">
-                        <Crown className="h-8 w-8 text-yellow-600 mx-auto" />
-                        <p className="text-sm font-semibold">Unlock Premium Filters</p>
-                        <p className="text-xs text-gray-600">Get verified, height, lifestyle & more filters</p>
-                        <Button 
-                          size="sm"
-                          className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white"
-                          onClick={() => setShowUpgradeDialog(true)}
-                        >
-                          Upgrade Now
-                        </Button>
-                      </div>
-                    </Card>
-                  )}
 
-                  {/* Save Button */}
-                  <div className="pt-4 space-y-2">
-                    <Button 
-                      onClick={handleSaveFilters}
-                      className="w-full bg-pink-500 hover:bg-pink-600"
-                    >
-                      Apply Filters
-                    </Button>
-                    <p className="text-xs text-center text-gray-500">
-                      Changes will apply after clicking "Apply Filters"
-                    </p>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="has-image">Has Profile Image</Label>
+                          <Switch
+                            id="has-image"
+                            checked={tempFilters.hasProfileImage}
+                            onCheckedChange={(checked) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                hasProfileImage: checked,
+                              }))
+                            }
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Shared Interests (comma separated)</Label>
+                          <Input
+                            placeholder="e.g. travel, music, fitness"
+                            value={tempFilters.specificInterests.join(", ")}
+                            onChange={(e) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                specificInterests: e.target.value
+                                  .split(",")
+                                  .map((item) => item.trim())
+                                  .filter(Boolean),
+                              }))
+                            }
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Height Range (cm)</Label>
+                          <div className="flex gap-4">
+                            <Input
+                              type="number"
+                              placeholder="Min"
+                              value={tempFilters.minHeight || ""}
+                              onChange={(e) =>
+                                setTempFilters((prev) => ({
+                                  ...prev,
+                                  minHeight: parseInt(e.target.value) || 0,
+                                }))
+                              }
+                              min={0}
+                              max={250}
+                            />
+                            <Input
+                              type="number"
+                              placeholder="Max"
+                              value={tempFilters.maxHeight === 250 ? "" : tempFilters.maxHeight}
+                              onChange={(e) =>
+                                setTempFilters((prev) => ({
+                                  ...prev,
+                                  maxHeight: parseInt(e.target.value) || 250,
+                                }))
+                              }
+                              min={0}
+                              max={250}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Smoking</Label>
+                          <Select
+                            value={tempFilters.smoking}
+                            onValueChange={(value) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                smoking: value,
+                              }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Any" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="any">Any</SelectItem>
+                              <SelectItem value="Non-smoker">Non-smoker</SelectItem>
+                              <SelectItem value="Social smoker">Social smoker</SelectItem>
+                              <SelectItem value="Regular smoker">Regular smoker</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Drinking</Label>
+                          <Select
+                            value={tempFilters.drinking}
+                            onValueChange={(value) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                drinking: value,
+                              }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Any" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="any">Any</SelectItem>
+                              <SelectItem value="Never">Never</SelectItem>
+                              <SelectItem value="Socially">Socially</SelectItem>
+                              <SelectItem value="Regularly">Regularly</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Education</Label>
+                          <Select
+                            value={tempFilters.education}
+                            onValueChange={(value) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                education: value,
+                              }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Any" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="any">Any</SelectItem>
+                              <SelectItem value="High School">High School</SelectItem>
+                              <SelectItem value="College">College</SelectItem>
+                              <SelectItem value="University">University</SelectItem>
+                              <SelectItem value="Graduate">Graduate</SelectItem>
+                              <SelectItem value="PhD">PhD</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Religion</Label>
+                          <Select
+                            value={tempFilters.religion}
+                            onValueChange={(value) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                religion: value,
+                              }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Any" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="any">Any</SelectItem>
+                              <SelectItem value="muslim">Muslim</SelectItem>
+                              <SelectItem value="christian">Christian</SelectItem>
+                              <SelectItem value="catholic">Catholic</SelectItem>
+                              <SelectItem value="orthodox">Orthodox</SelectItem>
+                              <SelectItem value="jewish">Jewish</SelectItem>
+                              <SelectItem value="hindu">Hindu</SelectItem>
+                              <SelectItem value="buddhist">Buddhist</SelectItem>
+                              <SelectItem value="atheist">Atheist</SelectItem>
+                              <SelectItem value="agnostic">Agnostic</SelectItem>
+                              <SelectItem value="spiritual">Spiritual</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                              <SelectItem value="prefer not to say">Prefer not to say</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Looking For</Label>
+                          <Select
+                            value={tempFilters.lookingFor}
+                            onValueChange={(value) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                lookingFor: value,
+                              }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Any" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="any">Any</SelectItem>
+                              <SelectItem value="Dating">Dating</SelectItem>
+                              <SelectItem value="Friends">Looking for Friends</SelectItem>
+                              <SelectItem value="Casual">Fun & Casual</SelectItem>
+                              <SelectItem value="Long-term">Long-term Relationship</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Zodiac Sign</Label>
+                          <Select
+                            value={tempFilters.zodiacSign}
+                            onValueChange={(value) =>
+                              setTempFilters((prev) => ({
+                                ...prev,
+                                zodiacSign: value,
+                              }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Any" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="any">Any</SelectItem>
+                              <SelectItem value="Aries">♈ Aries</SelectItem>
+                              <SelectItem value="Taurus">♉ Taurus</SelectItem>
+                              <SelectItem value="Gemini">♊ Gemini</SelectItem>
+                              <SelectItem value="Cancer">♋ Cancer</SelectItem>
+                              <SelectItem value="Leo">♌ Leo</SelectItem>
+                              <SelectItem value="Virgo">♍ Virgo</SelectItem>
+                              <SelectItem value="Libra">♎ Libra</SelectItem>
+                              <SelectItem value="Scorpio">♏ Scorpio</SelectItem>
+                              <SelectItem value="Sagittarius">♐ Sagittarius</SelectItem>
+                              <SelectItem value="Capricorn">♑ Capricorn</SelectItem>
+                              <SelectItem value="Aquarius">♒ Aquarius</SelectItem>
+                              <SelectItem value="Pisces">♓ Pisces</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </>
+                    )}
+
+                    {!swipeLimit.isPremium && (
+                      <Card className="p-4 bg-background border-primary/30">
+                        <div className="text-center space-y-2">
+                          <Crown className="h-8 w-8 text-primary mx-auto" />
+                          <p className="text-sm font-semibold">Unlock Premium Filters</p>
+                          <p className="text-xs text-muted-foreground">
+                            Get verified, height, lifestyle & more filters
+                          </p>
+                          <Button
+                            size="sm"
+                            className="w-full bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white"
+                            onClick={() => setShowUpgradeDialog(true)}
+                          >
+                            Upgrade Now
+                          </Button>
+                        </div>
+                      </Card>
+                    )}
+
+                    {/* Save Button */}
+                    <div className="pt-4 space-y-2">
+                      <Button
+                        onClick={handleSaveFilters}
+                        className="w-full bg-primary hover:bg-primary"
+                      >
+                        Apply Filters
+                      </Button>
+                      <p className="text-xs text-center text-muted-foreground">
+                        Changes will apply after clicking "Apply Filters"
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
-        </div>
 
-        {/* Tab Navigation */}
-        <div className="flex gap-4 mt-6">
-          <button
-            onClick={() => setActiveTab("for-you")}
-            className={`flex-1 px-6 py-3 rounded-2xl font-semibold text-base transition-all duration-300 border-2 ${
-              activeTab === "for-you"
-                ? "bg-yellow-600/20 text-yellow-500 border-yellow-600/50 shadow-lg shadow-yellow-600/20"
-                : "bg-transparent text-gray-400 border-gray-700 hover:border-yellow-600/30 hover:text-yellow-500"
-            }`}
-          >
-            For You
-          </button>
-          <button
-            onClick={() => setActiveTab("last-active")}
-            className={`flex-1 px-6 py-3 rounded-2xl font-semibold text-base transition-all duration-300 flex items-center justify-center gap-2 border-2 ${
-              activeTab === "last-active"
-                ? "bg-yellow-600/20 text-yellow-500 border-yellow-600/50 shadow-lg shadow-yellow-600/20"
-                : "bg-transparent text-gray-400 border-gray-700 hover:border-yellow-600/30 hover:text-yellow-500"
-            }`}
-          >
-            Last Active
-          </button>
-        </div>
+          {/* Tab Navigation */}
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={() => setActiveTab("for-you")}
+              className={`flex-1 px-6 py-3 rounded-2xl font-semibold text-base transition-all duration-300 border-2 ${
+                activeTab === "for-you"
+                  ? "bg-primary/20 text-primary border-primary/50 shadow-lg shadow-primary/20"
+                  : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-primary"
+              }`}
+            >
+              For You
+            </button>
+            <button
+              onClick={() => setActiveTab("last-active")}
+              className={`flex-1 px-6 py-3 rounded-2xl font-semibold text-base transition-all duration-300 flex items-center justify-center gap-2 border-2 ${
+                activeTab === "last-active"
+                  ? "bg-primary/20 text-primary border-primary/50 shadow-lg shadow-primary/20"
+                  : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-primary"
+              }`}
+            >
+              Last Active
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1844,218 +2877,379 @@ const Discover = () => {
           ) : profiles.length > 0 && currentProfileIndex < profiles.length ? (
             <div className="max-w-sm mx-auto relative">
               {currentProfile ? (
-          <Card className="overflow-hidden shadow-2xl border-none dark:bg-gradient-to-br dark:from-red-950 dark:to-black dark:border dark:border-red-900/30">
-            <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-900 to-gray-800 dark:from-black dark:to-red-950">
-              {currentProfile.profile_image_url ? (
-                <>
-                  <img
-                    src={currentProfile.profile_image_url}
-                    alt={currentProfile.full_name}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Gradient overlay for better text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  
-                  {/* Profile info overlay on image */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <div className="flex items-end justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-3xl font-bold drop-shadow-lg">
-                            {currentProfile.full_name}
-                          </h3>
-                          <span className="text-2xl font-light">{currentProfile.age}</span>
-                          {currentProfile.verified && (
-                            <Badge className="bg-blue-500 text-white border-none">✓</Badge>
-                          )}
-                        </div>
-                        
-                        {/* Location & Distance */}
-                        <div className="flex items-center gap-3 text-sm font-medium">
-                          {/* Show travel city if in travel mode, otherwise regular city */}
-                          {(currentProfile.travel_mode_active && currentProfile.travel_city) ? (
-                            <div className="flex items-center gap-1 backdrop-blur-sm bg-white/10 px-3 py-1 rounded-full">
-                              <span className="text-base">✈️</span>
-                              <span>Traveling in {currentProfile.travel_city}</span>
-                            </div>
-                          ) : currentProfile.city ? (
-                            <div className="flex items-center gap-1 backdrop-blur-sm bg-white/10 px-3 py-1 rounded-full">
-                              <MapPin className="h-4 w-4" />
-                              <span>{currentProfile.city}</span>
-                            </div>
-                          ) : null}
-                          {currentProfile.distance_km && (
-                            <div className="backdrop-blur-sm bg-white/10 px-3 py-1 rounded-full">
-                              {formatDistance(currentProfile.distance_km)} away
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  No photo
-                </div>
-              )}
-            </div>
-            
-            {/* Card content below image */}
-            <div className="p-5 bg-white space-y-4">
-              {currentProfile.bio && (
-                <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">{currentProfile.bio}</p>
-              )}
-              
-              {currentProfile.interests.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {currentProfile.interests.slice(0, 5).map((interest, i) => (
-                    <Badge key={i} variant="secondary" className="rounded-full px-3 py-1 bg-pink-50 text-pink-700 border-pink-200">
-                      {interest}
-                    </Badge>
-                  ))}
-                  {currentProfile.interests.length > 5 && (
-                    <Badge variant="secondary" className="rounded-full px-3 py-1 bg-gray-100 text-gray-600">
-                      +{currentProfile.interests.length - 5}
-                    </Badge>
-                  )}
-                </div>
-              )}
-              
-              {/* View Full Profile Button */}
-              <Button
-                variant="ghost"
-                className="w-full text-pink-600 hover:text-pink-700 hover:bg-pink-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50 font-medium"
-                onClick={() => {
-                  setSelectedImageIndex(0);
-                  setShowProfileDialog(true);
-                  // Record profile view
-                  if (user && currentProfile) {
-                    recordProfileView(user.id, currentProfile.id);
-                  }
-                }}
-              >
-                <Info className="h-4 w-4 mr-2" />
-                See Full Profile
-              </Button>
-            </div>
-          </Card>
-        ) : (
-          <Card className="p-8 text-center shadow-lg dark:bg-gradient-to-br dark:from-red-950 dark:to-black dark:border dark:border-red-900/30">
-            <h3 className="text-xl font-semibold mb-2 dark:text-red-100">No more profiles</h3>
-            <p className="text-muted-foreground dark:text-red-300/70 mb-4">Come back later to see more people</p>
-            <Button onClick={() => window.location.reload()} className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 dark:from-red-600 dark:to-rose-700 dark:hover:from-red-700 dark:hover:to-rose-800">
-              Refresh
-            </Button>
-          </Card>
-        )}
-        
-        {/* Action Buttons - Floating Style */}
-        {currentProfile && (
-          <div className="flex flex-col items-center gap-4 mt-8">
-            {/* Game Discover Call-to-Action with Mini Buttons */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                className="bg-gradient-to-r from-pink-50 to-purple-50 border-2 border-pink-300 hover:border-pink-500 hover:from-pink-100 hover:to-purple-100 dark:from-red-950/50 dark:to-rose-950/50 dark:border-red-800 dark:hover:border-red-600 dark:hover:from-red-900/50 dark:hover:to-rose-900/50 px-6 py-2 rounded-full shadow-md transition-all duration-200 hover:scale-105"
-                onClick={() => navigate("/game-discover")}
-              >
-                <Gamepad2 className="h-4 w-4 mr-2 text-pink-500 dark:text-red-400" />
-                <span className="font-semibold text-gray-700 dark:text-red-200">Try Game Discover ✨</span>
-              </Button>
-              
-              {/* Mini Super Like Button */}
-              <div className="relative">
-                <Button
-                  size="sm"
-                  className="rounded-full w-10 h-10 p-0 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 hover:from-blue-500 hover:via-purple-600 hover:to-pink-600 dark:from-rose-600 dark:via-red-600 dark:to-rose-700 dark:hover:from-rose-700 dark:hover:via-red-700 dark:hover:to-rose-800 disabled:opacity-50 shadow-lg transition-all duration-200 hover:scale-110 disabled:hover:scale-100"
-                  onClick={handleSuperlike}
-                  disabled={superlikesRemaining === 0}
-                >
-                  <Sparkles className="h-5 w-5 text-white" />
-                </Button>
-                {superlikesRemaining > 0 && (
-                  <Badge className="absolute -top-1 -right-1 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-red-600 dark:to-rose-600 text-white border-2 border-white dark:border-gray-800 rounded-full w-5 h-5 flex items-center justify-center p-0 text-[9px] font-bold shadow-lg">
-                    {superlikesRemaining}
-                  </Badge>
-                )}
-              </div>
-
-              {/* Mini Premium Roses Button */}
-              <div className="relative">
-                <Button
-                  size="sm"
-                  className="rounded-full w-10 h-10 p-0 bg-gradient-to-br from-rose-600 via-red-700 to-rose-800 hover:from-rose-700 hover:via-red-800 hover:to-rose-900 shadow-lg transition-all duration-200 hover:scale-110 border-2 border-yellow-400"
-                  onClick={() => {
-                    setRosesTargetProfile(currentProfile);
-                    setShowPremiumRosesDialog(true);
+                <div
+                  ref={cardRef}
+                  className="relative select-none touch-pan-y cursor-grab"
+                  onPointerDown={(e) => {
+                    if ((e.target as HTMLElement).closest("button, a, video, input")) return;
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                    handleSwipeStart(e.clientX);
                   }}
+                  onPointerMove={(e) => {
+                    if (isSwiping) handleSwipeMove(e.clientX);
+                  }}
+                  onPointerUp={handleSwipeEnd}
+                  onPointerCancel={handleSwipeEnd}
                 >
-                  <span className="text-2xl">🌹</span>
-                </Button>
-              </div>
+                  <Card className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.3)] transition-all duration-500 border-0 rounded-3xl">
+                    {/* Story ring indicator */}
+                    {profileStories.length > 0 && (
+                      <button
+                        onClick={() => {
+                          setStoryViewerIndex(0);
+                          setShowStoryViewer(true);
+                        }}
+                        className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-primary/60 hover:bg-black/70 transition-colors"
+                      >
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
+                        </span>
+                        <span className="text-xs font-semibold text-white">View Story</span>
+                      </button>
+                    )}
+                    <div className="relative aspect-[3/4] bg-gradient-to-br from-background via-muted to-primary/20">
+                      {currentProfile.profile_image_url ? (
+                        <>
+                          <OptimizedImage
+                            src={currentProfile.profile_image_url}
+                            alt={currentProfile.full_name}
+                            className="w-full h-full"
+                            priority
+                          />
+                          {/* Gradient overlay for better text readability */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-              {/* Mini Instant Message Button */}
-              <div className="relative">
-                <Button
-                  size="sm"
-                  className="rounded-full w-10 h-10 p-0 bg-gradient-to-br from-cyan-400 via-blue-500 to-cyan-600 hover:from-cyan-500 hover:via-blue-600 hover:to-cyan-700 shadow-lg transition-all duration-200 hover:scale-110 disabled:opacity-50 border-2 border-blue-300"
-                  onClick={() => handleInstantMessage(currentProfile)}
-                  disabled={instantMessageCredits === 0}
-                >
-                  <MessageSquare className="h-5 w-5 text-white" />
-                </Button>
-                {instantMessageCredits > 0 && (
-                  <Badge className="absolute -top-1 -right-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-2 border-white dark:border-gray-800 rounded-full w-5 h-5 flex items-center justify-center p-0 text-[9px] font-bold shadow-lg">
-                    {instantMessageCredits}
-                  </Badge>
-                )}
-              </div>
-            </div>
+                          {/* LIKE overlay */}
+                          <div
+                            ref={likeOverlayRef}
+                            className="absolute top-8 left-6 z-20 border-4 border-green-500 rounded-xl px-4 py-2 rotate-[-20deg] pointer-events-none"
+                          >
+                            <span className="text-green-500 font-extrabold text-3xl tracking-wider">
+                              LIKE
+                            </span>
+                          </div>
+                          {/* NOPE overlay */}
+                          <div
+                            ref={nopeOverlayRef}
+                            className="absolute top-8 right-6 z-20 border-4 border-red-500 rounded-xl px-4 py-2 rotate-[20deg] pointer-events-none"
+                          >
+                            <span className="text-red-500 font-extrabold text-3xl tracking-wider">
+                              NOPE
+                            </span>
+                          </div>
 
-            <div className="flex justify-center items-center gap-6">
-              {/* Rewind Button */}
-              <div className="relative">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="rounded-full w-14 h-14 p-0 border-2 border-yellow-400 hover:border-yellow-500 hover:bg-yellow-50 dark:border-yellow-600 dark:hover:border-yellow-500 dark:hover:bg-yellow-950/50 shadow-lg transition-all duration-200 hover:scale-110 disabled:opacity-50"
-                  onClick={handleRewind}
-                  disabled={lastActionHistory.length === 0 || rewindsRemaining <= 0}
-                  title="Undo last action"
-                >
-                  <RotateCcw className="h-6 w-6 text-yellow-500 dark:text-yellow-400" />
-                </Button>
-                {rewindsRemaining > 0 && (
-                  <Badge className="absolute -top-1 -right-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-2 border-white dark:border-gray-800 rounded-full w-6 h-6 flex items-center justify-center p-0 text-xs font-bold shadow-lg">
-                    {rewindsRemaining}
-                  </Badge>
-                )}
-              </div>
-              
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full w-16 h-16 p-0 border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 dark:border-red-900 dark:hover:border-red-600 dark:hover:bg-red-950/50 shadow-lg transition-all duration-200 hover:scale-110"
-                onClick={() => handlePass(currentProfile.id)}
-              >
-                <X className="h-7 w-7 text-gray-600 dark:text-red-400" />
-              </Button>
-            
-            <Button
-              size="lg"
-              className="rounded-full w-16 h-16 p-0 bg-gradient-to-br from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 dark:from-red-600 dark:to-rose-700 dark:hover:from-red-700 dark:hover:to-rose-800 shadow-lg transition-all duration-200 hover:scale-110"
-              onClick={() => handleLike(currentProfile.id)}
-            >
-              <Heart className="h-7 w-7 text-white" />
-            </Button>
+                          {/* Profile info overlay on image */}
+                          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                            <div className="flex items-end justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className="text-3xl font-extrabold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                                    {currentProfile.full_name}
+                                  </h3>
+                                  <span className="text-2xl font-light opacity-90">
+                                    {currentProfile.age}
+                                  </span>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-1 mb-2">
+                                  {currentProfile.verified && (
+                                    <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
+                                      ✓ Verified
+                                    </Badge>
+                                  )}
+                                  {currentProfile.is_premium && (
+                                    <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none text-[10px] px-1.5 py-0 h-4">
+                                      Premium
+                                    </Badge>
+                                  )}
+                                  {currentProfile.video_intro_url && (
+                                    <Badge className="bg-background/70 text-white border-none text-[10px] px-1.5 py-0 h-4">
+                                      Video
+                                    </Badge>
+                                  )}
+                                  {isOnline(currentProfile.last_active) && (
+                                    <Badge className="bg-green-500 text-white border-none text-[10px] px-1.5 py-0 h-4">
+                                      Online
+                                    </Badge>
+                                  )}
+                                  {(() => {
+                                    const score = computeMatchScore(currentProfile, myProfile);
+                                    if (score > 0)
+                                      return (
+                                        <Badge className="bg-pink-500/80 text-white border-none backdrop-blur-sm text-[10px] px-1.5 py-0 h-4">
+                                          {Math.min(score, 100)}% Match
+                                        </Badge>
+                                      );
+                                    return null;
+                                  })()}
+                                  {currentProfile.mood_emoji && (
+                                    <Badge
+                                      className="bg-primary/80 text-white border-none backdrop-blur-sm text-[10px] px-1.5 py-0 h-4"
+                                      title={currentProfile.mood_text || undefined}
+                                    >
+                                      {currentProfile.mood_emoji}{" "}
+                                      {currentProfile.mood_text
+                                        ? currentProfile.mood_text.slice(0, 12)
+                                        : ""}
+                                    </Badge>
+                                  )}
+                                  {currentProfile.travel_mode_active &&
+                                    currentProfile.travel_city && (
+                                      <Badge className="bg-blue-500/90 text-white border-none backdrop-blur-sm text-[10px] px-1.5 py-0 h-4">
+                                        ✈️ Traveling
+                                      </Badge>
+                                    )}
+                                </div>
+
+                                {/* Location & Distance */}
+                                <div className="flex items-center gap-3 text-sm font-medium">
+                                  {/* Show travel city if in travel mode, otherwise regular city */}
+                                  {currentProfile.travel_mode_active &&
+                                  currentProfile.travel_city ? (
+                                    <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
+                                      <span className="text-base">✈️</span>
+                                      <span>Traveling in {currentProfile.travel_city}</span>
+                                    </div>
+                                  ) : currentProfile.city ? (
+                                    <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
+                                      <MapPin className="h-4 w-4" />
+                                      <span>{currentProfile.city}</span>
+                                    </div>
+                                  ) : null}
+                                  {currentProfile.distance_km && (
+                                    <div className="backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
+                                      {formatDistance(currentProfile.distance_km)} away
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          No photo
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Card content below image */}
+                    <div className="p-5 bg-card/95 backdrop-blur-md space-y-4">
+                      {currentProfile.bio && (
+                        <p className="text-foreground text-sm leading-relaxed line-clamp-3">
+                          {sanitizeText(currentProfile.bio || "")}
+                        </p>
+                      )}
+
+                      {currentProfile.video_intro_url && (
+                        <div className="rounded-2xl border border-primary/20 overflow-hidden">
+                          <video
+                            src={currentProfile.video_intro_url}
+                            controls
+                            className="w-full h-48 object-cover"
+                          />
+                        </div>
+                      )}
+
+                      {currentProfile.interests.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {swipeCardInterests.map((interest, i) => (
+                            <Badge
+                              key={i}
+                              variant="secondary"
+                              className="rounded-full px-3 py-1.5 bg-primary/10 text-primary border-primary/20 text-xs font-semibold"
+                            >
+                              {interest}
+                            </Badge>
+                          ))}
+                          {currentProfile.interests.length > 5 && (
+                            <Badge
+                              variant="secondary"
+                              className="rounded-full px-3 py-1 bg-muted text-muted-foreground"
+                            >
+                              +{currentProfile.interests.length - 5}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Soundtrack indicator */}
+                      {currentProfile.soundtrack_url && currentProfile.soundtrack_source && (
+                        <div
+                          className="flex items-center gap-2 p-2.5 bg-primary/10 rounded-xl cursor-pointer hover:bg-primary/15 transition-colors"
+                          onClick={() => {
+                            setSelectedImageIndex(0);
+                            setShowProfileDialog(true);
+                            if (user && currentProfile) {
+                              recordProfileView(user.id, currentProfile.id);
+                            }
+                          }}
+                        >
+                          {currentProfile.soundtrack_source === "spotify" ? (
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-green-500 shrink-0">
+                              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.6.4-1 .2-2.7-1.6-6-2-10-1.1-.4.1-.8-.1-.9-.5-.1-.4.1-.8.5-.9 4.3-1 8.1-.6 11.1 1.2.4.3.5.7.3 1.1zm1.5-3.3c-.3.4-.8.5-1.2.3-3-1.9-7.7-2.4-11.3-1.3-.4.1-.9-.1-1.1-.6-.1-.4.1-.9.6-1.1 4.1-1.3 9.2-.7 12.7 1.5.4.2.5.8.3 1.2zm.1-3.4c-3.7-2.2-9.7-2.4-13.2-1.3-.5.2-1.1-.1-1.3-.6-.2-.5.1-1.1.6-1.3 4-1.2 10.7-1 14.9 1.5.5.3.6.9.4 1.4-.3.4-.9.6-1.4.3z" />
+                            </svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-red-500 shrink-0">
+                              <path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.4 31.4 0 000 12a31.4 31.4 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.4 31.4 0 0024 12a31.4 31.4 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+                            </svg>
+                          )}
+                          <span className="text-xs font-medium text-foreground truncate">
+                            🎵 {currentProfile.soundtrack_title || "Theme Song"}
+                            {currentProfile.soundtrack_artist
+                              ? ` — ${currentProfile.soundtrack_artist}`
+                              : ""}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* View Full Profile Button */}
+                      <Button
+                        variant="ghost"
+                        className="w-full text-primary hover:text-primary hover:bg-primary/5 font-semibold tracking-wide uppercase text-xs py-3"
+                        onClick={() => {
+                          setSelectedImageIndex(0);
+                          setShowProfileDialog(true);
+                          // Record profile view
+                          if (user && currentProfile) {
+                            recordProfileView(user.id, currentProfile.id);
+                          }
+                        }}
+                      >
+                        <Info className="h-4 w-4 mr-2" />
+                        See Full Profile
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
+              ) : (
+                <Card className="p-8 text-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-2 border-border rounded-2xl dark:border-border">
+                  <h3 className="text-xl font-semibold mb-2 dark:text-primary/20">
+                    {t("discover.noMoreProfiles")}
+                  </h3>
+                  <p className="text-muted-foreground dark:text-primary/60/70 mb-4">
+                    Come back later to see more people
+                  </p>
+                  <Button
+                    onClick={() => window.location.reload()}
+                    className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110"
+                  >
+                    {t("common.retry")}
+                  </Button>
+                </Card>
+              )}
+
+              {/* Action Buttons */}
+              {currentProfile && (
+                <div className="flex flex-col items-center gap-3 mt-6">
+                  {/* Secondary actions row: Superlike · Roses · Instant Msg */}
+                  <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm border border-border/50 rounded-full px-3 py-1.5 shadow-sm">
+                    {/* Superlike */}
+                    <div className="relative">
+                      <button
+                        onClick={handleSuperlike}
+                        disabled={isSuperliking}
+                        title="Super Like"
+                        className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-full transition-all duration-200 hover:bg-primary/10 group disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSuperliking ? (
+                          <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                        ) : (
+                          <Sparkles className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                        )}
+                        <span className="text-[9px] font-semibold text-primary/70 leading-none">
+                          {superlikesRemaining > 0 ? superlikesRemaining : "+"}
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="w-px h-5 bg-border/60" />
+
+                    {/* Premium Roses */}
+                    {!likedProfiles.has(currentProfile.id) && (
+                      <button
+                        onClick={() => {
+                          setRosesTargetProfile(currentProfile);
+                          setShowPremiumRosesDialog(true);
+                        }}
+                        title="Send Roses"
+                        className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-full transition-all duration-200 hover:bg-rose-500/10 group"
+                      >
+                        <span className="text-sm leading-none group-hover:scale-110 transition-transform inline-block">
+                          🌹
+                        </span>
+                        <span className="text-[9px] font-semibold text-rose-400/80 leading-none">
+                          Roses
+                        </span>
+                      </button>
+                    )}
+
+                    {!likedProfiles.has(currentProfile.id) && (
+                      <div className="w-px h-5 bg-border/60" />
+                    )}
+
+                    {/* Instant Message */}
+                    {!likedProfiles.has(currentProfile.id) && (
+                      <button
+                        onClick={() => handleInstantMessage(currentProfile)}
+                        disabled={instantMessageCredits === 0}
+                        title="Instant Message"
+                        className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-full transition-all duration-200 hover:bg-primary/10 disabled:opacity-40 disabled:cursor-not-allowed group"
+                      >
+                        <MessageSquare className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                        <span className="text-[9px] font-semibold text-primary/70 leading-none">
+                          {instantMessageCredits > 0 ? instantMessageCredits : "0"}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Primary actions row: Rewind · Pass · Like */}
+                  <div className="flex justify-center items-center gap-5">
+                    {/* Rewind */}
+                    <div className="relative">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="rounded-full w-12 h-12 border-2 border-primary/30 hover:border-primary hover:bg-primary/10 shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-40"
+                        onClick={handleRewind}
+                        disabled={lastActionHistory.length === 0 || rewindsRemaining <= 0}
+                        title="Undo last action"
+                      >
+                        <RotateCcw className="h-5 w-5 text-primary" />
+                      </Button>
+                      {rewindsRemaining > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-primary text-white rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-bold border border-card shadow">
+                          {rewindsRemaining}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Pass */}
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="rounded-full w-14 h-14 border-2 border-muted-foreground/30 hover:border-muted-foreground/60 hover:bg-muted/40 shadow-md transition-all duration-200 hover:scale-110"
+                      onClick={() => handlePass(currentProfile.id)}
+                    >
+                      <X className="h-6 w-6 text-muted-foreground" />
+                    </Button>
+
+                    {/* Like */}
+                    <Button
+                      size="icon"
+                      className="rounded-full w-14 h-14 bg-gradient-to-br from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 shadow-md transition-all duration-200 hover:scale-110"
+                      onClick={() => handleLike(currentProfile.id)}
+                    >
+                      <Heart className="h-6 w-6 text-white" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-      </div>
           ) : (
-            <div className="flex justify-center items-center h-96 text-gray-500">
-              <p>No more profiles to show</p>
+            <div className="flex justify-center items-center h-96 text-muted-foreground">
+              <p>{t("discover.noMoreProfiles")}</p>
             </div>
           )}
         </>
@@ -2063,144 +3257,88 @@ const Discover = () => {
 
       {/* Main Content - Last Active Tab */}
       {activeTab === "last-active" && (
-        <div className="max-w-6xl mx-auto px-4i q">
-          {boosterActive ? (
-            spotlightProfiles.length > 0 ? (
-              <ScrollArea className="w-full">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
-                  {spotlightProfiles.map((profile) => (
-                  <Card 
+        <div className="max-w-6xl mx-auto px-4">
+          {spotlightProfiles.length > 0 ? (
+            <ScrollArea className="w-full">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
+                {spotlightProfiles.map((profile, index) => (
+                  <ProfileGridCard
                     key={profile.id}
-                    className="overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-cyan-50 relative"
+                    profile={profile}
+                    priority={index === 0}
                     onClick={() => {
-                      // Navigate to profile
-                      const profileIndex = profiles.findIndex(p => p.id === profile.id);
-                      if (profileIndex >= 0) {
-                        setActiveTab("for-you");
-                        setCurrentProfileIndex(profileIndex);
-                      }
+                      setLastActiveProfile(profile);
+                      setLastActiveImageIndex(0);
+                      setShowLastActiveProfile(true);
+                      if (user) recordProfileView(user.id, profile.id);
                     }}
-                  >
-                    {/* Boost badge */}
-                    <div className="absolute top-2 right-2 z-10">
-                      <div className="bg-white rounded-full p-1.5 shadow-lg">
-                        <Zap className="h-5 w-5 text-blue-400 animate-pulse" fill="currentColor" />
-                      </div>
-                    </div>
-                    
-                    {/* Profile Image */}
-                    <div className="relative h-48 bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-red-950 dark:to-black">
-                      {profile.profile_image_url ? (
-                        <img
-                          src={profile.profile_image_url}
-                          alt={profile.full_name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          No photo
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Profile Info */}
-                    <div className="p-3">
-                      <div className="flex items-center gap-1 mb-1">
-                        <h3 className="font-bold text-sm truncate dark:text-red-100">{profile.full_name}</h3>
-                        <span className="text-xs text-gray-600 dark:text-red-300">{profile.age}</span>
-                        {profile.verified && (
-                          <Badge className="bg-blue-500 dark:bg-red-600 text-white border-none scale-75">✓</Badge>
-                        )}
-                      </div>
-                      
-                      {profile.city && (
-                        <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-red-300/80 mb-1">
-                          <MapPin className="h-3 w-3" />
-                          <span className="truncate">{profile.city}</span>
-                        </div>
-                      )}
-                      
-                      {profile.distance_km && (
-                        <div className="text-xs text-gray-500 dark:text-red-400/70">
-                          {formatDistance(profile.distance_km)} away
-                        </div>
-                      )}
-                      
-                      {/* Active status */}
-                      <div className="mt-2 flex items-center gap-1">
-                        <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-green-600 font-medium">Active Now</span>
-                      </div>
-                    </div>
-                  </Card>
+                  />
                 ))}
               </div>
             </ScrollArea>
           ) : (
             <div className="flex flex-col items-center justify-center h-96 text-center">
-              <Sparkles className="h-16 w-16 text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">No Active Boosters</h3>
-              <p className="text-sm text-gray-500">
+              <Sparkles className="h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Active Boosters</h3>
+              <p className="text-sm text-muted-foreground">
                 No users are currently using boost in your area
               </p>
             </div>
-          )
-        ) : (
-          <div className="flex flex-col items-center justify-center h-96 text-center">
-            <Zap className="h-16 w-16 text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Boost Required</h3>
-            <p className="text-sm text-gray-500 mb-4">
-              Activate a boost to see who's most active right now
-            </p>
-            <Button
-              onClick={() => setShowBoostDialog(true)}
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
-            >
-              <Zap className="h-4 w-4 mr-2" />
-              Activate Boost
-            </Button>
-          </div>
-        )}
+          )}
         </div>
       )}
 
       {/* Boost Status Dialog (when active) */}
       <Dialog open={showBoostStatusDialog} onOpenChange={setShowBoostStatusDialog}>
-        <DialogContent className="max-w-md dark:bg-gradient-to-br dark:from-gray-900 dark:via-red-950 dark:to-black dark:border dark:border-red-900/50">
+        <DialogContent className="max-w-md border border-border" aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 dark:text-red-100">
-              <Zap className="h-6 w-6 text-blue-500 dark:text-red-500 animate-zap-shine" fill="currentColor" />
+            <DialogTitle className="flex items-center gap-2 dark:text-primary">
+              <Zap
+                className="h-6 w-6 text-primary dark:text-primary animate-zap-shine"
+                fill="currentColor"
+              />
               Spotlight Boost Active
             </DialogTitle>
           </DialogHeader>
           <div className="py-6 space-y-4">
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-red-950/50 dark:to-rose-950/50 p-6 rounded-lg border-2 border-blue-200 dark:border-red-800">
+            <div className="bg-background  p-6 rounded-lg border-2 border-border dark:border-border">
               <div className="text-center space-y-3">
                 <div className="flex justify-center">
-                  <Zap className="h-16 w-16 text-blue-500 dark:text-red-500 animate-pulse" fill="currentColor" />
+                  <Zap
+                    className="h-16 w-16 text-primary dark:text-primary animate-pulse"
+                    fill="currentColor"
+                  />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground dark:text-red-300/70 mb-2">Time Remaining</p>
-                  <p className="text-4xl font-bold text-blue-600 dark:text-red-400">{boosterTimeRemaining}</p>
+                  <p className="text-sm text-muted-foreground dark:text-primary mb-2">
+                    Time Remaining
+                  </p>
+                  <p className="text-4xl font-bold text-primary dark:text-primary">
+                    {boosterTimeRemaining}
+                  </p>
                 </div>
                 {boosterExpiresAt && (
                   <p className="text-xs text-muted-foreground dark:text-red-300/60">
-                    Expires at {new Date(boosterExpiresAt).toLocaleTimeString('en-US', { 
-                      hour: 'numeric', 
-                      minute: '2-digit',
-                      hour12: true 
+                    Expires at{" "}
+                    {new Date(boosterExpiresAt).toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
                     })}
                   </p>
                 )}
               </div>
             </div>
-            
+
             <div className="bg-green-50 dark:bg-red-950/30 border border-green-200 dark:border-red-800 p-4 rounded-lg">
               <div className="flex items-start gap-3">
                 <Sparkles className="h-5 w-5 text-green-600 dark:text-red-400 mt-0.5" />
                 <div className="text-sm text-green-800 dark:text-red-200">
                   <p className="font-semibold mb-1">Your profile is boosted!</p>
-                  <p>You're being shown to more people in your area and appearing higher in their discovery feed.</p>
+                  <p>
+                    You're being shown to more people in your area and appearing higher in their
+                    discovery feed.
+                  </p>
                 </div>
               </div>
             </div>
@@ -2218,18 +3356,19 @@ const Discover = () => {
 
       {/* Boost Purchase Dialog */}
       <Dialog open={showBoostDialog} onOpenChange={setShowBoostDialog}>
-        <DialogContent className="max-w-md dark:bg-gradient-to-br dark:from-gray-900 dark:via-red-950 dark:to-black dark:border dark:border-red-900/50">
+        <DialogContent className="max-w-md border border-border" aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 dark:text-red-100">
-              <Zap className="h-6 w-6 text-blue-500 dark:text-red-500" fill="currentColor" />
+            <DialogTitle className="flex items-center gap-2 dark:text-primary">
+              <Zap className="h-6 w-6 text-primary dark:text-primary" fill="currentColor" />
               Activate Spotlight Boost
             </DialogTitle>
           </DialogHeader>
           <div className="py-6 space-y-4">
             <p className="text-muted-foreground">
-              Get more visibility! Your profile will be shown to more people in your area.
+              Get more visibility! Your profile will be shown to more people in your area. Use coins
+              to activate a boost.
             </p>
-            
+
             <div className="space-y-3">
               {/* Free Boost Option (if user has credits) */}
               {boostCredits > 0 && (
@@ -2237,13 +3376,23 @@ const Discover = () => {
                   <button
                     onClick={async () => {
                       try {
-                        const { data, error } = await supabase.rpc('activate_booster_with_credit', {
-                          user_id: user?.id,
-                          hours: 3
-                        }) as { data: { success: boolean; credits_remaining?: number; error?: string } | null; error: unknown };
-                        
+                        const { data, error } = (await supabase.rpc(
+                          "activate_booster_with_credit",
+                          {
+                            user_id: user?.id,
+                            hours: 3,
+                          }
+                        )) as {
+                          data: {
+                            success: boolean;
+                            credits_remaining?: number;
+                            error?: string;
+                          } | null;
+                          error: unknown;
+                        };
+
                         if (error) throw error;
-                        
+
                         if (data?.success) {
                           toast.success("Free 3-hour boost activated! ⚡");
                           setBoostCredits(data.credits_remaining || 0);
@@ -2253,24 +3402,26 @@ const Discover = () => {
                           toast.error(data?.error || "Failed to activate boost");
                         }
                       } catch (error) {
-                        console.error("Error activating boost:", error);
+                        logger.error("Error activating boost:", error);
                         toast.error("Failed to activate boost");
                       }
                     }}
-                    className="w-full p-4 border-2 border-green-500 bg-green-50 rounded-lg hover:border-green-600 hover:bg-green-100 transition-all text-left"
+                    className="w-full p-4 border-2 border-primary bg-primary/10 rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left"
                   >
                     <div className="flex justify-between items-center">
                       <div>
                         <div className="font-bold text-lg flex items-center gap-2">
                           3 Hours
-                          <Badge className="bg-green-500">FREE</Badge>
+                          <Badge className="bg-primary">FREE</Badge>
                         </div>
-                        <div className="text-sm text-muted-foreground">Use 1 of your {boostCredits} free boosts</div>
+                        <div className="text-sm text-muted-foreground">
+                          Use 1 of your {boostCredits} free boosts
+                        </div>
                       </div>
-                      <Crown className="h-8 w-8 text-yellow-500" />
+                      <Crown className="h-8 w-8 text-primary" />
                     </div>
                   </button>
-                  
+
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t" />
@@ -2285,84 +3436,182 @@ const Discover = () => {
               {/* 3 Hours Option */}
               <button
                 onClick={async () => {
+                  const cost = 50;
+                  if (!user?.id) {
+                    toast.error("Please sign in to boost.");
+                    return;
+                  }
+                  if (walletBalance < cost) {
+                    toast.error("Not enough coins. Please top up your wallet.");
+                    return;
+                  }
                   try {
-                    const { error } = await supabase.rpc('activate_booster', {
-                      user_id: user?.id,
-                      hours: 3
+                    const { error } = await supabase.rpc("activate_booster", {
+                      user_id: user.id,
+                      hours: 3,
                     });
                     if (error) throw error;
+                    // Fetch fresh balance to avoid stale-state race
+                    const { data: freshWallet } = await supabase
+                      .from("wallets")
+                      .select("balance")
+                      .eq("user_id", user.id)
+                      .single();
+                    const freshBalance =
+                      (freshWallet as { balance: number } | null)?.balance ?? walletBalance;
+                    const { error: walletError } = await supabase
+                      .from("wallets")
+                      .update({
+                        balance: Math.max(freshBalance - cost, 0),
+                        updated_at: new Date().toISOString(),
+                      })
+                      .eq("user_id", user.id);
+                    if (walletError) throw walletError;
+                    const { error: txError } = await supabase
+                      .from("wallet_transactions")
+                      .insert({ user_id: user.id, amount: -cost, type: "spend", item: "boost_3h" });
+                    if (txError) throw txError;
+                    setWalletBalance(Math.max(freshBalance - cost, 0));
                     toast.success("3-hour boost activated! ⚡");
                     setShowBoostDialog(false);
                     await fetchMyProfile();
                   } catch (error) {
-                    console.error("Error activating boost:", error);
+                    logger.error("Error activating boost:", error);
                     toast.error("Failed to activate boost");
                   }
                 }}
-                className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={walletBalance < 50}
               >
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">3 Hours</div>
                     <div className="text-sm text-muted-foreground">Quick boost</div>
                   </div>
-                  <div className="text-2xl font-bold text-blue-600">$2.99</div>
+                  <div className="text-2xl font-bold text-primary">50 coins</div>
                 </div>
               </button>
 
               {/* 6 Hours Option */}
               <button
                 onClick={async () => {
+                  const cost = 80;
+                  if (!user?.id) {
+                    toast.error("Please sign in to boost.");
+                    return;
+                  }
+                  if (walletBalance < cost) {
+                    toast.error("Not enough coins. Please top up your wallet.");
+                    return;
+                  }
                   try {
-                    const { error } = await supabase.rpc('activate_booster', {
-                      user_id: user?.id,
-                      hours: 6
+                    const { error } = await supabase.rpc("activate_booster", {
+                      user_id: user.id,
+                      hours: 6,
                     });
                     if (error) throw error;
+                    // Fetch fresh balance to avoid stale-state race
+                    const { data: freshWallet } = await supabase
+                      .from("wallets")
+                      .select("balance")
+                      .eq("user_id", user.id)
+                      .single();
+                    const freshBalance =
+                      (freshWallet as { balance: number } | null)?.balance ?? walletBalance;
+                    const { error: walletError } = await supabase
+                      .from("wallets")
+                      .update({
+                        balance: Math.max(freshBalance - cost, 0),
+                        updated_at: new Date().toISOString(),
+                      })
+                      .eq("user_id", user.id);
+                    if (walletError) throw walletError;
+                    const { error: txError } = await supabase
+                      .from("wallet_transactions")
+                      .insert({ user_id: user.id, amount: -cost, type: "spend", item: "boost_6h" });
+                    if (txError) throw txError;
+                    setWalletBalance(Math.max(freshBalance - cost, 0));
                     toast.success("6-hour boost activated! ⚡");
                     setShowBoostDialog(false);
                     await fetchMyProfile();
                   } catch (error) {
-                    console.error("Error activating boost:", error);
+                    logger.error("Error activating boost:", error);
                     toast.error("Failed to activate boost");
                   }
                 }}
-                className="w-full p-4 border-2 border-blue-500 bg-blue-50 rounded-lg hover:border-blue-600 hover:bg-blue-100 transition-all text-left"
+                className="w-full p-4 border-2 border-primary bg-primary/10 rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={walletBalance < 80}
               >
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">6 Hours</div>
                     <div className="text-sm text-muted-foreground">Most popular ⭐</div>
                   </div>
-                  <div className="text-2xl font-bold text-blue-600">$4.99</div>
+                  <div className="text-2xl font-bold text-primary">80 coins</div>
                 </div>
               </button>
 
               {/* 10 Hours Option */}
               <button
                 onClick={async () => {
+                  const cost = 100;
+                  if (!user?.id) {
+                    toast.error("Please sign in to boost.");
+                    return;
+                  }
+                  if (walletBalance < cost) {
+                    toast.error("Not enough coins. Please top up your wallet.");
+                    return;
+                  }
                   try {
-                    const { error } = await supabase.rpc('activate_booster', {
-                      user_id: user?.id,
-                      hours: 10
+                    const { error } = await supabase.rpc("activate_booster", {
+                      user_id: user.id,
+                      hours: 10,
                     });
                     if (error) throw error;
+                    // Fetch fresh balance to avoid stale-state race
+                    const { data: freshWallet } = await supabase
+                      .from("wallets")
+                      .select("balance")
+                      .eq("user_id", user.id)
+                      .single();
+                    const freshBalance =
+                      (freshWallet as { balance: number } | null)?.balance ?? walletBalance;
+                    const { error: walletError } = await supabase
+                      .from("wallets")
+                      .update({
+                        balance: Math.max(freshBalance - cost, 0),
+                        updated_at: new Date().toISOString(),
+                      })
+                      .eq("user_id", user.id);
+                    if (walletError) throw walletError;
+                    const { error: txError } = await supabase
+                      .from("wallet_transactions")
+                      .insert({
+                        user_id: user.id,
+                        amount: -cost,
+                        type: "spend",
+                        item: "boost_10h",
+                      });
+                    if (txError) throw txError;
+                    setWalletBalance(Math.max(freshBalance - cost, 0));
                     toast.success("10-hour boost activated! ⚡");
                     setShowBoostDialog(false);
                     await fetchMyProfile();
                   } catch (error) {
-                    console.error("Error activating boost:", error);
+                    logger.error("Error activating boost:", error);
                     toast.error("Failed to activate boost");
                   }
                 }}
-                className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={walletBalance < 100}
               >
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">10 Hours</div>
                     <div className="text-sm text-muted-foreground">Best value 💎</div>
                   </div>
-                  <div className="text-2xl font-bold text-blue-600">$7.99</div>
+                  <div className="text-2xl font-bold text-primary">100 coins</div>
                 </div>
               </button>
             </div>
@@ -2372,12 +3621,15 @@ const Discover = () => {
 
       {/* Premium Roses VIP Dialog */}
       <Dialog open={showPremiumRosesDialog} onOpenChange={setShowPremiumRosesDialog}>
-        <DialogContent className="sm:max-w-lg bg-gradient-to-br from-rose-50 via-red-50 to-pink-50 dark:from-gray-900 dark:via-red-950 dark:to-black border-4 border-rose-400 dark:border-rose-600">
+        <DialogContent
+          className="sm:max-w-lg bg-gradient-to-br from-background via-muted to-primary/10  border-4 border-primary/30 "
+          aria-describedby={undefined}
+        >
           <DialogHeader>
-            <DialogTitle className="text-3xl font-bold text-center bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 bg-clip-text text-transparent flex items-center justify-center gap-3">
-              <Flower2 className="h-8 w-8 text-rose-600 animate-bounce" />
+            <DialogTitle className="text-3xl font-bold text-center bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] bg-clip-text text-transparent flex items-center justify-center gap-3">
+              <Flower2 className="h-8 w-8 text-primary animate-bounce" />
               Premium Roses
-              <Crown className="h-8 w-8 text-yellow-500 animate-pulse" />
+              <Crown className="h-8 w-8 text-primary animate-pulse" />
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
@@ -2385,57 +3637,77 @@ const Discover = () => {
               <div className="relative">
                 {/* Rose Animation Background */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                  <Flower2 className="h-32 w-32 text-rose-500 animate-spin-slow" />
+                  <Flower2 className="h-32 w-32 text-primary animate-spin-slow" />
                 </div>
-                
-                <div className="relative flex flex-col items-center gap-4 p-6 bg-white/80 dark:bg-gray-900/80 rounded-xl border-2 border-rose-300 dark:border-rose-700 backdrop-blur-sm">
+
+                <div className="relative flex flex-col items-center gap-4 p-6 bg-card/80 dark:bg-primary/10/80 rounded-xl border-2 border-border /30 backdrop-blur-sm">
                   <img
                     src={rosesTargetProfile.profile_image_url || "/placeholder.svg"}
                     alt={rosesTargetProfile.full_name}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-rose-400 shadow-xl"
+                    className="w-24 h-24 rounded-full object-cover border-4 border-primary/30 shadow-xl"
                   />
                   <div className="text-center">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-red-100">{rosesTargetProfile.full_name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-red-300">Age {rosesTargetProfile.age}</p>
+                    <h3 className="text-2xl font-bold text-foreground dark:text-primary/20">
+                      {rosesTargetProfile.full_name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground dark:text-primary/60">
+                      Age {rosesTargetProfile.age}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="bg-gradient-to-r from-rose-100 to-red-100 dark:from-red-950/50 dark:to-rose-950/50 p-6 rounded-xl border-2 border-rose-300 dark:border-rose-800">
+            <div className="bg-gradient-to-r from-muted to-muted  p-6 rounded-xl border-2 border-border /30">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Flower2 className="h-6 w-6 text-rose-600 dark:text-rose-400 mt-1 flex-shrink-0" />
+                  <Flower2 className="h-6 w-6 text-primary dark:text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-bold text-lg text-rose-900 dark:text-rose-200 mb-2">💐 VIP Premium Roses Experience</h4>
-                    <ul className="space-y-2 text-sm text-gray-700 dark:text-red-200">
+                    <h4 className="font-bold text-lg text-primary dark:text-primary mb-2">
+                      💐 VIP Premium Roses Experience
+                    </h4>
+                    <ul className="space-y-2 text-sm text-foreground dark:text-primary/30">
                       <li className="flex items-center gap-2">
-                        <span className="text-rose-500">✓</span>
-                        <span><strong>Instant Match:</strong> Skip the waiting game</span>
+                        <span className="text-primary">✓</span>
+                        <span>
+                          <strong>Instant Match:</strong> Skip the waiting game
+                        </span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="text-rose-500">✓</span>
-                        <span><strong>Automatic Like Back:</strong> They'll match with you instantly</span>
+                        <span className="text-primary">✓</span>
+                        <span>
+                          <strong>Automatic Like Back:</strong> They'll match with you instantly
+                        </span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="text-rose-500">✓</span>
-                        <span><strong>Exclusive Rose Theme:</strong> Special chat background with roses</span>
+                        <span className="text-primary">✓</span>
+                        <span>
+                          <strong>Exclusive Rose Theme:</strong> Special chat background with roses
+                        </span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="text-rose-500">✓</span>
-                        <span><strong>VIP Status:</strong> Stand out as a premium member</span>
+                        <span className="text-primary">✓</span>
+                        <span>
+                          <strong>VIP Status:</strong> Stand out as a premium member
+                        </span>
                       </li>
                     </ul>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 pt-4 border-t-2 border-rose-300 dark:border-rose-800">
-                  <Crown className="h-6 w-6 text-yellow-500 animate-pulse" />
+                <div className="flex items-center justify-center gap-2 pt-4 border-t-2 border-border dark:border-primary">
+                  <Crown className="h-6 w-6 text-primary animate-pulse" />
                   <div className="flex flex-col items-center">
-                    <span className="text-2xl font-bold text-rose-700 dark:text-rose-300">€50.00</span>
-                    <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full mt-1">TEST MODE - FREE</span>
+                    <span className="text-2xl font-bold text-primary dark:text-primary/60">
+                      1 Coin
+                    </span>
+                    <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full mt-1">
+                      Wallet balance: {walletBalance}
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-600 dark:text-red-400">One-time VIP purchase</span>
+                  <span className="text-sm text-muted-foreground dark:text-primary/80">
+                    Per rose
+                  </span>
                 </div>
               </div>
             </div>
@@ -2444,20 +3716,29 @@ const Discover = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowPremiumRosesDialog(false)}
-                className="flex-1 border-2 border-gray-300 dark:border-red-800 hover:bg-gray-100 dark:hover:bg-red-950/50"
+                className="flex-1 border-2 border-border dark:border-primary hover:bg-muted dark:hover:bg-primary/50"
               >
                 Cancel
               </Button>
               <Button
+                disabled={walletBalance < 1}
                 onClick={handlePremiumRoses}
-                className="flex-1 bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 hover:from-rose-700 hover:via-red-700 hover:to-rose-800 text-white font-bold text-lg shadow-xl border-2 border-yellow-400 dark:border-yellow-500"
+                className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white font-bold text-lg shadow-xl border-2 border-primary/30 "
               >
                 <Flower2 className="h-5 w-5 mr-2 animate-bounce" />
-                Send Roses 💐 (Test)
+                Send Roses 💐
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 border-2 border-border"
+                onClick={() => navigate("/wallet")}
+              >
+                <Coins className="h-5 w-5 mr-2" />
+                Buy Coins
               </Button>
             </div>
 
-            <p className="text-xs text-center text-green-600 dark:text-green-400 font-semibold bg-green-50 dark:bg-green-950/30 py-2 rounded">
+            <p className="text-xs text-center text-primary dark:text-primary/80 font-semibold bg-primary/10 dark:bg-primary/30 py-2 rounded">
               🧪 TEST MODE: No payment required - Testing Premium Roses feature
             </p>
           </div>
@@ -2466,16 +3747,16 @@ const Discover = () => {
 
       {/* Instant Message Dialog */}
       <Dialog open={showInstantMessageDialog} onOpenChange={setShowInstantMessageDialog}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg" aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent flex items-center gap-2">
-              <MessageSquare className="h-6 w-6 text-cyan-500" />
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent flex items-center gap-2">
+              <MessageSquare className="h-6 w-6 text-primary" />
               Instant Message
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {instantMessageTargetProfile && (
-              <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg">
+              <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-primary/10 to-primary/10 rounded-lg">
                 <img
                   src={instantMessageTargetProfile.profile_image_url || "/placeholder.svg"}
                   alt={instantMessageTargetProfile.full_name}
@@ -2506,12 +3787,12 @@ const Discover = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg border border-amber-200">
+            <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-border">
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-amber-500" />
+                <Zap className="h-5 w-5 text-primary" />
                 <span className="text-sm font-medium">Credits remaining:</span>
               </div>
-              <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
+              <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white">
                 {instantMessageCredits}
               </Badge>
             </div>
@@ -2527,7 +3808,7 @@ const Discover = () => {
               <Button
                 onClick={sendInstantMessage}
                 disabled={!instantMessageText.trim() || instantMessageCredits === 0}
-                className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                className="flex-1 bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary"
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Send Message
@@ -2543,7 +3824,7 @@ const Discover = () => {
 
       {/* Premium Dialog */}
       <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>
               {swipeLimit.isPremium ? "Premium Active" : "Upgrade to Premium"}
@@ -2557,19 +3838,19 @@ const Discover = () => {
                 </div>
                 <h4 className="text-lg font-semibold">You're Already Premium!</h4>
                 <p className="text-muted-foreground">
-                  You have access to all premium features including unlimited swipes, 
-                  advanced filters, and the ability to see who liked you.
+                  You have access to all premium features including unlimited swipes, advanced
+                  filters, and the ability to see who liked you.
                 </p>
                 <ul className="space-y-2 text-left w-full">
-                  <li className="flex items-center gap-2 text-green-600">
+                  <li className="flex items-center gap-2 text-primary">
                     <Heart className="h-5 w-5" />
                     Unlimited Swipes ✓
                   </li>
-                  <li className="flex items-center gap-2 text-green-600">
+                  <li className="flex items-center gap-2 text-primary">
                     <MessageCircle className="h-5 w-5" />
                     See who liked you ✓
                   </li>
-                  <li className="flex items-center gap-2 text-green-600">
+                  <li className="flex items-center gap-2 text-primary">
                     <Settings className="h-5 w-5" />
                     Advanced filters ✓
                   </li>
@@ -2581,15 +3862,15 @@ const Discover = () => {
               <h4 className="text-lg font-semibold mb-4">Premium Benefits:</h4>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-pink-500" />
+                  <Heart className="h-5 w-5 text-primary" />
                   Unlimited Swipes
                 </li>
                 <li className="flex items-center gap-2">
-                  <MessageCircle className="h-5 w-5 text-blue-500" />
+                  <MessageCircle className="h-5 w-5 text-primary" />
                   See who liked you
                 </li>
                 <li className="flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-purple-500" />
+                  <Settings className="h-5 w-5 text-primary" />
                   Advanced filters
                 </li>
               </ul>
@@ -2599,31 +3880,49 @@ const Discover = () => {
             <Button variant="outline" onClick={() => setShowUpgradeDialog(false)}>
               {swipeLimit.isPremium ? "Close" : "Later"}
             </Button>
-            {!swipeLimit.isPremium && (
-              <Button onClick={handleUpgrade}>Upgrade Now</Button>
-            )}
+            {!swipeLimit.isPremium && <Button onClick={handleUpgrade}>Upgrade Now</Button>}
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Full Profile Dialog */}
       <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          aria-describedby={undefined}
+        >
           {currentProfile && (
             <>
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">
                   {currentProfile.full_name}, {currentProfile.age}
                 </DialogTitle>
+                <div className="flex flex-wrap gap-2">
+                  {currentProfile.verified && (
+                    <Badge className="bg-primary text-white border-none">Verified</Badge>
+                  )}
+                  {currentProfile.is_premium && (
+                    <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
+                      Premium
+                    </Badge>
+                  )}
+                  {currentProfile.video_intro_url && (
+                    <Badge className="bg-background/80 text-white border-none">Video Intro</Badge>
+                  )}
+                </div>
               </DialogHeader>
 
               <div className="space-y-6">
                 {/* Image Carousel */}
-                <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-100">
+                <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-muted">
                   {currentProfile.profile_images && currentProfile.profile_images.length > 0 ? (
                     <>
                       <img
-                        src={currentProfile.profile_images[selectedImageIndex] || currentProfile.profile_image_url || "/placeholder.svg"}
+                        src={
+                          currentProfile.profile_images[selectedImageIndex] ||
+                          currentProfile.profile_image_url ||
+                          "/placeholder.svg"
+                        }
                         alt={`${currentProfile.full_name} - Photo ${selectedImageIndex + 1}`}
                         className="w-full h-full object-cover"
                       />
@@ -2632,20 +3931,24 @@ const Discover = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full"
-                            onClick={() => setSelectedImageIndex((prev) => 
-                              prev === 0 ? currentProfile.profile_images!.length - 1 : prev - 1
-                            )}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-primary/70 hover:bg-primary/80 text-white rounded-full"
+                            onClick={() =>
+                              setSelectedImageIndex((prev) =>
+                                prev === 0 ? currentProfile.profile_images!.length - 1 : prev - 1
+                              )
+                            }
                           >
                             <ChevronLeft className="h-6 w-6" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full"
-                            onClick={() => setSelectedImageIndex((prev) => 
-                              prev === currentProfile.profile_images!.length - 1 ? 0 : prev + 1
-                            )}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary/70 hover:bg-primary/80 text-white rounded-full"
+                            onClick={() =>
+                              setSelectedImageIndex((prev) =>
+                                prev === currentProfile.profile_images!.length - 1 ? 0 : prev + 1
+                              )
+                            }
                           >
                             <ChevronRight className="h-6 w-6" />
                           </Button>
@@ -2654,7 +3957,7 @@ const Discover = () => {
                               <div
                                 key={idx}
                                 className={`w-2 h-2 rounded-full ${
-                                  idx === selectedImageIndex ? 'bg-white' : 'bg-white/50'
+                                  idx === selectedImageIndex ? "bg-card" : "bg-card/50"
                                 }`}
                               />
                             ))}
@@ -2671,98 +3974,219 @@ const Discover = () => {
                   )}
                 </div>
 
-                {/* Location */}
-                {currentProfile.city && (
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <MapPin className="h-5 w-5 text-pink-500" />
-                    <span className="font-medium">{currentProfile.city}</span>
-                    {currentProfile.distance_km && (
-                      <span className="text-muted-foreground">• {formatDistance(currentProfile.distance_km)} away</span>
-                    )}
+                {currentProfile.video_intro_url && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                    <div className="rounded-lg overflow-hidden border border-primary/20">
+                      <video
+                        src={currentProfile.video_intro_url}
+                        controls
+                        className="w-full max-h-[420px] object-cover"
+                      />
+                    </div>
                   </div>
                 )}
 
+                {/* Location */}
+                {currentProfile.travel_mode_active && currentProfile.travel_city ? (
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <span className="text-lg">✈️</span>
+                    <span className="font-medium">Traveling in {currentProfile.travel_city}</span>
+                    {currentProfile.distance_km && (
+                      <span className="text-muted-foreground">
+                        • {formatDistance(currentProfile.distance_km)} away
+                      </span>
+                    )}
+                  </div>
+                ) : currentProfile.city ? (
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <span className="font-medium">{currentProfile.city}</span>
+                    {currentProfile.distance_km && (
+                      <span className="text-muted-foreground">
+                        • {formatDistance(currentProfile.distance_km)} away
+                      </span>
+                    )}
+                  </div>
+                ) : null}
+
                 {/* Profile Details Grid */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   {currentProfile.work && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
-                      <p className="font-semibold text-sm text-gray-800">{currentProfile.work}</p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">💼</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Work
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate">
+                          {currentProfile.work}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {currentProfile.education && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
-                      <p className="font-semibold text-sm text-gray-800">{currentProfile.education}</p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">🎓</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Education
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate">
+                          {currentProfile.education}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {(currentProfile.height_cm || currentProfile.height) && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
-                      <p className="font-semibold text-sm text-gray-800">
-                        {currentProfile.height_cm ? `${currentProfile.height_cm} cm` : currentProfile.height}
-                      </p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">📏</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Height
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate">
+                          {currentProfile.height_cm
+                            ? `${currentProfile.height_cm} cm`
+                            : currentProfile.height}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {currentProfile.zodiac_sign && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
-                      <p className="font-semibold text-sm text-gray-800">{currentProfile.zodiac_sign}</p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">♈</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Zodiac
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate capitalize">
+                          {currentProfile.zodiac_sign}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {currentProfile.religion && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
-                      <p className="font-semibold text-sm text-gray-800">{currentProfile.religion}</p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">🙏</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Religion
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate capitalize">
+                          {currentProfile.religion}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {currentProfile.lifestyle && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
-                      <p className="font-semibold text-sm text-gray-800">{currentProfile.lifestyle}</p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">🌟</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Lifestyle
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate capitalize">
+                          {currentProfile.lifestyle}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {currentProfile.drinking && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
-                      <p className="font-semibold text-sm text-gray-800">{currentProfile.drinking}</p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">🍷</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Drinking
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate capitalize">
+                          {currentProfile.drinking}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {currentProfile.smoking && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
-                      <p className="font-semibold text-sm text-gray-800">{currentProfile.smoking}</p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">🚬</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Smoking
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate capitalize">
+                          {currentProfile.smoking}
+                        </p>
+                      </div>
+                    </div>
                   )}
                   {currentProfile.pets && (
-                    <Card className="p-4 border-pink-100 hover:border-pink-300 transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
-                      <p className="font-semibold text-sm text-gray-800">{currentProfile.pets}</p>
-                    </Card>
+                    <div className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-2.5 border border-border/40">
+                      <span className="text-base">🐾</span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
+                          Pets
+                        </p>
+                        <p className="font-semibold text-xs text-foreground truncate capitalize">
+                          {currentProfile.pets}
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
 
                 {/* Bio */}
                 {currentProfile.bio && (
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">💬</span> About
+                    <h3 className="font-semibold text-sm flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+                      <span className="text-base">💬</span> About
                     </h3>
-                    <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg">{currentProfile.bio}</p>
+                    <p className="text-foreground text-sm leading-relaxed bg-muted/30 border border-border/40 p-3 rounded-xl">
+                      {sanitizeText(currentProfile.bio || "")}
+                    </p>
                   </div>
                 )}
+
+                {currentProfile.interests &&
+                  currentProfile.interests.length > 0 &&
+                  myProfile?.interests &&
+                  myProfile.interests.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-sm flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+                        <span className="text-base">✨</span> Shared Interests
+                      </h3>
+                      <div className="flex flex-wrap gap-1.5">
+                        {currentProfile.interests
+                          .filter((interest) =>
+                            myProfile.interests.some(
+                              (mine) => mine.toLowerCase() === interest.toLowerCase()
+                            )
+                          )
+                          .slice(0, 3)
+                          .map((interest) => (
+                            <span
+                              key={interest}
+                              className="inline-flex items-center gap-1 text-xs font-medium bg-primary/15 text-primary border border-primary/25 rounded-full px-2.5 py-1"
+                            >
+                              {interest}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
 
                 {/* Looking For */}
                 {currentProfile.looking_for && currentProfile.looking_for.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">💕</span> Looking For
+                    <h3 className="font-semibold text-sm flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+                      <span className="text-base">💕</span> Looking For
                     </h3>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {currentProfile.looking_for.map((item, idx) => (
-                        <Badge key={idx} className="text-sm py-1.5 px-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 border-none">
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 text-xs font-semibold bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white rounded-full px-3 py-1"
+                        >
                           {item}
-                        </Badge>
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -2771,18 +4195,74 @@ const Discover = () => {
                 {/* Interests */}
                 {currentProfile.interests && currentProfile.interests.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">✨</span> Interests
+                    <h3 className="font-semibold text-sm flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+                      <span className="text-base">✨</span> Interests
                     </h3>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {currentProfile.interests.map((interest, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-sm py-1.5 px-4 rounded-full bg-pink-50 text-pink-700 border-pink-200">
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 text-xs font-medium bg-muted/60 text-foreground border border-border/50 rounded-full px-2.5 py-1 hover:bg-muted transition-colors"
+                        >
                           {interest}
-                        </Badge>
+                        </span>
                       ))}
                     </div>
                   </div>
                 )}
+
+                {/* Profile Soundtrack */}
+                {currentProfile.soundtrack_url &&
+                  currentProfile.soundtrack_source &&
+                  (() => {
+                    const ytId =
+                      currentProfile.soundtrack_source === "youtube"
+                        ? extractYouTubeId(currentProfile.soundtrack_url!)
+                        : null;
+                    const spId =
+                      currentProfile.soundtrack_source === "spotify"
+                        ? extractSpotifyTrackId(currentProfile.soundtrack_url!)
+                        : null;
+                    if (!ytId && !spId) return null;
+                    return (
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <span className="text-2xl">🎵</span> Soundtrack
+                        </h3>
+                        {(currentProfile.soundtrack_title || currentProfile.soundtrack_artist) && (
+                          <p className="text-sm text-muted-foreground">
+                            {currentProfile.soundtrack_title}
+                            {currentProfile.soundtrack_artist
+                              ? ` — ${currentProfile.soundtrack_artist}`
+                              : ""}
+                          </p>
+                        )}
+                        {ytId && (
+                          <div className="rounded-xl overflow-hidden aspect-video">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${ytId}`}
+                              title="Profile soundtrack"
+                              className="w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        )}
+                        {spId && (
+                          <div className="rounded-xl overflow-hidden">
+                            <iframe
+                              src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
+                              title="Profile soundtrack"
+                              className="w-full"
+                              height="152"
+                              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
@@ -2800,7 +4280,7 @@ const Discover = () => {
                   </Button>
                   <Button
                     size="lg"
-                    className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
+                    className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110"
                     onClick={() => {
                       setShowProfileDialog(false);
                       handleLike(currentProfile.id);
@@ -2810,6 +4290,34 @@ const Discover = () => {
                     Like
                   </Button>
                 </div>
+                {!likedProfiles.has(currentProfile.id) && (
+                  <div className="flex gap-3">
+                    <Button
+                      size="lg"
+                      className="flex-1 bg-gradient-to-br from-[hsl(350,80%,55%)] via-[hsl(5,90%,55%)] to-[hsl(15,90%,50%)] hover:brightness-110 text-white border-2 border-yellow-400"
+                      onClick={() => {
+                        setRosesTargetProfile(currentProfile);
+                        setShowProfileDialog(false);
+                        setShowPremiumRosesDialog(true);
+                      }}
+                    >
+                      <span className="text-xl mr-2">🌹</span>
+                      Send Roses
+                    </Button>
+                    <Button
+                      size="lg"
+                      className="flex-1 bg-gradient-to-br from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white border-2 border-border"
+                      onClick={() => {
+                        setShowProfileDialog(false);
+                        handleInstantMessage(currentProfile);
+                      }}
+                      disabled={instantMessageCredits === 0}
+                    >
+                      <MessageSquare className="h-5 w-5 mr-2" />
+                      Instant Chat {instantMessageCredits > 0 && `(${instantMessageCredits})`}
+                    </Button>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -2818,10 +4326,10 @@ const Discover = () => {
 
       {/* Superlike Purchase Dialog */}
       <Dialog open={showSuperlikeDialog} onOpenChange={setShowSuperlikeDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
-              <Sparkles className="h-6 w-6 text-yellow-500" />
+              <Sparkles className="h-6 w-6 text-primary" />
               Get Superlikes
             </DialogTitle>
           </DialogHeader>
@@ -2830,59 +4338,83 @@ const Discover = () => {
               Stand out from the crowd! Superlikes give you 3x more chances to match.
             </p>
 
-            {/* Premium Upsell */}
-            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Crown className="h-5 w-5 text-yellow-500" />
-                <h3 className="font-semibold">Premium Benefit</h3>
+            {/* Premium Upsell — only show if not already premium */}
+            {swipeLimit.isPremium ? (
+              <div className="bg-gradient-to-r from-primary/10 to-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-primary" />
+                  <div>
+                    <h3 className="font-semibold">Premium Member</h3>
+                    <p className="text-sm text-muted-foreground">
+                      You receive 5 free Superlikes every month. Top up any time below.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Premium members get 5 free Superlikes every month!
-              </p>
-              <Button
-                variant="outline"
-                className="w-full mt-3 border-purple-500/50 hover:bg-purple-500/10"
-                onClick={() => {
-                  setShowSuperlikeDialog(false);
-                  navigate("/premium");
-                }}
-              >
-                <Crown className="h-4 w-4 mr-2" />
-                Upgrade to Premium
-              </Button>
-            </div>
+            ) : (
+              <div className="bg-gradient-to-r from-primary/10 to-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Crown className="h-5 w-5 text-primary" />
+                  <h3 className="font-semibold">Premium Benefit</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Premium members get 5 free Superlikes every month!
+                </p>
+                <Button
+                  variant="outline"
+                  className="w-full mt-3 border-primary/50 hover:bg-primary/10"
+                  onClick={() => {
+                    setShowSuperlikeDialog(false);
+                    navigate("/premium");
+                  }}
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  Upgrade to Premium
+                </Button>
+              </div>
+            )}
 
             {/* Purchase Options */}
             <div className="space-y-3">
-              <h3 className="font-semibold">Or Buy Superlikes</h3>
-              
+              <h3 className="font-semibold">
+                {swipeLimit.isPremium ? "Buy More Superlikes" : "Or Buy Superlikes"}
+              </h3>
+
               <Button
                 variant="outline"
                 className="w-full justify-between h-auto p-4"
-                onClick={() => {
-                  handlePurchaseSuperlikes(1);
-                  setShowSuperlikeDialog(false);
-                }}
+                disabled={superlikeCheckoutLoading !== null}
+                onClick={() => handlePurchaseSuperlikes(1)}
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-yellow-500" />
-                  <span className="font-semibold">1 Superlike</span>
+                  {superlikeCheckoutLoading === 1 ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  ) : (
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  )}
+                  <span className="font-semibold">
+                    {superlikeCheckoutLoading === 1 ? "Opening checkout…" : "1 Super Like"}
+                  </span>
                 </div>
                 <span className="text-lg font-bold">€3.00</span>
               </Button>
 
               <Button
                 variant="outline"
-                className="w-full justify-between h-auto p-4 border-purple-500/30 relative"
-                onClick={() => {
-                  handlePurchaseSuperlikes(5);
-                  setShowSuperlikeDialog(false);
-                }}
+                className="w-full justify-between h-auto p-4 border-primary/30 relative"
+                disabled={superlikeCheckoutLoading !== null}
+                onClick={() => handlePurchaseSuperlikes(5)}
               >
-                <Badge className="absolute -top-2 -right-2 bg-green-600">Save 20%</Badge>
+                <Badge className="absolute -top-2 -right-2 bg-primary">Save 20%</Badge>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-yellow-500" />
-                  <span className="font-semibold">5 Superlikes</span>
+                  {superlikeCheckoutLoading === 5 ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  ) : (
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  )}
+                  <span className="font-semibold">
+                    {superlikeCheckoutLoading === 5 ? "Opening checkout…" : "5 Super Likes"}
+                  </span>
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold">€12.00</div>
@@ -2892,16 +4424,20 @@ const Discover = () => {
 
               <Button
                 variant="outline"
-                className="w-full justify-between h-auto p-4 border-yellow-500/30 relative"
-                onClick={() => {
-                  handlePurchaseSuperlikes(10);
-                  setShowSuperlikeDialog(false);
-                }}
+                className="w-full justify-between h-auto p-4 border-primary/30 relative"
+                disabled={superlikeCheckoutLoading !== null}
+                onClick={() => handlePurchaseSuperlikes(10)}
               >
-                <Badge className="absolute -top-2 -right-2 bg-yellow-600">Best Value</Badge>
+                <Badge className="absolute -top-2 -right-2 bg-primary">Best Value</Badge>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-yellow-500" />
-                  <span className="font-semibold">10 Superlikes</span>
+                  {superlikeCheckoutLoading === 10 ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  ) : (
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  )}
+                  <span className="font-semibold">
+                    {superlikeCheckoutLoading === 10 ? "Opening checkout…" : "10 Super Likes"}
+                  </span>
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold">€20.00</div>
@@ -2915,7 +4451,7 @@ const Discover = () => {
 
       {/* Match Animation - Only render when needed */}
       {showMatchAnimation && (
-        <MatchAnimation 
+        <MatchAnimation
           show={showMatchAnimation}
           matchName={matchedProfile?.full_name || "Someone"}
           onComplete={() => {
@@ -2928,7 +4464,10 @@ const Discover = () => {
 
       {/* Notifications Dialog */}
       <Dialog open={showNotifications} onOpenChange={setShowNotifications}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+        <DialogContent
+          className="max-w-md max-h-[80vh] overflow-hidden flex flex-col"
+          aria-describedby={undefined}
+        >
           <DialogHeader>
             <DialogTitle>Notifications</DialogTitle>
           </DialogHeader>
@@ -2937,8 +4476,8 @@ const Discover = () => {
               onClick={() => setNotificationTab("views")}
               className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
                 notificationTab === "views"
-                  ? "border-b-2 border-pink-500 text-pink-500"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -2950,8 +4489,8 @@ const Discover = () => {
               onClick={() => setNotificationTab("likes")}
               className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
                 notificationTab === "likes"
-                  ? "border-b-2 border-pink-500 text-pink-500"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <div className="flex items-center justify-center gap-2">
@@ -2967,14 +4506,17 @@ const Discover = () => {
                   {profileViews.map((profile) => (
                     <div
                       key={profile.id}
-                      className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg cursor-pointer transition-colors"
+                      className="flex items-center gap-3 p-3 hover:bg-background dark:hover:bg-primary/10 rounded-lg cursor-pointer transition-colors"
                       onClick={() => {
                         setNotificationProfile(profile);
                         setShowNotificationProfileDialog(true);
                       }}
                     >
-                      <Avatar className="h-12 w-12 border-2 border-pink-200">
-                        <AvatarImage src={profile.profile_image_url || ""} alt={profile.full_name} />
+                      <Avatar className="h-12 w-12 border-2 border-border">
+                        <AvatarImage
+                          src={profile.profile_image_url || ""}
+                          alt={profile.full_name}
+                        />
                         <AvatarFallback>{profile.full_name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
@@ -2986,323 +4528,971 @@ const Discover = () => {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {profile.age} • {profile.location || "Location hidden"}
                         </p>
                         {profile.timestamp && (
-                          <p className="text-xs text-gray-400 mt-0.5">
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             {formatTimeAgo(profile.timestamp)}
                           </p>
                         )}
                       </div>
-                      <Eye className="h-5 w-5 text-gray-400" />
+                      <Eye className="h-5 w-5 text-muted-foreground" />
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Eye className="h-12 w-12 text-gray-300 mb-3" />
-                  <p className="text-gray-500 font-medium">No profile views yet</p>
-                  <p className="text-sm text-gray-400 mt-1">
+                  <Eye className="h-12 w-12 text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground font-medium">No profile views yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">
                     People who view your profile will appear here
                   </p>
                 </div>
               )
-            ) : (
-              profileLikes.length > 0 ? (
-                <div className="space-y-3">
-                  {profileLikes.map((profile) => (
-                    <div
-                      key={profile.id}
-                      className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg cursor-pointer transition-colors"
-                      onClick={() => {
-                        setNotificationProfile(profile);
-                        setShowNotificationProfileDialog(true);
-                      }}
-                    >
-                      <Avatar className="h-12 w-12 border-2 border-pink-200">
-                        <AvatarImage src={profile.profile_image_url || ""} alt={profile.full_name} />
-                        <AvatarFallback>{profile.full_name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm truncate">{profile.full_name}</p>
-                          {profile.verified && (
-                            <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                              ✓
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500 truncate">
-                          {profile.age} • {profile.location || "Location hidden"}
-                        </p>
-                        {profile.timestamp && (
-                          <p className="text-xs text-gray-400 mt-0.5">
-                            {formatTimeAgo(profile.timestamp)}
-                          </p>
+            ) : profileLikes.length > 0 ? (
+              <div className="space-y-3">
+                {profileLikes.map((profile) => (
+                  <div
+                    key={profile.id}
+                    className="flex items-center gap-3 p-3 hover:bg-background dark:hover:bg-primary/10 rounded-lg cursor-pointer transition-colors"
+                    onClick={() => {
+                      setNotificationProfile(profile);
+                      setShowNotificationProfileDialog(true);
+                    }}
+                  >
+                    <Avatar className="h-12 w-12 border-2 border-border">
+                      <AvatarImage src={profile.profile_image_url || ""} alt={profile.full_name} />
+                      <AvatarFallback>{profile.full_name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm truncate">{profile.full_name}</p>
+                        {profile.verified && (
+                          <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                            ✓
+                          </Badge>
                         )}
                       </div>
-                      <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+                      <p className="text-xs text-muted-foreground truncate">
+                        {profile.age} • {profile.location || "Location hidden"}
+                      </p>
+                      {profile.timestamp && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {formatTimeAgo(profile.timestamp)}
+                        </p>
+                      )}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Heart className="h-12 w-12 text-gray-300 mb-3" />
-                  <p className="text-gray-500 font-medium">No likes yet</p>
-                  <p className="text-sm text-gray-400 mt-1">
-                    People who like you will appear here
-                  </p>
-                </div>
-              )
+                    <Heart className="h-5 w-5 text-primary fill-primary" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No likes yet</p>
             )}
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Notification Profile Dialog - Show full profile with all photos and info */}
-      <Dialog open={showNotificationProfileDialog} onOpenChange={(open) => {
-        setShowNotificationProfileDialog(open);
-        if (!open) {
-          setNotificationProfileImageIndex(0);
-          setShowNotificationFullProfile(false);
-        }
-      }}>
-        <DialogContent className="max-w-md p-0 overflow-hidden max-h-[90vh]">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Profile Details</DialogTitle>
-          </DialogHeader>
-          {notificationProfile && (() => {
-            const allImages = [
-              notificationProfile.profile_image_url,
-              ...(notificationProfile.profile_images || [])
-            ].filter(Boolean) as string[];
-            
-            return (
-              <div className="overflow-y-auto max-h-[90vh]">
-                <Card className="overflow-hidden shadow-2xl border-none dark:bg-gradient-to-br dark:from-red-950 dark:to-black dark:border dark:border-red-900/30">
-                  {/* Image with Profile Info Overlay - Matching Discovery Card */}
-                  <div className="relative aspect-[3/4] bg-gradient-to-br from-gray-900 to-gray-800 dark:from-black dark:to-red-950">
-                    {allImages.length > 0 ? (
-                      <>
-                        <img
-                          src={allImages[notificationProfileImageIndex]}
-                          alt={notificationProfile.full_name}
-                          className="w-full h-full object-cover"
-                        />
-                        
-                        {/* Image Navigation Dots */}
-                        {allImages.length > 1 && (
-                          <div className="absolute top-2 left-0 right-0 flex justify-center gap-1 px-2 z-10">
-                            {allImages.map((_, idx) => (
-                              <div
-                                key={idx}
-                                className={`h-1 flex-1 rounded-full transition-all ${
-                                  idx === notificationProfileImageIndex
-                                    ? "bg-white"
-                                    : "bg-white/30"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        )}
-                        
-                        {/* Gradient overlay for better text readability */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                        
-                        {/* Profile info overlay on image */}
-                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                          <div className="flex items-end justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-3xl font-bold drop-shadow-lg">
-                                  {notificationProfile.full_name}
-                                </h3>
-                                <span className="text-2xl font-light">{notificationProfile.age}</span>
-                                {notificationProfile.verified && (
-                                  <Badge className="bg-blue-500 text-white border-none">✓</Badge>
-                                )}
+      {/* Notification Profile Dialog - Show full profile matching Discover style */}
+      <Dialog
+        open={showNotificationProfileDialog}
+        onOpenChange={(open) => {
+          setShowNotificationProfileDialog(open);
+          if (!open) {
+            setNotificationProfileImageIndex(0);
+            setShowNotificationFullProfile(false);
+          }
+        }}
+      >
+        <DialogContent
+          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          aria-describedby={undefined}
+        >
+          {notificationProfile &&
+            (() => {
+              const allImages = [
+                notificationProfile.profile_image_url,
+                ...(notificationProfile.profile_images || []),
+              ].filter(Boolean) as string[];
+              const p = notificationProfile;
+
+              return (
+                <>
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold">
+                      {p.full_name}, {p.age}
+                    </DialogTitle>
+                    <div className="flex flex-wrap gap-2">
+                      {p.verified && (
+                        <Badge className="bg-primary text-white border-none">Verified</Badge>
+                      )}
+                      {p.is_premium && (
+                        <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
+                          Premium
+                        </Badge>
+                      )}
+                      {p.video_intro_url && (
+                        <Badge className="bg-background/80 text-white border-none">
+                          Video Intro
+                        </Badge>
+                      )}
+                    </div>
+                  </DialogHeader>
+
+                  <div className="space-y-6">
+                    {/* Image Carousel */}
+                    <div className="relative aspect-[3/4] rounded-lg overflow-hidden bg-muted">
+                      {allImages.length > 0 ? (
+                        <>
+                          <img
+                            src={allImages[notificationProfileImageIndex]}
+                            alt={`${p.full_name} - Photo ${notificationProfileImageIndex + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          {allImages.length > 1 && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute left-2 top-1/2 -translate-y-1/2 bg-primary/70 hover:bg-primary/80 text-white rounded-full"
+                                onClick={() =>
+                                  setNotificationProfileImageIndex((prev) =>
+                                    prev === 0 ? allImages.length - 1 : prev - 1
+                                  )
+                                }
+                              >
+                                <ChevronLeft className="h-6 w-6" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary/70 hover:bg-primary/80 text-white rounded-full"
+                                onClick={() =>
+                                  setNotificationProfileImageIndex((prev) =>
+                                    prev === allImages.length - 1 ? 0 : prev + 1
+                                  )
+                                }
+                              >
+                                <ChevronRight className="h-6 w-6" />
+                              </Button>
+                              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                {allImages.map((_, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={`w-2 h-2 rounded-full ${idx === notificationProfileImageIndex ? "bg-card" : "bg-card/50"}`}
+                                  />
+                                ))}
                               </div>
-                              
-                              {/* Location & Distance */}
-                              <div className="flex items-center gap-3 text-sm font-medium">
-                                {notificationProfile.city && (
-                                  <div className="flex items-center gap-1 backdrop-blur-sm bg-white/10 px-3 py-1 rounded-full">
-                                    <MapPin className="h-4 w-4" />
-                                    <span>{notificationProfile.city}</span>
-                                  </div>
-                                )}
-                                {notificationProfile.distance_km && (
-                                  <div className="backdrop-blur-sm bg-white/10 px-3 py-1 rounded-full">
-                                    {formatDistance(notificationProfile.distance_km)} away
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          No photo
                         </div>
-                        
-                        {/* Click zones for navigation */}
-                        {allImages.length > 1 && (
-                          <>
-                            <div
-                              className="absolute top-0 left-0 w-1/3 h-full cursor-pointer z-20"
-                              onClick={() => setNotificationProfileImageIndex(prev => 
-                                prev > 0 ? prev - 1 : allImages.length - 1
-                              )}
-                            />
-                            <div
-                              className="absolute top-0 right-0 w-1/3 h-full cursor-pointer z-20"
-                              onClick={() => setNotificationProfileImageIndex(prev => 
-                                prev < allImages.length - 1 ? prev + 1 : 0
-                              )}
-                            />
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        No photo
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Card content below image - Matching Discovery Card */}
-                  <div className="p-5 bg-white space-y-4">
-                    {notificationProfile.bio && (
-                      <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">{notificationProfile.bio}</p>
-                    )}
-                    
-                    {notificationProfile.interests && notificationProfile.interests.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {notificationProfile.interests.slice(0, 5).map((interest, i) => (
-                          <Badge key={i} variant="secondary" className="rounded-full px-3 py-1 bg-pink-50 text-pink-700 border-pink-200">
-                            {interest}
-                          </Badge>
-                        ))}
-                        {notificationProfile.interests.length > 5 && (
-                          <Badge variant="secondary" className="rounded-full px-3 py-1 bg-gray-100 text-gray-600">
-                            +{notificationProfile.interests.length - 5}
-                          </Badge>
-                        )}
+                      )}
+                    </div>
+
+                    {/* Video Intro */}
+                    {p.video_intro_url && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                        <div className="rounded-lg overflow-hidden border border-primary/20">
+                          <video
+                            src={p.video_intro_url}
+                            controls
+                            className="w-full max-h-[420px] object-cover"
+                          />
+                        </div>
                       </div>
                     )}
 
-                    {/* See Full Profile Button */}
-                    {!showNotificationFullProfile && (
-                      <Button
-                        variant="ghost"
-                        className="w-full text-pink-600 hover:text-pink-700 hover:bg-pink-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50 font-medium"
-                        onClick={() => setShowNotificationFullProfile(true)}
-                      >
-                        <Info className="h-4 w-4 mr-2" />
-                        See Full Profile
-                      </Button>
+                    {/* Location */}
+                    {p.travel_mode_active && p.travel_city ? (
+                      <div className="flex items-center gap-3 text-muted-foreground">
+                        <span className="text-lg">✈️</span>
+                        <span className="font-medium">Traveling in {p.travel_city}</span>
+                        {p.distance_km && (
+                          <span className="text-muted-foreground">
+                            • {formatDistance(p.distance_km)} away
+                          </span>
+                        )}
+                      </div>
+                    ) : p.city ? (
+                      <div className="flex items-center gap-3 text-muted-foreground">
+                        <MapPin className="h-5 w-5 text-primary" />
+                        <span className="font-medium">{p.city}</span>
+                        {p.distance_km && (
+                          <span className="text-muted-foreground">
+                            • {formatDistance(p.distance_km)} away
+                          </span>
+                        )}
+                      </div>
+                    ) : null}
+
+                    {/* Info Cards Grid */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {p.work && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                          <p className="font-semibold text-sm text-foreground">{p.work}</p>
+                        </Card>
+                      )}
+                      {p.education && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                          <p className="font-semibold text-sm text-foreground">{p.education}</p>
+                        </Card>
+                      )}
+                      {(p.height_cm || p.height) && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                          <p className="font-semibold text-sm text-foreground">
+                            {p.height_cm ? `${p.height_cm} cm` : p.height}
+                          </p>
+                        </Card>
+                      )}
+                      {p.zodiac_sign && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                          <p className="font-semibold text-sm text-foreground">{p.zodiac_sign}</p>
+                        </Card>
+                      )}
+                      {p.religion && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                          <p className="font-semibold text-sm text-foreground">{p.religion}</p>
+                        </Card>
+                      )}
+                      {p.lifestyle && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                          <p className="font-semibold text-sm text-foreground">{p.lifestyle}</p>
+                        </Card>
+                      )}
+                      {p.drinking && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                          <p className="font-semibold text-sm text-foreground">{p.drinking}</p>
+                        </Card>
+                      )}
+                      {p.smoking && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                          <p className="font-semibold text-sm text-foreground">{p.smoking}</p>
+                        </Card>
+                      )}
+                      {p.pets && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                          <p className="font-semibold text-sm text-foreground">{p.pets}</p>
+                        </Card>
+                      )}
+                    </div>
+
+                    {/* Bio */}
+                    {p.bio && (
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <span className="text-2xl">💬</span> About
+                        </h3>
+                        <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
+                          {p.bio}
+                        </p>
+                      </div>
                     )}
 
-                    {/* Full Profile Details - Show when expanded */}
-                    {showNotificationFullProfile && (
-                      <div className="space-y-4 pt-2 border-t">
-                        {/* About Section */}
-                        {notificationProfile.bio && (
-                          <div>
-                            <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              About
-                            </h4>
-                            <p className="text-gray-700 leading-relaxed">{notificationProfile.bio}</p>
-                          </div>
-                        )}
-                        
-                        {/* Basic Info Grid */}
-                        <div className="grid grid-cols-2 gap-3">
-                          {notificationProfile.work && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Briefcase className="h-4 w-4 text-gray-400" />
-                              <span className="text-gray-700">{notificationProfile.work}</span>
-                            </div>
-                          )}
-                          {notificationProfile.education && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <GraduationCap className="h-4 w-4 text-gray-400" />
-                              <span className="text-gray-700">{notificationProfile.education}</span>
-                            </div>
-                          )}
-                          {notificationProfile.height && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Ruler className="h-4 w-4 text-gray-400" />
-                              <span className="text-gray-700">{notificationProfile.height}</span>
-                            </div>
-                          )}
-                          {notificationProfile.zodiac_sign && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Sparkles className="h-4 w-4 text-gray-400" />
-                              <span className="text-gray-700">{notificationProfile.zodiac_sign}</span>
-                            </div>
-                          )}
-                          {notificationProfile.religion && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Church className="h-4 w-4 text-gray-400" />
-                              <span className="text-gray-700">{notificationProfile.religion}</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* All Interests when expanded */}
-                        {notificationProfile.interests && notificationProfile.interests.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                              <Heart className="h-4 w-4" />
-                              Interests
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {notificationProfile.interests.map((interest, i) => (
-                                <Badge key={i} variant="secondary" className="rounded-full px-3 py-1 bg-pink-50 text-pink-700 border-pink-200">
+                    {/* Shared Interests */}
+                    {p.interests &&
+                      p.interests.length > 0 &&
+                      myProfile?.interests &&
+                      myProfile.interests.length > 0 && (
+                        <div className="space-y-2">
+                          <h3 className="font-semibold text-lg flex items-center gap-2">
+                            <span className="text-2xl">✨</span> Shared Interests
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {p.interests
+                              .filter((interest) =>
+                                myProfile.interests.some(
+                                  (mine) => mine.toLowerCase() === interest.toLowerCase()
+                                )
+                              )
+                              .slice(0, 3)
+                              .map((interest) => (
+                                <Badge key={interest} variant="secondary" className="rounded-full">
                                   {interest}
                                 </Badge>
                               ))}
-                            </div>
                           </div>
-                        )}
+                        </div>
+                      )}
+
+                    {/* Looking For */}
+                    {p.looking_for && p.looking_for.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <span className="text-2xl">💕</span> Looking For
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {p.looking_for.map((item, idx) => (
+                            <Badge
+                              key={idx}
+                              className="text-sm py-1.5 px-4 bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 border-none"
+                            >
+                              {item}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
                     )}
 
-                    {/* Premium Action Buttons */}
-                    <div className="flex gap-3 pt-2">
-                      {/* Instant Message Button */}
+                    {/* Interests */}
+                    {p.interests && p.interests.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <span className="text-2xl">✨</span> Interests
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {p.interests.map((interest, idx) => (
+                            <Badge
+                              key={idx}
+                              variant="secondary"
+                              className="text-sm py-1.5 px-4 rounded-full bg-primary/10 text-primary border-border"
+                            >
+                              {interest}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Soundtrack */}
+                    {p.soundtrack_url &&
+                      p.soundtrack_source &&
+                      (() => {
+                        const ytId =
+                          p.soundtrack_source === "youtube"
+                            ? extractYouTubeId(p.soundtrack_url!)
+                            : null;
+                        const spId =
+                          p.soundtrack_source === "spotify"
+                            ? extractSpotifyTrackId(p.soundtrack_url!)
+                            : null;
+                        if (!ytId && !spId) return null;
+                        return (
+                          <div className="space-y-2">
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                              <span className="text-2xl">🎵</span> Soundtrack
+                            </h3>
+                            {(p.soundtrack_title || p.soundtrack_artist) && (
+                              <p className="text-sm text-muted-foreground">
+                                {p.soundtrack_title}
+                                {p.soundtrack_artist ? ` — ${p.soundtrack_artist}` : ""}
+                              </p>
+                            )}
+                            {ytId && (
+                              <div className="rounded-xl overflow-hidden aspect-video">
+                                <iframe
+                                  src={`https://www.youtube.com/embed/${ytId}`}
+                                  title="Profile soundtrack"
+                                  className="w-full h-full"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              </div>
+                            )}
+                            {spId && (
+                              <div className="rounded-xl overflow-hidden">
+                                <iframe
+                                  src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
+                                  title="Profile soundtrack"
+                                  className="w-full"
+                                  height="152"
+                                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                  loading="lazy"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                    {/* Action Buttons */}
+                    {!likedProfiles.has(p.id) && (
+                      <div className="flex gap-3 pt-4">
+                        <Button
+                          size="lg"
+                          className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white"
+                          onClick={() => {
+                            setInstantMessageTargetProfile(p);
+                            setShowNotificationProfileDialog(false);
+                            setShowInstantMessageDialog(true);
+                          }}
+                        >
+                          <MessageCircle className="h-5 w-5 mr-2" />
+                          Instant Message
+                        </Button>
+                        <Button
+                          size="lg"
+                          className="bg-gradient-to-br from-[hsl(350,80%,55%)] via-[hsl(5,90%,55%)] to-[hsl(15,90%,50%)] hover:brightness-110 text-white border-2 border-primary/30"
+                          onClick={() => {
+                            setRosesTargetProfile(p);
+                            setShowNotificationProfileDialog(false);
+                            setShowPremiumRosesDialog(true);
+                          }}
+                        >
+                          <span className="text-2xl">🌹</span>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Last Active Profile Dialog */}
+      <Dialog
+        open={showLastActiveProfile}
+        onOpenChange={(open) => {
+          setShowLastActiveProfile(open);
+          if (!open) setLastActiveImageIndex(0);
+        }}
+      >
+        <DialogContent
+          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          aria-describedby={undefined}
+        >
+          {lastActiveProfile &&
+            (() => {
+              const allImages = [
+                lastActiveProfile.profile_image_url,
+                ...(lastActiveProfile.profile_images || []),
+              ].filter(Boolean) as string[];
+              const p = lastActiveProfile;
+
+              return (
+                <>
+                  <DialogHeader>
+                    <DialogTitle className="sr-only">
+                      {p.full_name}, {p.age}
+                    </DialogTitle>
+                  </DialogHeader>
+
+                  <div className="space-y-6">
+                    {/* Image Carousel */}
+                    <div className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-muted">
+                      {allImages.length > 0 ? (
+                        <>
+                          <img
+                            src={allImages[lastActiveImageIndex]}
+                            alt={`${p.full_name} - Photo ${lastActiveImageIndex + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Gradient overlays */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+
+                          {allImages.length > 1 && (
+                            <>
+                              {/* Dots moved to top */}
+                              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2 pointer-events-none">
+                                {allImages.map((_, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={`w-2 h-2 rounded-full ${idx === lastActiveImageIndex ? "bg-white" : "bg-white/40"}`}
+                                  />
+                                ))}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full"
+                                onClick={() =>
+                                  setLastActiveImageIndex((prev) =>
+                                    prev === 0 ? allImages.length - 1 : prev - 1
+                                  )
+                                }
+                              >
+                                <ChevronLeft className="h-6 w-6" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full"
+                                onClick={() =>
+                                  setLastActiveImageIndex((prev) =>
+                                    prev === allImages.length - 1 ? 0 : prev + 1
+                                  )
+                                }
+                              >
+                                <ChevronRight className="h-6 w-6" />
+                              </Button>
+                            </>
+                          )}
+
+                          {/* Info overlay */}
+                          <div className="absolute bottom-0 left-0 right-0 p-6 text-white pointer-events-none">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-3xl font-extrabold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                                {p.full_name}
+                              </h3>
+                              <span className="text-2xl font-light opacity-90">{p.age}</span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-1 mb-2">
+                              {p.verified && (
+                                <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
+                                  ✓ Verified
+                                </Badge>
+                              )}
+                              {p.is_premium && (
+                                <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none text-[10px] px-1.5 py-0 h-4">
+                                  Premium
+                                </Badge>
+                              )}
+                              {p.travel_mode_active && p.travel_city && (
+                                <Badge className="bg-blue-500/90 backdrop-blur-sm text-white border-none text-[10px] px-1.5 py-0 h-4">
+                                  ✈️ Traveling
+                                </Badge>
+                              )}
+                              {p.video_intro_url && (
+                                <Badge className="bg-background/70 text-white border-none text-[10px] px-1.5 py-0 h-4">
+                                  Video
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 text-sm font-medium">
+                              {p.travel_mode_active && p.travel_city ? (
+                                <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
+                                  <span>✈️</span>
+                                  <span>Traveling in {p.travel_city}</span>
+                                </div>
+                              ) : p.city ? (
+                                <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
+                                  <MapPin className="h-4 w-4" />
+                                  <span>{p.city}</span>
+                                </div>
+                              ) : null}
+                              {p.distance_km && (
+                                <div className="backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
+                                  {formatDistance(p.distance_km)} away
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          No photo
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Video Intro */}
+                    {p.video_intro_url && (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                        <div className="rounded-lg overflow-hidden border border-primary/20">
+                          <video
+                            src={p.video_intro_url}
+                            controls
+                            className="w-full max-h-[420px] object-cover"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Info Cards Grid */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {p.work && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                          <p className="font-semibold text-sm text-foreground">{p.work}</p>
+                        </Card>
+                      )}
+                      {p.education && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                          <p className="font-semibold text-sm text-foreground">{p.education}</p>
+                        </Card>
+                      )}
+                      {(p.height_cm || p.height) && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                          <p className="font-semibold text-sm text-foreground">
+                            {p.height_cm ? `${p.height_cm} cm` : p.height}
+                          </p>
+                        </Card>
+                      )}
+                      {p.zodiac_sign && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                          <p className="font-semibold text-sm text-foreground">{p.zodiac_sign}</p>
+                        </Card>
+                      )}
+                      {p.religion && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                          <p className="font-semibold text-sm text-foreground">{p.religion}</p>
+                        </Card>
+                      )}
+                      {p.lifestyle && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                          <p className="font-semibold text-sm text-foreground">{p.lifestyle}</p>
+                        </Card>
+                      )}
+                      {p.drinking && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                          <p className="font-semibold text-sm text-foreground">{p.drinking}</p>
+                        </Card>
+                      )}
+                      {p.smoking && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                          <p className="font-semibold text-sm text-foreground">{p.smoking}</p>
+                        </Card>
+                      )}
+                      {p.pets && (
+                        <Card className="p-4 border-primary/20 hover:border-border transition-colors">
+                          <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                          <p className="font-semibold text-sm text-foreground">{p.pets}</p>
+                        </Card>
+                      )}
+                    </div>
+
+                    {/* Bio */}
+                    {p.bio && (
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <span className="text-2xl">💬</span> About
+                        </h3>
+                        <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
+                          {p.bio}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Shared Interests */}
+                    {p.interests &&
+                      p.interests.length > 0 &&
+                      myProfile?.interests &&
+                      myProfile.interests.length > 0 && (
+                        <div className="space-y-2">
+                          <h3 className="font-semibold text-lg flex items-center gap-2">
+                            <span className="text-2xl">✨</span> Shared Interests
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {p.interests
+                              .filter((interest) =>
+                                myProfile.interests.some(
+                                  (mine) => mine.toLowerCase() === interest.toLowerCase()
+                                )
+                              )
+                              .slice(0, 3)
+                              .map((interest) => (
+                                <Badge key={interest} variant="secondary" className="rounded-full">
+                                  {interest}
+                                </Badge>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Looking For */}
+                    {p.looking_for && p.looking_for.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <span className="text-2xl">💕</span> Looking For
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {p.looking_for.map((item, idx) => (
+                            <Badge
+                              key={idx}
+                              className="text-sm py-1.5 px-4 bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 border-none"
+                            >
+                              {item}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Interests */}
+                    {p.interests && p.interests.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <span className="text-2xl">✨</span> Interests
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {p.interests.map((interest, idx) => (
+                            <Badge
+                              key={idx}
+                              variant="secondary"
+                              className="text-sm py-1.5 px-4 rounded-full bg-primary/10 text-primary border-border"
+                            >
+                              {interest}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Soundtrack */}
+                    {p.soundtrack_url &&
+                      p.soundtrack_source &&
+                      (() => {
+                        const ytId =
+                          p.soundtrack_source === "youtube"
+                            ? extractYouTubeId(p.soundtrack_url!)
+                            : null;
+                        const spId =
+                          p.soundtrack_source === "spotify"
+                            ? extractSpotifyTrackId(p.soundtrack_url!)
+                            : null;
+                        if (!ytId && !spId) return null;
+                        return (
+                          <div className="space-y-2">
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                              <span className="text-2xl">🎵</span> Soundtrack
+                            </h3>
+                            {(p.soundtrack_title || p.soundtrack_artist) && (
+                              <p className="text-sm text-muted-foreground">
+                                {p.soundtrack_title}
+                                {p.soundtrack_artist ? ` — ${p.soundtrack_artist}` : ""}
+                              </p>
+                            )}
+                            {ytId && (
+                              <div className="rounded-xl overflow-hidden aspect-video">
+                                <iframe
+                                  src={`https://www.youtube.com/embed/${ytId}`}
+                                  title="Profile soundtrack"
+                                  className="w-full h-full"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              </div>
+                            )}
+                            {spId && (
+                              <div className="rounded-xl overflow-hidden">
+                                <iframe
+                                  src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
+                                  title="Profile soundtrack"
+                                  className="w-full"
+                                  height="152"
+                                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                  loading="lazy"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                    {/* Send Instant Message - Only action */}
+                    <div className="flex gap-3 pt-4">
                       <Button
-                        className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                        size="lg"
+                        className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white"
                         onClick={() => {
-                          setInstantMessageTargetProfile(notificationProfile);
-                          setShowNotificationProfileDialog(false);
+                          setInstantMessageTargetProfile(p);
+                          setShowLastActiveProfile(false);
                           setShowInstantMessageDialog(true);
                         }}
                       >
                         <MessageCircle className="h-5 w-5 mr-2" />
-                        Instant Message
-                      </Button>
-
-                      {/* Rose Button */}
-                      <Button
-                        className="bg-gradient-to-br from-rose-600 via-red-700 to-rose-800 hover:from-rose-700 hover:via-red-800 hover:to-rose-900 text-white border-2 border-yellow-400"
-                        onClick={() => {
-                          setRosesTargetProfile(notificationProfile);
-                          setShowNotificationProfileDialog(false);
-                          setShowPremiumRosesDialog(true);
-                        }}
-                      >
-                        <span className="text-2xl">🌹</span>
+                        Send Instant Message
                       </Button>
                     </div>
                   </div>
-                </Card>
-              </div>
-            );
-          })()}
+                </>
+              );
+            })()}
         </DialogContent>
       </Dialog>
 
+      {/* Daily Picks Dialog */}
+      <Dialog open={showDailyPicks} onOpenChange={setShowDailyPicks}>
+        <DialogContent className="max-w-sm p-0 overflow-hidden" aria-describedby={undefined}>
+          <DialogTitle className="sr-only">Daily Picks</DialogTitle>
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold">Daily Picks</h2>
+              <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
+                Fresh today
+              </Badge>
+            </div>
+            <div className="space-y-2">
+              {dailyPicks.map((pick) => {
+                const idx = profiles.findIndex((p) => p.id === pick.id);
+                return (
+                  <button
+                    key={pick.id}
+                    className="flex items-center gap-3 w-full rounded-xl p-3 hover:bg-accent transition-colors text-left"
+                    onClick={() => {
+                      if (idx !== -1) {
+                        setCurrentProfileIndex(idx);
+                        setShowProfileDialog(true);
+                        if (user) recordProfileView(user.id, pick.id);
+                      }
+                      setShowDailyPicks(false);
+                    }}
+                  >
+                    <Avatar className="h-12 w-12 border-2 border-primary/30">
+                      <AvatarImage src={pick.profile_image_url || ""} />
+                      <AvatarFallback>{(pick.full_name || "?")[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">
+                        {pick.full_name}
+                        {pick.age ? `, ${pick.age}` : ""}
+                      </p>
+                      {pick.city && (
+                        <p className="text-xs text-muted-foreground truncate">{pick.city}</p>
+                      )}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </button>
+                );
+              })}
+              {dailyPicks.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No picks available today
+                </p>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Story Viewer Dialog */}
+      <Dialog open={showStoryViewer} onOpenChange={setShowStoryViewer}>
+        <DialogContent
+          className="max-w-md p-0 overflow-hidden bg-black border-0"
+          aria-describedby={undefined}
+        >
+          <DialogTitle className="sr-only">Story Viewer</DialogTitle>
+          {profileStories[storyViewerIndex] && (
+            <div className="relative">
+              {/* Progress bars */}
+              <div className="absolute top-0 left-0 right-0 z-10 flex gap-1 p-2">
+                {profileStories.map((_, i) => (
+                  <div key={i} className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${i <= storyViewerIndex ? "bg-white w-full" : "w-0"}`}
+                    />
+                  </div>
+                ))}
+              </div>
+              {/* Name + time */}
+              <div className="absolute top-5 left-3 z-10 flex items-center gap-2">
+                <img
+                  src={currentProfile?.profile_image_url || "/placeholder.svg"}
+                  alt=""
+                  className="h-8 w-8 rounded-full object-cover border-2 border-white"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-white drop-shadow">
+                    {currentProfile?.full_name}
+                  </p>
+                  <p className="text-xs text-white/70">
+                    {formatTimeAgo(profileStories[storyViewerIndex].created_at)}
+                  </p>
+                </div>
+              </div>
+              {/* Media */}
+              {profileStories[storyViewerIndex].media_type === "video" ? (
+                <video
+                  src={profileStories[storyViewerIndex].media_url}
+                  autoPlay
+                  playsInline
+                  className="w-full aspect-[9/16] object-cover"
+                  onEnded={() => {
+                    if (storyViewerIndex < profileStories.length - 1)
+                      setStoryViewerIndex(storyViewerIndex + 1);
+                    else setShowStoryViewer(false);
+                  }}
+                />
+              ) : (
+                <img
+                  src={profileStories[storyViewerIndex].media_url}
+                  alt="Story"
+                  className="w-full aspect-[9/16] object-cover"
+                />
+              )}
+              {/* Caption */}
+              {profileStories[storyViewerIndex].caption && (
+                <div className="absolute bottom-16 left-0 right-0 px-4 text-center">
+                  <p className="text-white text-sm font-medium drop-shadow-lg bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 inline-block">
+                    {profileStories[storyViewerIndex].caption}
+                  </p>
+                </div>
+              )}
+              {/* Tap zones for prev/next */}
+              <div className="absolute inset-0 flex">
+                <button
+                  className="w-1/2 h-full"
+                  onClick={() => {
+                    if (storyViewerIndex > 0) setStoryViewerIndex(storyViewerIndex - 1);
+                  }}
+                  aria-label="Previous story"
+                />
+                <button
+                  className="w-1/2 h-full"
+                  onClick={() => {
+                    if (storyViewerIndex < profileStories.length - 1)
+                      setStoryViewerIndex(storyViewerIndex + 1);
+                    else setShowStoryViewer(false);
+                  }}
+                  aria-label="Next story"
+                />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {user && currentProfile && (
+        <ReportUserDialog
+          open={showReportDialog}
+          onOpenChange={setShowReportDialog}
+          reportedId={currentProfile.id}
+          reportedName={currentProfile.full_name}
+          currentUserId={user.id}
+          context="discover"
+        />
+      )}
+
       <BottomNav />
+
+      {/* Filter discard confirmation */}
+      <AlertDialog open={showFilterDiscardConfirm} onOpenChange={setShowFilterDiscardConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Discard filter changes?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved filter changes. Close without applying?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowFilterDiscardConfirm(false)}>
+              Keep editing
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowFilterDiscardConfirm(false);
+                setShowFilterSheet(false);
+              }}
+            >
+              Discard
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

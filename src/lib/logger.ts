@@ -4,6 +4,8 @@
  * Errors are always logged for debugging
  */
 
+import { Sentry } from "./sentry";
+
 const isDevelopment = import.meta.env.DEV;
 
 export const logger = {
@@ -30,10 +32,14 @@ export const logger = {
    */
   error: (...args: unknown[]): void => {
     console.error(...args);
-    
-    // TODO: Send to error tracking service in production
-    if (!isDevelopment && typeof window !== 'undefined') {
-      // Example: Sentry.captureException(args[0]);
+
+    if (!isDevelopment) {
+      const err = args[0];
+      if (err instanceof Error) {
+        Sentry.captureException(err);
+      } else {
+        Sentry.captureMessage(String(err), "error");
+      }
     }
   },
 
@@ -58,7 +64,7 @@ export const logger = {
 };
 
 // Export namespaced loggers for common modules
-export const callLogger = logger.create('Call');
-export const chatLogger = logger.create('Chat');
-export const authLogger = logger.create('Auth');
-export const discoverLogger = logger.create('Discover');
+export const callLogger = logger.create("Call");
+export const chatLogger = logger.create("Chat");
+export const authLogger = logger.create("Auth");
+export const discoverLogger = logger.create("Discover");

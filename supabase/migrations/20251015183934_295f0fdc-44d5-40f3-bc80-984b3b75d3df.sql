@@ -3,6 +3,8 @@
 DROP POLICY IF EXISTS "Users can view all profiles" ON public.profiles;
 
 -- Create a more restrictive policy that hides sensitive personal data
+DROP POLICY IF EXISTS "Users can view public profile data" ON public;
+DROP POLICY IF EXISTS "Users can view public profile data" ON public;
 CREATE POLICY "Users can view public profile data"
 ON public.profiles
 FOR SELECT

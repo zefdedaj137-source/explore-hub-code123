@@ -10,8 +10,11 @@ const AuthCallback = () => {
     const handleCallback = async () => {
       try {
         // Get the current session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
+
         if (sessionError) {
           throw sessionError;
         }
@@ -29,7 +32,7 @@ const AuthCallback = () => {
           .eq("id", session.user.id)
           .single();
 
-        if (profileError && profileError.code !== 'PGRST116') {
+        if (profileError && profileError.code !== "PGRST116") {
           // PGRST116 is "not found" - any other error is unexpected
           toast.error("Error checking profile");
         }
@@ -51,7 +54,7 @@ const AuthCallback = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
+    <div className="min-h-dvh flex items-center justify-center bg-gradient-hero">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
         <p className="text-muted-foreground">Completing sign in...</p>

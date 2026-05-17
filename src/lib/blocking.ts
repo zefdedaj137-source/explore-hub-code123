@@ -1,16 +1,26 @@
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/lib/logger";
 
-export async function isBlockedBetween(a: string, b: string): Promise<{
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function isBlockedBetween(
+  a: string,
+  b: string
+): Promise<{
   blockedByYou: boolean;
   blockedYou: boolean;
 }> {
+  if (!UUID_RE.test(a) || !UUID_RE.test(b)) {
+    logger.warn("Invalid user ID format in block check");
+    return { blockedByYou: false, blockedYou: false };
+  }
   const { data, error } = await supabase
     .from("blocks")
     .select("blocker_id, blocked_id")
     .or(`and(blocker_id.eq.${a},blocked_id.eq.${b}),and(blocker_id.eq.${b},blocked_id.eq.${a})`);
 
   if (error) {
-    console.warn("Failed to check block status:", error);
+    logger.warn("Failed to check block status:", error);
     return { blockedByYou: false, blockedYou: false };
   }
 
@@ -20,7 +30,9 @@ export async function isBlockedBetween(a: string, b: string): Promise<{
 }
 
 export async function blockUser(blockerId: string, blockedId: string) {
-  const { error } = await supabase.from("blocks").insert({ blocker_id: blockerId, blocked_id: blockedId });
+  const { error } = await supabase
+    .from("blocks")
+    .insert({ blocker_id: blockerId, blocked_id: blockedId });
   if (error) throw error;
 }
 

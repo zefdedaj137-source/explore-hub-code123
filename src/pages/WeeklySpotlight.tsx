@@ -1,0 +1,237 @@
+﻿import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Sparkles, Star, Heart, Crown, MapPin, Zap } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import BottomNav from "@/components/BottomNav";
+import { logger } from "@/lib/logger";
+
+interface SpotlightProfile {
+  id: string;
+  full_name: string;
+  profile_image_url: string | null;
+  bio: string | null;
+  age: number;
+  city: string | null;
+  interests: string[];
+  verified: boolean | null;
+}
+
+const WeeklySpotlight = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [spotlight, setSpotlight] = useState<SpotlightProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [previousSpotlights, setPreviousSpotlights] = useState<SpotlightProfile[]>([]);
+
+  const loadSpotlight = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      // Fetch matched user IDs to exclude them from spotlight
+      const { data: matchData } = await supabase
+        .from("matches")
+        .select("user1_id, user2_id")
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+
+      const matchedIds = new Set(
+        (matchData || []).map((m) => (m.user1_id === user.id ? m.user2_id : m.user1_id))
+      );
+
+      // Get a "random" featured profile (simulate weekly spotlight)
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name, profile_image_url, bio, age, city, interests, verified")
+        .neq("id", user.id)
+        .limit(10);
+
+      if (profiles && profiles.length > 0) {
+        // Filter out matched users
+        const availableProfiles = profiles.filter(
+          (p) => !matchedIds.has(p.id)
+        ) as SpotlightProfile[];
+
+        if (availableProfiles.length > 0) {
+          // Use day-of-week to pick a "weekly" spotlight deterministically
+          const weekNumber = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+          const index = weekNumber % availableProfiles.length;
+          const featured = availableProfiles[index];
+          setSpotlight(featured);
+
+          // Others become "previous spotlights"
+          const others = availableProfiles.filter((_, i) => i !== index).slice(0, 4);
+          setPreviousSpotlights(others);
+        } else {
+          setSpotlight(null);
+          setPreviousSpotlights([]);
+        }
+      }
+    } catch (e) {
+      logger.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadSpotlight();
+  }, [loadSpotlight]);
+
+  return (
+    <div className="min-h-dvh bg-background pb-24">
+      <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-lg border-b px-4 py-3 flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <Star className="h-5 w-5 text-amber-500" />
+        <h1 className="text-lg font-bold">Weekly Spotlight</h1>
+      </div>
+
+      <div className="p-4 max-w-lg mx-auto space-y-6">
+        {loading ? (
+          <div className="text-center py-16 text-muted-foreground">Loading spotlight...</div>
+        ) : spotlight ? (
+          <>
+            <Card className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] border-0 rounded-3xl">
+              <div className="relative aspect-[3/4] bg-gradient-to-br from-background via-muted to-primary/20">
+                <img
+                  src={spotlight.profile_image_url || "/placeholder.svg"}
+                  alt={spotlight.full_name}
+                  className="w-full h-full object-cover"
+                />
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+
+                {/* Spotlight badge */}
+                <div className="absolute top-4 left-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/90 backdrop-blur-sm text-white text-xs font-semibold">
+                    <Crown className="h-3 w-3" /> This Week's Spotlight
+                  </span>
+                </div>
+
+                {/* Boost icon */}
+                <div className="absolute top-4 right-4 bg-black/30 backdrop-blur-sm rounded-full p-1.5">
+                  <Zap className="h-4 w-4 text-amber-400 animate-pulse" fill="currentColor" />
+                </div>
+
+                {/* Info overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-3xl font-extrabold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                      {spotlight.full_name}
+                    </h3>
+                    <span className="text-2xl font-light opacity-90">{spotlight.age}</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1 mb-2">
+                    {spotlight.verified && (
+                      <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
+                        ✓ Verified
+                      </Badge>
+                    )}
+                  </div>
+                  {spotlight.city && (
+                    <div className="flex items-center gap-3 text-sm font-medium mb-3">
+                      <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
+                        <MapPin className="h-4 w-4" />
+                        <span>{spotlight.city}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-5 bg-card/95 backdrop-blur-md space-y-4">
+                {spotlight.bio && (
+                  <p className="text-foreground text-sm leading-relaxed line-clamp-3">
+                    {spotlight.bio}
+                  </p>
+                )}
+                {spotlight.interests && spotlight.interests.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {spotlight.interests.slice(0, 5).map((i) => (
+                      <Badge
+                        key={i}
+                        variant="secondary"
+                        className="rounded-full px-3 py-1.5 bg-primary/10 text-primary border-primary/20 text-xs font-semibold"
+                      >
+                        {i}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                <Button
+                  className="w-full rounded-2xl bg-gradient-to-r from-[hsl(350,65%,60%)] to-[hsl(18,72%,55%)] hover:brightness-110 text-white border-0 shadow-[0_4px_16px_hsl(350,65%,60%,0.35)] transition-all duration-200"
+                  onClick={() => navigate("/discover")}
+                >
+                  <Heart className="h-5 w-5 mr-2 fill-current" />
+                  View on Discover
+                </Button>
+              </div>
+            </Card>
+
+            {previousSpotlights.length > 0 && (
+              <>
+                <h2 className="font-semibold text-lg flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-amber-500" /> Previous Spotlights
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {previousSpotlights.map((p) => (
+                    <Card
+                      key={p.id}
+                      className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] border-0 rounded-3xl"
+                    >
+                      <div className="relative aspect-[3/4] bg-gradient-to-br from-background via-muted to-primary/20">
+                        <img
+                          src={p.profile_image_url || "/placeholder.svg"}
+                          alt={p.full_name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <h3 className="text-base font-extrabold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] truncate">
+                              {p.full_name}
+                            </h3>
+                            <span className="text-sm font-light opacity-90 flex-shrink-0">
+                              {p.age}
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1 mb-1">
+                            {p.verified && (
+                              <Badge className="bg-primary text-white border-none text-[9px] px-1 py-0 h-3.5">
+                                ✓ Verified
+                              </Badge>
+                            )}
+                          </div>
+                          {p.city && (
+                            <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-2 py-0.5 rounded-full text-xs w-fit">
+                              <MapPin className="h-3 w-3" />
+                              <span className="truncate">{p.city}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-16">
+            <Star className="h-16 w-16 mx-auto text-muted-foreground mb-3" />
+            <h3 className="font-semibold text-lg">No spotlight this week</h3>
+            <p className="text-muted-foreground">Check back soon!</p>
+          </div>
+        )}
+      </div>
+      <BottomNav />
+    </div>
+  );
+};
+
+export default WeeklySpotlight;

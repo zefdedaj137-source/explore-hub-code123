@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,27 +8,32 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Mail, Lock, Phone } from "lucide-react";
+import { analytics } from "@/lib/analytics";
+import { useTranslation } from "react-i18next";
 import { FcGoogle } from "react-icons/fc";
+import { SiApple } from "react-icons/si";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 
 const Auth = () => {
   const { user, loading: authLoading } = useAuth();
+  const { t } = useTranslation();
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [isForgotPassword, setIsForgotPassword] = useState(false);
-  
+
   // Email auth states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   // Phone auth states
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const hasRedirected = useRef(false);
@@ -36,45 +41,57 @@ const Auth = () => {
   // Redirect authenticated users - ONLY when on /auth page
   useEffect(() => {
     const checkUserProfile = async () => {
-      console.log('🔄 useEffect triggered - user:', !!user, 'authLoading:', authLoading);
-      
+      if (import.meta.env.DEV)
+        logger.log("🔄 useEffect triggered - user:", !!user, "authLoading:", authLoading);
+
       // If no user and not loading, stay on auth page (reset redirect flag)
       if (!user && !authLoading) {
-        console.log('🔓 No user, staying on auth page');
+        if (import.meta.env.DEV) logger.log("🔓 No user, staying on auth page");
         hasRedirected.current = false; // Reset redirect flag when logged out
         return;
       }
-      
+
       // Only redirect if we're on the auth page and haven't redirected yet
-      if (location.pathname !== '/auth' || hasRedirected.current) {
+      if (location.pathname !== "/auth" || hasRedirected.current) {
         return;
       }
-      
+
       if (user && !authLoading) {
-        console.log('👤 Authenticated user detected, checking profile for user:', user.id);
+        if (import.meta.env.DEV)
+          logger.log("👤 Authenticated user detected, checking profile for user:", user.id);
         hasRedirected.current = true;
-        
+
         try {
           const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('id, full_name')
-            .eq('id', user.id)
+            .from("profiles")
+            .select("id, full_name")
+            .eq("id", user.id)
             .maybeSingle();
 
-          console.log('📋 Profile check result:', { profile, error });
+          if (import.meta.env.DEV) logger.log("📋 Profile check result:", { profile, error });
 
           // Handle JWT expired - refresh session and redirect to discover
-          if (error && (error.code === 'PGRST301' || error.message?.includes('JWT expired') || error.message?.includes('401'))) {
-            console.log('🔓 JWT expired or RLS blocking. Refreshing session...');
-            
+          if (
+            error &&
+            (error.code === "PGRST301" ||
+              error.message?.includes("JWT expired") ||
+              error.message?.includes("401"))
+          ) {
+            if (import.meta.env.DEV)
+              logger.log("🔓 JWT expired or RLS blocking. Refreshing session...");
+
             // Try to refresh the session
-            const { data: { session }, error: refreshError } = await supabase.auth.refreshSession();
-            
+            const {
+              data: { session },
+              error: refreshError,
+            } = await supabase.auth.refreshSession();
+
             if (session) {
-              console.log('✅ Session refreshed successfully. Redirecting to discover');
+              if (import.meta.env.DEV)
+                logger.log("✅ Session refreshed successfully. Redirecting to discover");
               navigate("/discover", { replace: true });
             } else {
-              console.error('❌ Session refresh failed:', refreshError);
+              logger.error("❌ Session refresh failed:", refreshError);
               // Session can't be refreshed, redirect to discover anyway since user is authenticated
               navigate("/discover", { replace: true });
             }
@@ -82,9 +99,9 @@ const Auth = () => {
           }
 
           if (error) {
-            console.error('❌ Profile check error:', error);
+            logger.error("❌ Profile check error:", error);
             // For other errors, assume new user
-            console.log('📝 Profile check failed, redirecting to setup');
+            if (import.meta.env.DEV) logger.log("📝 Profile check failed, redirecting to setup");
             navigate("/profile-setup", { replace: true });
             return;
           }
@@ -92,16 +109,17 @@ const Auth = () => {
           // If profile exists with any data, consider it set up
           // A profile exists if we get a record back (even with minimal data)
           if (profile && profile.id) {
-            console.log('✅ User has profile, redirecting to discover');
+            if (import.meta.env.DEV) logger.log("✅ User has profile, redirecting to discover");
             navigate("/discover", { replace: true });
           } else {
-            console.log('📝 User needs to complete profile, redirecting to setup');
+            if (import.meta.env.DEV)
+              logger.log("📝 User needs to complete profile, redirecting to setup");
             navigate("/profile-setup", { replace: true });
           }
         } catch (error) {
-          console.error('Error checking profile:', error);
+          logger.error("Error checking profile:", error);
           // If there's an error, assume they need to set up profile
-          console.log('⚠️ Error occurred, redirecting to profile setup');
+          if (import.meta.env.DEV) logger.log("⚠️ Error occurred, redirecting to profile setup");
           navigate("/profile-setup", { replace: true });
         }
       }
@@ -112,7 +130,7 @@ const Auth = () => {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       toast.error("Please fill in all fields");
       return;
@@ -133,8 +151,9 @@ const Auth = () => {
         });
 
         if (error) throw error;
-        
+
         if (data.user) {
+          analytics.login("email");
           toast.success("Welcome back!");
           // Navigation will be handled by useEffect based on profile status
         }
@@ -148,57 +167,67 @@ const Auth = () => {
         });
 
         if (error) {
-          console.error('❌ Sign up error details:', error);
+          logger.error("❌ Sign up error details:", error);
           throw error;
         }
-        
+
         if (data.user) {
-          console.log('✅ Sign up successful:', data.user.id);
-          console.log('📧 Email confirmed:', data.user.email_confirmed_at);
-          console.log('👤 User object:', data.user);
-          
+          analytics.signUp("email");
+          if (import.meta.env.DEV) {
+            logger.log("✅ Sign up successful:", data.user.id);
+            logger.log("📧 Email confirmed:", data.user.email_confirmed_at);
+            logger.log("👤 User object:", data.user);
+          }
+
           if (!data.user.email_confirmed_at) {
-            toast.success("✅ Account created! Please check your email and click the confirmation link to complete registration.", {
-              duration: 6000
-            });
-            console.log('📧 Email confirmation required. Waiting for user to confirm email...');
-            
+            toast.success(
+              "✅ Account created! Please check your email and click the confirmation link to complete registration.",
+              {
+                duration: 6000,
+              }
+            );
+            if (import.meta.env.DEV)
+              logger.log("📧 Email confirmation required. Waiting for user to confirm email...");
+
             // Add a note about checking email
             toast.info("💡 Tip: Check your spam folder if you don't see the confirmation email.", {
-              duration: 8000
+              duration: 8000,
             });
             return;
           }
-          
+
           toast.success("Account created! Please complete your profile.");
-          
-          // Force a session refresh to update the auth context
-          setTimeout(async () => {
-            console.log('🔄 Refreshing session...');
-            const { data: { session }, error } = await supabase.auth.getSession();
-            console.log('📋 Session after refresh:', { hasSession: !!session, userId: session?.user?.id });
-            
+
+          // Listen for session to be ready before navigating
+          const {
+            data: { subscription },
+          } = supabase.auth.onAuthStateChange((event, session) => {
             if (session?.user) {
-              console.log('✅ Session refreshed, navigation should happen automatically');
-            } else {
-              console.log('⚠️ No session after refresh, manual navigation');
+              if (import.meta.env.DEV) logger.log("✅ Session ready, navigating to profile setup");
+              subscription.unsubscribe();
               navigate("/profile-setup");
             }
-          }, 1000);
+          });
+
+          // Fallback: if no auth event fires within 5s, navigate anyway
+          setTimeout(() => {
+            subscription.unsubscribe();
+            navigate("/profile-setup");
+          }, 5000);
         } else {
-          console.log('⚠️ Sign up returned no user');
+          if (import.meta.env.DEV) logger.log("⚠️ Sign up returned no user");
           toast.error("Sign up completed but no user returned. Please try signing in.");
         }
       }
     } catch (error) {
-      console.error('❌ Auth error:', error);
+      logger.error("❌ Auth error:", error);
       const errorMessage = (error as Error).message || "An error occurred";
-      
-      if (errorMessage.includes('email') && errorMessage.includes('already')) {
+
+      if (errorMessage.includes("email") && errorMessage.includes("already")) {
         toast.error("This email is already registered. Please try signing in instead.");
-      } else if (errorMessage.includes('rate limit')) {
+      } else if (errorMessage.includes("rate limit")) {
         toast.error("Too many attempts. Please wait a moment and try again.");
-      } else if (errorMessage.includes('invalid') && errorMessage.includes('email')) {
+      } else if (errorMessage.includes("invalid") && errorMessage.includes("email")) {
         toast.error("Please enter a valid email address.");
       } else {
         toast.error(`Sign up failed: ${errorMessage}`);
@@ -210,7 +239,7 @@ const Auth = () => {
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast.error("Please enter your email address");
       return;
@@ -220,7 +249,7 @@ const Auth = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) throw error;
@@ -228,7 +257,7 @@ const Auth = () => {
       toast.success("Password reset link sent! Check your email.");
       setIsForgotPassword(false);
     } catch (error) {
-      console.error('Forgot password error:', error);
+      logger.error("Forgot password error:", error);
       const errorMessage = (error as Error).message || "Failed to send reset email";
       toast.error(errorMessage);
     } finally {
@@ -238,7 +267,7 @@ const Auth = () => {
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!phoneNumber) {
       toast.error("Please enter a phone number");
       return;
@@ -253,7 +282,7 @@ const Auth = () => {
 
       const { error } = await supabase.auth.signInWithOtp({
         phone: phoneNumber,
-        options: { channel: 'sms', shouldCreateUser: true },
+        options: { channel: "sms", shouldCreateUser: true },
       });
 
       if (error) {
@@ -265,9 +294,9 @@ const Auth = () => {
     } catch (error) {
       const errorMsg = (error as Error).message || "Failed to send OTP";
       toast.error(errorMsg);
-      
+
       // Show additional helpful message
-      if (errorMsg.includes('SMS') || errorMsg.includes('phone')) {
+      if (errorMsg.includes("SMS") || errorMsg.includes("phone")) {
         toast.error("Please verify Twilio is configured correctly in backend settings");
       }
     } finally {
@@ -277,7 +306,7 @@ const Auth = () => {
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!otpCode || otpCode.length !== 6) {
       toast.error("Please enter the 6-digit OTP code");
       return;
@@ -289,7 +318,7 @@ const Auth = () => {
       const { data, error } = await supabase.auth.verifyOtp({
         phone: phoneNumber,
         token: otpCode,
-        type: 'sms',
+        type: "sms",
       });
 
       if (error) throw error;
@@ -327,11 +356,11 @@ const Auth = () => {
 
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
           skipBrowserRedirect: true,
-          scopes: 'openid email profile',
+          scopes: "openid email profile",
         },
       });
 
@@ -346,34 +375,73 @@ const Auth = () => {
           }
           return;
         } catch (e) {
-          // Fallback to opening a new tab if top navigation is blocked
-          window.open(data.url, '_blank', 'noopener,noreferrer');
+          window.open(data.url, "_blank", "noopener,noreferrer");
           return;
         }
       }
 
-      toast.error('Could not start Google sign-in. Please verify provider setup and allowed domains.');
+      toast.error(
+        "Could not start Google sign-in. Please verify provider setup and allowed domains."
+      );
     } catch (error) {
-      toast.error((error as Error).message || 'Failed to sign in with Google');
+      toast.error((error as Error).message || "Failed to sign in with Google");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "apple",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          skipBrowserRedirect: true,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        try {
+          if (window.top && window.top !== window.self) {
+            window.top.location.href = data.url;
+          } else {
+            window.location.href = data.url;
+          }
+          return;
+        } catch (e) {
+          window.open(data.url, "_blank", "noopener,noreferrer");
+          return;
+        }
+      }
+
+      toast.error("Could not start Apple sign-in. Please verify Apple provider setup in Supabase.");
+    } catch (error) {
+      toast.error((error as Error).message || "Failed to sign in with Apple");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
+    <div className="min-h-dvh flex items-center justify-center bg-gradient-hero p-4">
       <Card className="w-full max-w-md p-8 shadow-elegant">
         <div className="flex flex-col items-center mb-8">
           <img src="/eagle-logo.png" alt="Shqiponja" className="h-32 w-32 object-contain mb-4" />
-          <h1 className="font-serif text-3xl font-bold text-foreground mb-2">
-            Welcome to Shqiponja
-          </h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome to Shqiponja</h1>
           <p className="text-muted-foreground text-center">
             Connect with Albanian singles worldwide
           </p>
         </div>
 
-        <Tabs value={authMethod} onValueChange={(v) => setAuthMethod(v as "email" | "phone")} className="w-full">
+        <Tabs
+          value={authMethod}
+          onValueChange={(v) => setAuthMethod(v as "email" | "phone")}
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="email" className="gap-2">
               <Mail className="h-4 w-4" />
@@ -399,6 +467,7 @@ const Auth = () => {
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
                     required
                   />
                   <p className="text-sm text-muted-foreground">
@@ -436,6 +505,7 @@ const Auth = () => {
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
                     required
                   />
                 </div>
@@ -443,7 +513,7 @@ const Auth = () => {
                 <div className="space-y-2">
                   <Label htmlFor="password" className="flex items-center gap-2">
                     <Lock className="h-4 w-4" />
-                    Password
+                    {t("auth.password")}
                   </Label>
                   <Input
                     id="password"
@@ -451,6 +521,7 @@ const Auth = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete={isLogin ? "current-password" : "new-password"}
                     required
                     minLength={6}
                   />
@@ -461,7 +532,7 @@ const Auth = () => {
                         onClick={() => setIsForgotPassword(true)}
                         className="text-sm text-primary hover:underline"
                       >
-                        Forgot password?
+                        {t("auth.forgotPassword")}
                       </button>
                     </div>
                   )}
@@ -472,7 +543,7 @@ const Auth = () => {
                   className="w-full bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant"
                   disabled={loading}
                 >
-                  {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+                  {loading ? t("common.loading") : isLogin ? t("auth.signIn") : t("auth.signUp")}
                 </Button>
               </form>
             )}
@@ -523,6 +594,7 @@ const Auth = () => {
                     placeholder="000000"
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    autoComplete="one-time-code"
                     maxLength={6}
                     required
                     className="text-center text-2xl tracking-widest"
@@ -537,12 +609,7 @@ const Auth = () => {
                   {loading ? "Verifying..." : "Verify & Sign In"}
                 </Button>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={resetPhoneAuth}
-                >
+                <Button type="button" variant="outline" className="w-full" onClick={resetPhoneAuth}>
                   Use Different Number
                 </Button>
               </form>
@@ -559,16 +626,28 @@ const Auth = () => {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-        >
-          <FcGoogle className="h-5 w-5 mr-2" />
-          Google
-        </Button>
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+          >
+            <FcGoogle className="h-5 w-5 mr-2" />
+            Google
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full bg-black text-white border-black hover:bg-black/90 hover:text-white"
+            onClick={handleAppleSignIn}
+            disabled={loading}
+          >
+            <SiApple className="h-5 w-5 mr-2" />
+            Apple
+          </Button>
+        </div>
 
         <div className="mt-6 text-center">
           <button
@@ -578,9 +657,7 @@ const Auth = () => {
             }}
             className="text-primary hover:underline"
           >
-            {isLogin
-              ? "Don't have an account? Sign up"
-              : "Already have an account? Sign in"}
+            {isLogin ? t("auth.noAccount") : t("auth.hasAccount")}
           </button>
         </div>
 

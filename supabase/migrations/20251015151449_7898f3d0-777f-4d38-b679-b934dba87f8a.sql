@@ -24,35 +24,51 @@ ALTER TABLE public.dancing_videos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.video_ratings ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for dancing_videos
+DROP POLICY IF EXISTS "Anyone can view dancing videos" ON public;
+DROP POLICY IF EXISTS "Anyone can view dancing videos" ON public;
 CREATE POLICY "Anyone can view dancing videos"
   ON public.dancing_videos FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Users can insert their own videos" ON public;
+DROP POLICY IF EXISTS "Users can insert their own videos" ON public;
 CREATE POLICY "Users can insert their own videos"
   ON public.dancing_videos FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own videos" ON public;
+DROP POLICY IF EXISTS "Users can update their own videos" ON public;
 CREATE POLICY "Users can update their own videos"
   ON public.dancing_videos FOR UPDATE
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own videos" ON public;
+DROP POLICY IF EXISTS "Users can delete their own videos" ON public;
 CREATE POLICY "Users can delete their own videos"
   ON public.dancing_videos FOR DELETE
   USING (auth.uid() = user_id);
 
 -- RLS Policies for video_ratings
+DROP POLICY IF EXISTS "Anyone can view ratings" ON public;
+DROP POLICY IF EXISTS "Anyone can view ratings" ON public;
 CREATE POLICY "Anyone can view ratings"
   ON public.video_ratings FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Users can insert their own ratings" ON public;
+DROP POLICY IF EXISTS "Users can insert their own ratings" ON public;
 CREATE POLICY "Users can insert their own ratings"
   ON public.video_ratings FOR INSERT
   WITH CHECK (auth.uid() = rater_id);
 
+DROP POLICY IF EXISTS "Users can update their own ratings" ON public;
+DROP POLICY IF EXISTS "Users can update their own ratings" ON public;
 CREATE POLICY "Users can update their own ratings"
   ON public.video_ratings FOR UPDATE
   USING (auth.uid() = rater_id);
 
+DROP POLICY IF EXISTS "Users can delete their own ratings" ON public;
+DROP POLICY IF EXISTS "Users can delete their own ratings" ON public;
 CREATE POLICY "Users can delete their own ratings"
   ON public.video_ratings FOR DELETE
   USING (auth.uid() = rater_id);
@@ -68,10 +84,14 @@ VALUES (
 );
 
 -- Storage policies for dance videos
+DROP POLICY IF EXISTS "Anyone can view dance videos" ON storage;
+DROP POLICY IF EXISTS "Anyone can view dance videos" ON storage;
 CREATE POLICY "Anyone can view dance videos"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'dance-videos');
 
+DROP POLICY IF EXISTS "Users can upload their own dance videos" ON storage;
+DROP POLICY IF EXISTS "Users can upload their own dance videos" ON storage;
 CREATE POLICY "Users can upload their own dance videos"
   ON storage.objects FOR INSERT
   WITH CHECK (
@@ -79,6 +99,8 @@ CREATE POLICY "Users can upload their own dance videos"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can update their own dance videos" ON storage;
+DROP POLICY IF EXISTS "Users can update their own dance videos" ON storage;
 CREATE POLICY "Users can update their own dance videos"
   ON storage.objects FOR UPDATE
   USING (
@@ -86,6 +108,8 @@ CREATE POLICY "Users can update their own dance videos"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can delete their own dance videos" ON storage;
+DROP POLICY IF EXISTS "Users can delete their own dance videos" ON storage;
 CREATE POLICY "Users can delete their own dance videos"
   ON storage.objects FOR DELETE
   USING (

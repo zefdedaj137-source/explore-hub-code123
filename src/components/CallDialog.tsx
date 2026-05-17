@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff, Ban } from "lucide-react";
 import { blockUser as blockUserApi } from "@/lib/blocking";
+import { logger } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
 
 interface CallDialogProps {
@@ -50,14 +51,16 @@ export const CallDialog = ({
   isAnswering = false,
 }: CallDialogProps) => {
   const { toast } = useToast();
-  
+
   // State
-  const [callStatus, setCallStatus] = useState<"connecting" | "ringing" | "active" | "ended">("connecting");
+  const [callStatus, setCallStatus] = useState<"connecting" | "ringing" | "active" | "ended">(
+    "connecting"
+  );
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  
+
   // Refs
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream | null>(null);
@@ -87,8 +90,13 @@ export const CallDialog = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    console.log("🚀 Initializing call...", { isAnswering, callType });
+    logger.log("🚀 Initializing call...", { isAnswering, callType });
     initializeCall();
+
+    // Cleanup on unmount or when dialog closes
+    return () => {
+      cleanup();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -97,12 +105,10 @@ export const CallDialog = ({
     if (!isOpen || isAnswering || callStatus !== "ringing") return;
 
     const ringtone = new Audio(
-      callType === "video"
-        ? "/outgoing-video-call.mp3"
-        : "/outgoing-voice-call.mp3"
+      callType === "video" ? "/outgoing-video-call.mp3" : "/outgoing-voice-call.mp3"
     );
     ringtone.loop = true;
-    ringtone.play().catch(() => console.log("Autoplay blocked for ringtone"));
+    ringtone.play().catch(() => logger.log("Autoplay blocked for ringtone"));
     outgoingRingtoneRef.current = ringtone;
 
     return () => {
@@ -118,39 +124,40 @@ export const CallDialog = ({
       setCallDuration(0);
       setIsMuted(false);
       setIsVideoOff(false);
-      
-      console.log("🎤 Getting user media, callType:", callType);
-      console.log("🌐 Browser info:", {
+
+      logger.log("🎤 Getting user media, callType:", callType);
+      logger.log("🌐 Browser info:", {
         userAgent: navigator.userAgent,
         mediaDevices: !!navigator.mediaDevices,
         getUserMedia: !!navigator.mediaDevices?.getUserMedia,
         protocol: window.location.protocol,
-        isSecure: window.isSecureContext
+        isSecure: window.isSecureContext,
       });
-      
+
       // Check if getUserMedia is supported
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost';
+        const isHttps =
+          window.location.protocol === "https:" || window.location.hostname === "localhost";
         throw new Error(
           isHttps
             ? "Your browser doesn't support audio/video calls. Please use Chrome, Firefox, Safari 11+, or Edge."
             : "Audio/video calls require HTTPS. Please use the secure ngrok URL (https://...)."
         );
       }
-      
+
       // Get user media
       const constraints: MediaStreamConstraints = {
         audio: true,
         video: callType === "video",
       };
 
-      console.log("📞 Requesting media with constraints:", constraints);
+      logger.log("📞 Requesting media with constraints:", constraints);
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       localStreamRef.current = stream;
-      
-      console.log("✅ Got user media:", {
+
+      logger.log("✅ Got user media:", {
         audioTracks: stream.getAudioTracks().length,
-        videoTracks: stream.getVideoTracks().length
+        videoTracks: stream.getVideoTracks().length,
       });
 
       if (localVideoRef.current && callType === "video") {
@@ -158,7 +165,7 @@ export const CallDialog = ({
       }
 
       // Setup peer connection
-      console.log("🔧 Creating RTCPeerConnection with config:", rtcConfig);
+      logger.log("🔧 Creating RTCPeerConnection with config:", rtcConfig);
       const pc = new RTCPeerConnection(rtcConfig);
       peerConnectionRef.current = pc;
 
@@ -171,95 +178,98 @@ export const CallDialog = ({
       }
 
       // Add local tracks
-      console.log("➕ Adding local tracks to peer connection...");
+      logger.log("➕ Adding local tracks to peer connection...");
       stream.getTracks().forEach((track) => {
-        console.log(`  ➕ Adding ${track.kind} track:`, {
-          id: track.id,
-          enabled: track.enabled,
-          muted: track.muted,
-          readyState: track.readyState
-        });
-        pc.addTrack(track, stream);
-      });
-      console.log("✅ All local tracks added");
-
-      // Handle remote stream via a single aggregated MediaStream
-      pc.ontrack = (event) => {
-        const track = event.track;
-        console.log("📺 Received remote track:", track.kind);
-        console.log("🎬 Remote track state:", {
+        logger.log(`  ➕ Adding ${track.kind} track:`, {
           id: track.id,
           enabled: track.enabled,
           muted: track.muted,
           readyState: track.readyState,
-          label: track.label
         });
-        console.log("📊 Current call status:", callStatus);
-        console.log("🎥 Stream info (from event):", {
+        pc.addTrack(track, stream);
+      });
+      logger.log("✅ All local tracks added");
+
+      // Handle remote stream via a single aggregated MediaStream
+      pc.ontrack = (event) => {
+        const track = event.track;
+        logger.log("📺 Received remote track:", track.kind);
+        logger.log("🎦 Remote track state:", {
+          id: track.id,
+          enabled: track.enabled,
+          muted: track.muted,
+          readyState: track.readyState,
+          label: track.label,
+        });
+        logger.log("📊 Current call status:", callStatus);
+        logger.log("🎥 Stream info (from event):", {
           streamId: event.streams[0]?.id,
           trackCount: event.streams[0]?.getTracks().length,
           audioTracks: event.streams[0]?.getAudioTracks().length,
           videoTracks: event.streams[0]?.getVideoTracks().length,
-          allTrackIds: event.streams[0]?.getTracks().map(t => `${t.kind}:${t.id}`)
+          allTrackIds: event.streams[0]?.getTracks().map((t) => `${t.kind}:${t.id}`),
         });
 
         // Ensure we have a remote stream attached to the element
         if (!remoteStreamRef.current) {
           remoteStreamRef.current = new MediaStream();
         }
-        if (remoteVideoRef.current && remoteVideoRef.current.srcObject !== remoteStreamRef.current) {
+        if (
+          remoteVideoRef.current &&
+          remoteVideoRef.current.srcObject !== remoteStreamRef.current
+        ) {
           remoteVideoRef.current.srcObject = remoteStreamRef.current;
         }
 
         const attachTrack = () => {
           if (!remoteStreamRef.current) return;
-          const already = remoteStreamRef.current.getTracks().some(t => t.id === track.id);
+          const already = remoteStreamRef.current.getTracks().some((t) => t.id === track.id);
           if (!already) {
             remoteStreamRef.current.addTrack(track);
-            console.log(`🎯 Added remote ${track.kind} track to aggregated stream`);
+            logger.log(`🎯 Added remote ${track.kind} track to aggregated stream`);
           }
           if (remoteVideoRef.current) {
             // Log video element state
-            console.log("📹 Video element (pre-play):", {
+            logger.log("📹 Video element (pre-play):", {
               width: remoteVideoRef.current.clientWidth,
               height: remoteVideoRef.current.clientHeight,
               videoWidth: remoteVideoRef.current.videoWidth,
               videoHeight: remoteVideoRef.current.videoHeight,
               paused: remoteVideoRef.current.paused,
-              muted: remoteVideoRef.current.muted
+              muted: remoteVideoRef.current.muted,
             });
 
             // Wait for metadata then try play
             remoteVideoRef.current.onloadedmetadata = () => {
-              console.log("📹 Video metadata loaded:", {
+              logger.log("📹 Video metadata loaded:", {
                 videoWidth: remoteVideoRef.current?.videoWidth,
-                videoHeight: remoteVideoRef.current?.videoHeight
+                videoHeight: remoteVideoRef.current?.videoHeight,
               });
             };
 
             remoteVideoRef.current
               .play()
               .then(() => {
-                console.log("✅ Remote media playing");
+                logger.log("✅ Remote media playing");
                 if (remoteVideoRef.current) {
-                  console.log("📹 After play:", {
+                  logger.log("📹 After play:", {
                     videoWidth: remoteVideoRef.current.videoWidth,
                     videoHeight: remoteVideoRef.current.videoHeight,
-                    paused: remoteVideoRef.current.paused
+                    paused: remoteVideoRef.current.paused,
                   });
                 }
               })
               .catch((err) => {
-                console.error("❌ Error playing remote media:", err);
-                setTimeout(() => remoteVideoRef.current?.play().catch(console.error), 150);
+                logger.error("❌ Error playing remote media:", err);
+                setTimeout(() => remoteVideoRef.current?.play().catch((e) => logger.error(e)), 150);
               });
           }
         };
 
         if (track.muted) {
-          console.log("⏳ Track is muted; waiting for onunmute to attach...");
+          logger.log("⏳ Track is muted; waiting for onunmute to attach...");
           track.onunmute = () => {
-            console.log("✅ Track unmuted; attaching now");
+            logger.log("✅ Track unmuted; attaching now");
             attachTrack();
           };
         } else {
@@ -269,7 +279,7 @@ export const CallDialog = ({
         // Re-check dimensions after a short delay
         setTimeout(() => {
           if (remoteVideoRef.current) {
-            console.log("⏱️ Delayed video check:", {
+            logger.log("⏱️ Delayed video check:", {
               videoWidth: remoteVideoRef.current.videoWidth,
               videoHeight: remoteVideoRef.current.videoHeight,
             });
@@ -290,31 +300,37 @@ export const CallDialog = ({
         if (event.candidate) {
           // Use the sessionIdRef to get the current session ID
           const currentSessionId = sessionId || sessionIdRef.current;
-          if (currentSessionId) {
-            console.log("🧊 Sending ICE candidate:", event.candidate.type);
+          if (!currentSessionId) {
+            logger.warn("\u26a0\ufe0f ICE candidate dropped: no session ID yet");
+            return;
+          }
+          logger.log("\ud83e\uddca Sending ICE candidate:", event.candidate.type);
+          try {
             await supabase.from("call_signals").insert({
               call_session_id: currentSessionId,
               sender_id: currentUserId,
               signal_type: "ice-candidate",
               signal_data: JSON.parse(JSON.stringify({ candidate: event.candidate.toJSON() })),
             });
+          } catch (err) {
+            logger.error("Failed to send ICE candidate:", err);
           }
         }
       };
 
       // Monitor ICE connection state
       pc.oniceconnectionstatechange = () => {
-        console.log("🧊 ICE connection state:", pc.iceConnectionState);
+        logger.log("🧊 ICE connection state:", pc.iceConnectionState);
       };
 
       // Monitor connection state
       pc.onconnectionstatechange = () => {
-        console.log("🔌 Connection state:", pc.connectionState);
+        logger.log("🔌 Connection state:", pc.connectionState);
       };
 
       // Monitor signaling state
       pc.onsignalingstatechange = () => {
-        console.log("📡 Signaling state:", pc.signalingState);
+        logger.log("📡 Signaling state:", pc.signalingState);
       };
 
       // First, create/find the session and get the session ID
@@ -323,11 +339,11 @@ export const CallDialog = ({
       } else {
         await initiateCall(pc);
       }
-      
+
       // THEN setup signaling channel (now we have sessionId)
       await setupSignalingChannel();
     } catch (error) {
-      console.error("❌ Call initialization error:", error);
+      logger.error("❌ Call initialization error:", error);
       toast({
         title: "Call Failed",
         description: error instanceof Error ? error.message : "Could not initialize call",
@@ -339,8 +355,8 @@ export const CallDialog = ({
 
   const initiateCall = async (pc: RTCPeerConnection) => {
     try {
-      console.log("📱 Initiating call...", { matchId, currentUserId, otherUserId, callType });
-      
+      logger.log("📱 Initiating call...", { matchId, currentUserId, otherUserId, callType });
+
       // Create call session
       const { data: session, error: sessionError } = await supabase
         .from("call_sessions")
@@ -355,23 +371,23 @@ export const CallDialog = ({
         .single();
 
       if (sessionError || !session) {
-        console.error("❌ Error creating call session:", sessionError);
+        logger.error("❌ Error creating call session:", sessionError);
         throw sessionError;
       }
-      
-      console.log("✅ Call session created:", session);
+
+      logger.log("✅ Call session created:", session);
       setSessionId(session.id);
       sessionIdRef.current = session.id;
 
       // Create offer
-      console.log("📝 Creating WebRTC offer...");
+      logger.log("📝 Creating WebRTC offer...");
       const offer = await pc.createOffer();
-      console.log("📝 Setting local description...");
+      logger.log("📝 Setting local description...");
       await pc.setLocalDescription(offer);
-      console.log("✅ Local description set:", pc.localDescription);
+      logger.log("✅ Local description set:", pc.localDescription);
 
       // Send offer
-      console.log("📤 Sending offer to database...");
+      logger.log("📤 Sending offer to database...");
       const { error: signalError } = await supabase.from("call_signals").insert({
         call_session_id: session.id,
         sender_id: currentUserId,
@@ -380,15 +396,15 @@ export const CallDialog = ({
       });
 
       if (signalError) {
-        console.error("❌ Error sending offer:", signalError);
+        logger.error("❌ Error sending offer:", signalError);
         throw signalError;
       }
 
-      console.log("✅ Offer sent successfully!");
+      logger.log("✅ Offer sent successfully!");
       setCallStatus("ringing");
-      console.log("📞 Call initiated successfully, status set to ringing");
+      logger.log("📞 Call initiated successfully, status set to ringing");
     } catch (error) {
-      console.error("❌ Error initiating call:", error);
+      logger.error("❌ Error initiating call:", error);
       throw error;
     }
   };
@@ -453,15 +469,15 @@ export const CallDialog = ({
       setCallStatus("active");
       startDurationTimer();
     } catch (error) {
-      console.error("❌ Error answering call:", error);
+      logger.error("❌ Error answering call:", error);
       throw error;
     }
   };
 
   const setupSignalingChannel = async () => {
     const currentSessionId = sessionIdRef.current;
-    console.log("📡 Setting up signaling channel for sessionId:", currentSessionId);
-    
+    logger.log("📡 Setting up signaling channel for sessionId:", currentSessionId);
+
     const channel = supabase
       .channel(`call_signals_session_${currentSessionId}`)
       .on(
@@ -474,13 +490,20 @@ export const CallDialog = ({
         },
         async (payload) => {
           const signal = payload.new;
-          console.log("📨 Received signal:", signal);
+          logger.log("📨 Received signal:", signal);
           // Subscription already filters to current call_session_id
-          
+
           // Ignore own signals
-          console.log("🔍 Checking sender - signal.sender_id:", signal.sender_id, "currentUserId:", currentUserId, "signal.signal_type:", signal.signal_type);
+          logger.log(
+            "🔍 Checking sender - signal.sender_id:",
+            signal.sender_id,
+            "currentUserId:",
+            currentUserId,
+            "signal.signal_type:",
+            signal.signal_type
+          );
           if (signal.sender_id === currentUserId) {
-            console.log("⏭️ Ignoring own signal");
+            logger.log("⏭️ Ignoring own signal");
             return;
           }
 
@@ -488,14 +511,14 @@ export const CallDialog = ({
         }
       )
       .subscribe((status) => {
-        console.log("📡 Signaling channel status:", status);
+        logger.log("📡 Signaling channel status:", status);
       });
 
     signalChannelRef.current = channel;
-    
+
     // Wait a moment for subscription to be fully established
-    await new Promise(resolve => setTimeout(resolve, 500));
-    console.log("✅ Signaling channel ready");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    logger.log("✅ Signaling channel ready");
 
     // Backfill any signals that may have been missed before subscription
     try {
@@ -510,17 +533,17 @@ export const CallDialog = ({
         .order("created_at", { ascending: true });
 
       if (missedErr) {
-        console.warn("⚠️ Could not backfill signals:", missedErr);
+        logger.warn("⚠️ Could not backfill signals:", missedErr);
       } else if (missed && missed.length > 0) {
-        console.log(`📦 Backfilling ${missed.length} missed signals...`);
+        logger.log(`📦 Backfilling ${missed.length} missed signals...`);
         for (const s of missed) {
           await processSignal(s as CallSignal);
         }
       } else {
-        console.log("📦 No missed signals to backfill");
+        logger.log("📦 No missed signals to backfill");
       }
     } catch (e) {
-      console.warn("⚠️ Backfill error:", e);
+      logger.warn("⚠️ Backfill error:", e);
     }
   };
 
@@ -528,38 +551,34 @@ export const CallDialog = ({
   const processSignal = async (signal: CallSignal) => {
     const pc = peerConnectionRef.current;
     if (!pc) {
-      console.log("⚠️ No peer connection available");
+      logger.log("⚠️ No peer connection available");
       return;
     }
     try {
       if (signal.signal_type === "answer") {
-        console.log("✅ Processing answer signal (processSignal)");
-        await pc.setRemoteDescription(
-          new RTCSessionDescription(signal.signal_data.answer)
-        );
-        console.log("✅ Remote description set, call should be active");
+        logger.log("✅ Processing answer signal (processSignal)");
+        await pc.setRemoteDescription(new RTCSessionDescription(signal.signal_data.answer));
+        logger.log("✅ Remote description set, call should be active");
         activeSinceRef.current = Date.now();
         setCallStatus("active");
         stopOutgoingRingtone();
         startDurationTimer();
       } else if (signal.signal_type === "ice-candidate") {
-        console.log("🧊 Processing ICE candidate (processSignal)");
-        await pc.addIceCandidate(
-          new RTCIceCandidate(signal.signal_data.candidate)
-        );
+        logger.log("🧊 Processing ICE candidate (processSignal)");
+        await pc.addIceCandidate(new RTCIceCandidate(signal.signal_data.candidate));
       } else if (signal.signal_type === "end") {
         // Guard early end within short window after activation to avoid race with backfill/late events
         const createdAt = new Date(signal.created_at).getTime();
         const activeSince = activeSinceRef.current;
         if (activeSince && createdAt - activeSince < 2000) {
-          console.log("⏭️ Ignoring early 'end' signal within activation grace window");
+          logger.log("⏭️ Ignoring early 'end' signal within activation grace window");
           return;
         }
-        console.log("🛑 Received end signal (processSignal)");
+        logger.log("🛑 Received end signal (processSignal)");
         endCall(false);
       }
     } catch (error) {
-      console.error("❌ Error handling signal in processSignal:", error);
+      logger.error("❌ Error handling signal in processSignal:", error);
     }
   };
 
@@ -589,15 +608,19 @@ export const CallDialog = ({
   };
 
   const startDurationTimer = () => {
+    // Clear any existing timer to prevent double-counting
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+    }
     durationIntervalRef.current = setInterval(() => {
       setCallDuration((prev) => prev + 1);
     }, 1000);
   };
 
   const endCall = async (sendSignal: boolean = true) => {
-    console.log("🛑 Ending call...");
+    logger.log("🛑 Ending call...");
     console.trace("📍 endCall called from:");
-    
+
     setCallStatus("ended");
     stopOutgoingRingtone();
 
@@ -623,7 +646,7 @@ export const CallDialog = ({
     }
 
     cleanup();
-    
+
     setTimeout(() => {
       onClose();
     }, 1000);
@@ -632,9 +655,12 @@ export const CallDialog = ({
   const blockAndEnd = async () => {
     try {
       await blockUserApi(currentUserId, otherUserId);
-      toast({ title: "User blocked", description: "You won't receive further calls or messages from this user." });
+      toast({
+        title: "User blocked",
+        description: "You won't receive further calls or messages from this user.",
+      });
     } catch (e) {
-      console.error("Failed to block user during call:", e);
+      logger.error("Failed to block user during call:", e);
     } finally {
       await endCall(true);
     }
@@ -643,22 +669,39 @@ export const CallDialog = ({
   const cleanup = () => {
     // Stop local tracks
     localStreamRef.current?.getTracks().forEach((track) => track.stop());
-    
+    localStreamRef.current = null;
+
+    // Stop remote tracks and clear the stream
+    remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
+    remoteStreamRef.current = null;
+
+    // Detach media from video elements
+    if (localVideoRef.current) localVideoRef.current.srcObject = null;
+    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+
     // Close peer connection
     peerConnectionRef.current?.close();
-    
+    peerConnectionRef.current = null;
+
     // Unsubscribe from channel
     if (signalChannelRef.current) {
       supabase.removeChannel(signalChannelRef.current);
+      signalChannelRef.current = null;
     }
-    
+
     // Stop ringtone
     stopOutgoingRingtone();
-    
+
     // Clear timer
     if (durationIntervalRef.current) {
       clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
     }
+
+    // Reset session refs
+    setSessionId(null);
+    sessionIdRef.current = null;
+    activeSinceRef.current = null;
   };
 
   const formatDuration = (seconds: number) => {
@@ -668,13 +711,22 @@ export const CallDialog = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          endCall(true);
+          cleanup();
+        }
+        onClose();
+      }}
+    >
       <DialogContent className="sm:max-w-[600px] bg-[hsl(345,25%,20%)] text-white border-[hsl(345,70%,55%)]">
         <DialogHeader>
           <DialogTitle className="text-[hsl(25,85%,70%)]">
             {callType === "video" ? "Video Call" : "Voice Call"} with {matchName}
           </DialogTitle>
-          <DialogDescription className="text-gray-300">
+          <DialogDescription className="text-muted-foreground">
             {callStatus === "connecting" && "Connecting..."}
             {callStatus === "ringing" && "Ringing..."}
             {callStatus === "active" && `Call duration ${formatDuration(callDuration)}`}
@@ -686,21 +738,24 @@ export const CallDialog = ({
           {callType === "video" ? (
             <div className="space-y-4">
               {/* Remote video */}
-              <div className="relative aspect-video bg-black rounded-lg overflow-hidden border-4 border-red-500">
+              <div className="relative aspect-video bg-gradient-to-br from-muted to-muted rounded-lg overflow-hidden border-4 border-red-500">
                 <video
                   ref={remoteVideoRef}
                   autoPlay
                   playsInline
-                  className="w-full h-full object-cover bg-blue-500"
+                  className="w-full h-full object-cover bg-primary"
                 />
                 {/* Debug info */}
-                <div className="absolute top-2 left-2 bg-black/80 text-white text-xs p-2 rounded z-20">
-                  Status: {callStatus}<br/>
-                  Video: {remoteVideoRef.current?.videoWidth || 0}x{remoteVideoRef.current?.videoHeight || 0}<br/>
-                  Has stream: {remoteVideoRef.current?.srcObject ? 'YES' : 'NO'}
+                <div className="absolute top-2 left-2 bg-primary/90 text-white text-xs p-2 rounded z-20">
+                  Status: {callStatus}
+                  <br />
+                  Video: {remoteVideoRef.current?.videoWidth || 0}x
+                  {remoteVideoRef.current?.videoHeight || 0}
+                  <br />
+                  Has stream: {remoteVideoRef.current?.srcObject ? "YES" : "NO"}
                 </div>
                 {(callStatus === "ringing" || callStatus === "ended") && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                  <div className="absolute inset-0 flex items-center justify-center bg-primary/80">
                     {matchImage ? (
                       <img
                         src={matchImage}
@@ -709,7 +764,7 @@ export const CallDialog = ({
                       />
                     ) : (
                       <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[hsl(345,70%,55%)] to-[hsl(25,85%,70%)] flex items-center justify-center">
-                        <span className="text-5xl font-serif">{matchName[0]}</span>
+                        <span className="text-5xl">{matchName[0]}</span>
                       </div>
                     )}
                   </div>
@@ -718,7 +773,7 @@ export const CallDialog = ({
 
               {/* Local video (PIP) */}
               {!isVideoOff && (
-                <div className="absolute top-4 right-4 w-32 h-24 bg-black rounded-lg overflow-hidden border-2 border-[hsl(25,85%,70%)] shadow-xl z-10">
+                <div className="absolute top-4 right-4 w-32 h-24 bg-gradient-to-br from-muted to-muted rounded-lg overflow-hidden border-2 border-[hsl(25,85%,70%)] shadow-xl z-10">
                   <video
                     ref={localVideoRef}
                     autoPlay
@@ -740,11 +795,11 @@ export const CallDialog = ({
                 />
               ) : (
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[hsl(345,70%,55%)] to-[hsl(25,85%,70%)] flex items-center justify-center mb-4">
-                  <span className="text-5xl font-serif">{matchName[0]}</span>
+                  <span className="text-5xl">{matchName[0]}</span>
                 </div>
               )}
               <h3 className="text-2xl font-bold text-[hsl(25,85%,70%)]">{matchName}</h3>
-              
+
               {/* Hidden audio element for voice calls */}
               <audio
                 ref={remoteVideoRef}

@@ -1,5 +1,5 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card } from '@/components/ui/card';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 
 export const ProfileCardSkeleton = () => (
   <Card className="overflow-hidden shadow-elegant">
@@ -18,7 +18,7 @@ export const ProfileCardSkeleton = () => (
 
 export const MatchCardSkeleton = () => (
   <Card className="overflow-hidden">
-    <Skeleton className="aspect-[4/3] w-full" />
+    <Skeleton className="aspect-[3/4] w-full" />
     <div className="p-4">
       <Skeleton className="h-10 w-full" />
     </div>
@@ -26,7 +26,7 @@ export const MatchCardSkeleton = () => (
 );
 
 export const MessageSkeleton = ({ isOwn = false }: { isOwn?: boolean }) => (
-  <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+  <div className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
     <Card className={`max-w-[70%] p-4 space-y-2`}>
       <Skeleton className="h-4 w-48" />
       <Skeleton className="h-3 w-16" />
@@ -49,8 +49,8 @@ export const ProfileFormSkeleton = () => (
   </div>
 );
 
-export const LoadingSpinner = ({ message = 'Loading...' }: { message?: string }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
+export const LoadingSpinner = ({ message = "Loading..." }: { message?: string }) => (
+  <div className="min-h-dvh flex items-center justify-center bg-gradient-subtle">
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
       <p className="text-muted-foreground">{message}</p>

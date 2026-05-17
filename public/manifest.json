@@ -1,0 +1,36 @@
+{
+  "name": "Shqiponja",
+  "short_name": "Shqiponja",
+  "description": "Premium Dating for Albanian Diaspora",
+  "start_url": "/discover",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#c4303c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/eagle-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/eagle-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/eagle-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/eagle-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+﻿import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Phone, PhoneOff, Video, Ban } from "lucide-react";
 import { blockUser as blockUserApi } from "@/lib/blocking";
+import { logger } from "@/lib/logger";
 
 interface IncomingCall {
   sessionId: string;
@@ -35,7 +36,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
   useEffect(() => {
     if (!user) return;
 
-    console.log("🎧 Setting up incoming call listener for user:", user.id);
+    logger.log("🎧 Setting up incoming call listener for user:", user.id);
 
     const channel = supabase
       .channel(`incoming_calls_${user.id}`)
@@ -48,16 +49,16 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
           filter: `receiver_id=eq.${user.id}`,
         },
         async (payload) => {
-          console.log("📞 INCOMING CALL EVENT RECEIVED:", payload);
+          logger.log("📞 INCOMING CALL EVENT RECEIVED:", payload);
           const session = payload.new;
-          
+
           // Ignore if not ringing status
           if (session.status !== "ringing") {
-            console.log("⚠️ Ignoring call - status is not ringing:", session.status);
+            logger.log("⚠️ Ignoring call - status is not ringing:", session.status);
             return;
           }
 
-          console.log("✅ Call is ringing, fetching caller profile...");
+          logger.log("✅ Call is ringing, fetching caller profile...");
 
           // Get caller profile
           const { data: callerProfile } = await supabase
@@ -66,7 +67,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
             .eq("id", session.caller_id)
             .single();
 
-          console.log("👤 Caller profile:", callerProfile);
+          logger.log("👤 Caller profile:", callerProfile);
 
           if (callerProfile) {
             setIncomingCall({
@@ -77,16 +78,16 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
               callType: session.call_type,
               matchId: session.match_id,
             });
-            console.log("🔔 Incoming call state set!");
+            logger.log("🔔 Incoming call state set!");
           }
         }
       )
       .subscribe((status) => {
-        console.log("📡 Subscription status:", status);
+        logger.log("📡 Subscription status:", status);
       });
 
     return () => {
-      console.log("🔌 Cleaning up incoming call listener");
+      logger.log("🔌 Cleaning up incoming call listener");
       supabase.removeChannel(channel);
     };
   }, [user]);
@@ -101,19 +102,23 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
       ringtoneRef.current.currentTime = 0;
     }
 
-    // Update session status
-    await supabase
-      .from("call_sessions")
-      .update({ status: "declined", ended_at: new Date().toISOString() })
-      .eq("id", incomingCall.sessionId);
+    try {
+      // Update session status
+      await supabase
+        .from("call_sessions")
+        .update({ status: "declined", ended_at: new Date().toISOString() })
+        .eq("id", incomingCall.sessionId);
 
-    // Send end signal
-    await supabase.from("call_signals").insert({
-      call_session_id: incomingCall.sessionId,
-      sender_id: user?.id || "",
-      signal_type: "end",
-      signal_data: JSON.parse(JSON.stringify({})),
-    });
+      // Send end signal
+      await supabase.from("call_signals").insert({
+        call_session_id: incomingCall.sessionId,
+        sender_id: user?.id || "",
+        signal_type: "end",
+        signal_data: JSON.parse(JSON.stringify({})),
+      });
+    } catch (err) {
+      logger.error("Error declining call:", err);
+    }
 
     setIncomingCall(null);
   }, [incomingCall, user?.id]);
@@ -123,36 +128,34 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
     if (!incomingCall) return;
 
     const ringtone = new Audio(
-      incomingCall.callType === "video"
-        ? "/video-call-ringtone.mp3"
-        : "/voice-call-ringtone.mp3"
+      incomingCall.callType === "video" ? "/video-call-ringtone.mp3" : "/voice-call-ringtone.mp3"
     );
     ringtone.loop = true;
     ringtone.play().catch(() => {
-      console.log("Autoplay blocked, using fallback");
+      logger.log("Autoplay blocked, using fallback");
       // Flash title as fallback
       const originalTitle = document.title;
       const flashInterval = setInterval(() => {
         document.title = document.title === originalTitle ? "🔔 INCOMING CALL!" : originalTitle;
       }, 500);
-      
+
       // Vibrate on mobile
       if ("vibrate" in navigator) {
         const vibrateInterval = setInterval(() => {
           navigator.vibrate(500);
         }, 1000);
-        
+
         setTimeout(() => {
           clearInterval(vibrateInterval);
         }, 30000);
       }
-      
+
       setTimeout(() => {
         clearInterval(flashInterval);
         document.title = originalTitle;
       }, 30000);
     });
-    
+
     ringtoneRef.current = ringtone;
 
     // Auto-decline after 30 seconds
@@ -193,7 +196,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
     try {
       await blockUserApi(user.id, incomingCall.callerId);
     } catch (e) {
-      console.error("Failed to block user on incoming call:", e);
+      logger.error("Failed to block user on incoming call:", e);
     } finally {
       // Also decline/end the ringing session
       await handleDecline();
@@ -207,7 +210,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
           <DialogTitle className="text-[hsl(25,85%,70%)] text-center">
             Incoming {incomingCall?.callType === "video" ? "Video" : "Voice"} Call
           </DialogTitle>
-          <DialogDescription className="text-gray-300 text-center">
+          <DialogDescription className="text-muted-foreground text-center">
             from {incomingCall?.callerName}
           </DialogDescription>
         </DialogHeader>
@@ -222,7 +225,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
             />
           ) : (
             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[hsl(345,70%,55%)] to-[hsl(25,85%,70%)] flex items-center justify-center animate-pulse">
-              <span className="text-5xl font-serif">{incomingCall?.callerName?.[0]}</span>
+              <span className="text-5xl">{incomingCall?.callerName?.[0]}</span>
             </div>
           )}
 

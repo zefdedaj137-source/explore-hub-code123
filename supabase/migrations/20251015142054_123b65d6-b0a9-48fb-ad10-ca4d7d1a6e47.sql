@@ -9,10 +9,14 @@ VALUES (
 );
 
 -- Storage policies for profile photos
+DROP POLICY IF EXISTS "Anyone can view profile photos" ON storage;
+DROP POLICY IF EXISTS "Anyone can view profile photos" ON storage;
 CREATE POLICY "Anyone can view profile photos"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'profile-photos');
 
+DROP POLICY IF EXISTS "Users can upload their own profile photos" ON storage;
+DROP POLICY IF EXISTS "Users can upload their own profile photos" ON storage;
 CREATE POLICY "Users can upload their own profile photos"
   ON storage.objects FOR INSERT
   WITH CHECK (
@@ -20,6 +24,8 @@ CREATE POLICY "Users can upload their own profile photos"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can update their own profile photos" ON storage;
+DROP POLICY IF EXISTS "Users can update their own profile photos" ON storage;
 CREATE POLICY "Users can update their own profile photos"
   ON storage.objects FOR UPDATE
   USING (
@@ -27,6 +33,8 @@ CREATE POLICY "Users can update their own profile photos"
     auth.uid()::text = (storage.foldername(name))[1]
   );
 
+DROP POLICY IF EXISTS "Users can delete their own profile photos" ON storage;
+DROP POLICY IF EXISTS "Users can delete their own profile photos" ON storage;
 CREATE POLICY "Users can delete their own profile photos"
   ON storage.objects FOR DELETE
   USING (

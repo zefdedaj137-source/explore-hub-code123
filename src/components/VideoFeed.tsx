@@ -32,15 +32,17 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
   const fetchVideos = useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .from('dancing_videos')
-        .select(`
+        .from("dancing_videos")
+        .select(
+          `
           *,
           profiles!dancing_videos_user_id_fkey (
             full_name,
             profile_image_url
           )
-        `)
-        .order('created_at', { ascending: false })
+        `
+        )
+        .order("created_at", { ascending: false })
         .limit(20);
 
       if (error) throw error;
@@ -50,12 +52,12 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
       // Fetch user's existing ratings
       if (user) {
         const { data: ratingsData } = await supabase
-          .from('video_ratings')
-          .select('video_id, rating')
-          .eq('rater_id', user.id);
+          .from("video_ratings")
+          .select("video_id, rating")
+          .eq("rater_id", user.id);
 
         const ratingsMap: Record<string, number> = {};
-        ratingsData?.forEach(r => {
+        ratingsData?.forEach((r) => {
           ratingsMap[r.video_id] = r.rating;
         });
         setUserRatings(ratingsMap);
@@ -79,21 +81,22 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
     }
 
     try {
-      const { error } = await supabase
-        .from('video_ratings')
-        .upsert({
+      const { error } = await supabase.from("video_ratings").upsert(
+        {
           video_id: videoId,
           rater_id: user.id,
-          rating
-        }, {
-          onConflict: 'video_id,rater_id'
-        });
+          rating,
+        },
+        {
+          onConflict: "video_id,rater_id",
+        }
+      );
 
       if (error) throw error;
 
-      setUserRatings(prev => ({ ...prev, [videoId]: rating }));
+      setUserRatings((prev) => ({ ...prev, [videoId]: rating }));
       toast.success(`Rated ${rating}/10! ⭐`);
-      
+
       // Refresh to get updated average
       setTimeout(fetchVideos, 500);
     } catch (error) {
@@ -114,7 +117,7 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
     return (
       <Card className="p-12 text-center">
         <Star className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-        <h3 className="font-serif text-2xl font-bold mb-2">No videos yet</h3>
+        <h3 className="text-2xl font-bold mb-2">No videos yet</h3>
         <p className="text-muted-foreground">Be the first to upload a dance video!</p>
       </Card>
     );
@@ -154,7 +157,7 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
           <video
             src={video.video_url}
             controls
-            className="w-full aspect-video bg-black"
+            className="w-full aspect-video bg-gradient-to-br from-muted to-muted"
           />
 
           <div className="p-4 space-y-3">
@@ -164,11 +167,11 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
                 {ratingValues[video.id] || 0}/10
               </span>
             </div>
-            
+
             <Slider
               value={[ratingValues[video.id] || 0]}
-              onValueChange={(value) => 
-                setRatingValues(prev => ({ ...prev, [video.id]: value[0] }))
+              onValueChange={(value) =>
+                setRatingValues((prev) => ({ ...prev, [video.id]: value[0] }))
               }
               max={10}
               step={1}
@@ -180,7 +183,7 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
               className="w-full bg-gradient-primary"
               disabled={user?.id === video.user_id || !ratingValues[video.id]}
             >
-              {userRatings[video.id] ? 'Update Rating' : 'Submit Rating'}
+              {userRatings[video.id] ? "Update Rating" : "Submit Rating"}
             </Button>
 
             {user?.id === video.user_id && (
