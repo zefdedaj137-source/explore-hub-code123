@@ -905,6 +905,51 @@ const Chat = () => {
     }
   };
 
+  const handleRespondDatePlan = async (accept: boolean) => {
+    if (!user || !confirmedDatePlan || confirmedDatePlan.id === "new") return;
+
+    const newStatus = accept ? "confirmed" : "canceled";
+    try {
+      const { error } = await supabase
+        .from("date_plans")
+        .update({ status: newStatus })
+        .eq("id", confirmedDatePlan.id);
+
+      if (error) throw error;
+
+      if (matchId) {
+        const formattedDate = new Date(confirmedDatePlan.scheduled_for).toLocaleString();
+        const chatMessage = accept
+          ? `\u2705 Date accepted!\n\u{1F4CD} ${confirmedDatePlan.location}\n\u{1F550} ${formattedDate}\n\nIt's a date! \uD83C\uDF89`
+          : `\u274C Date declined.\n\u{1F4CD} ${confirmedDatePlan.location}\n\u{1F550} ${formattedDate}`;
+        const { error: msgError } = await supabase.from("messages").insert({
+          match_id: matchId,
+          sender_id: user.id,
+          receiver_id: otherUserId,
+          content: chatMessage,
+        });
+        if (msgError) {
+          await supabase.from("messages").insert({
+            match_id: matchId,
+            sender_id: user.id,
+            content: chatMessage,
+          });
+        }
+      }
+
+      if (accept) {
+        setConfirmedDatePlan((prev) => (prev ? { ...prev, status: "confirmed" } : prev));
+        toast.success("Date accepted! 🎉");
+      } else {
+        setConfirmedDatePlan(null);
+        toast.success("Date declined.");
+      }
+    } catch (error) {
+      logger.error("Respond to date plan error:", error);
+      toast.error("Failed to respond to date plan.");
+    }
+  };
+
   const handleCreateDatePlan = async () => {
     if (!user || !matchId || !otherUserId) return;
     if (!datePlanDateTime || !datePlanLocation) {
@@ -1669,17 +1714,41 @@ const Chat = () => {
                       📝 {confirmedDatePlan.notes}
                     </p>
                   )}
-                  {user && confirmedDatePlan.planner_id === user.id && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 text-xs h-7 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
-                      onClick={handleCancelDatePlan}
-                    >
-                      <X className="h-3 w-3 mr-1" />
-                      Cancel Plan
-                    </Button>
-                  )}
+                  {user &&
+                    confirmedDatePlan.status === "proposed" &&
+                    confirmedDatePlan.planner_id !== user.id && (
+                      <div className="flex gap-2 mt-2">
+                        <Button
+                          size="sm"
+                          className="text-xs h-7 bg-green-600 hover:bg-green-700 text-white"
+                          onClick={() => handleRespondDatePlan(true)}
+                        >
+                          ✅ Accept
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs h-7 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                          onClick={() => handleRespondDatePlan(false)}
+                        >
+                          ❌ Decline
+                        </Button>
+                      </div>
+                    )}
+                  {user &&
+                    confirmedDatePlan.planner_id === user.id &&
+                    confirmedDatePlan.status !== "canceled" &&
+                    confirmedDatePlan.status !== "completed" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 text-xs h-7 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        onClick={handleCancelDatePlan}
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Cancel Plan
+                      </Button>
+                    )}
                 </div>
               </div>
             </div>
