@@ -10,6 +10,7 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON public.profiles;
 DROP POLICY IF EXISTS "profiles_viewable_by_all" ON public.profiles;
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.profiles;
+DROP POLICY IF EXISTS "profiles_select_policy" ON public.profiles;
 
 -- New select policy: authenticated users can see profiles that are:
 --   1. Their OWN profile (always visible regardless of incognito), OR
