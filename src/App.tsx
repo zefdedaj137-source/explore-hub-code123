@@ -93,6 +93,19 @@ const AppContent = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Handle password recovery redirect — Supabase may send users to "/"
+  // with the recovery hash instead of "/reset-password"
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        navigate("/reset-password", { replace: true });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
   // Heartbeat: update last_active every 2 minutes
   useEffect(() => {
     if (!user) return;
