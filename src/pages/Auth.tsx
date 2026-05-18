@@ -179,6 +179,13 @@ const Auth = () => {
             logger.log("👤 User object:", data.user);
           }
 
+          // Send welcome email (fire-and-forget — don't block signup flow)
+          supabase.functions
+            .invoke("send-welcome", {
+              body: { email: data.user.email },
+            })
+            .catch((err) => logger.error("Welcome email failed:", err));
+
           if (!data.user.email_confirmed_at) {
             toast.success(
               "✅ Account created! Please check your email and click the confirmation link to complete registration.",
