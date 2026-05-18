@@ -340,6 +340,12 @@ const Auth = () => {
 
         if (!profile) {
           toast.success("Account created! Please complete your profile.");
+          // Send welcome SMS for new phone users (fire-and-forget)
+          supabase.functions
+            .invoke("send-welcome", {
+              body: { phone: phoneNumber },
+            })
+            .catch((err) => logger.error("Welcome SMS failed:", err));
         } else {
           toast.success("Welcome back!");
         }

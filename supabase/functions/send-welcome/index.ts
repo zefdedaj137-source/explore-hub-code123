@@ -14,15 +14,61 @@ serve(async (req) => {
   }
 
   try {
-    const { email, name } = await req.json();
+    const { email, phone, name } = await req.json();
 
-    if (!email) {
-      return new Response(JSON.stringify({ error: "email is required" }), {
+    if (!email && !phone) {
+      return new Response(JSON.stringify({ error: "email or phone is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // --- SMS via Twilio (phone signup) ---
+    if (phone) {
+      const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+      const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+      const fromNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
+
+      if (!accountSid || !authToken || !fromNumber) {
+        console.error("Twilio env vars not set");
+        return new Response(JSON.stringify({ error: "SMS service not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const displayName = name || "there";
+      const body = `Welcome to ExploreHub, ${displayName}! 💜 Your account is ready. Start exploring: https://explore-hub-code123.vercel.app/discover`;
+
+      const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+      const params = new URLSearchParams({ To: phone, From: fromNumber, Body: body });
+
+      const res = await fetch(twilioUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params.toString(),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.text();
+        console.error("Twilio SMS error:", errBody);
+        return new Response(JSON.stringify({ error: "Failed to send SMS", detail: errBody }), {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const data = await res.json();
+      return new Response(JSON.stringify({ success: true, sid: data.sid }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // --- Email via Resend (email signup) ---
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
       console.error("RESEND_API_KEY not set");
