@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,21 +15,32 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // Supabase automatically handles the recovery token from the URL hash
-    // and establishes a session. We just need to detect it.
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setSessionReady(true);
-      }
+    // Case 1: navigated here from AppContent's PASSWORD_RECOVERY handler
+    if ((location.state as { fromRecovery?: boolean } | null)?.fromRecovery) {
+      setSessionReady(true);
+      return;
+    }
+
+    // Case 2: landed directly from email link — hash contains type=recovery
+    const hashParams = new URLSearchParams(window.location.hash.replace("#", ""));
+    if (hashParams.get("type") === "recovery") {
+      setSessionReady(true);
+      return;
+    }
+
+    // Case 3: session already active (page reload)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setSessionReady(true);
     });
 
-    // Also check if we already have a session (user clicked link and session is active)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    // Case 4: event fires after mount
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
         setSessionReady(true);
       }
     });

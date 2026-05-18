@@ -100,7 +100,7 @@ const AppContent = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
-        navigate("/reset-password", { replace: true });
+        navigate("/reset-password", { replace: true, state: { fromRecovery: true } });
       }
     });
     return () => subscription.unsubscribe();
