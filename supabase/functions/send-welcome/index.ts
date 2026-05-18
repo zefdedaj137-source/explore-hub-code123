@@ -38,7 +38,7 @@ serve(async (req) => {
       }
 
       const displayName = name || "there";
-      const body = `Welcome to ExploreHub, ${displayName}! 💜 Your account is ready. Start exploring: https://explore-hub-code123.vercel.app/discover`;
+      const body = `Mirësevini në Shqiponja, ${displayName}! 💜 Llogaria juaj është gati. Filloni të eksploroni: https://shqiponjat.xyz/discover`;
 
       const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
       const params = new URLSearchParams({ To: phone, From: fromNumber, Body: body });
@@ -87,7 +87,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "ExploreHub <welcome@explore-hub-code123.vercel.app>",
+        from: "Shqiponjat <welcome@shqiponjat.xyz>",
         to: [email],
         subject: "Welcome to ExploreHub 💜",
         html: `
@@ -101,7 +101,7 @@ serve(async (req) => {
                 We're so excited to have you here! Your account is all set — now it's time to explore, connect, and find your match.
               </p>
               <div style="margin: 24px 0; text-align: center;">
-                <a href="https://explore-hub-code123.vercel.app/discover"
+                <a href="https://shqiponjat.xyz/discover"
                    style="background: linear-gradient(135deg, #ff4d6d, #ff7849); color: #fff; text-decoration: none; padding: 14px 32px; border-radius: 50px; font-size: 16px; font-weight: bold; display: inline-block;">
                   Start Exploring
                 </a>
