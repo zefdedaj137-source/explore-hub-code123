@@ -79,6 +79,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import BottomNav from "@/components/BottomNav";
 import { exportUserData, downloadBlob } from "@/lib/gdpr";
 
 type ProfileData = {
@@ -2089,6 +2090,7 @@ const Settings = () => {
           </div>
         </DialogContent>
       </Dialog>
+      <BottomNav />
     </div>
   );
 };
