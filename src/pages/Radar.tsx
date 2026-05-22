@@ -338,11 +338,11 @@ export default function Radar() {
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold flex items-center justify-center gap-2 text-white">
               <Navigation className="h-8 w-8 text-primary/80" />
-              Radar
+              {t("radar.tabLabel")}
             </h1>
             <p className="text-muted-foreground">
-              {nearbyUsers.length} {nearbyUsers.length === 1 ? "person" : "people"} nearby (within
-              100m)
+              {nearbyUsers.length}{" "}
+              {nearbyUsers.length === 1 ? t("radar.nearbyCountSingular") : t("radar.nearbyCount")}
             </p>
           </div>
         </div>
