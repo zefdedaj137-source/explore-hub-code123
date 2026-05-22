@@ -2328,8 +2328,8 @@ const Discover = () => {
                 </SheetTrigger>
                 <SheetContent>
                   <SheetHeader>
-                    <SheetTitle>Menu</SheetTitle>
-                    <SheetDescription>Navigation and account options</SheetDescription>
+                    <SheetTitle>{t("discover.menu")}</SheetTitle>
+                    <SheetDescription>{t("discover.navOptions")}</SheetDescription>
                   </SheetHeader>
                   <div className="py-4 space-y-1 max-h-[70vh] overflow-y-auto">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
@@ -2342,7 +2342,7 @@ const Discover = () => {
                         setShowDailyPicks(true);
                       }}
                     >
-                      <Sparkles className="h-4 w-4 mr-2 text-primary" /> Daily Picks
+                      <Sparkles className="h-4 w-4 mr-2 text-primary" /> {t("discover.dailyPicks")}
                       <Badge className="ml-auto bg-primary text-white border-none text-[10px] px-1.5 py-0">
                         {dailyPicks.length}
                       </Badge>
@@ -2352,7 +2352,8 @@ const Discover = () => {
                       className="w-full justify-start h-10"
                       onClick={() => navigate("/ai-matchmaker")}
                     >
-                      <Sparkles className="h-4 w-4 mr-2 text-primary" /> AI Matchmaker
+                      <Sparkles className="h-4 w-4 mr-2 text-primary" />{" "}
+                      {t("discover.aiMatchmaker")}
                     </Button>
                     {user && (
                       <TravelMode
@@ -2393,7 +2394,8 @@ const Discover = () => {
                       className="w-full justify-start h-10"
                       onClick={() => navigate("/game-lobby")}
                     >
-                      <Gamepad2 className="h-4 w-4 mr-2 text-green-500" /> Dating Games
+                      <Gamepad2 className="h-4 w-4 mr-2 text-green-500" />{" "}
+                      {t("discover.datingGames")}
                     </Button>
 
                     <Separator className="my-2" />
@@ -2405,14 +2407,15 @@ const Discover = () => {
                       className="w-full justify-start h-10"
                       onClick={() => navigate("/mood-status")}
                     >
-                      <Smile className="h-4 w-4 mr-2 text-yellow-400" /> Mood Status
+                      <Smile className="h-4 w-4 mr-2 text-yellow-400" /> {t("discover.moodStatus")}
                     </Button>
                     <Button
                       variant="ghost"
                       className="w-full justify-start h-10"
                       onClick={() => navigate("/ghost-alerts")}
                     >
-                      <Ghost className="h-4 w-4 mr-2 text-muted-foreground" /> Ghost Alerts
+                      <Ghost className="h-4 w-4 mr-2 text-muted-foreground" />{" "}
+                      {t("discover.ghostAlerts")}
                     </Button>
 
                     <Separator className="my-2" />
@@ -2431,21 +2434,21 @@ const Discover = () => {
                       className="w-full justify-start h-10"
                       onClick={() => navigate("/edit-profile")}
                     >
-                      <User className="h-4 w-4 mr-2" /> Edit Profile
+                      <User className="h-4 w-4 mr-2" /> {t("profile.editProfile")}
                     </Button>
                     <Button
                       variant="ghost"
                       className="w-full justify-start h-10"
                       onClick={() => navigate("/settings")}
                     >
-                      <Settings className="h-4 w-4 mr-2" /> Settings
+                      <Settings className="h-4 w-4 mr-2" /> {t("profile.settings")}
                     </Button>
                     <Button
                       variant="ghost"
                       className="w-full justify-start h-10 text-red-500 hover:text-red-600"
                       onClick={handleSignOut}
                     >
-                      <LogOut className="h-4 w-4 mr-2" /> Sign Out
+                      <LogOut className="h-4 w-4 mr-2" /> {t("auth.signOut")}
                     </Button>
                   </div>
                 </SheetContent>
@@ -2463,10 +2466,8 @@ const Discover = () => {
                 </SheetTrigger>
                 <SheetContent className="overflow-y-auto">
                   <SheetHeader>
-                    <SheetTitle>Filters</SheetTitle>
-                    <SheetDescription>
-                      Customize your profile discovery preferences
-                    </SheetDescription>
+                    <SheetTitle>{t("discover.filters")}</SheetTitle>
+                    <SheetDescription>{t("discover.customizeDiscovery")}</SheetDescription>
                   </SheetHeader>
                   <div className="py-6 space-y-6">
                     {/* Basic Filters */}
@@ -2487,9 +2488,9 @@ const Discover = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label htmlFor="smart-sort">Smart Recommendations</Label>
+                        <Label htmlFor="smart-sort">{t("discover.smartRecommendations")}</Label>
                         <p className="text-xs text-muted-foreground">
-                          Prioritize closer matches with shared interests
+                          {t("discover.smartRecommendationsDesc")}
                         </p>
                       </div>
                       <Switch
@@ -2550,9 +2551,9 @@ const Discover = () => {
                           <SelectValue placeholder="Everyone" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="everyone">Everyone</SelectItem>
-                          <SelectItem value="male">Men</SelectItem>
-                          <SelectItem value="female">Women</SelectItem>
+                          <SelectItem value="everyone">{t("common.everyone")}</SelectItem>
+                          <SelectItem value="male">{t("common.men")}</SelectItem>
+                          <SelectItem value="female">{t("common.women")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -2563,11 +2564,11 @@ const Discover = () => {
                         <Separator />
                         <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                           <Crown className="h-4 w-4" />
-                          <span>Premium Filters</span>
+                          <span>{t("discover.premiumFilters")}</span>
                         </div>
 
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="verified-only">Verified Profiles Only</Label>
+                          <Label htmlFor="verified-only">{t("discover.verifiedOnly")}</Label>
                           <Switch
                             id="verified-only"
                             checked={tempFilters.verifiedOnly}
@@ -2581,7 +2582,7 @@ const Discover = () => {
                         </div>
 
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="has-image">Has Profile Image</Label>
+                          <Label htmlFor="has-image">{t("discover.hasProfileImage")}</Label>
                           <Switch
                             id="has-image"
                             checked={tempFilters.hasProfileImage}
@@ -2595,7 +2596,7 @@ const Discover = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Shared Interests (comma separated)</Label>
+                          <Label>{t("discover.sharedInterestsFilter")}</Label>
                           <Input
                             placeholder="e.g. travel, music, fitness"
                             value={tempFilters.specificInterests.join(", ")}
@@ -2612,7 +2613,7 @@ const Discover = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Height Range (cm)</Label>
+                          <Label>{t("discover.heightRange")}</Label>
                           <div className="flex gap-4">
                             <Input
                               type="number"
@@ -2644,7 +2645,7 @@ const Discover = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Smoking</Label>
+                          <Label>{t("discover.smoking")}</Label>
                           <Select
                             value={tempFilters.smoking}
                             onValueChange={(value) =>
@@ -2658,16 +2659,20 @@ const Discover = () => {
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="any">Any</SelectItem>
-                              <SelectItem value="Non-smoker">Non-smoker</SelectItem>
-                              <SelectItem value="Social smoker">Social smoker</SelectItem>
-                              <SelectItem value="Regular smoker">Regular smoker</SelectItem>
+                              <SelectItem value="any">{t("common.any")}</SelectItem>
+                              <SelectItem value="Non-smoker">{t("discover.nonSmoker")}</SelectItem>
+                              <SelectItem value="Social smoker">
+                                {t("discover.socialSmoker")}
+                              </SelectItem>
+                              <SelectItem value="Regular smoker">
+                                {t("discover.regularSmoker")}
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Drinking</Label>
+                          <Label>{t("discover.drinking")}</Label>
                           <Select
                             value={tempFilters.drinking}
                             onValueChange={(value) =>
@@ -2681,16 +2686,16 @@ const Discover = () => {
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="any">Any</SelectItem>
-                              <SelectItem value="Never">Never</SelectItem>
-                              <SelectItem value="Socially">Socially</SelectItem>
-                              <SelectItem value="Regularly">Regularly</SelectItem>
+                              <SelectItem value="any">{t("common.any")}</SelectItem>
+                              <SelectItem value="Never">{t("discover.never")}</SelectItem>
+                              <SelectItem value="Socially">{t("discover.socially")}</SelectItem>
+                              <SelectItem value="Regularly">{t("discover.regularly")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Education</Label>
+                          <Label>{t("discover.education")}</Label>
                           <Select
                             value={tempFilters.education}
                             onValueChange={(value) =>
@@ -2704,18 +2709,20 @@ const Discover = () => {
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="any">Any</SelectItem>
-                              <SelectItem value="High School">High School</SelectItem>
-                              <SelectItem value="College">College</SelectItem>
-                              <SelectItem value="University">University</SelectItem>
-                              <SelectItem value="Graduate">Graduate</SelectItem>
-                              <SelectItem value="PhD">PhD</SelectItem>
+                              <SelectItem value="any">{t("common.any")}</SelectItem>
+                              <SelectItem value="High School">
+                                {t("discover.highSchool")}
+                              </SelectItem>
+                              <SelectItem value="College">{t("discover.college")}</SelectItem>
+                              <SelectItem value="University">{t("discover.university")}</SelectItem>
+                              <SelectItem value="Graduate">{t("discover.graduate")}</SelectItem>
+                              <SelectItem value="PhD">{t("discover.phd")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Religion</Label>
+                          <Label>{t("discover.religion")}</Label>
                           <Select
                             value={tempFilters.religion}
                             onValueChange={(value) =>
@@ -2729,25 +2736,27 @@ const Discover = () => {
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="any">Any</SelectItem>
-                              <SelectItem value="muslim">Muslim</SelectItem>
-                              <SelectItem value="christian">Christian</SelectItem>
-                              <SelectItem value="catholic">Catholic</SelectItem>
-                              <SelectItem value="orthodox">Orthodox</SelectItem>
-                              <SelectItem value="jewish">Jewish</SelectItem>
-                              <SelectItem value="hindu">Hindu</SelectItem>
-                              <SelectItem value="buddhist">Buddhist</SelectItem>
-                              <SelectItem value="atheist">Atheist</SelectItem>
-                              <SelectItem value="agnostic">Agnostic</SelectItem>
-                              <SelectItem value="spiritual">Spiritual</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
-                              <SelectItem value="prefer not to say">Prefer not to say</SelectItem>
+                              <SelectItem value="any">{t("common.any")}</SelectItem>
+                              <SelectItem value="muslim">{t("discover.muslim")}</SelectItem>
+                              <SelectItem value="christian">{t("discover.christian")}</SelectItem>
+                              <SelectItem value="catholic">{t("discover.catholic")}</SelectItem>
+                              <SelectItem value="orthodox">{t("discover.orthodox")}</SelectItem>
+                              <SelectItem value="jewish">{t("discover.jewish")}</SelectItem>
+                              <SelectItem value="hindu">{t("discover.hindu")}</SelectItem>
+                              <SelectItem value="buddhist">{t("discover.buddhist")}</SelectItem>
+                              <SelectItem value="atheist">{t("discover.atheist")}</SelectItem>
+                              <SelectItem value="agnostic">{t("discover.agnostic")}</SelectItem>
+                              <SelectItem value="spiritual">{t("discover.spiritual")}</SelectItem>
+                              <SelectItem value="other">{t("common.other")}</SelectItem>
+                              <SelectItem value="prefer not to say">
+                                {t("discover.preferNotToSay")}
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Looking For</Label>
+                          <Label>{t("discover.lookingFor")}</Label>
                           <Select
                             value={tempFilters.lookingFor}
                             onValueChange={(value) =>
@@ -2761,17 +2770,17 @@ const Discover = () => {
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="any">Any</SelectItem>
-                              <SelectItem value="Dating">Dating</SelectItem>
-                              <SelectItem value="Friends">Looking for Friends</SelectItem>
-                              <SelectItem value="Casual">Fun & Casual</SelectItem>
-                              <SelectItem value="Long-term">Long-term Relationship</SelectItem>
+                              <SelectItem value="any">{t("common.any")}</SelectItem>
+                              <SelectItem value="Dating">{t("discover.dating")}</SelectItem>
+                              <SelectItem value="Friends">{t("discover.friends")}</SelectItem>
+                              <SelectItem value="Casual">{t("discover.casual")}</SelectItem>
+                              <SelectItem value="Long-term">{t("discover.longTerm")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Zodiac Sign</Label>
+                          <Label>{t("discover.zodiacSign")}</Label>
                           <Select
                             value={tempFilters.zodiacSign}
                             onValueChange={(value) =>
@@ -2817,7 +2826,7 @@ const Discover = () => {
                             className="w-full bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white"
                             onClick={() => setShowUpgradeDialog(true)}
                           >
-                            Upgrade Now
+                            {t("discover.upgradeNow")}
                           </Button>
                         </div>
                       </Card>
@@ -3770,7 +3779,7 @@ const Discover = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="instant-message-text">Your Message</Label>
+              <Label htmlFor="instant-message-text">{t("discover.yourMessage")}</Label>
               <Textarea
                 id="instant-message-text"
                 placeholder="Write something interesting... 💬"
@@ -3878,7 +3887,9 @@ const Discover = () => {
             <Button variant="outline" onClick={() => setShowUpgradeDialog(false)}>
               {swipeLimit.isPremium ? "Close" : "Later"}
             </Button>
-            {!swipeLimit.isPremium && <Button onClick={handleUpgrade}>Upgrade Now</Button>}
+            {!swipeLimit.isPremium && (
+              <Button onClick={handleUpgrade}>{t("discover.upgradeNow")}</Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>

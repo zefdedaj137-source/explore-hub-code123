@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -47,6 +48,7 @@ export default function DancingChallenge() {
   const chunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const checkMembership = useCallback(async () => {
     try {
@@ -375,11 +377,11 @@ export default function DancingChallenge() {
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <Star className="h-5 w-5 text-primary mt-0.5" />
-                <span>Share your Albanian dancing videos with the community</span>
+                <span>{t("dancing.shareVideos")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <Star className="h-5 w-5 text-primary mt-0.5" />
-                <span>Watch and rate other dancers</span>
+                <span>{t("dancing.watchRate")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <Star className="h-5 w-5 text-primary mt-0.5" />
@@ -387,7 +389,7 @@ export default function DancingChallenge() {
               </li>
               <li className="flex items-start gap-2">
                 <Star className="h-5 w-5 text-primary mt-0.5" />
-                <span>Connect with people who appreciate your moves</span>
+                <span>{t("dancing.connect")}</span>
               </li>
             </ul>
           </div>

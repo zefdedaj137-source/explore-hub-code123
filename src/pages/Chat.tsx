@@ -1887,19 +1887,16 @@ const Chat = () => {
       <AlertDialog open={showUnmatchDialog} onOpenChange={setShowUnmatchDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unmatch with {matchProfile?.full_name}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. You will no longer be able to message each other, and
-              this conversation will be permanently deleted.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("chat.unmatchTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("chat.unmatchDesc")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleUnmatch}
               className="bg-primary hover:bg-primary text-white"
             >
-              Unmatch
+              {t("matches.unmatch")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

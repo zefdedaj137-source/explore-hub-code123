@@ -1,5 +1,6 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Sparkles, ArrowLeft, MapPin, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -44,6 +45,7 @@ interface ProfileRow {
 const MatchInsights = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileRow>>({});
@@ -255,14 +257,14 @@ const MatchInsights = () => {
 
                 <div className="space-y-2">
                   <p className="text-xs uppercase text-muted-foreground">
-                    Suggested conversation starters
+                    {t("matchInsights.suggestedStarters")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">
                       Ask about {sharedInterests[0] || "their weekend"}
                     </Badge>
-                    <Badge variant="outline">Invite them to an event nearby</Badge>
-                    <Badge variant="outline">Share a favorite playlist</Badge>
+                    <Badge variant="outline">{t("matchInsights.inviteToEvent")}</Badge>
+                    <Badge variant="outline">{t("matchInsights.sharePlaylist")}</Badge>
                   </div>
                 </div>
 

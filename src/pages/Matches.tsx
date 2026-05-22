@@ -1581,19 +1581,16 @@ const Matches = () => {
       <AlertDialog open={showUnmatchDialog} onOpenChange={setShowUnmatchDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unmatch with {selectedMatch?.profile.full_name}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. You will no longer be able to message each other, and
-              this match will be permanently removed from both of your match lists.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("matches.unmatchTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("matches.unmatchDesc")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => selectedMatch && handleUnmatch(selectedMatch)}
               className="bg-primary hover:bg-primary text-white"
             >
-              Unmatch
+              {t("matches.unmatch")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -2082,9 +2079,9 @@ const Matches = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-primary" />
-              Reply to {replyingToMessage?.sender_name}
+              {t("matches.replyTo", { name: replyingToMessage?.sender_name })}
             </DialogTitle>
-            <DialogDescription>Send a reply to this instant message</DialogDescription>
+            <DialogDescription>{t("matches.sendReplyDesc")}</DialogDescription>
           </DialogHeader>
 
           {replyingToMessage && (
@@ -2097,9 +2094,11 @@ const Matches = () => {
 
               {/* Reply Input */}
               <div>
-                <label className="text-sm font-medium mb-2 block">Your Reply (FREE)</label>
+                <label className="text-sm font-medium mb-2 block">
+                  {t("matches.yourReplyFree")}
+                </label>
                 <Textarea
-                  placeholder="Write your reply..."
+                  placeholder={t("matches.writeReply")}
                   value={replyMessage}
                   onChange={(e) => setReplyMessage(e.target.value)}
                   maxLength={500}
@@ -2114,8 +2113,7 @@ const Matches = () => {
               {/* Info Banner */}
               <div className="bg-gradient-to-br from-primary/10 to-primary/10 p-3 rounded-lg border border-primary/30">
                 <p className="text-xs text-muted-foreground text-center">
-                  💬 Replying to instant messages is <strong>completely FREE</strong>! After you
-                  reply, you can message freely.
+                  {t("matches.freeReplyNote")}
                 </p>
               </div>
 
@@ -2131,7 +2129,7 @@ const Matches = () => {
                   className="flex-1"
                   disabled={sendingReply}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   onClick={sendReplyToInstantMessage}

@@ -23,12 +23,8 @@ import {
   ArrowLeft,
   Upload,
   X,
-  MoveLeft,
-  MoveRight,
   Eye,
   MapPin,
-  Sparkles,
-  Camera,
   ChevronLeft,
   ChevronRight,
   Music2,
@@ -249,32 +245,40 @@ const LANGUAGES = [
 ];
 
 interface Profile {
-  full_name?: string;
+  full_name?: string | null;
   age?: number;
-  city?: string;
-  country?: string;
-  bio?: string;
+  city?: string | null;
+  country?: string | null;
+  bio?: string | null;
   looking_for?: string[];
   interests?: string[];
-  zodiac_sign?: string;
-  religion?: string;
-  profile_image_url?: string;
+  zodiac_sign?: string | null;
+  religion?: string | null;
+  profile_image_url?: string | null;
   profile_images?: string[];
-  lifestyle?: string;
-  education?: string;
-  work?: string;
-  height?: string;
-  height_cm?: string | number;
-  body_type?: string;
-  smoking?: string;
-  drinking?: string;
-  kids?: string;
-  pets?: string;
+  verified?: boolean | null;
+  video_intro_url?: string | null;
+  mood_emoji?: string | null;
+  mood_text?: string | null;
+  soundtrack_url?: string | null;
+  soundtrack_source?: string | null;
+  soundtrack_title?: string | null;
+  soundtrack_artist?: string | null;
+  lifestyle?: string | null;
+  education?: string | null;
+  work?: string | null;
+  height?: string | null;
+  height_cm?: string | number | null;
+  body_type?: string | null;
+  smoking?: string | null;
+  drinking?: string | null;
+  kids?: string | null;
+  pets?: string | null;
   languages?: string[];
-  hometown?: string;
-  home_country?: string;
-  has_kids?: string;
-  wants_kids?: string;
+  hometown?: string | null;
+  home_country?: string | null;
+  has_kids?: string | null;
+  wants_kids?: string | null;
 }
 
 const profileUpdateSchema = z.object({
@@ -366,7 +370,7 @@ const EditProfile = () => {
     kids: "",
     gender: "",
   });
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [, setProfileImage] = useState<string | null>(null);
   const [profileImages, setProfileImages] = useState<string[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [draggedPhotoIndex, setDraggedPhotoIndex] = useState<number | null>(null);
@@ -422,7 +426,7 @@ const EditProfile = () => {
 
       if (data) {
         // Update all form fields with the profile data
-        setProfile(data);
+        setProfile(data as Profile);
         setIsPremium(!!data.is_premium);
         setFormData({
           full_name: data.full_name || "",
@@ -467,7 +471,7 @@ const EditProfile = () => {
           setSoundtrackEmbedId(ytId || spId || null);
         }
         // Calculate profile completion
-        calculateProfileCompletion(data);
+        calculateProfileCompletion(data as Profile);
 
         // Load prompts (table may not exist if migration not applied)
         const promptsTableMissing = (() => {
@@ -479,7 +483,8 @@ const EditProfile = () => {
           }
         })();
         if (!promptsTableMissing) {
-          const { data: promptsData, error: promptsErr } = await supabase
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { data: promptsData, error: promptsErr } = await (supabase as any)
             .from("profile_prompts")
             .select("prompt, answer")
             .eq("user_id", user.id)
@@ -491,7 +496,7 @@ const EditProfile = () => {
               /* */
             }
           } else if (promptsData) {
-            setPrompts(promptsData);
+            setPrompts((promptsData as { prompt: string; answer: string }[]) || []);
           }
         }
       } else {
@@ -526,7 +531,8 @@ const EditProfile = () => {
 
   const savePrompt = async (prompt: string, answer: string) => {
     if (!user || !answer.trim()) return;
-    const { error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any)
       .from("profile_prompts")
       .upsert(
         { user_id: user.id, prompt, answer: answer.trim(), display_order: prompts.length },
@@ -549,7 +555,12 @@ const EditProfile = () => {
 
   const deletePrompt = async (prompt: string) => {
     if (!user) return;
-    await supabase.from("profile_prompts").delete().eq("user_id", user.id).eq("prompt", prompt);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any)
+      .from("profile_prompts")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("prompt", prompt);
     setPrompts(prompts.filter((p) => p.prompt !== prompt));
   };
 
@@ -768,7 +779,6 @@ const EditProfile = () => {
       if (updateError) throw updateError;
 
       setProfileImages(newProfileImages);
-      setProfileImage(newProfileImages[0] || null);
       setProfile((prev) =>
         prev
           ? {
@@ -991,7 +1001,7 @@ const EditProfile = () => {
         .update({
           ...profileData,
           updated_at: new Date().toISOString(),
-        })
+        } as Record<string, unknown>)
         .eq("id", user.id);
 
       if (error) throw error;
@@ -1004,7 +1014,7 @@ const EditProfile = () => {
         .single();
 
       if (updatedProfile) {
-        calculateProfileCompletion(updatedProfile);
+        calculateProfileCompletion(updatedProfile as Profile);
       }
 
       toast.success("Profile updated successfully!");
@@ -1227,9 +1237,9 @@ const EditProfile = () => {
                           <SelectValue placeholder="Select sex" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="female">Female</SelectItem>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="other">Diverse</SelectItem>
+                          <SelectItem value="female">{t("common.female")}</SelectItem>
+                          <SelectItem value="male">{t("common.male")}</SelectItem>
+                          <SelectItem value="other">{t("editProfile.diverse")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1613,9 +1623,11 @@ const EditProfile = () => {
                             <SelectValue placeholder="Select smoking status" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="non-smoker">Non-smoker</SelectItem>
-                            <SelectItem value="occasional">Occasional</SelectItem>
-                            <SelectItem value="regular">Regular</SelectItem>
+                            <SelectItem value="non-smoker">{t("discover.nonSmoker")}</SelectItem>
+                            <SelectItem value="occasional">
+                              {t("editProfile.occasional")}
+                            </SelectItem>
+                            <SelectItem value="regular">{t("editProfile.regular")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -1632,10 +1644,12 @@ const EditProfile = () => {
                             <SelectValue placeholder="Do you have pets?" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="no-pets">No pets</SelectItem>
+                            <SelectItem value="no-pets">{t("editProfile.noPets")}</SelectItem>
                             <SelectItem value="have-dog">Have dog(s)</SelectItem>
                             <SelectItem value="have-cat">Have cat(s)</SelectItem>
-                            <SelectItem value="have-other">Have other pets</SelectItem>
+                            <SelectItem value="have-other">
+                              {t("editProfile.haveOtherPets")}
+                            </SelectItem>
                             <SelectItem value="love-pets">Love pets but don't have</SelectItem>
                           </SelectContent>
                         </Select>
@@ -1741,8 +1755,10 @@ const EditProfile = () => {
                         <SelectContent>
                           <SelectItem value="yes">Yes</SelectItem>
                           <SelectItem value="no">No</SelectItem>
-                          <SelectItem value="maybe">Maybe</SelectItem>
-                          <SelectItem value="open-to-discussion">Open to discussion</SelectItem>
+                          <SelectItem value="maybe">{t("editProfile.maybe")}</SelectItem>
+                          <SelectItem value="open-to-discussion">
+                            {t("editProfile.openToDiscussion")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

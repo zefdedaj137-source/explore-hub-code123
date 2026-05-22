@@ -18,7 +18,14 @@
     "no": "Jo",
     "close": "Mbyll",
     "done": "Kryer",
-    "noPhoto": "Nuk ka foto"
+    "noPhoto": "Nuk ka foto",
+    "male": "Mashkull",
+    "female": "Femër",
+    "other": "Tjetër",
+    "men": "Burra",
+    "women": "Gra",
+    "everyone": "Të gjithë",
+    "any": "Çfarëdo"
   },
   "auth": {
     "signIn": "Hyr",
@@ -75,7 +82,56 @@
     "distance": "Distanca",
     "gender": "Gjinia",
     "remainingSwipes": "rrëshqitje mbeten",
-    "minutesUntilReset": "minuta deri në rivendosje"
+    "minutesUntilReset": "minuta deri në rivendosje",
+    "navOptions": "Opsionet e navigimit dhe llogarisë",
+    "menu": "Meny",
+    "dailyPicks": "Zgjedhjet e Ditës",
+    "aiMatchmaker": "AI Matchmaker",
+    "datingGames": "Lojëra Takimesh",
+    "moodStatus": "Gjendja e Humorit",
+    "ghostAlerts": "Alarmet Ghost",
+    "smartRecommendations": "Rekomandime Inteligjente",
+    "smartRecommendationsDesc": "Prioritizoni ndeshjet më të afërta me interesa të përbashkëta",
+    "customizeDiscovery": "Personalizoni preferencat tuaja të zbulimit të profilit",
+    "premiumFilters": "Filtrat Premium",
+    "verifiedOnly": "Vetëm Profile të Verifikuara",
+    "hasProfileImage": "Ka Fotografi Profili",
+    "sharedInterestsFilter": "Interesa të Përbashkëta (të ndara me presje)",
+    "heightRange": "Gama e Gjatësisë (cm)",
+    "smoking": "Duhanpirja",
+    "nonSmoker": "Jo-duhanpirës",
+    "socialSmoker": "Duhanpirës social",
+    "regularSmoker": "Duhanpirës i rregullt",
+    "drinking": "Pirja e Alkoolit",
+    "never": "Kurrë",
+    "socially": "Socialë",
+    "regularly": "Rregullisht",
+    "education": "Arsimi",
+    "highSchool": "Shkolla e Mesme",
+    "college": "Kolegj",
+    "university": "Universitet",
+    "graduate": "Pasuniversitar",
+    "phd": "Doktoraturë",
+    "religion": "Feja",
+    "muslim": "Musliman",
+    "christian": "Krishtian",
+    "catholic": "Katolik",
+    "orthodox": "Ortodoks",
+    "jewish": "Hebre",
+    "hindu": "Hindu",
+    "buddhist": "Budist",
+    "atheist": "Ateist",
+    "agnostic": "Agnostik",
+    "spiritual": "Shpirtëror",
+    "preferNotToSay": "Preferoj të mos them",
+    "lookingFor": "Kërkon",
+    "dating": "Takime",
+    "friends": "Kërkon Miq",
+    "casual": "Argëtim dhe Relaksim",
+    "longTerm": "Marrëdhënie Afatgjatë",
+    "zodiacSign": "Shenja e Horoskopit",
+    "yourMessage": "Mesazhi Juaj",
+    "upgradeNow": "Abonohu Tani"
   },
   "matches": {
     "title": "Përputhjet",
@@ -88,7 +144,14 @@
     "report": "Raporto",
     "viewProfile": "Shiko profilin",
     "lastMessage": "Mesazhi i fundit",
-    "expiringWarning": "mbeten"
+    "expiringWarning": "mbeten",
+    "sendReplyDesc": "Dërgoni një përgjigje në këtë mesazh të menjëhershëm",
+    "yourReplyFree": "Përgjigja Juaj (FALAS)",
+    "freeReplyNote": "Përgjigja ndaj mesazheve të menjëhershme është plotësisht FALAS! Pasi të pergjigjeni, mund të komunikoni lirisht.",
+    "writeReply": "Shkruani përgjigjen tuaj...",
+    "replyTo": "Pergjigju {{name}}",
+    "unmatchTitle": "Hiq Ndeshjen",
+    "unmatchDesc": "Ky veprim nuk mund të zhbëhet. Nuk do të mund të dërgoni mesazhe njëri-tjetrit dhe kjo përputhje do të hiqet përgjithmonë nga listat e të dyve."
   },
   "chat": {
     "title": "Biseda",
@@ -112,7 +175,9 @@
     "messagePlaceholder": "[Mesazh Zanor]",
     "photoPlaceholder": "[Foto]",
     "blockMessage": "Ke bllokuar këtë përdorues. Çblloko për të thirrur.",
-    "blockedMessage": "Ky përdorues të ka bllokuar. Thirrjet janë të çaktivizuara."
+    "blockedMessage": "Ky përdorues të ka bllokuar. Thirrjet janë të çaktivizuara.",
+    "unmatchTitle": "Hiq Ndeshjen",
+    "unmatchDesc": "Ky veprim nuk mund të zhbëhet. Nuk do të mund të dërgoni mesazhe njëri-tjetrit dhe kjo bisedë do të fshihet përgjithmonë."
   },
   "profile": {
     "myProfile": "Profili Im",
@@ -276,7 +341,9 @@
     "safetyCheckin": "Kontrolli i Sigurisë",
     "safetyCheckinDesc": "Lejo dikë të dijë që jeni mirë",
     "incognitoModeDesc": "Fshih profilin tënd",
-    "maxDistance": "Distanca Maksimale"
+    "maxDistance": "Distanca Maksimale",
+    "keepPremium": "Mbaj Premium",
+    "passwordDescription": "Futni fjalëkalimin tuaj aktual dhe zgjidhni një të ri"
   },
   "editProfile": {
     "heading": "Redakto Profilin",
@@ -328,7 +395,14 @@
     "choosePrompt": "Zgjidh një pyetje...",
     "mainBadge": "Kryesore",
     "saveChanges": "Ruaj Ndryshimet",
-    "saving": "Duke ruajtur..."
+    "saving": "Duke ruajtur...",
+    "diverse": "Tjetër/Shumëllojshëm",
+    "occasional": "Herë pas here",
+    "regular": "Rregullisht",
+    "noPets": "Pa kafshë shtëpiake",
+    "haveOtherPets": "Kam kafshë të tjera shtëpiake",
+    "maybe": "Ndoshta",
+    "openToDiscussion": "I/E hapur për diskutim"
   },
   "profileSetup": {
     "heading": "Plotëso Profilin Tënd",
@@ -363,7 +437,13 @@
     "bioLabel": "Biografia",
     "interestsLabel": "Interesat (të ndara me presje)",
     "submitButton": "Plotëso Profilin",
-    "loadingProfile": "Duke krijuar profilin..."
+    "loadingProfile": "Duke krijuar profilin...",
+    "male": "Mashkull",
+    "female": "Femër",
+    "other": "Tjetër",
+    "men": "Burra",
+    "women": "Gra",
+    "everyone": "Të gjithë"
   },
   "whoLikedYou": {
     "heading": "Kush të Pëlqeu",
@@ -440,5 +520,43 @@
     "coins": "Monedha",
     "buy": "Bli",
     "balance": "Bilanci"
+  },
+  "premiumSuccess": {
+    "title": "Mirë se vini në Premium!",
+    "subtitle": "Abonimi juaj është aktiv tani. Shijoni të gjitha veçoritë premium!",
+    "unlimitedLikes": "Like pa limit",
+    "seeWhoLikedYou": "Shih kush ju ka pëlqyer",
+    "advancedFilters": "Filtra të avancuar",
+    "priorityVisibility": "Prioritet në dukshmëri të profilit",
+    "startDiscovering": "Filloni Zbulimin"
+  },
+  "report": {
+    "title": "Raporto {{name}}",
+    "description": "Raportet shqyrtohen nga ekipi ynë i sigurisë. E mbajmë raportin tuaj konfidencial.",
+    "reason": "Arsyeja",
+    "selectReason": "Zgjidhni një arsye",
+    "harassment": "Ngacmim ose abuzim",
+    "fakeProfile": "Profil i rremë",
+    "spam": "Spam ose mashtrim",
+    "inappropriate": "Përmbajtje e papërshtatshme",
+    "underage": "Përdorues nën moshë",
+    "other": "Tjetër",
+    "details": "Detaje (opsionale)",
+    "detailsPlaceholder": "Ndani detajet për të ndihmuar ekipin tonë",
+    "submit": "Dërgo Raportin",
+    "submitting": "Duke dërguar..."
+  },
+  "matchInsights": {
+    "suggestedStarters": "Fillime bisede të sugjeruara",
+    "inviteToEvent": "Ftojini në një ngjarje afër",
+    "sharePlaylist": "Ndani një listë favorite muzike"
+  },
+  "dancing": {
+    "shareVideos": "Ndani videot tuaja të vallëzimit shqiptar me komunitetin",
+    "watchRate": "Shikoni dhe vlerësoni vallëzuesit e tjerë",
+    "connect": "Lidhuni me njerëz që vlerësojnë lëvizjet tuaja"
+  },
+  "datingIdeas": {
+    "comingSoon": "Së shpejti"
   }
 }

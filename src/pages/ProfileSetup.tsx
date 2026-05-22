@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
+// card imports removed - unused
 import {
   Select,
   SelectContent,
@@ -581,9 +581,9 @@ const ProfileSetup = () => {
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="male">{t("profileSetup.male")}</SelectItem>
+                  <SelectItem value="female">{t("profileSetup.female")}</SelectItem>
+                  <SelectItem value="other">{t("profileSetup.other")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -599,9 +599,9 @@ const ProfileSetup = () => {
                   <SelectValue placeholder="Select who you want to search" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Men</SelectItem>
-                  <SelectItem value="female">Women</SelectItem>
-                  <SelectItem value="everyone">Everyone</SelectItem>
+                  <SelectItem value="male">{t("profileSetup.men")}</SelectItem>
+                  <SelectItem value="female">{t("profileSetup.women")}</SelectItem>
+                  <SelectItem value="everyone">{t("profileSetup.everyone")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

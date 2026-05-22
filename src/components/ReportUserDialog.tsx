@@ -1,4 +1,5 @@
 ﻿import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ const ReportUserDialog = ({
   const [reason, setReason] = useState<string>("");
   const [details, setDetails] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const { t } = useTranslation();
 
   const handleSubmit = async () => {
     if (!reason) {
@@ -73,50 +75,48 @@ const ReportUserDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Report {reportedName || "user"}</DialogTitle>
-          <DialogDescription>
-            Reports are reviewed by our safety team. We keep your report confidential.
-          </DialogDescription>
+          <DialogTitle>{t("report.title", { name: reportedName || "user" })}</DialogTitle>
+          <DialogDescription>{t("report.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Reason</label>
+            <label className="text-sm font-medium">{t("report.reason")}</label>
             <Select value={reason} onValueChange={setReason}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a reason" />
+                <SelectValue placeholder={t("report.selectReason")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="harassment">Harassment or abuse</SelectItem>
-                <SelectItem value="fake_profile">Fake profile</SelectItem>
-                <SelectItem value="spam">Spam or scam</SelectItem>
-                <SelectItem value="inappropriate">Inappropriate content</SelectItem>
-                <SelectItem value="underage">Underage user</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="harassment">{t("report.harassment")}</SelectItem>
+                <SelectItem value="fake_profile">{t("report.fakeProfile")}</SelectItem>
+                <SelectItem value="spam">{t("report.spam")}</SelectItem>
+                <SelectItem value="inappropriate">{t("report.inappropriate")}</SelectItem>
+                <SelectItem value="underage">{t("report.underage")}</SelectItem>
+                <SelectItem value="other">{t("report.other")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Details (optional)</label>
+            <label className="text-sm font-medium">{t("report.details")}</label>
             <Textarea
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              placeholder="Share details to help our team"
+              placeholder={t("report.detailsPlaceholder")}
               className="min-h-[110px]"
             />
           </div>
 
           <div className="flex gap-3">
             <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white"
               disabled={submitting}
               onClick={handleSubmit}
             >
-              Submit report
+              {submitting ? t("report.submitting") : t("report.submit")}
             </Button>
           </div>
         </div>

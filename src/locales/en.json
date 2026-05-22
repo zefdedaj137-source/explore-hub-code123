@@ -18,7 +18,14 @@
     "no": "No",
     "close": "Close",
     "done": "Done",
-    "noPhoto": "No photo"
+    "noPhoto": "No photo",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "men": "Men",
+    "women": "Women",
+    "everyone": "Everyone",
+    "any": "Any"
   },
   "auth": {
     "signIn": "Sign In",
@@ -75,7 +82,56 @@
     "distance": "Distance",
     "gender": "Gender",
     "remainingSwipes": "swipes remaining",
-    "minutesUntilReset": "minutes until reset"
+    "minutesUntilReset": "minutes until reset",
+    "navOptions": "Navigation and account options",
+    "menu": "Menu",
+    "dailyPicks": "Daily Picks",
+    "aiMatchmaker": "AI Matchmaker",
+    "datingGames": "Dating Games",
+    "moodStatus": "Mood Status",
+    "ghostAlerts": "Ghost Alerts",
+    "smartRecommendations": "Smart Recommendations",
+    "smartRecommendationsDesc": "Prioritize closer matches with shared interests",
+    "customizeDiscovery": "Customize your profile discovery preferences",
+    "premiumFilters": "Premium Filters",
+    "verifiedOnly": "Verified Profiles Only",
+    "hasProfileImage": "Has Profile Image",
+    "sharedInterestsFilter": "Shared Interests (comma separated)",
+    "heightRange": "Height Range (cm)",
+    "smoking": "Smoking",
+    "nonSmoker": "Non-smoker",
+    "socialSmoker": "Social smoker",
+    "regularSmoker": "Regular smoker",
+    "drinking": "Drinking",
+    "never": "Never",
+    "socially": "Socially",
+    "regularly": "Regularly",
+    "education": "Education",
+    "highSchool": "High School",
+    "college": "College",
+    "university": "University",
+    "graduate": "Graduate",
+    "phd": "PhD",
+    "religion": "Religion",
+    "muslim": "Muslim",
+    "christian": "Christian",
+    "catholic": "Catholic",
+    "orthodox": "Orthodox",
+    "jewish": "Jewish",
+    "hindu": "Hindu",
+    "buddhist": "Buddhist",
+    "atheist": "Atheist",
+    "agnostic": "Agnostic",
+    "spiritual": "Spiritual",
+    "preferNotToSay": "Prefer not to say",
+    "lookingFor": "Looking For",
+    "dating": "Dating",
+    "friends": "Looking for Friends",
+    "casual": "Fun & Casual",
+    "longTerm": "Long-term Relationship",
+    "zodiacSign": "Zodiac Sign",
+    "yourMessage": "Your Message",
+    "upgradeNow": "Upgrade Now"
   },
   "matches": {
     "title": "Matches",
@@ -88,7 +144,14 @@
     "report": "Report",
     "viewProfile": "View profile",
     "lastMessage": "Last message",
-    "expiringWarning": "left"
+    "expiringWarning": "left",
+    "sendReplyDesc": "Send a reply to this instant message",
+    "yourReplyFree": "Your Reply (FREE)",
+    "freeReplyNote": "Replying to instant messages is completely FREE! After you reply, you can message freely.",
+    "writeReply": "Write your reply...",
+    "replyTo": "Reply to {{name}}",
+    "unmatchTitle": "Unmatch User",
+    "unmatchDesc": "This action cannot be undone. You will no longer be able to message each other, and this match will be permanently removed from both of your match lists."
   },
   "chat": {
     "title": "Chat",
@@ -112,7 +175,9 @@
     "messagePlaceholder": "[Voice Message]",
     "photoPlaceholder": "[Photo]",
     "blockMessage": "You blocked this user. Unblock to call.",
-    "blockedMessage": "This user has blocked you. Calls are disabled."
+    "blockedMessage": "This user has blocked you. Calls are disabled.",
+    "unmatchTitle": "Unmatch User",
+    "unmatchDesc": "This action cannot be undone. You will no longer be able to message each other, and this conversation will be permanently deleted."
   },
   "profile": {
     "myProfile": "My Profile",
@@ -271,7 +336,9 @@
     "getVerifiedBadge": "Get a verified badge via email OTP",
     "editProfile": "Edit Profile",
     "maxDistance": "Maximum Distance",
-    "incognitoModeDesc": "Hide your profile"
+    "incognitoModeDesc": "Hide your profile",
+    "keepPremium": "Keep Premium",
+    "passwordDescription": "Enter your current password and choose a new one"
   },
   "editProfile": {
     "heading": "Edit Profile",
@@ -323,7 +390,14 @@
     "choosePrompt": "Choose a prompt...",
     "mainBadge": "Main",
     "saveChanges": "Save Changes",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "diverse": "Diverse",
+    "occasional": "Occasional",
+    "regular": "Regular",
+    "noPets": "No pets",
+    "haveOtherPets": "Have other pets",
+    "maybe": "Maybe",
+    "openToDiscussion": "Open to discussion"
   },
   "profileSetup": {
     "heading": "Complete Your Profile",
@@ -358,7 +432,13 @@
     "bioLabel": "Bio",
     "interestsLabel": "Interests (comma separated)",
     "submitButton": "Complete Profile",
-    "loadingProfile": "Creating Profile..."
+    "loadingProfile": "Creating Profile...",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "men": "Men",
+    "women": "Women",
+    "everyone": "Everyone"
   },
   "whoLikedYou": {
     "heading": "Who Liked You",
@@ -435,5 +515,43 @@
     "coins": "Coins",
     "buy": "Buy",
     "balance": "Balance"
+  },
+  "premiumSuccess": {
+    "title": "Welcome to Premium!",
+    "subtitle": "Your subscription is now active. Enjoy all premium features!",
+    "unlimitedLikes": "Unlimited likes",
+    "seeWhoLikedYou": "See who liked you",
+    "advancedFilters": "Advanced filters",
+    "priorityVisibility": "Priority profile visibility",
+    "startDiscovering": "Start Discovering"
+  },
+  "report": {
+    "title": "Report {{name}}",
+    "description": "Reports are reviewed by our safety team. We keep your report confidential.",
+    "reason": "Reason",
+    "selectReason": "Select a reason",
+    "harassment": "Harassment or abuse",
+    "fakeProfile": "Fake profile",
+    "spam": "Spam or scam",
+    "inappropriate": "Inappropriate content",
+    "underage": "Underage user",
+    "other": "Other",
+    "details": "Details (optional)",
+    "detailsPlaceholder": "Share details to help our team",
+    "submit": "Submit Report",
+    "submitting": "Submitting..."
+  },
+  "matchInsights": {
+    "suggestedStarters": "Suggested conversation starters",
+    "inviteToEvent": "Invite them to an event nearby",
+    "sharePlaylist": "Share a favorite playlist"
+  },
+  "dancing": {
+    "shareVideos": "Share your Albanian dancing videos with the community",
+    "watchRate": "Watch and rate other dancers",
+    "connect": "Connect with people who appreciate your moves"
+  },
+  "datingIdeas": {
+    "comingSoon": "Coming Soon"
   }
 }

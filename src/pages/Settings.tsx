@@ -45,7 +45,6 @@ import {
   Share2,
   HelpCircle,
   FileText,
-  Scale,
   AlertTriangle,
   Info,
   Mail,
@@ -62,18 +61,9 @@ import {
   PhoneCall,
   Bookmark,
   Activity,
-  CalendarCheck,
   ShieldCheck,
-  Calendar,
-  CalendarDays,
-  MapPin,
-  Video,
   Camera,
   Target,
-  Smile,
-  Music,
-  Ghost,
-  Music2,
   Download,
   Moon,
 } from "lucide-react";
@@ -99,6 +89,7 @@ type ProfileData = {
   notify_likes?: boolean;
   dnd_start?: string | null;
   dnd_end?: string | null;
+  save_data?: boolean;
 };
 
 const LANGUAGES = [
@@ -107,7 +98,7 @@ const LANGUAGES = [
 ] as const;
 
 const LanguagePicker = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   return (
     <RadioGroup
       value={i18n.language?.startsWith("sq") ? "sq" : "en"}
@@ -288,9 +279,9 @@ const Settings = () => {
                 typedData.booster_expires_at &&
                 new Date(typedData.booster_expires_at) > new Date();
               setBoosterActive(Boolean(isBoosterValid));
-              setBoosterExpiresAt(typedData.booster_expires_at);
+              setBoosterExpiresAt(typedData.booster_expires_at ?? null);
               setTravelModeActive(typedData.travel_mode_active || false);
-              setTravelCity(typedData.travel_city);
+              setTravelCity(typedData.travel_city ?? null);
               setMinAge(typedData.min_age_preference || 18);
               setMaxAge(typedData.max_age_preference || 99);
               setMaxDistance(typedData.max_distance_km || 100);
@@ -313,9 +304,9 @@ const Settings = () => {
             new Date(typedData.booster_expires_at) > new Date();
 
           setBoosterActive(Boolean(isBoosterValid));
-          setBoosterExpiresAt(typedData.booster_expires_at);
+          setBoosterExpiresAt(typedData.booster_expires_at ?? null);
           setTravelModeActive(typedData.travel_mode_active || false);
-          setTravelCity(typedData.travel_city);
+          setTravelCity(typedData.travel_city ?? null);
 
           // Set discovery settings
           setMinAge(typedData.min_age_preference || 18);
@@ -425,22 +416,6 @@ const Settings = () => {
     }
   };
 
-  const handleEnableAdmin = async () => {
-    if (!user?.id) {
-      toast.error("Please sign in first.");
-      return;
-    }
-    try {
-      const { error } = await supabase.from("admin_users").insert({ user_id: user.id });
-      if (error) throw error;
-      setIsAdmin(true);
-      toast.success("Admin mode enabled.");
-    } catch (error) {
-      logger.error("Error enabling admin:", error);
-      toast.error("Failed to enable admin mode.");
-    }
-  };
-
   const handleDeleteAccount = async () => {
     if (!user) return;
     setLoading(true);
@@ -481,46 +456,6 @@ const Settings = () => {
     } finally {
       setLoading(false);
       setShowDeactivateDialog(false);
-    }
-  };
-
-  const handleActivateBooster = async (duration: number = 3) => {
-    if (!user) return;
-
-    if (!isPremium) {
-      toast.error("Premium subscription required to activate booster");
-      return;
-    }
-
-    if (boosterActive) {
-      toast.info("Booster is already active!");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data, error } = (await supabase.rpc("activate_booster", {
-        user_id: user.id,
-        duration_hours: duration,
-      })) as {
-        data: { success: boolean; error?: string; expires_at?: string } | null;
-        error: unknown;
-      };
-
-      if (error) throw error;
-
-      if (data?.success) {
-        setBoosterActive(true);
-        setBoosterExpiresAt(data.expires_at || null);
-        toast.success(`Booster activated for ${duration} hours! You're now in the spotlight!`);
-      } else {
-        toast.error(data?.error || "Failed to activate booster");
-      }
-    } catch (error) {
-      logger.error("Error activating booster:", error);
-      toast.error("Failed to activate booster");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -866,7 +801,7 @@ const Settings = () => {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Keep Premium</AlertDialogCancel>
+                        <AlertDialogCancel>{t("settings.keepPremium")}</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={async () => {
                             try {
@@ -875,8 +810,7 @@ const Settings = () => {
                               const { error } = await supabase
                                 .from("profiles")
                                 .update({ is_premium: false })
-                                .eq("id", user?.id);
-
+                                .eq("id", user!.id);
                               if (error) throw error;
 
                               setIsPremium(false);
@@ -1109,7 +1043,7 @@ const Settings = () => {
                 {/* Max Distance */}
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <Label>Maximum Distance</Label>
+                    <Label>{t("settings.maxDistance")}</Label>
                     <span className="font-medium">{maxDistance} km</span>
                   </div>
                   <Slider
@@ -1411,7 +1345,7 @@ const Settings = () => {
                       if (user) {
                         await supabase
                           .from("profiles")
-                          .update({ incognito_mode: checked })
+                          .update({ incognito_mode: checked } as Record<string, unknown>)
                           .eq("id", user.id);
                       }
                     }}
@@ -1466,7 +1400,7 @@ const Settings = () => {
                       if (user)
                         await supabase
                           .from("profiles")
-                          .update({ notify_matches: checked })
+                          .update({ notify_matches: checked } as Record<string, unknown>)
                           .eq("id", user.id);
                     }}
                   />
@@ -1483,7 +1417,7 @@ const Settings = () => {
                       if (user)
                         await supabase
                           .from("profiles")
-                          .update({ notify_messages: checked })
+                          .update({ notify_messages: checked } as Record<string, unknown>)
                           .eq("id", user.id);
                     }}
                   />
@@ -1500,7 +1434,7 @@ const Settings = () => {
                       if (user)
                         await supabase
                           .from("profiles")
-                          .update({ notify_likes: checked })
+                          .update({ notify_likes: checked } as Record<string, unknown>)
                           .eq("id", user.id);
                     }}
                   />
@@ -2000,9 +1934,9 @@ const Settings = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-primary" />
-              Change Password
+              {t("settings.changePassword")}
             </DialogTitle>
-            <DialogDescription>Enter your current password and choose a new one</DialogDescription>
+            <DialogDescription>{t("settings.passwordDescription")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
