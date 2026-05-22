@@ -772,6 +772,12 @@ All colors MUST be HSL.
   }
 
   /* ── Bottom navigation ─── */
+  :root {
+    --nav-icon-inactive: hsl(var(--muted-foreground));
+  }
+  .dark {
+    --nav-icon-inactive: rgba(255, 255, 255, 0.35);
+  }
   .bottom-nav-bar {
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(28px);

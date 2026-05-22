@@ -97,7 +97,7 @@ const BottomNav = () => {
                   <Icon
                     className="h-5 w-5 transition-all duration-200"
                     style={{
-                      color: isActive ? "#e8274b" : "rgba(255,255,255,0.35)",
+                      color: isActive ? "#e8274b" : "var(--nav-icon-inactive)",
                       filter: isActive ? "drop-shadow(0 0 8px rgba(232,39,75,0.8))" : "none",
                       transform: isActive ? "scale(1.15)" : "scale(1)",
                     }}
@@ -109,7 +109,7 @@ const BottomNav = () => {
                   )}
                 </div>
                 <span
-                  className={`text-[9px] font-semibold tracking-widest uppercase transition-all duration-200 ${isActive ? "text-[#e8274b]" : "text-white/30"}`}
+                  className={`text-[9px] font-semibold tracking-widest uppercase transition-all duration-200 ${isActive ? "text-[#e8274b]" : "dark:text-white/30 text-muted-foreground"}`}
                 >
                   {item.label}
                 </span>
