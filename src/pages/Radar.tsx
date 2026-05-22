@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,6 +50,7 @@ interface NearbyUser {
 }
 
 export default function Radar() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [nearbyUsers, setNearbyUsers] = useState<NearbyUser[]>([]);
@@ -289,9 +291,9 @@ export default function Radar() {
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <Navigation className="h-12 w-12 mx-auto text-muted-foreground" />
-              <h2 className="text-xl font-semibold">Location Required</h2>
+              <h2 className="text-xl font-semibold">{t("radar.locationRequired")}</h2>
               <p className="text-muted-foreground">{locationError}</p>
-              <Button onClick={getUserLocation}>Try Again</Button>
+              <Button onClick={getUserLocation}>{t("radar.tryAgain")}</Button>
             </div>
           </CardContent>
         </Card>
@@ -306,7 +308,7 @@ export default function Radar() {
           <div className="animate-pulse">
             <Navigation className="h-12 w-12 mx-auto text-primary" />
           </div>
-          <p className="text-muted-foreground">Scanning for nearby users...</p>
+          <p className="text-muted-foreground">{t("radar.scanningUsers")}</p>
         </div>
       </div>
     );
@@ -399,8 +401,8 @@ export default function Radar() {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center space-y-2 text-muted-foreground">
                     <Navigation className="h-12 w-12 mx-auto opacity-50" />
-                    <p className="text-sm">No one nearby</p>
-                    <p className="text-xs">Try moving to a different location</p>
+                    <p className="text-sm">{t("radar.noOneNearby")}</p>
+                    <p className="text-xs">{t("radar.noOneNearbyDesc")}</p>
                   </div>
                 </div>
               )}
@@ -494,7 +496,7 @@ export default function Radar() {
                     <div className="absolute top-2 right-2">
                       <Badge className="bg-primary text-white">
                         <span className="w-2 h-2 bg-card rounded-full animate-pulse mr-1" />
-                        Nearby
+                        {t("radar.nearbyBadge")}
                       </Badge>
                     </div>
                   </div>
@@ -646,9 +648,7 @@ export default function Radar() {
                           <p className="font-semibold text-foreground">
                             {formatDistance(selectedUser.distance)} away
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            This person is very close to you right now!
-                          </p>
+                          <p className="text-sm text-muted-foreground">{t("radar.closeTo")}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -661,13 +661,9 @@ export default function Radar() {
                         <Sparkles className="h-5 w-5 text-pink-500 flex-shrink-0 mt-0.5" />
                         <div className="text-sm space-y-1">
                           <p className="font-semibold text-pink-700 dark:text-pink-300">
-                            ⚡ Radar Exclusive
+                            {t("radar.radarExclusive")}
                           </p>
-                          <p className="text-muted-foreground">
-                            You can only send a <strong>Superlike</strong> to users on the Radar.
-                            Superlikes help you stand out! They'll also appear in Discover where you
-                            can send regular likes.
-                          </p>
+                          <p className="text-muted-foreground">{t("radar.radarExclusiveDesc")}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -680,7 +676,7 @@ export default function Radar() {
                       className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white h-12 text-lg"
                     >
                       <Sparkles className="h-5 w-5 mr-2" />
-                      Send Superlike
+                      {t("radar.sendSuperlike")}
                     </Button>
                     <Button
                       onClick={() => setSelectedUser(null)}
@@ -702,7 +698,7 @@ export default function Radar() {
             <div className="text-sm space-y-2">
               <p className="flex items-center gap-2">
                 <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                Green dot = Online and nearby
+                {t("radar.greenDot")}
               </p>
               <p>📍 Radar shows users within 100 meters of your current location</p>
               <p>⚡ Send superlikes to stand out and get noticed!</p>
@@ -722,7 +718,7 @@ export default function Radar() {
               onClick={() => navigate("/discover")}
             >
               <Heart className="h-6 w-6 text-pink-500" />
-              <span className="text-xs">Discover</span>
+              <span className="text-xs">{t("nav.discover")}</span>
             </Button>
             <Button
               variant="ghost"
@@ -731,7 +727,7 @@ export default function Radar() {
               onClick={() => navigate("/radar")}
             >
               <Navigation className="h-6 w-6 text-primary/80" />
-              <span className="text-xs">Radar</span>
+              <span className="text-xs">{t("nav.radar")}</span>
             </Button>
             <Button
               variant="ghost"
@@ -740,7 +736,7 @@ export default function Radar() {
               onClick={() => navigate("/matches")}
             >
               <Users className="h-6 w-6 text-primary/80" />
-              <span className="text-xs">Matches</span>
+              <span className="text-xs">{t("nav.chat")}</span>
             </Button>
             <Button
               variant="ghost"
@@ -749,7 +745,7 @@ export default function Radar() {
               onClick={() => navigate("/edit-profile")}
             >
               <Settings className="h-6 w-6 text-green-400" />
-              <span className="text-xs">Profile</span>
+              <span className="text-xs">{t("nav.profile")}</span>
             </Button>
           </div>
         </div>

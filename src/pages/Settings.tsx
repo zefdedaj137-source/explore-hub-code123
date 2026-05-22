@@ -910,7 +910,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Account
+                {t("settings.account")}
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.account ? "rotate-180" : ""}`}
                 />
@@ -920,9 +920,9 @@ const Settings = () => {
               <CardContent className="space-y-2">
                 <SettingsSection
                   icon={Shield}
-                  title="Verify Your Account"
+                  title={t("settings.verifyAccount")}
                   description={
-                    isVerified ? "✓ Account verified" : "Get a verified badge via email OTP"
+                    isVerified ? t("settings.accountVerified") : t("settings.getVerifiedBadge")
                   }
                   onClick={() =>
                     !isVerified && setShowVerificationSection(!showVerificationSection)
@@ -995,15 +995,15 @@ const Settings = () => {
 
                 <SettingsSection
                   icon={User}
-                  title="Edit Profile"
-                  description="Update your personal information"
+                  title={t("settings.editProfile")}
+                  description={t("settings.editProfileDesc")}
                   onClick={() => navigate("/edit-profile")}
                 />
 
                 <SettingsSection
                   icon={Lock}
-                  title="Change Password"
-                  description="Update your account password"
+                  title={t("settings.changePassword")}
+                  description={t("settings.changePasswordDesc")}
                   onClick={() => setShowPasswordDialog(true)}
                 />
               </CardContent>
@@ -1023,13 +1023,13 @@ const Settings = () => {
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.discovery ? "rotate-180" : ""}`}
                 />
               </CardTitle>
-              <CardDescription>Customize your discovery preferences</CardDescription>
+              <CardDescription>{t("settings.discoveryDesc")}</CardDescription>
             </CardHeader>
             {expandedSections.discovery && (
               <CardContent className="space-y-6">
                 {/* Looking For */}
                 <div className="space-y-3">
-                  <Label htmlFor="gender-preference">Interested In</Label>
+                  <Label htmlFor="gender-preference">{t("settings.interestedIn")}</Label>
                   <RadioGroup
                     value={genderPreference}
                     onValueChange={setGenderPreference}
@@ -1144,7 +1144,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <Activity className="h-5 w-5" />
-                Activity & History
+                {t("settings.activityHistory")}
                 {isPremium ? (
                   <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black border-none">
                     Premium
@@ -1162,50 +1162,50 @@ const Settings = () => {
                 <CardContent className="space-y-2">
                   <SettingsSection
                     icon={PhoneCall}
-                    title="Call History"
-                    description="Review your past voice & video calls"
+                    title={t("settings.callHistory")}
+                    description={t("settings.callHistoryDesc")}
                     onClick={() => navigate("/call-history")}
                   />
                   <SettingsSection
                     icon={Bookmark}
-                    title="Saved Profiles"
-                    description="View profiles you bookmarked"
+                    title={t("settings.savedProfiles")}
+                    description={t("settings.savedProfilesDesc")}
                     onClick={() => navigate("/saved")}
                   />
                   <SettingsSection
                     icon={Eye}
-                    title="Recently Viewed"
-                    description="Profiles you viewed recently"
+                    title={t("settings.recentlyViewed")}
+                    description={t("settings.recentlyViewedDesc")}
                     onClick={() => navigate("/recently-viewed")}
                   />
                   <SettingsSection
                     icon={Activity}
-                    title="Activity Feed"
-                    description="Likes, matches, and messages"
+                    title={t("settings.activityFeed")}
+                    description={t("settings.activityFeedDesc")}
                     onClick={() => navigate("/activity")}
                   />
                   <SettingsSection
                     icon={Activity}
-                    title="Profile Insights"
-                    description="Views, likes, and matches"
+                    title={t("settings.profileInsights")}
+                    description={t("settings.profileInsightsDesc")}
                     onClick={() => navigate("/insights")}
                   />
                   <SettingsSection
                     icon={Sparkles}
-                    title="Match Insights"
-                    description="AI-powered compatibility snapshots"
+                    title={t("settings.matchInsights")}
+                    description={t("settings.matchInsightsDesc")}
                     onClick={() => navigate("/match-insights")}
                   />
                   <SettingsSection
                     icon={Target}
-                    title="Match Goals"
-                    description="Streaks and weekly targets"
+                    title={t("settings.matchGoals")}
+                    description={t("settings.matchGoalsDesc")}
                     onClick={() => navigate("/match-goals")}
                   />
                   <SettingsSection
                     icon={Camera}
-                    title="Stories"
-                    description="Share quick moments"
+                    title={t("settings.stories")}
+                    description={t("settings.storiesDesc")}
                     onClick={() => navigate("/stories")}
                   />
                 </CardContent>
@@ -1215,14 +1215,14 @@ const Settings = () => {
                     <div className="rounded-full bg-muted p-3">
                       <Lock className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <p className="text-sm font-medium">Premium Feature</p>
+                    <p className="text-sm font-medium">{t("settings.premiumFeature")}</p>
                     <p className="text-xs text-muted-foreground max-w-xs">
                       Unlock Activity & History — including call logs, recently viewed profiles,
                       insights, and more — with a premium subscription.
                     </p>
                     <Button size="sm" onClick={() => navigate("/boost-bundles")}>
                       <Crown className="h-4 w-4 mr-1" />
-                      Upgrade to Premium
+                      {t("settings.upgradeToPremium")}
                     </Button>
                   </div>
                 </CardContent>
@@ -1285,7 +1285,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5" />
-                Safety & Verification
+                {t("settings.safetyVerification")}
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.safety ? "rotate-180" : ""}`}
                 />
@@ -1295,26 +1295,26 @@ const Settings = () => {
               <CardContent className="space-y-2">
                 <SettingsSection
                   icon={ShieldCheck}
-                  title="Get Verified"
-                  description="Request a verified badge"
+                  title={t("settings.getVerified")}
+                  description={t("settings.getVerifiedDesc")}
                   onClick={() => navigate("/verification")}
                 />
                 <SettingsSection
                   icon={ShieldCheck}
-                  title="Safety Tips"
-                  description="Meet safely and confidently"
+                  title={t("settings.safetyTips")}
+                  description={t("settings.safetyTipsDesc")}
                   onClick={() => navigate("/safety-tips")}
                 />
                 <SettingsSection
                   icon={ShieldCheck}
-                  title="Safety Check-in"
-                  description="Let someone know you're safe"
+                  title={t("settings.safetyCheckin")}
+                  description={t("settings.safetyCheckinDesc")}
                   onClick={() => navigate("/safety-checkin")}
                 />
                 <SettingsSection
                   icon={UserX}
-                  title="Blocked Users"
-                  description="Manage your block list"
+                  title={t("settings.blockedUsers")}
+                  description={t("settings.blockedUsersDesc")}
                   onClick={() => navigate("/blocked")}
                 />
               </CardContent>
@@ -1329,7 +1329,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <Palette className="h-5 w-5" />
-                Erscheinungsbild ({t("settings.theme")})
+                {t("settings.appearance")} ({t("settings.theme")})
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.appearance ? "rotate-180" : ""}`}
                 />
@@ -1341,7 +1341,7 @@ const Settings = () => {
                   <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="dark" id="dark" />
                     <Label htmlFor="dark" className="flex-1 cursor-pointer font-normal">
-                      Dark Mode (Default)
+                      {t("settings.darkMode")}
                     </Label>
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-card to-black border" />
                   </div>
@@ -1349,7 +1349,7 @@ const Settings = () => {
                   <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="light" id="light" />
                     <Label htmlFor="light" className="flex-1 cursor-pointer font-normal">
-                      Light Mode (Brighter)
+                      {t("settings.lightMode")}
                     </Label>
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-muted to-muted border" />
                   </div>
@@ -1357,7 +1357,7 @@ const Settings = () => {
                   <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="white" id="white" />
                     <Label htmlFor="white" className="flex-1 cursor-pointer font-normal">
-                      White Mode (Brightest)
+                      {t("settings.whiteMode")}
                     </Label>
                     <div className="w-8 h-8 rounded-full bg-card border-2 border-border" />
                   </div>
@@ -1365,14 +1365,14 @@ const Settings = () => {
                   <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="blue" id="blue" />
                     <Label htmlFor="blue" className="flex-1 cursor-pointer font-normal">
-                      Blue Mode (Sky Blue)
+                      {t("settings.blueMode")}
                     </Label>
                     <div className="w-8 h-8 rounded-full border-2 border-border bg-[linear-gradient(135deg,hsl(210,100%,50%),hsl(196,100%,42%))]" />
                   </div>
                 </RadioGroup>
 
                 <Separator className="my-4" />
-                <Label className="font-medium mb-2 block">Language / Gjuha</Label>
+                <Label className="font-medium mb-2 block">{t("settings.languageGjuha")}</Label>
                 <LanguagePicker />
               </CardContent>
             )}
@@ -1386,7 +1386,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <Lock className="h-5 w-5" />
-                Privacy & Security
+                {t("settings.privacySecurity")}
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.privacy ? "rotate-180" : ""}`}
                 />
@@ -1398,8 +1398,10 @@ const Settings = () => {
                   <div className="flex items-center gap-2">
                     {incognitoMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     <div>
-                      <Label className="font-normal">Incognito Mode</Label>
-                      <p className="text-xs text-muted-foreground">Hide your profile</p>
+                      <Label className="font-normal">{t("settings.incognitoMode")}</Label>
+                      <p className="text-xs text-muted-foreground">
+                        {t("settings.incognitoModeDesc")}
+                      </p>
                     </div>
                   </div>
                   <Switch
@@ -1420,8 +1422,8 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="font-normal">Save Data</Label>
-                    <p className="text-xs text-muted-foreground">Record profile view history</p>
+                    <Label className="font-normal">{t("settings.saveData")}</Label>
+                    <p className="text-xs text-muted-foreground">{t("settings.saveDataDesc")}</p>
                   </div>
                   <Switch
                     checked={saveData}
@@ -1447,7 +1449,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <Bell className="h-5 w-5" />
-                Notifications
+                {t("settings.notifications")}
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.notifications ? "rotate-180" : ""}`}
                 />
@@ -1456,7 +1458,7 @@ const Settings = () => {
             {expandedSections.notifications && (
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="font-normal">New Matches</Label>
+                  <Label className="font-normal">{t("settings.newMatches")}</Label>
                   <Switch
                     checked={notifications.newMatches}
                     onCheckedChange={async (checked) => {
@@ -1473,7 +1475,7 @@ const Settings = () => {
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <Label className="font-normal">Messages</Label>
+                  <Label className="font-normal">{t("settings.messages")}</Label>
                   <Switch
                     checked={notifications.messages}
                     onCheckedChange={async (checked) => {
@@ -1490,7 +1492,7 @@ const Settings = () => {
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <Label className="font-normal">Likes</Label>
+                  <Label className="font-normal">{t("settings.likes")}</Label>
                   <Switch
                     checked={notifications.likes}
                     onCheckedChange={async (checked) => {
@@ -1507,7 +1509,7 @@ const Settings = () => {
                 <Separator />
 
                 <div className="flex items-center justify-between">
-                  <Label className="font-normal">Promotions</Label>
+                  <Label className="font-normal">{t("settings.promotions")}</Label>
                   <Switch
                     checked={notifications.promotions}
                     onCheckedChange={(checked) =>
@@ -1622,8 +1624,8 @@ const Settings = () => {
 
                 <SettingsSection
                   icon={Bell}
-                  title="Notification Center"
-                  description="View likes and profile views"
+                  title={t("settings.notificationCenter")}
+                  description={t("settings.notificationCenterDesc")}
                   onClick={() => navigate("/notifications")}
                 />
               </CardContent>
@@ -1638,7 +1640,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Social & Community
+                {t("settings.social")}
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.social ? "rotate-180" : ""}`}
                 />
@@ -1648,26 +1650,26 @@ const Settings = () => {
               <CardContent className="space-y-2">
                 <SettingsSection
                   icon={Sparkles}
-                  title="Wallet & Coins"
-                  description="Buy boosts and roses"
+                  title={t("settings.walletCoins")}
+                  description={t("settings.walletCoinsDesc")}
                   onClick={() => navigate("/wallet")}
                 />
                 <SettingsSection
                   icon={Share2}
-                  title="Invite Friends"
-                  description="Share Shqiponja with friends"
+                  title={t("settings.inviteFriends")}
+                  description={t("settings.inviteFriendsDesc")}
                   onClick={handleInviteFriends}
                 />
                 <SettingsSection
                   icon={Star}
-                  title="Review Us"
-                  description="Rate our app"
+                  title={t("settings.reviewUs")}
+                  description={t("settings.reviewUsDesc")}
                   onClick={() => toast.info("Thank you for your support! ❤️")}
                 />
                 <SettingsSection
                   icon={Users}
-                  title="Social Media"
-                  description="Follow us on social platforms"
+                  title={t("settings.socialMedia")}
+                  description={t("settings.socialMediaDesc")}
                   onClick={() => toast.info("Follow us @shqiponja on social media!")}
                 />
               </CardContent>
@@ -1682,7 +1684,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <HelpCircle className="h-5 w-5" />
-                Help & Legal
+                {t("settings.helpLegal")}
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.help ? "rotate-180" : ""}`}
                 />
@@ -1692,8 +1694,8 @@ const Settings = () => {
               <CardContent className="space-y-2">
                 <SettingsSection
                   icon={HelpCircle}
-                  title="Help Center"
-                  description="Get help and support"
+                  title={t("settings.helpCenter")}
+                  description={t("settings.helpCenterDesc")}
                   onClick={() => navigate("/safety")}
                 />
                 <SettingsSection
@@ -1716,8 +1718,8 @@ const Settings = () => {
                 />
                 <SettingsSection
                   icon={AlertTriangle}
-                  title="Safety Tips"
-                  description="Stay safe while dating"
+                  title={t("settings.safetyTips")}
+                  description={t("settings.safetyTipsDesc")}
                   onClick={() => navigate("/safety")}
                 />
                 <SettingsSection
@@ -2004,7 +2006,7 @@ const Settings = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="old-password">Current Password</Label>
+              <Label htmlFor="old-password">{t("settings.currentPassword")}</Label>
               <div className="relative">
                 <Input
                   id="old-password"
@@ -2028,7 +2030,7 @@ const Settings = () => {
             </div>
             <Separator />
             <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
+              <Label htmlFor="new-password">{t("settings.newPassword")}</Label>
               <div className="relative">
                 <Input
                   id="new-password"
@@ -2054,7 +2056,7 @@ const Settings = () => {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Label htmlFor="confirm-password">{t("settings.confirmPassword")}</Label>
               <div className="relative">
                 <Input
                   id="confirm-password"

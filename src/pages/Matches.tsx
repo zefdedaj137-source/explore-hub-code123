@@ -926,7 +926,7 @@ const Matches = () => {
                 }
               >
                 <MessageSquare className="h-4 w-4" />
-                Instant Messages
+                {t("matches.instantMessages")}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -1123,7 +1123,7 @@ const Matches = () => {
                                     }}
                                   >
                                     <User className="h-4 w-4 mr-2" />
-                                    View Profile
+                                    {t("matches.viewProfile")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -1148,7 +1148,7 @@ const Matches = () => {
                                     className="text-red-600 focus:text-red-600"
                                   >
                                     <UserX className="h-4 w-4 mr-2" />
-                                    Unmatch
+                                    {t("matches.unmatch")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -1162,7 +1162,7 @@ const Matches = () => {
                                     className="text-primary focus:text-primary"
                                   >
                                     <Ban className="h-4 w-4 mr-2" />
-                                    Report
+                                    {t("matches.report")}
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -1321,7 +1321,7 @@ const Matches = () => {
                                     }}
                                   >
                                     <User className="h-4 w-4 mr-2" />
-                                    View Profile
+                                    {t("matches.viewProfile")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -1346,7 +1346,7 @@ const Matches = () => {
                                     className="text-red-600 focus:text-red-600"
                                   >
                                     <UserX className="h-4 w-4 mr-2" />
-                                    Unmatch
+                                    {t("matches.unmatch")}
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>

@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -328,6 +329,7 @@ const extractSpotifyTrackId = (url: string): string | null => {
 };
 
 const EditProfile = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -1019,19 +1021,19 @@ const EditProfile = () => {
       <div className="container mx-auto max-w-2xl">
         <Button variant="ghost" className="mb-4" onClick={() => navigate("/discover")}>
           <ArrowLeft className="h-5 w-5 mr-2" />
-          Back to Discover
+          {t("editProfile.backToDiscover")}
         </Button>
 
         <Card className="p-8 shadow-elegant">
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading your profile...</p>
+              <p className="text-muted-foreground">{t("editProfile.loading")}</p>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-6">
-                <h1 className="text-3xl font-bold">Edit Profile</h1>
+                <h1 className="text-3xl font-bold">{t("editProfile.heading")}</h1>
                 <div className="flex items-center gap-3">
                   <Button
                     variant="outline"
@@ -1040,7 +1042,7 @@ const EditProfile = () => {
                     className="gap-2"
                   >
                     <Eye className="h-4 w-4" />
-                    Preview
+                    {t("editProfile.preview")}
                   </Button>
                   <div className="text-sm text-muted-foreground">
                     Profile: <span className="font-bold text-primary">{profileCompletion}%</span>
@@ -1056,13 +1058,15 @@ const EditProfile = () => {
               {/* Profile Photos Gallery */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-3">
-                  Profile Photos ({profileImages.length}/10)
+                  {t("editProfile.profilePhotos", { count: profileImages.length })}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Upload up to 10 photos. The first photo will be your main profile picture.
+                  {t("editProfile.uploadUpTo10")}
                 </p>
 
-                <p className="text-xs text-muted-foreground mb-3">Drag photos to reorder</p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  {t("editProfile.dragToReorder")}
+                </p>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
                   {profileImages.map((image, index) => (
                     <div
@@ -1116,7 +1120,7 @@ const EditProfile = () => {
                       {/* Main photo badge */}
                       {index === 0 && (
                         <Badge className="absolute top-2 left-2 bg-gradient-primary text-[10px]">
-                          Main
+                          {t("editProfile.mainBadge")}
                         </Badge>
                       )}
                     </div>
@@ -1136,7 +1140,7 @@ const EditProfile = () => {
                       />
                       <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground text-center px-2">
-                        {uploading ? "Uploading..." : "Add Photos"}
+                        {uploading ? t("editProfile.uploading") : t("editProfile.addPhotos")}
                       </span>
                     </label>
                   )}
@@ -1149,7 +1153,7 @@ const EditProfile = () => {
                         {formData.full_name[0] || "?"}
                       </span>
                     </div>
-                    <p className="text-muted-foreground mb-3">No photos uploaded yet</p>
+                    <p className="text-muted-foreground mb-3">{t("editProfile.noPhotosYet")}</p>
                     <label className="inline-block cursor-pointer">
                       <Input
                         type="file"
@@ -1171,7 +1175,7 @@ const EditProfile = () => {
                         }
                       >
                         <Upload className="h-4 w-4 mr-2" />
-                        {uploading ? "Uploading..." : "Upload Photos"}
+                        {uploading ? t("editProfile.uploading") : t("editProfile.uploadPhotos")}
                       </Button>
                     </label>
                   </div>
@@ -1181,14 +1185,14 @@ const EditProfile = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <Tabs defaultValue="basic" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                    <TabsTrigger value="details">More Details</TabsTrigger>
+                    <TabsTrigger value="basic">{t("editProfile.basicInfo")}</TabsTrigger>
+                    <TabsTrigger value="details">{t("editProfile.moreDetails")}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="basic" className="space-y-4 mt-6">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="full_name">Full Name</Label>
+                        <Label htmlFor="full_name">{t("editProfile.fullName")}</Label>
                         <Input
                           id="full_name"
                           name="full_name"
@@ -1199,7 +1203,7 @@ const EditProfile = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="age">Age</Label>
+                        <Label htmlFor="age">{t("editProfile.age")}</Label>
                         <Input
                           id="age"
                           name="age"
@@ -1214,7 +1218,7 @@ const EditProfile = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="gender">Sex</Label>
+                      <Label htmlFor="gender">{t("editProfile.sex")}</Label>
                       <Select
                         value={formData.gender}
                         onValueChange={(value) => setFormData({ ...formData, gender: value })}
@@ -1233,7 +1237,7 @@ const EditProfile = () => {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="city">City</Label>
+                          <Label htmlFor="city">{t("editProfile.city")}</Label>
                           <Button
                             type="button"
                             variant="outline"
@@ -1243,7 +1247,7 @@ const EditProfile = () => {
                             className="h-7 text-xs gap-1"
                           >
                             <MapPin className="h-3 w-3" />
-                            Auto-detect
+                            {t("editProfile.autoDetect")}
                           </Button>
                         </div>
                         <Input
@@ -1257,7 +1261,7 @@ const EditProfile = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="country">Country</Label>
+                        <Label htmlFor="country">{t("editProfile.country")}</Label>
                         <Input
                           id="country"
                           name="country"
@@ -1271,7 +1275,7 @@ const EditProfile = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="education">Education</Label>
+                        <Label htmlFor="education">{t("editProfile.education")}</Label>
                         <Input
                           id="education"
                           name="education"
@@ -1282,7 +1286,7 @@ const EditProfile = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="work">Work</Label>
+                        <Label htmlFor="work">{t("editProfile.work")}</Label>
                         <Input
                           id="work"
                           name="work"
@@ -1295,7 +1299,7 @@ const EditProfile = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="hometown">Hometown</Label>
+                        <Label htmlFor="hometown">{t("editProfile.hometown")}</Label>
                         <Input
                           id="hometown"
                           name="hometown"
@@ -1305,7 +1309,7 @@ const EditProfile = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="home_country">Home Country</Label>
+                        <Label htmlFor="home_country">{t("editProfile.homeCountry")}</Label>
                         <Input
                           id="home_country"
                           name="home_country"
@@ -1331,9 +1335,9 @@ const EditProfile = () => {
 
                     {/* Profile Prompts (Hinge-style Q&A) */}
                     <div className="space-y-3">
-                      <Label>Profile Prompts</Label>
+                      <Label>{t("editProfile.profilePrompts")}</Label>
                       <p className="text-xs text-muted-foreground">
-                        Add up to 3 conversation starters to your profile
+                        {t("editProfile.profilePromptsDesc")}
                       </p>
                       {prompts.map((p, i) => (
                         <div key={p.prompt} className="bg-muted rounded-lg p-3 space-y-1">
@@ -1416,7 +1420,7 @@ const EditProfile = () => {
                                 onClick={() => savePrompt(newPromptQuestion, newPromptAnswer)}
                                 disabled={!newPromptAnswer.trim()}
                               >
-                                Add Prompt
+                                {t("editProfile.addPrompt")}
                               </Button>
                             </>
                           )}
@@ -1425,7 +1429,7 @@ const EditProfile = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="looking_for">Looking For</Label>
+                      <Label htmlFor="looking_for">{t("editProfile.lookingFor")}</Label>
                       <div className="space-y-3">
                         <Select
                           value=""
@@ -1476,7 +1480,7 @@ const EditProfile = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="interests">Interests (choose up to 5)</Label>
+                      <Label htmlFor="interests">{t("editProfile.interestsUpTo5")}</Label>
                       <div className="space-y-3">
                         <Select
                           value=""
@@ -1535,7 +1539,7 @@ const EditProfile = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="languages">Languages</Label>
+                      <Label htmlFor="languages">{t("editProfile.languages")}</Label>
                       <div className="space-y-3">
                         <Select
                           value=""
@@ -1589,7 +1593,7 @@ const EditProfile = () => {
                   <TabsContent value="details" className="space-y-4 mt-6">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="height_cm">Height (cm)</Label>
+                        <Label htmlFor="height_cm">{t("editProfile.heightCm")}</Label>
                         <Input
                           id="height_cm"
                           type="number"
@@ -1600,7 +1604,7 @@ const EditProfile = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="smoking">Smoking</Label>
+                        <Label htmlFor="smoking">{t("editProfile.smoking")}</Label>
                         <Select
                           value={formData.smoking}
                           onValueChange={(value) => setFormData({ ...formData, smoking: value })}
@@ -1619,7 +1623,7 @@ const EditProfile = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="pets">Pets/Animals</Label>
+                        <Label htmlFor="pets">{t("editProfile.pets")}</Label>
                         <Select
                           value={formData.pets}
                           onValueChange={(value) => setFormData({ ...formData, pets: value })}
@@ -1638,7 +1642,7 @@ const EditProfile = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="zodiac_sign">Zodiac Sign</Label>
+                        <Label htmlFor="zodiac_sign">{t("editProfile.zodiacSign")}</Label>
                         <Select
                           value={formData.zodiac_sign}
                           onValueChange={(value) =>
@@ -1674,7 +1678,7 @@ const EditProfile = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="religion">Religion</Label>
+                        <Label htmlFor="religion">{t("editProfile.religion")}</Label>
                         <Select
                           value={formData.religion}
                           onValueChange={(value) => setFormData({ ...formData, religion: value })}
@@ -1706,7 +1710,7 @@ const EditProfile = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="has_kids">I have kids</Label>
+                        <Label htmlFor="has_kids">{t("editProfile.haveKids")}</Label>
                         <Select
                           value={formData.has_kids}
                           onValueChange={(value) => setFormData({ ...formData, has_kids: value })}
@@ -1726,7 +1730,7 @@ const EditProfile = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="wants_kids">I want kids</Label>
+                      <Label htmlFor="wants_kids">{t("editProfile.wantKids")}</Label>
                       <Select
                         value={formData.wants_kids}
                         onValueChange={(value) => setFormData({ ...formData, wants_kids: value })}
@@ -1749,16 +1753,14 @@ const EditProfile = () => {
                 <div className="space-y-4 pt-2">
                   <div className="flex items-center gap-2">
                     <Music2 className="h-5 w-5 text-primary" />
-                    <h3 className="font-semibold text-lg">Profile Soundtrack</h3>
+                    <h3 className="font-semibold text-lg">{t("editProfile.profileSoundtrack")}</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Add a YouTube or Spotify track to your profile
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("editProfile.soundtrackDesc")}</p>
 
                   <div className="space-y-3">
                     <div className="space-y-2">
                       <Label className="flex items-center gap-1.5">
-                        <Link2 className="h-3.5 w-3.5" /> Paste a Link
+                        <Link2 className="h-3.5 w-3.5" /> {t("editProfile.pasteLink")}
                       </Label>
                       <Input
                         placeholder="https://youtube.com/watch?v=... or https://open.spotify.com/track/..."
@@ -1799,7 +1801,7 @@ const EditProfile = () => {
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label>Song Title</Label>
+                        <Label>{t("editProfile.songTitle")}</Label>
                         <Input
                           placeholder="Song title"
                           value={soundtrackTitle}
@@ -1807,7 +1809,7 @@ const EditProfile = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Artist</Label>
+                        <Label>{t("editProfile.artist")}</Label>
                         <Input
                           placeholder="Artist"
                           value={soundtrackArtist}
@@ -1875,7 +1877,7 @@ const EditProfile = () => {
                   className="w-full bg-gradient-primary text-primary-foreground hover:opacity-90"
                   disabled={loading}
                 >
-                  {loading ? "Updating..." : "Save Changes"}
+                  {loading ? t("editProfile.saving") : t("editProfile.saveChanges")}
                 </Button>
               </form>
             </>

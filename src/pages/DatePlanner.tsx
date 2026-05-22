@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Calendar, ArrowLeft, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +42,7 @@ interface DatePlan {
 }
 
 const DatePlanner = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -371,26 +373,28 @@ const DatePlanner = () => {
             <div className="flex items-center gap-3">
               <Calendar className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Date Planner</h1>
-                <p className="text-sm text-muted-foreground">Plan safe meetups with matches</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("datePlanner.heading")}</h1>
+                <p className="text-sm text-muted-foreground">{t("datePlanner.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("common.loading")}
+          </Card>
         ) : (
           <div className="space-y-6">
             <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
-              <h2 className="text-lg font-semibold">Create a plan</h2>
+              <h2 className="text-lg font-semibold">{t("datePlanner.createPlanSection")}</h2>
               <Select value={selectedPartner} onValueChange={setSelectedPartner}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a match" />
+                  <SelectValue placeholder={t("datePlanner.selectMatch")} />
                 </SelectTrigger>
                 <SelectContent>
                   {partnerIds.map((id) => (
@@ -406,12 +410,12 @@ const DatePlanner = () => {
                 onChange={(e) => setDateTime(e.target.value)}
               />
               <Input
-                placeholder="Location"
+                placeholder={t("datePlanner.location")}
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
               />
               <Textarea
-                placeholder="Notes (optional)"
+                placeholder={t("datePlanner.notes")}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
@@ -421,14 +425,18 @@ const DatePlanner = () => {
                 onClick={handleCreatePlan}
                 disabled={!profilesReady || submitting}
               >
-                {submitting ? "Creating…" : profilesReady ? "Create plan" : "Loading matches…"}
+                {submitting
+                  ? t("datePlanner.creatingButton")
+                  : profilesReady
+                    ? t("datePlanner.createButton")
+                    : t("datePlanner.loadingButton")}
               </Button>
             </Card>
 
             <Card className="p-6 rounded-2xl border-2 border-border bg-card/80">
-              <h2 className="text-lg font-semibold mb-3">Upcoming plans</h2>
+              <h2 className="text-lg font-semibold mb-3">{t("datePlanner.upcomingPlans")}</h2>
               {plans.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No plans yet.</p>
+                <p className="text-sm text-muted-foreground">{t("datePlanner.noPlans")}</p>
               ) : (
                 <div className="space-y-3">
                   {[...plans]
@@ -450,11 +458,11 @@ const DatePlanner = () => {
                       const iSent = plan.planner_id === user?.id;
 
                       const statusLabel: Record<string, string> = {
-                        proposed: "Pending",
-                        confirmed: "Confirmed",
-                        canceled: "Canceled",
-                        expired: "Expired",
-                        completed: "Done",
+                        proposed: t("datePlanner.statusPending"),
+                        confirmed: t("datePlanner.statusConfirmed"),
+                        canceled: t("datePlanner.statusCanceled"),
+                        expired: t("datePlanner.statusExpired"),
+                        completed: t("datePlanner.statusDone"),
                       };
                       const statusColor: Record<string, string> = {
                         proposed: "text-yellow-400",
@@ -472,7 +480,7 @@ const DatePlanner = () => {
                           <div>
                             <p className="font-medium text-foreground">{otherName}</p>
                             <p className="text-xs text-muted-foreground">
-                              {iSent ? "You invited" : "Invited you"}
+                              {iSent ? t("datePlanner.youInvited") : t("datePlanner.invitedYou")}
                             </p>
                             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                               <MapPin className="h-3 w-3" />
@@ -505,14 +513,14 @@ const DatePlanner = () => {
                                     size="sm"
                                     onClick={() => handleUpdateStatus(plan.id, "confirmed")}
                                   >
-                                    Accept
+                                    {t("datePlanner.accept")}
                                   </Button>
                                   <Button
                                     size="sm"
                                     variant="outline"
                                     onClick={() => handleUpdateStatus(plan.id, "canceled")}
                                   >
-                                    Decline
+                                    {t("common.cancel")}
                                   </Button>
                                 </div>
                               )}
@@ -522,7 +530,7 @@ const DatePlanner = () => {
                                 variant="outline"
                                 onClick={() => handleUpdateStatus(plan.id, "canceled")}
                               >
-                                Cancel
+                                {t("datePlanner.cancelPlan")}
                               </Button>
                             )}
                             {user?.id === plan.planner_id &&
@@ -534,7 +542,7 @@ const DatePlanner = () => {
                                   variant="outline"
                                   onClick={() => handleUpdateStatus(plan.id, "canceled")}
                                 >
-                                  Cancel
+                                  {t("datePlanner.cancelPlan")}
                                 </Button>
                               )}
                           </div>

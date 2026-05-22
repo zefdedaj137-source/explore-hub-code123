@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,6 +97,7 @@ const formatTimeAgo = (timestamp: string): string => {
 };
 
 const MyProfile = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -258,34 +260,34 @@ const MyProfile = () => {
   const completionItems = profile
     ? [
         {
-          label: "Add a profile photo",
+          label: t("profile.addPhoto"),
           done: !!profile.profile_image_url,
           action: "/edit-profile",
-          tip: "Profiles with photos get 10× more views",
+          tip: t("profile.photoTip"),
         },
         {
-          label: "Write a short bio",
+          label: t("profile.addBio"),
           done: !!profile.bio,
           action: "/edit-profile",
-          tip: "A bio gets you 3× more likes",
+          tip: t("profile.bioTip"),
         },
         {
-          label: "Add 3+ interests",
+          label: t("profile.addInterests"),
           done: (profile.interests || []).length >= 3,
           action: "/edit-profile",
-          tip: "Interests help us find your best matches",
+          tip: t("profile.interestsTip"),
         },
         {
-          label: "Verify your account",
+          label: t("profile.verifyAccount"),
           done: !!profile.verified,
           action: "/verification",
-          tip: "Verified profiles get 2× more matches",
+          tip: t("profile.verificationTip"),
         },
         {
-          label: "Add work or education",
+          label: t("profile.addWork"),
           done: !!profile.work || !!profile.education,
           action: "/edit-profile",
-          tip: "Shows you're serious about connecting",
+          tip: t("profile.workTip"),
         },
       ]
     : [];
@@ -390,7 +392,7 @@ const MyProfile = () => {
               className={`w-full bg-gradient-to-r ${progressColor} text-white font-semibold hover:opacity-90`}
               onClick={() => navigate(nextIncompleteItem?.action || "/edit-profile")}
             >
-              {completionPercent < 80 ? "Boost your profile now" : "Finish your profile"}
+              {completionPercent < 80 ? t("profile.boostYourProfile") : t("profile.finishProfile")}
             </Button>
           )}
         </Card>
@@ -399,11 +401,11 @@ const MyProfile = () => {
         <Card className="p-6 rounded-2xl border-2 border-border bg-gradient-to-br from-card to-background shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold">Daily Streak</h2>
-              <p className="text-sm text-muted-foreground">Keep coming back to grow your streak</p>
+              <h2 className="text-lg font-semibold">{t("profile.dailyStreak")}</h2>
+              <p className="text-sm text-muted-foreground">{t("profile.keepStreakGoing")}</p>
             </div>
             <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
-              {streak} days
+              {streak} {t("profile.days")}
             </Badge>
           </div>
         </Card>

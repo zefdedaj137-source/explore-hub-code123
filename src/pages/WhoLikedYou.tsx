@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { sanitizeText } from "@/lib/sanitize";
 
 import { useNavigate } from "react-router-dom";
@@ -83,6 +84,7 @@ interface LikeData {
 }
 
 const WhoLikedYou = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [likes, setLikes] = useState<LikeWithProfile[]>([]);
@@ -423,7 +425,7 @@ const WhoLikedYou = () => {
 
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2 text-white">
-              Who Liked You
+              {t("whoLikedYou.heading")}
               {isPremium && (
                 <Badge className="bg-gradient-to-r from-primary to-primary/90 text-white border-none">
                   <Crown className="h-3 w-3 mr-1" />
@@ -432,8 +434,9 @@ const WhoLikedYou = () => {
               )}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {likes.length} {likes.length === 1 ? "person has" : "people have"} liked you
-              {!isPremium && streakCredits === 0 && " · Upgrade to see who"}
+              {likes.length}{" "}
+              {likes.length === 1 ? t("whoLikedYou.countSingular") : t("whoLikedYou.countPlural")}
+              {!isPremium && streakCredits === 0 && ` · ${t("whoLikedYou.upgradeMessage")}`}
             </p>
           </div>
         </div>
@@ -455,7 +458,7 @@ const WhoLikedYou = () => {
                       ? `${7 - streakCount} more day${7 - streakCount !== 1 ? "s" : ""} for 2 free reveals`
                       : streakCredits > 0
                         ? `${streakCredits} free reveal${streakCredits !== 1 ? "s" : ""} available!`
-                        : "Keep going for more rewards!"}
+                        : t("whoLikedYou.streakKeepGoing")}
                   </p>
                 </div>
               </div>
@@ -478,20 +481,21 @@ const WhoLikedYou = () => {
           <div className="mb-6 bg-gradient-to-r from-primary/15 to-purple-500/15 border border-primary/30 rounded-2xl p-5 text-center">
             <p className="text-5xl font-black text-primary mb-1 tabular-nums">{likes.length}</p>
             <p className="text-lg font-semibold text-foreground mb-1">
-              {likes.length === 1 ? "person is" : "people are"} waiting for you 💜
+              {likes.length === 1
+                ? t("whoLikedYou.waitingForYouSingular")
+                : t("whoLikedYou.waitingForYouPlural")}
             </p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Upgrade to see who liked you and match instantly
-            </p>
+            <p className="text-sm text-muted-foreground mb-4">{t("whoLikedYou.paywall")}</p>
             <ul className="text-left inline-block space-y-1.5 text-sm text-foreground mb-5">
               <li className="flex items-center gap-2">
-                <span className="text-green-400 font-bold">✓</span> See full names &amp; photos
+                <span className="text-green-400 font-bold">✓</span> {t("whoLikedYou.seeFullNames")}
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-400 font-bold">✓</span> Like back to match instantly
+                <span className="text-green-400 font-bold">✓</span> {t("whoLikedYou.likeBack")}
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-400 font-bold">✓</span> Unlimited daily swipes
+                <span className="text-green-400 font-bold">✓</span>{" "}
+                {t("whoLikedYou.unlimitedSwipes")}
               </li>
             </ul>
             <Button
@@ -499,7 +503,7 @@ const WhoLikedYou = () => {
               onClick={handleUpgradeToPremium}
             >
               <Crown className="h-5 w-5 mr-2" />
-              Unlock All {likes.length} {likes.length === 1 ? "Profile" : "Profiles"}
+              {t("whoLikedYou.unlockAll", { count: likes.length })}
             </Button>
           </div>
         )}
@@ -611,7 +615,7 @@ const WhoLikedYou = () => {
                       }}
                     >
                       <Heart className="h-4 w-4 mr-2 fill-current" />
-                      Like Back
+                      {t("whoLikedYou.likeBackButton")}
                     </Button>
                   ) : (
                     <div className="flex gap-2">
@@ -621,7 +625,7 @@ const WhoLikedYou = () => {
                           onClick={(e) => handleRevealWithCredit(e, like)}
                         >
                           <Eye className="h-4 w-4 mr-1.5" />
-                          Reveal ({streakCredits})
+                          {t("whoLikedYou.revealCount", { count: streakCredits })}
                         </Button>
                       )}
                       <Button
@@ -632,7 +636,7 @@ const WhoLikedYou = () => {
                         }}
                       >
                         <Crown className="h-4 w-4 mr-1.5" />
-                        Reveal &amp; Match
+                        {t("whoLikedYou.revealMatch")}
                       </Button>
                     </div>
                   )}
@@ -643,8 +647,8 @@ const WhoLikedYou = () => {
         ) : (
           <Card className="p-12 text-center shadow-[0_16px_48px_rgba(0,0,0,0.3)] border border-white/6 rounded-3xl bg-card">
             <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-2xl font-bold mb-2">No likes yet</h3>
-            <p className="text-muted-foreground">Keep swiping to find your perfect match!</p>
+            <h3 className="text-2xl font-bold mb-2">{t("whoLikedYou.noLikes")}</h3>
+            <p className="text-muted-foreground">{t("whoLikedYou.keepSwiping")}</p>
           </Card>
         )}
       </div>
@@ -701,7 +705,7 @@ const WhoLikedYou = () => {
                       )}
                       {p.video_intro_url && (
                         <Badge className="bg-background/80 text-white border-none">
-                          Video Intro
+                          {t("whoLikedYou.videoIntro")}
                         </Badge>
                       )}
                     </div>
@@ -756,7 +760,7 @@ const WhoLikedYou = () => {
                         </>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          No photo
+                          {t("common.noPhoto")}
                         </div>
                       )}
                     </div>
@@ -764,7 +768,9 @@ const WhoLikedYou = () => {
                     {/* Video Intro */}
                     {p.video_intro_url && (
                       <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                        <h4 className="text-sm font-semibold text-foreground">
+                          {t("whoLikedYou.videoIntro")}
+                        </h4>
                         <div className="rounded-lg overflow-hidden border border-primary/20">
                           <video
                             src={p.video_intro_url}
@@ -779,7 +785,9 @@ const WhoLikedYou = () => {
                     {p.travel_mode_active && p.travel_city ? (
                       <div className="flex items-center gap-3 text-muted-foreground">
                         <span className="text-lg">✈️</span>
-                        <span className="font-medium">Traveling in {p.travel_city}</span>
+                        <span className="font-medium">
+                          {t("whoLikedYou.traveling", { city: p.travel_city })}
+                        </span>
                         {p.distance_km && (
                           <span className="text-muted-foreground">
                             • {Math.round(p.distance_km)} km away
@@ -862,7 +870,7 @@ const WhoLikedYou = () => {
                     {p.bio && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">💬</span> About
+                          <span className="text-2xl">💬</span> {t("profile.about")}
                         </h3>
                         <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                           {sanitizeText(p.bio)}
@@ -874,7 +882,7 @@ const WhoLikedYou = () => {
                     {p.interests && p.interests.length > 0 && myInterests.length > 0 && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">✨</span> Shared Interests
+                          <span className="text-2xl">✨</span> {t("profile.sharedInterests")}
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {p.interests
@@ -897,7 +905,7 @@ const WhoLikedYou = () => {
                     {p.looking_for && p.looking_for.length > 0 && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">💕</span> Looking For
+                          <span className="text-2xl">💕</span> {t("profile.lookingFor")}
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {p.looking_for.map((item, idx) => (
@@ -916,7 +924,7 @@ const WhoLikedYou = () => {
                     {p.interests && p.interests.length > 0 && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">✨</span> Interests
+                          <span className="text-2xl">✨</span> {t("profile.interests")}
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {p.interests.map((interest, idx) => (

@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Heart, MessageCircle, Users, Compass, User, Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -8,6 +9,7 @@ const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -58,11 +60,11 @@ const BottomNav = () => {
   }, [unreadCount]);
 
   const navItems = [
-    { icon: Search, label: "Discover", path: "/discover", badge: 0 },
-    { icon: Heart, label: "Likes", path: "/who-liked-you", badge: 0 },
-    { icon: Compass, label: "Radar", path: "/radar", badge: 0 },
-    { icon: MessageCircle, label: "Chat", path: "/matches", badge: unreadCount },
-    { icon: User, label: "Profile", path: "/my-profile", badge: 0 },
+    { icon: Search, label: t("nav.discover"), path: "/discover", badge: 0 },
+    { icon: Heart, label: t("nav.likes"), path: "/who-liked-you", badge: 0 },
+    { icon: Compass, label: t("nav.radar"), path: "/radar", badge: 0 },
+    { icon: MessageCircle, label: t("nav.chat"), path: "/matches", badge: unreadCount },
+    { icon: User, label: t("nav.profile"), path: "/my-profile", badge: 0 },
   ];
 
   return (

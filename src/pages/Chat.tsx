@@ -287,11 +287,11 @@ const Chat = () => {
   const startRecording = async () => {
     try {
       if (blockedByYou) {
-        toast.error("You blocked this user. Unblock to send voice messages.");
+        toast.error(t("chat.blockMessage"));
         return;
       }
       if (blockedYou) {
-        toast.error("This user has blocked you. You cannot send voice messages.");
+        toast.error(t("chat.blockedMessage"));
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -313,10 +313,10 @@ const Chat = () => {
 
       mediaRecorder.start();
       setIsRecording(true);
-      toast.info("Recording voice message...");
+      toast.info(t("chat.recordingVoice"));
     } catch (error) {
       logger.error("Error starting recording:", error);
-      toast.error("Could not access microphone");
+      toast.error(t("chat.cantAccessMicrophone"));
     }
   };
 
@@ -325,7 +325,7 @@ const Chat = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      toast.success("Voice message recorded!");
+      toast.success(t("chat.voiceMessageRecorded"));
     }
   };
 
@@ -390,7 +390,7 @@ const Chat = () => {
         updateMessageStreak();
       }
 
-      toast.success("Voice message sent!");
+      toast.success(t("chat.voiceMessageSent"));
     } catch (error) {
       logger.error("Error sending voice message:", error);
       toast.error("Failed to send voice message");
@@ -404,11 +404,11 @@ const Chat = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error(t("chat.selectImage"));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image must be less than 10MB");
+      toast.error(t("chat.imageTooLarge"));
       return;
     }
     setImageFile(file);
@@ -479,7 +479,7 @@ const Chat = () => {
       sentSound.volume = 0.5;
       sentSound.play().catch(() => {});
 
-      toast.success("Photo sent!");
+      toast.success(t("chat.photoSent"));
     } catch (error) {
       logger.error("Error sending photo:", error);
       toast.error("Failed to send photo");
@@ -493,18 +493,18 @@ const Chat = () => {
   const startVoiceCall = () => {
     if (!user || !matchId) return;
     if (blockedByYou) {
-      toast.error("You blocked this user. Unblock to call.");
+      toast.error(t("chat.blockMessage"));
       return;
     }
     if (blockedYou) {
-      toast.error("This user has blocked you. Calls are disabled.");
+      toast.error(t("chat.blockedMessage"));
       return;
     }
 
     if (!isPremium) {
-      toast.error("Voice calls are only available for premium members", {
+      toast.error(t("chat.callsNotAvailable"), {
         action: {
-          label: "Upgrade",
+          label: t("common.upgrade"),
           onClick: () => navigate("/premium"),
         },
       });
@@ -521,18 +521,18 @@ const Chat = () => {
   const startVideoCall = () => {
     if (!user || !matchId) return;
     if (blockedByYou) {
-      toast.error("You blocked this user. Unblock to call.");
+      toast.error(t("chat.blockMessage"));
       return;
     }
     if (blockedYou) {
-      toast.error("This user has blocked you. Calls are disabled.");
+      toast.error(t("chat.blockedMessage"));
       return;
     }
 
     if (!isPremium) {
-      toast.error("Video calls are only available for premium members", {
+      toast.error(t("chat.callsNotAvailable"), {
         action: {
-          label: "Upgrade",
+          label: t("common.upgrade"),
           onClick: () => navigate("/premium"),
         },
       });
@@ -1034,11 +1034,11 @@ const Chat = () => {
     if (now - lastSendTime.current < 300) return;
     lastSendTime.current = now;
     if (blockedByYou) {
-      toast.error("You blocked this user. Unblock to send messages.");
+      toast.error(t("chat.blockMessage"));
       return;
     }
     if (blockedYou) {
-      toast.error("This user has blocked you. You cannot send messages.");
+      toast.error(t("chat.blockedMessage"));
       return;
     }
 
@@ -1776,7 +1776,7 @@ const Chat = () => {
           )}
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-12 px-6">
-              <p className="text-base font-medium mb-1">No messages yet</p>
+              <p className="text-base font-medium mb-1">{t("chat.noMessages")}</p>
               <p className="text-sm">{t("chat.typeMessage")}</p>
             </div>
           ) : (

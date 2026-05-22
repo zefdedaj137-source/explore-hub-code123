@@ -459,10 +459,10 @@ const Auth = () => {
             <div className="absolute -inset-1 rounded-2xl opacity-30 blur-xl bg-gradient-to-br from-[#e8274b] to-[#ff6b35]" />
           </div>
           <h1 className="text-3xl font-bold mb-1 font-serif dark:text-white/95 text-foreground">
-            {isLogin ? "Welcome Back" : "Create Account"}
+            {isLogin ? t("auth.welcomeBack") : t("auth.createAccount")}
           </h1>
           <p className="text-sm dark:text-white/[0.38] text-muted-foreground">
-            Connect with Albanian singles worldwide
+            {t("auth.connectSubtitle")}
           </p>
         </div>
 
@@ -520,7 +520,7 @@ const Auth = () => {
                     className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
                     disabled={loading}
                   >
-                    {loading ? "Sending..." : "Send Reset Link"}
+                    {loading ? t("auth.sending") : t("auth.sendResetLink")}
                   </Button>
                   <Button
                     type="button"
@@ -528,7 +528,7 @@ const Auth = () => {
                     className="w-full rounded-xl dark:text-white/50 text-muted-foreground"
                     onClick={() => setIsForgotPassword(false)}
                   >
-                    ← Back to Sign In
+                    {t("auth.backToSignIn")}
                   </Button>
                 </form>
               ) : (
@@ -619,10 +619,10 @@ const Auth = () => {
                     className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
                     disabled={loading}
                   >
-                    {loading ? "Sending..." : "Continue with Phone"}
+                    {loading ? t("auth.sending") : t("auth.continueWithPhone")}
                   </Button>
                   <p className="text-xs text-center dark:text-white/30 text-muted-foreground">
-                    Works for both new and existing accounts
+                    {t("auth.worksForBoth")}
                   </p>
                 </form>
               ) : (
@@ -633,10 +633,10 @@ const Auth = () => {
                       className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
                     >
                       <Lock className="h-4 w-4" />
-                      Enter OTP Code
+                      {t("auth.enterOtp")}
                     </Label>
                     <p className="text-sm mb-2 dark:text-white/35 text-muted-foreground">
-                      We sent a 6-digit code to {phoneNumber}
+                      {t("auth.otpSent")} {phoneNumber}
                     </p>
                     <Input
                       id="otp"
@@ -655,7 +655,7 @@ const Auth = () => {
                     className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 btn-rose"
                     disabled={loading}
                   >
-                    {loading ? "Verifying..." : "Verify & Sign In"}
+                    {loading ? t("auth.verifying") : t("auth.verifySignIn")}
                   </Button>
                   <Button
                     type="button"
@@ -663,7 +663,7 @@ const Auth = () => {
                     className="w-full rounded-xl dark:text-white/50 text-muted-foreground"
                     onClick={resetPhoneAuth}
                   >
-                    Use Different Number
+                    {t("auth.useDifferentNumber")}
                   </Button>
                 </form>
               )}
@@ -677,7 +677,7 @@ const Auth = () => {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="px-3 text-xs tracking-widest bg-transparent dark:text-white/30 text-muted-foreground">
-                Or continue with
+                {t("auth.orContinueWith")}
               </span>
             </div>
           </div>
@@ -726,7 +726,7 @@ const Auth = () => {
             onClick={() => navigate("/")}
             className="text-sm transition-colors dark:hover:text-white/60 hover:text-foreground dark:text-white/30 text-muted-foreground"
           >
-            ← Back to home
+            {t("auth.backToHome")}
           </button>
         </div>
       </div>

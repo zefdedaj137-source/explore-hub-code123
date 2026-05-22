@@ -1,4 +1,5 @@
 ﻿import { useState, useRef, useEffect, ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,6 +49,7 @@ const profileSchema = z.object({
 });
 
 const ProfileSetup = () => {
+  const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -401,21 +403,17 @@ const ProfileSetup = () => {
     <div className="min-h-dvh flex items-center justify-center p-4 py-12 page-bg">
       <div className="w-full max-w-3xl rounded-3xl p-8 glass-card">
         <h1 className="text-4xl font-bold mb-2 font-serif text-gradient-fire">
-          Complete Your Profile
+          {t("profileSetup.heading")}
         </h1>
-        <p className="text-muted-foreground mb-8">Tell us about yourself to start meeting people</p>
+        <p className="text-muted-foreground mb-8">{t("profileSetup.subtitle")}</p>
 
         {variant === "A" ? (
           <div className="p-4 mb-6 rounded-2xl glass">
-            <p className="text-sm text-white/50">
-              Tip: Profiles with 3+ photos and a short bio get up to 3x more matches.
-            </p>
+            <p className="text-sm text-white/50">{t("profileSetup.profileTip")}</p>
           </div>
         ) : (
           <div className="p-4 mb-6 rounded-2xl glass">
-            <p className="text-sm text-white/50">
-              Quick checklist: add a clear face photo, one lifestyle photo, and 3 interests.
-            </p>
+            <p className="text-sm text-white/50">{t("profileSetup.altTip")}</p>
           </div>
         )}
 
@@ -423,7 +421,7 @@ const ProfileSetup = () => {
           {/* Photo Uploads */}
           <div className="grid md:grid-cols-2 gap-6 p-6 bg-muted/30 rounded-xl border border-border">
             <div className="space-y-3">
-              <Label className="text-lg font-semibold">Profile Photo *</Label>
+              <Label className="text-lg font-semibold">{t("profileSetup.profilePhoto")}</Label>
               <div className="relative">
                 {profilePhoto ? (
                   <div className="relative aspect-square rounded-xl overflow-hidden border-4 border-primary/30">
@@ -436,7 +434,9 @@ const ProfileSetup = () => {
                   >
                     <div className="text-center">
                       <Upload className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Click to upload</p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("profileSetup.clickToUpload")}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -478,19 +478,19 @@ const ProfileSetup = () => {
                   disabled={uploading || authLoading}
                 >
                   {authLoading
-                    ? "Loading..."
+                    ? t("profileSetup.authLoading")
                     : uploading
-                      ? "Uploading..."
+                      ? t("profileSetup.uploadingButton")
                       : profilePhoto
-                        ? "Change Photo"
-                        : "Upload Photo"}
+                        ? t("profileSetup.changePhotoButton")
+                        : t("profileSetup.uploadButton")}
                 </Button>
               </div>
             </div>
 
             <div className="space-y-3">
               <Label className="text-lg font-semibold flex items-center gap-2">
-                Verification Selfie
+                {t("profileSetup.verificationSelfie")}
                 {verified && <CheckCircle2 className="h-5 w-5 text-accent" />}
               </Label>
               <div className="relative">
@@ -509,7 +509,9 @@ const ProfileSetup = () => {
                   >
                     <div className="text-center">
                       <Camera className="h-12 w-12 mx-auto mb-2 text-accent" />
-                      <p className="text-sm text-muted-foreground">Verify your identity</p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("profileSetup.verifyIdentity")}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -530,7 +532,11 @@ const ProfileSetup = () => {
                   onClick={() => selfieRef.current?.click()}
                   disabled={verifying}
                 >
-                  {verifying ? "Verifying..." : selfiePhoto ? "Update Selfie" : "Take Selfie"}
+                  {verifying
+                    ? t("profileSetup.verifying")
+                    : selfiePhoto
+                      ? t("profileSetup.updateSelfie")
+                      : t("profileSetup.takeSelfie")}
                 </Button>
               </div>
             </div>
@@ -539,7 +545,7 @@ const ProfileSetup = () => {
           {/* Basic Info */}
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="full_name">Full Name *</Label>
+              <Label htmlFor="full_name">{t("profileSetup.fullNameLabel")}</Label>
               <Input
                 id="full_name"
                 value={formData.full_name}
@@ -549,7 +555,7 @@ const ProfileSetup = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="age">Age *</Label>
+              <Label htmlFor="age">{t("profileSetup.ageLabel")}</Label>
               <Input
                 id="age"
                 type="number"
@@ -565,7 +571,7 @@ const ProfileSetup = () => {
           {/* Gender & Preference */}
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Gender *</Label>
+              <Label>{t("profileSetup.genderLabel")}</Label>
               <Select
                 value={formData.gender}
                 onValueChange={(value) => setFormData({ ...formData, gender: value })}
@@ -583,7 +589,7 @@ const ProfileSetup = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Who do you want to date? *</Label>
+              <Label>{t("profileSetup.whoDateLabel")}</Label>
               <Select
                 value={formData.looking_for}
                 onValueChange={(value) => setFormData({ ...formData, looking_for: value })}
@@ -604,7 +610,7 @@ const ProfileSetup = () => {
           {/* Location */}
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="city">City *</Label>
+              <Label htmlFor="city">{t("profileSetup.cityLabel")}</Label>
               <Input
                 id="city"
                 placeholder="e.g., Pristina, Tirana"
@@ -614,7 +620,7 @@ const ProfileSetup = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="country">Country *</Label>
+              <Label htmlFor="country">{t("profileSetup.countryLabel")}</Label>
               <Input
                 id="country"
                 placeholder="e.g., Kosovo, Albania"
@@ -627,10 +633,8 @@ const ProfileSetup = () => {
 
           {/* Location Permission */}
           <div className="space-y-3 p-4 bg-muted/30 rounded-xl border border-border">
-            <Label className="text-base font-semibold">Location Access</Label>
-            <p className="text-sm text-muted-foreground">
-              Allow location access to show accurate distances to matches
-            </p>
+            <Label className="text-base font-semibold">{t("profileSetup.locationAccess")}</Label>
+            <p className="text-sm text-muted-foreground">{t("profileSetup.locationAccessDesc")}</p>
             <Button
               type="button"
               variant="outline"
@@ -639,17 +643,17 @@ const ProfileSetup = () => {
               disabled={gettingLocation || !!userCoordinates}
             >
               {gettingLocation
-                ? "Getting location..."
+                ? t("profileSetup.gettingLocation")
                 : userCoordinates
-                  ? "✓ Location enabled"
-                  : "Enable Location"}
+                  ? t("profileSetup.locationEnabled")
+                  : t("profileSetup.enableLocation")}
             </Button>
           </div>
 
           {/* Zodiac & Religion */}
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Zodiac Sign</Label>
+              <Label>{t("profileSetup.zodiacSign")}</Label>
               <Select
                 value={formData.zodiac_sign}
                 onValueChange={(value) => setFormData({ ...formData, zodiac_sign: value })}
@@ -668,7 +672,7 @@ const ProfileSetup = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Religion</Label>
+              <Label>{t("profileSetup.religion")}</Label>
               <Select
                 value={formData.religion}
                 onValueChange={(value) => setFormData({ ...formData, religion: value })}
@@ -689,7 +693,7 @@ const ProfileSetup = () => {
 
           {/* Bio */}
           <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
+            <Label htmlFor="bio">{t("profileSetup.bioLabel")}</Label>
             <Textarea
               id="bio"
               placeholder="Tell us about yourself..."
@@ -701,7 +705,7 @@ const ProfileSetup = () => {
 
           {/* Interests */}
           <div className="space-y-2">
-            <Label htmlFor="interests">Interests (comma separated)</Label>
+            <Label htmlFor="interests">{t("profileSetup.interestsLabel")}</Label>
             <Input
               id="interests"
               placeholder="Travel, Cooking, Music, Valle, Reading..."
@@ -715,7 +719,7 @@ const ProfileSetup = () => {
             className="w-full bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant text-lg py-6 rounded-xl border-2 border-accent/20"
             disabled={loading}
           >
-            {loading ? "Creating Profile..." : "Complete Profile"}
+            {loading ? t("profileSetup.loadingProfile") : t("profileSetup.submitButton")}
           </Button>
         </form>
       </div>
