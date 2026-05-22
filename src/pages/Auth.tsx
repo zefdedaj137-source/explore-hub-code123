@@ -5,9 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Mail, Lock, Phone } from "lucide-react";
+import { Mail, Lock, Phone } from "lucide-react";
 import { analytics } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 import { FcGoogle } from "react-icons/fc";
@@ -208,7 +207,7 @@ const Auth = () => {
           // Listen for session to be ready before navigating
           const {
             data: { subscription },
-          } = supabase.auth.onAuthStateChange((event, session) => {
+          } = supabase.auth.onAuthStateChange((_event, session) => {
             if (session?.user) {
               if (import.meta.env.DEV) logger.log("✅ Session ready, navigating to profile setup");
               subscription.unsubscribe();
@@ -440,249 +439,297 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-gradient-hero p-4">
-      <Card className="w-full max-w-md p-8 shadow-elegant">
-        <div className="flex flex-col items-center mb-8">
-          <img src="/eagle-logo.png" alt="Shqiponja" className="h-32 w-32 object-contain mb-4" />
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome to Shqiponja</h1>
-          <p className="text-muted-foreground text-center">
+    <div className="min-h-dvh flex items-center justify-center relative overflow-hidden p-4 page-bg">
+      {/* Background orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -left-32 w-[600px] h-[600px] rounded-full animate-float opacity-60 orb-rose" />
+        <div className="absolute -bottom-40 -right-32 w-[600px] h-[600px] rounded-full animate-float-slow opacity-50 orb-purple" />
+      </div>
+
+      {/* Subtle grid */}
+      <div className="absolute inset-0 opacity-[0.025] pointer-events-none bg-grid-overlay" />
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo section */}
+        <div className="flex flex-col items-center mb-8 animate-fade-in">
+          <div className="relative mb-5">
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center logo-rose">
+              <img src="/eagle-logo.png" alt="Shqiponja" className="w-14 h-14 object-contain" />
+            </div>
+            <div className="absolute -inset-1 rounded-2xl opacity-30 blur-xl bg-gradient-to-br from-[#e8274b] to-[#ff6b35]" />
+          </div>
+          <h1 className="text-3xl font-bold mb-1 font-serif dark:text-white/95 text-foreground">
+            {isLogin ? "Welcome Back" : "Create Account"}
+          </h1>
+          <p className="text-sm dark:text-white/[0.38] text-muted-foreground">
             Connect with Albanian singles worldwide
           </p>
         </div>
 
-        <Tabs
-          value={authMethod}
-          onValueChange={(v) => setAuthMethod(v as "email" | "phone")}
-          className="w-full"
-        >
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="email" className="gap-2">
-              <Mail className="h-4 w-4" />
-              Email
-            </TabsTrigger>
-            <TabsTrigger value="phone" className="gap-2">
-              <Phone className="h-4 w-4" />
-              Phone
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="email">
-            {isForgotPassword ? (
-              <form onSubmit={handleForgotPassword} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                    required
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Enter your email and we'll send you a link to reset your password
-                  </p>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant"
-                  disabled={loading}
-                >
-                  {loading ? "Sending..." : "Send Reset Link"}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setIsForgotPassword(false)}
-                >
-                  ← Back to Sign In
-                </Button>
-              </form>
-            ) : (
-              <form onSubmit={handleEmailAuth} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    {t("auth.password")}
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete={isLogin ? "current-password" : "new-password"}
-                    required
-                    minLength={6}
-                  />
-                  {isLogin && (
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => setIsForgotPassword(true)}
-                        className="text-sm text-primary hover:underline"
-                      >
-                        {t("auth.forgotPassword")}
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant"
-                  disabled={loading}
-                >
-                  {loading ? t("common.loading") : isLogin ? t("auth.signIn") : t("auth.signUp")}
-                </Button>
-              </form>
-            )}
-          </TabsContent>
-
-          <TabsContent value="phone">
-            {!otpSent ? (
-              <form onSubmit={handleSendOTP} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    Phone Number
-                  </Label>
-                  <PhoneInput
-                    international
-                    defaultCountry="AL"
-                    value={phoneNumber}
-                    onChange={(value) => setPhoneNumber(value || "")}
-                    className="phone-input"
-                    placeholder="Enter phone number"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant"
-                  disabled={loading}
-                >
-                  {loading ? "Sending..." : "Continue with Phone"}
-                </Button>
-                <p className="text-xs text-muted-foreground text-center mt-2">
-                  Works for both new and existing accounts
-                </p>
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOTP} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="otp" className="flex items-center gap-2">
-                    <Lock className="h-4 w-4" />
-                    Enter OTP Code
-                  </Label>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    We sent a 6-digit code to {phoneNumber}
-                  </p>
-                  <Input
-                    id="otp"
-                    type="text"
-                    placeholder="000000"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    required
-                    className="text-center text-2xl tracking-widest"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant"
-                  disabled={loading}
-                >
-                  {loading ? "Verifying..." : "Verify & Sign In"}
-                </Button>
-
-                <Button type="button" variant="outline" className="w-full" onClick={resetPhoneAuth}>
-                  Use Different Number
-                </Button>
-              </form>
-            )}
-          </TabsContent>
-        </Tabs>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border"></div>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            type="button"
-            variant="outline"
+        {/* Glass card */}
+        <div className="rounded-3xl p-7 animate-slide-up glass-panel">
+          <Tabs
+            value={authMethod}
+            onValueChange={(v) => setAuthMethod(v as "email" | "phone")}
             className="w-full"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
           >
-            <FcGoogle className="h-5 w-5 mr-2" />
-            Google
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full bg-black text-white border-black hover:bg-black/90 hover:text-white"
-            onClick={handleAppleSignIn}
-            disabled={loading}
-          >
-            <SiApple className="h-5 w-5 mr-2" />
-            Apple
-          </Button>
+            <TabsList className="grid w-full grid-cols-2 mb-6 p-1 rounded-xl dark:bg-white/[0.06] bg-black/[0.04] dark:border-white/[0.08] border-black/[0.08] border">
+              <TabsTrigger
+                value="email"
+                className="gap-2 rounded-lg dark:data-[state=active]:text-white data-[state=active]:text-foreground transition-all dark:text-white/50 text-muted-foreground"
+              >
+                <Mail className="h-4 w-4" />
+                Email
+              </TabsTrigger>
+              <TabsTrigger
+                value="phone"
+                className="gap-2 rounded-lg dark:data-[state=active]:text-white data-[state=active]:text-foreground transition-all dark:text-white/50 text-muted-foreground"
+              >
+                <Phone className="h-4 w-4" />
+                Phone
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="email">
+              {isForgotPassword ? (
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="email"
+                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
+                      required
+                      className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
+                    />
+                    <p className="text-xs dark:text-white/35 text-muted-foreground">
+                      Enter your email and we'll send you a reset link
+                    </p>
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
+                    disabled={loading}
+                  >
+                    {loading ? "Sending..." : "Send Reset Link"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full rounded-xl dark:text-white/50 text-muted-foreground"
+                    onClick={() => setIsForgotPassword(false)}
+                  >
+                    ← Back to Sign In
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={handleEmailAuth} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="email"
+                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
+                      required
+                      className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="password"
+                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                    >
+                      <Lock className="h-4 w-4" />
+                      {t("auth.password")}
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete={isLogin ? "current-password" : "new-password"}
+                      required
+                      minLength={6}
+                      className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
+                    />
+                    {isLogin && (
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setIsForgotPassword(true)}
+                          className="text-xs transition-colors hover:text-rose-300 text-[#e8274b]/80"
+                        >
+                          {t("auth.forgotPassword")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
+                    disabled={loading}
+                  >
+                    {loading ? t("common.loading") : isLogin ? t("auth.signIn") : t("auth.signUp")}
+                  </Button>
+                </form>
+              )}
+            </TabsContent>
+
+            <TabsContent value="phone">
+              {!otpSent ? (
+                <form onSubmit={handleSendOTP} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="phone"
+                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                    >
+                      <Phone className="h-4 w-4" />
+                      Phone Number
+                    </Label>
+                    <PhoneInput
+                      international
+                      defaultCountry="AL"
+                      value={phoneNumber}
+                      onChange={(value) => setPhoneNumber(value || "")}
+                      className="phone-input"
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
+                    disabled={loading}
+                  >
+                    {loading ? "Sending..." : "Continue with Phone"}
+                  </Button>
+                  <p className="text-xs text-center dark:text-white/30 text-muted-foreground">
+                    Works for both new and existing accounts
+                  </p>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOTP} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="otp"
+                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                    >
+                      <Lock className="h-4 w-4" />
+                      Enter OTP Code
+                    </Label>
+                    <p className="text-sm mb-2 dark:text-white/35 text-muted-foreground">
+                      We sent a 6-digit code to {phoneNumber}
+                    </p>
+                    <Input
+                      id="otp"
+                      type="text"
+                      placeholder="000000"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      required
+                      className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 text-center text-2xl tracking-widest focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 btn-rose"
+                    disabled={loading}
+                  >
+                    {loading ? "Verifying..." : "Verify & Sign In"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full rounded-xl dark:text-white/50 text-muted-foreground"
+                    onClick={resetPhoneAuth}
+                  >
+                    Use Different Number
+                  </Button>
+                </form>
+              )}
+            </TabsContent>
+          </Tabs>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t dark:border-white/[0.08] border-black/[0.08]" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="px-3 text-xs tracking-widest bg-transparent dark:text-white/30 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          {/* Social buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full rounded-xl py-5 font-semibold transition-all hover:scale-[1.02] dark:bg-white/[0.07] bg-black/[0.04] dark:border-white/10 border border-black/[0.08] dark:text-white/75 text-foreground"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+            >
+              <FcGoogle className="h-5 w-5 mr-2" />
+              Google
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full rounded-xl py-5 font-semibold transition-all hover:scale-[1.02] dark:bg-white/[0.07] bg-black/[0.04] dark:border-white/10 border border-black/[0.08] dark:text-white/75 text-foreground"
+              onClick={handleAppleSignIn}
+              disabled={loading}
+            >
+              <SiApple className="h-5 w-5 mr-2" />
+              Apple
+            </Button>
+          </div>
+
+          {/* Switch mode */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setIsForgotPassword(false);
+              }}
+              className="text-sm transition-colors hover:text-rose-300 text-[#e8274b]/80"
+            >
+              {isLogin ? t("auth.noAccount") : t("auth.hasAccount")}
+            </button>
+          </div>
         </div>
 
+        {/* Back link */}
         <div className="mt-6 text-center">
           <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setIsForgotPassword(false);
-            }}
-            className="text-primary hover:underline"
-          >
-            {isLogin ? t("auth.noAccount") : t("auth.hasAccount")}
-          </button>
-        </div>
-
-        <div className="mt-4 text-center">
-          <button
             onClick={() => navigate("/")}
-            className="text-sm text-muted-foreground hover:text-foreground"
+            className="text-sm transition-colors dark:hover:text-white/60 hover:text-foreground dark:text-white/30 text-muted-foreground"
           >
             ← Back to home
           </button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

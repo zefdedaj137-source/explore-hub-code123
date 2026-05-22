@@ -14,6 +14,29 @@ const SuperlikeSuccess = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const fulfill = async (sessionId: string) => {
+      try {
+        const { data, error } = await supabase.functions.invoke("fulfill-superlike-purchase", {
+          body: { session_id: sessionId },
+        });
+
+        if (error) throw error;
+
+        if (data?.success) {
+          setSuperlikesAdded(data.superlikes_remaining);
+          toast.success("Super Likes added to your account! ⚡");
+        } else {
+          throw new Error(data?.error || "Fulfillment failed");
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to verify purchase";
+        setError(msg);
+        toast.error(msg);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const sessionId = searchParams.get("session_id");
     if (!sessionId) {
       setError("No session ID found.");
@@ -21,30 +44,7 @@ const SuperlikeSuccess = () => {
       return;
     }
     fulfill(sessionId);
-  }, []);
-
-  const fulfill = async (sessionId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke("fulfill-superlike-purchase", {
-        body: { session_id: sessionId },
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        setSuperlikesAdded(data.superlikes_remaining);
-        toast.success("Super Likes added to your account! ⚡");
-      } else {
-        throw new Error(data?.error || "Fulfillment failed");
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to verify purchase";
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [searchParams]);
 
   if (loading) {
     return (

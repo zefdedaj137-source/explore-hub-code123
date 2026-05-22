@@ -955,7 +955,7 @@ const Discover = () => {
     } catch (error) {
       logger.error("Error fetching spotlight profiles:", error);
     }
-  }, [user, filters.maxDistance, filters.gender, fetchMyProfile]);
+  }, [user, filters.maxDistance, filters.gender, fetchMyProfile, likedProfiles, passedProfiles]);
 
   // Handle premium upgrade
   const handleUpgrade = async () => {
@@ -2264,10 +2264,10 @@ const Discover = () => {
   }
 
   return (
-    <div className="min-h-dvh bg-background p-4 pb-24">
+    <div className="min-h-dvh pb-24 page-bg">
       {/* Header */}
       <div className="container mx-auto max-w-2xl p-4">
-        <div className="bg-card rounded-2xl p-5 mb-6 shadow-card">
+        <div className="rounded-2xl p-5 mb-6 glass-header">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <img src="/eagle-logo.png" alt="Shqiponja" className="h-12 w-12 object-contain" />
@@ -3585,14 +3585,12 @@ const Discover = () => {
                       })
                       .eq("user_id", user.id);
                     if (walletError) throw walletError;
-                    const { error: txError } = await supabase
-                      .from("wallet_transactions")
-                      .insert({
-                        user_id: user.id,
-                        amount: -cost,
-                        type: "spend",
-                        item: "boost_10h",
-                      });
+                    const { error: txError } = await supabase.from("wallet_transactions").insert({
+                      user_id: user.id,
+                      amount: -cost,
+                      type: "spend",
+                      item: "boost_10h",
+                    });
                     if (txError) throw txError;
                     setWalletBalance(Math.max(freshBalance - cost, 0));
                     toast.success("10-hour boost activated! ⚡");

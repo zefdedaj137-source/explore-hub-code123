@@ -13,12 +13,12 @@ const BottomNav = () => {
   useEffect(() => {
     if (!user) return;
     const fetchUnread = async () => {
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from("messages")
         .select("id", { count: "exact", head: true })
         .eq("receiver_id", user.id)
         .is("read_at", null);
-      setUnreadCount(count || 0);
+      if (!error) setUnreadCount(count || 0);
     };
     fetchUnread();
     // Listen for new messages
@@ -45,10 +45,14 @@ const BottomNav = () => {
   // Update PWA badge
   useEffect(() => {
     if ("setAppBadge" in navigator) {
-      if (unreadCount > 0) {
-        (navigator as Navigator & { setAppBadge: (n: number) => void }).setAppBadge(unreadCount);
-      } else {
-        (navigator as Navigator & { clearAppBadge: () => void }).clearAppBadge?.();
+      try {
+        if (unreadCount > 0) {
+          (navigator as Navigator & { setAppBadge: (n: number) => void }).setAppBadge(unreadCount);
+        } else {
+          (navigator as Navigator & { clearAppBadge: () => void }).clearAppBadge?.();
+        }
+      } catch {
+        // setAppBadge not supported
       }
     }
   }, [unreadCount]);
@@ -64,7 +68,21 @@ const BottomNav = () => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
       <div className="mx-auto max-w-md px-4 pb-3">
-        <div className="flex justify-around items-center h-16 bg-card/90 backdrop-blur-xl border border-white/8 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)]">
+        <div className="flex justify-around items-center h-16 rounded-2xl relative overflow-hidden bottom-nav-bar">
+          {/* Active glow background pill */}
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            if (!isActive) return null;
+            const idx = navItems.indexOf(item);
+            const pillLeft = ["left-[1%]", "left-[21%]", "left-[41%]", "left-[61%]", "left-[81%]"];
+            return (
+              <div
+                key={`glow-${item.path}`}
+                className={`absolute inset-y-2 w-[18%] rounded-xl transition-all duration-300 nav-glow-pill ${pillLeft[idx]}`}
+              />
+            );
+          })}
+
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -73,23 +91,25 @@ const BottomNav = () => {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-all duration-200 rounded-xl ${
-                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                }`}
+                className="flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-all duration-200 relative z-10"
               >
                 <div className="relative">
                   <Icon
-                    className={`h-5 w-5 transition-all duration-200 ${isActive ? "scale-110" : ""}`}
-                    style={isActive ? { filter: "drop-shadow(0 0 6px hsl(350,65%,60%,0.7))" } : {}}
+                    className="h-5 w-5 transition-all duration-200"
+                    style={{
+                      color: isActive ? "#e8274b" : "rgba(255,255,255,0.35)",
+                      filter: isActive ? "drop-shadow(0 0 8px rgba(232,39,75,0.8))" : "none",
+                      transform: isActive ? "scale(1.15)" : "scale(1)",
+                    }}
                   />
                   {item.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-primary text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1">
+                    <span className="absolute -top-1.5 -right-2 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 badge-rose">
                       {item.badge > 99 ? "99+" : item.badge}
                     </span>
                   )}
                 </div>
                 <span
-                  className={`text-[9px] font-medium tracking-wide uppercase ${isActive ? "text-primary" : ""}`}
+                  className={`text-[9px] font-semibold tracking-widest uppercase transition-all duration-200 ${isActive ? "text-[#e8274b]" : "text-white/30"}`}
                 >
                   {item.label}
                 </span>

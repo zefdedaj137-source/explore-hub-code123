@@ -69,6 +69,7 @@ const CallHistory = () => {
       .select(
         "id, match_id, caller_id, receiver_id, call_type, status, started_at, answered_at, ended_at, caller:profiles!call_sessions_caller_id_fkey (id, full_name, profile_image_url), receiver:profiles!call_sessions_receiver_id_fkey (id, full_name, profile_image_url)"
       )
+      .or(`caller_id.eq.${user.id},receiver_id.eq.${user.id}`)
       .order("started_at", { ascending: false })
       .limit(100);
     if (error) {

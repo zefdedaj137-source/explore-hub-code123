@@ -12,30 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import {
-  ArrowLeft,
-  Send,
-  MoreVertical,
-  UserX,
-  Mic,
-  Phone,
-  Video,
-  Square,
-  Ban,
-  ShieldCheck,
   X,
   MapPin,
   MessageCircle,
   Calendar,
   Pin,
-  Check,
   Clock,
   Camera,
-  Image as ImageIcon,
-  Music2,
   ChevronLeft,
   ChevronRight,
-  Reply,
-  Trash2,
   Search,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,12 +32,6 @@ import BottomNav from "@/components/BottomNav";
 import { ChatHeader } from "@/components/chat/ChatHeader";
 import { ChatInput } from "@/components/chat/ChatInput";
 import { MessageBubble } from "@/components/chat/MessageBubble";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,13 +50,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import { z } from "zod";
 import {
   isBlockedBetween,
@@ -86,7 +58,7 @@ import {
 } from "@/lib/blocking";
 import type { Database } from "@/integrations/supabase/types";
 
-import { LoadingSpinner, MessageSkeleton } from "@/components/LoadingSkeleton";
+import { MessageSkeleton } from "@/components/LoadingSkeleton";
 
 const messageSchema = z.object({
   content: z
@@ -148,6 +120,10 @@ interface MatchProfile {
   drinking?: string | null;
   smoking?: string | null;
   pets?: string | null;
+  travel_mode_active?: boolean | null;
+  travel_city?: string | null;
+  distance_km?: number | null;
+  last_active?: string | null;
 }
 
 interface MatchStory {
@@ -170,7 +146,6 @@ const Chat = () => {
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [profileImageIndex, setProfileImageIndex] = useState(0);
   const [myInterests, setMyInterests] = useState<string[]>([]);
-  const [specialMatchType, setSpecialMatchType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [supportsReadReceipts, setSupportsReadReceipts] = useState(true);
   const [supportsReplyTo, setSupportsReplyTo] = useState(true);
@@ -180,6 +155,7 @@ const Chat = () => {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [hasOlderMessages, setHasOlderMessages] = useState(true);
   const [loadingOlder, setLoadingOlder] = useState(false);
+  const justLoadedOlderRef = useRef(false);
   const MESSAGE_PAGE_SIZE = 50;
 
   // Premium and user IDs
@@ -300,6 +276,10 @@ const Chat = () => {
 
   // Scroll when messages change
   useEffect(() => {
+    if (justLoadedOlderRef.current) {
+      justLoadedOlderRef.current = false;
+      return;
+    }
     scrollToBottom();
   }, [messages]);
 
@@ -354,17 +334,16 @@ const Chat = () => {
     if (!audioBlob || !user || !matchId) return;
     if (blockedByYou || blockedYou) return;
 
-    try {
-      const tempVoiceUrl = URL.createObjectURL(audioBlob);
-      // Create optimistic message
-      const optimisticMessage: Message = {
-        id: `temp-voice-${Date.now()}`,
-        sender_id: user.id,
-        content: `[Voice Message]`,
-        created_at: new Date().toISOString(),
-        voice_url: tempVoiceUrl,
-      };
+    const tempVoiceUrl = URL.createObjectURL(audioBlob);
+    const optimisticMessage: Message = {
+      id: `temp-voice-${Date.now()}`,
+      sender_id: user.id,
+      content: `[Voice Message]`,
+      created_at: new Date().toISOString(),
+      voice_url: tempVoiceUrl,
+    };
 
+    try {
       setMessages((prev) => [...prev, optimisticMessage]);
       setAudioBlob(null);
 
@@ -415,8 +394,8 @@ const Chat = () => {
     } catch (error) {
       logger.error("Error sending voice message:", error);
       toast.error("Failed to send voice message");
-      // Remove optimistic message on error
-      setMessages((prev) => prev.filter((msg) => !msg.id.startsWith("temp-voice-")));
+      URL.revokeObjectURL(tempVoiceUrl);
+      setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
     }
   };
 
@@ -568,6 +547,10 @@ const Chat = () => {
   const fetchMatchProfile = useCallback(async () => {
     if (!user || !matchId) return;
 
+    // Reset stale state from previous chat immediately
+    setConfirmedDatePlan(null);
+    setMatchProfile(null);
+
     try {
       // Get match details
       const { data: matchData } = await supabase
@@ -577,9 +560,6 @@ const Chat = () => {
         .maybeSingle();
 
       if (!matchData) throw new Error("Match not found");
-
-      // Set special match type for premium roses background
-      setSpecialMatchType(matchData.special_match_type || null);
 
       const otherId = matchData.user1_id === user.id ? matchData.user2_id : matchData.user1_id;
       setOtherUserId(otherId);
@@ -593,8 +573,10 @@ const Chat = () => {
         .eq("id", otherId)
         .single();
 
-      setMatchProfile(profileData as MatchProfile | null);
-      if (profileData?.last_active) setOtherUserLastActive(profileData.last_active);
+      setMatchProfile(profileData as unknown as MatchProfile | null);
+      if ((profileData as unknown as MatchProfile | null)?.last_active) {
+        setOtherUserLastActive((profileData as unknown as MatchProfile).last_active!);
+      }
 
       // Check if current user is premium
       const { data: currentUserProfile } = await supabase
@@ -606,10 +588,12 @@ const Chat = () => {
       setIsPremium(currentUserProfile?.is_premium || false);
       setMyInterests((currentUserProfile?.interests || []) as string[]);
 
-      // Fetch confirmed/proposed date plans for this match
+      // Fetch confirmed/proposed date plans for this specific match
+      // Double-filter: must belong to this match AND involve the current user
       const { data: datePlanData } = await supabase
         .from("date_plans")
         .select("id, location, scheduled_for, notes, status, planner_id")
+        .eq("match_id", matchId)
         .or(`planner_id.eq.${user.id},partner_id.eq.${user.id}`)
         .in("status", ["confirmed", "proposed"])
         .order("scheduled_for", { ascending: true })
@@ -617,6 +601,8 @@ const Chat = () => {
 
       if (datePlanData && datePlanData.length > 0) {
         setConfirmedDatePlan(datePlanData[0]);
+      } else {
+        setConfirmedDatePlan(null);
       }
 
       // Check blocking state
@@ -657,7 +643,7 @@ const Chat = () => {
         const { data, error } = await buildQuery(primarySelect);
 
         if (!error) {
-          const sorted = (data || []).reverse();
+          const sorted = ((data || []) as unknown as Message[]).reverse();
           if (isLoadingOlder) {
             setMessages((prev) => [...sorted, ...prev]);
           } else {
@@ -674,7 +660,7 @@ const Chat = () => {
         const { data: fallbackData, error: fallbackError } = await buildQuery(fallbackSelect);
 
         if (!fallbackError) {
-          const sorted = ((fallbackData || []) as Message[]).reverse();
+          const sorted = ((fallbackData || []) as unknown as Message[]).reverse();
           if (isLoadingOlder) {
             setMessages((prev) => [...sorted, ...prev]);
           } else {
@@ -691,7 +677,7 @@ const Chat = () => {
         const { data: minimalData, error: minimalError } = await buildQuery(minimalSelect);
 
         if (minimalError) throw minimalError;
-        const sorted = ((minimalData || []) as Message[]).reverse();
+        const sorted = ((minimalData || []) as unknown as Message[]).reverse();
         if (isLoadingOlder) {
           setMessages((prev) => [...sorted, ...prev]);
         } else {
@@ -713,6 +699,7 @@ const Chat = () => {
     if (!hasOlderMessages || loadingOlder || messages.length === 0) return;
     const container = messagesContainerRef.current;
     const prevHeight = container?.scrollHeight || 0;
+    justLoadedOlderRef.current = true;
     fetchMessages(messages[0].created_at).then(() => {
       // Preserve scroll position after prepending
       requestAnimationFrame(() => {
@@ -723,14 +710,18 @@ const Chat = () => {
     });
   }, [hasOlderMessages, loadingOlder, messages, fetchMessages]);
 
+  const markReadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const markMessagesRead = useCallback(async () => {
     if (!user || !matchId || !supportsReadReceipts) return;
-    await supabase
-      .from("messages")
-      .update({ read_at: new Date().toISOString() })
-      .eq("match_id", matchId)
-      .eq("receiver_id", user.id)
-      .is("read_at", null);
+    if (markReadTimerRef.current) clearTimeout(markReadTimerRef.current);
+    markReadTimerRef.current = setTimeout(async () => {
+      await supabase
+        .from("messages")
+        .update({ read_at: new Date().toISOString() })
+        .eq("match_id", matchId)
+        .eq("receiver_id", user.id)
+        .is("read_at", null);
+    }, 1000);
   }, [user, matchId, supportsReadReceipts]);
 
   const insertMessageWithFallback = async (payload: MessageInsert) => {
@@ -785,7 +776,7 @@ const Chat = () => {
       .select(selectColumnsExtended)
       .single();
 
-    if (!error) return data as Message | null;
+    if (!error) return data as unknown as Message | null;
 
     const errorMessage = (error as Error).message || "";
 
@@ -1142,7 +1133,8 @@ const Chat = () => {
   // --- Message Reactions ---
   const fetchReactions = useCallback(async (messageIds: string[]) => {
     if (messageIds.length === 0 || reactionsTableMissing.current) return;
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from("message_reactions")
       .select("message_id, emoji, user_id")
       .in("message_id", messageIds);
@@ -1157,7 +1149,7 @@ const Chat = () => {
     }
     if (data) {
       const grouped: Record<string, { emoji: string; user_id: string }[]> = {};
-      for (const r of data) {
+      for (const r of data as { message_id: string; emoji: string; user_id: string }[]) {
         if (!grouped[r.message_id]) grouped[r.message_id] = [];
         grouped[r.message_id].push({ emoji: r.emoji, user_id: r.user_id });
       }
@@ -1175,14 +1167,16 @@ const Chat = () => {
         (r) => r.emoji === emoji && r.user_id === user.id
       );
       if (existing) {
-        await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any)
           .from("message_reactions")
           .delete()
           .eq("message_id", messageId)
           .eq("user_id", user.id)
           .eq("emoji", emoji);
       } else {
-        await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any)
           .from("message_reactions")
           .insert({ message_id: messageId, user_id: user.id, emoji });
       }
@@ -1257,9 +1251,10 @@ const Chat = () => {
     }
     setSearchingGifs(true);
     try {
-      // Using Tenor v2 search (anonymous, rate-limited)
+      // Using Tenor v2 search
+      const tenorKey = import.meta.env.VITE_TENOR_API_KEY || "";
       const res = await fetch(
-        `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&limit=20&key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&client_key=shqiponja_dating`
+        `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(query)}&limit=20&key=${tenorKey}`
       );
       const data = await res.json();
       setGifResults(
@@ -1554,7 +1549,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-dvh bg-background flex flex-col pb-24">
+    <div className="min-h-dvh flex flex-col pb-24 page-bg">
       {/* Header */}
       <ChatHeader
         matchProfile={matchProfile}
@@ -1637,7 +1632,7 @@ const Chat = () => {
       {/* Messages */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 bg-background"
+        className="flex-1 overflow-y-auto p-4"
         onScroll={(e) => {
           const el = e.currentTarget;
           if (el.scrollTop < 80 && hasOlderMessages && !loadingOlder) {
@@ -1698,7 +1693,7 @@ const Chat = () => {
                           : "border-yellow-400 text-yellow-700 dark:text-yellow-400"
                       }`}
                     >
-                      {confirmedDatePlan.status === "confirmed" ? "Accepted" : "Pending"}
+                      {confirmedDatePlan.status === "confirmed" ? "Confirmed" : "Pending"}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -1707,7 +1702,16 @@ const Chat = () => {
                   </div>
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                    <span>{new Date(confirmedDatePlan.scheduled_for).toLocaleString()}</span>
+                    <span>
+                      {new Date(confirmedDatePlan.scheduled_for).toLocaleString("en-US", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
                   </div>
                   {confirmedDatePlan.notes && (
                     <p className="text-xs text-muted-foreground mt-1">
@@ -1736,9 +1740,10 @@ const Chat = () => {
                       </div>
                     )}
                   {user &&
-                    confirmedDatePlan.planner_id === user.id &&
                     confirmedDatePlan.status !== "canceled" &&
-                    confirmedDatePlan.status !== "completed" && (
+                    confirmedDatePlan.status !== "completed" &&
+                    (confirmedDatePlan.planner_id === user.id ||
+                      confirmedDatePlan.status === "confirmed") && (
                       <Button
                         variant="outline"
                         size="sm"

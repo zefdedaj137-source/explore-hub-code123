@@ -133,7 +133,7 @@ export default function Radar() {
       const { data, error } = await supabase.rpc("calculate_distance", {
         user_lat: userLocation.lat,
         user_long: userLocation.lng,
-        max_distance: 0.1, // 100 meters in kilometers
+        max_distance: 10, // 10 km
       });
 
       if (error) {
@@ -248,25 +248,28 @@ export default function Radar() {
   };
 
   // Calculate position on radar (relative to center)
-  const getRadarPosition = (targetLat: number, targetLng: number) => {
-    if (!userLocation) return { x: 50, y: 50 };
+  const getRadarPosition = useCallback(
+    (targetLat: number, targetLng: number) => {
+      if (!userLocation) return { x: 50, y: 50 };
 
-    const maxDistance = 0.1; // 100 meters in km
-    const dx =
-      (targetLng - userLocation.lng) * 111.32 * Math.cos((userLocation.lat * Math.PI) / 180);
-    const dy = (targetLat - userLocation.lat) * 110.574;
+      const maxDistance = 0.1; // 100 meters in km
+      const dx =
+        (targetLng - userLocation.lng) * 111.32 * Math.cos((userLocation.lat * Math.PI) / 180);
+      const dy = (targetLat - userLocation.lat) * 110.574;
 
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const angle = Math.atan2(dy, dx);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx);
 
-    // Normalize to radar size (percentage)
-    const normalizedDistance = Math.min(distance / maxDistance, 1) * 40; // 40% radius max
+      // Normalize to radar size (percentage)
+      const normalizedDistance = Math.min(distance / maxDistance, 1) * 40; // 40% radius max
 
-    const x = 50 + normalizedDistance * Math.cos(angle);
-    const y = 50 - normalizedDistance * Math.sin(angle); // Inverted Y for screen coordinates
+      const x = 50 + normalizedDistance * Math.cos(angle);
+      const y = 50 - normalizedDistance * Math.sin(angle); // Inverted Y for screen coordinates
 
-    return { x, y };
-  };
+      return { x, y };
+    },
+    [userLocation]
+  );
 
   const getDotClass = (id: string) => `radar-dot-${id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
@@ -277,7 +280,7 @@ export default function Radar() {
         return `.${getDotClass(nearbyUser.id)}{left:${x}%;top:${y}%;}`;
       })
       .join("\n");
-  }, [nearbyUsers]);
+  }, [nearbyUsers, getRadarPosition]);
 
   if (locationError) {
     return (

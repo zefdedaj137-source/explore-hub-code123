@@ -619,7 +619,6 @@ export const CallDialog = ({
 
   const endCall = async (sendSignal: boolean = true) => {
     logger.log("🛑 Ending call...");
-    console.trace("📍 endCall called from:");
 
     setCallStatus("ended");
     stopOutgoingRingtone();
@@ -716,7 +715,6 @@ export const CallDialog = ({
       onOpenChange={(open) => {
         if (!open) {
           endCall(true);
-          cleanup();
         }
         onClose();
       }}
@@ -738,22 +736,13 @@ export const CallDialog = ({
           {callType === "video" ? (
             <div className="space-y-4">
               {/* Remote video */}
-              <div className="relative aspect-video bg-gradient-to-br from-muted to-muted rounded-lg overflow-hidden border-4 border-red-500">
+              <div className="relative aspect-video bg-gradient-to-br from-muted to-muted rounded-lg overflow-hidden">
                 <video
                   ref={remoteVideoRef}
                   autoPlay
                   playsInline
                   className="w-full h-full object-cover bg-primary"
                 />
-                {/* Debug info */}
-                <div className="absolute top-2 left-2 bg-primary/90 text-white text-xs p-2 rounded z-20">
-                  Status: {callStatus}
-                  <br />
-                  Video: {remoteVideoRef.current?.videoWidth || 0}x
-                  {remoteVideoRef.current?.videoHeight || 0}
-                  <br />
-                  Has stream: {remoteVideoRef.current?.srcObject ? "YES" : "NO"}
-                </div>
                 {(callStatus === "ringing" || callStatus === "ended") && (
                   <div className="absolute inset-0 flex items-center justify-center bg-primary/80">
                     {matchImage ? (

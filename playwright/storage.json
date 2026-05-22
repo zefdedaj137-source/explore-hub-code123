@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:8080",
+      "localStorage": [
+        {
+          "name": "age_gate_accepted_v1",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}

@@ -9,6 +9,13 @@ const envSchema = z.object({
     .regex(/^G-[A-Z0-9]+$/, "VITE_GA_TRACKING_ID must be a GA4 measurement ID (e.g. G-XXXXXXXXXX)")
     .optional()
     .or(z.literal("")),
+  VITE_STRIPE_PUBLISHABLE_KEY: z
+    .string()
+    .startsWith("pk_", "Must start with pk_")
+    .optional()
+    .or(z.literal("")),
+  VITE_STRIPE_PORTAL_URL: z.string().url().optional().or(z.literal("")),
+  VITE_TENOR_API_KEY: z.string().optional().or(z.literal("")),
 });
 
 export function validateEnv() {
@@ -17,6 +24,9 @@ export function validateEnv() {
     VITE_SUPABASE_PUBLISHABLE_KEY: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     VITE_SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
     VITE_GA_TRACKING_ID: import.meta.env.VITE_GA_TRACKING_ID,
+    VITE_STRIPE_PUBLISHABLE_KEY: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
+    VITE_STRIPE_PORTAL_URL: import.meta.env.VITE_STRIPE_PORTAL_URL,
+    VITE_TENOR_API_KEY: import.meta.env.VITE_TENOR_API_KEY,
   });
 
   if (!result.success) {

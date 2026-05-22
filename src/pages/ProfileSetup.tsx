@@ -398,25 +398,25 @@ const ProfileSetup = () => {
   };
 
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-gradient-luxury p-4 py-12">
-      <Card className="w-full max-w-3xl p-8 shadow-luxury border-2 border-accent/20">
-        <h1 className="text-4xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-gold">
+    <div className="min-h-dvh flex items-center justify-center p-4 py-12 page-bg">
+      <div className="w-full max-w-3xl rounded-3xl p-8 glass-card">
+        <h1 className="text-4xl font-bold mb-2 font-serif text-gradient-fire">
           Complete Your Profile
         </h1>
         <p className="text-muted-foreground mb-8">Tell us about yourself to start meeting people</p>
 
         {variant === "A" ? (
-          <Card className="p-4 mb-6 bg-card/70 border border-accent/20">
-            <p className="text-sm text-muted-foreground">
+          <div className="p-4 mb-6 rounded-2xl glass">
+            <p className="text-sm text-white/50">
               Tip: Profiles with 3+ photos and a short bio get up to 3x more matches.
             </p>
-          </Card>
+          </div>
         ) : (
-          <Card className="p-4 mb-6 bg-card/70 border border-accent/20">
-            <p className="text-sm text-muted-foreground">
+          <div className="p-4 mb-6 rounded-2xl glass">
+            <p className="text-sm text-white/50">
               Quick checklist: add a clear face photo, one lifestyle photo, and 3 interests.
             </p>
-          </Card>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -718,7 +718,7 @@ const ProfileSetup = () => {
             {loading ? "Creating Profile..." : "Complete Profile"}
           </Button>
         </form>
-      </Card>
+      </div>
     </div>
   );
 };

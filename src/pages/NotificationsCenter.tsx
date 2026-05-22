@@ -78,7 +78,7 @@ const NotificationsCenter = () => {
     }
 
     setLoading(true);
-    Promise.all([fetchViews(), fetchLikes()]).finally(() => setLoading(false));
+    Promise.allSettled([fetchViews(), fetchLikes()]).finally(() => setLoading(false));
   }, [user, navigate, fetchViews, fetchLikes]);
 
   const items = tab === "views" ? views : likes;

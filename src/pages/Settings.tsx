@@ -287,7 +287,7 @@ const Settings = () => {
                 typedData.booster_active &&
                 typedData.booster_expires_at &&
                 new Date(typedData.booster_expires_at) > new Date();
-              setBoosterActive(isBoosterValid);
+              setBoosterActive(Boolean(isBoosterValid));
               setBoosterExpiresAt(typedData.booster_expires_at);
               setTravelModeActive(typedData.travel_mode_active || false);
               setTravelCity(typedData.travel_city);
@@ -312,7 +312,7 @@ const Settings = () => {
             typedData.booster_expires_at &&
             new Date(typedData.booster_expires_at) > new Date();
 
-          setBoosterActive(isBoosterValid);
+          setBoosterActive(Boolean(isBoosterValid));
           setBoosterExpiresAt(typedData.booster_expires_at);
           setTravelModeActive(typedData.travel_mode_active || false);
           setTravelCity(typedData.travel_city);
@@ -703,10 +703,10 @@ const Settings = () => {
   );
 
   return (
-    <div className="min-h-dvh bg-background pb-24">
+    <div className="min-h-dvh pb-24 page-bg">
       <div className="container mx-auto max-w-2xl px-4 py-6">
         {/* Header */}
-        <div className="bg-card rounded-2xl p-5 mb-4">
+        <div className="rounded-2xl p-5 mb-4 glass-header">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
@@ -724,7 +724,13 @@ const Settings = () => {
         <div className="space-y-4">
           {/* Premium Booster Section - Only show when booster is active */}
           {boosterActive && boosterExpiresAt && (
-            <Card className="shadow-elegant bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-400">
+            <Card
+              className="shadow-elegant border"
+              style={{
+                background: "linear-gradient(135deg, rgba(232,39,75,0.12), rgba(255,107,53,0.08))",
+                borderColor: "rgba(232,39,75,0.3)",
+              }}
+            >
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-yellow-600" />
@@ -761,7 +767,13 @@ const Settings = () => {
 
           {/* Premium Management Section */}
           {isPremium && (
-            <Card className="shadow-elegant bg-gradient-to-br from-background via-yellow-900/20 to-background border-2 border-yellow-600/50">
+            <Card
+              className="shadow-elegant border"
+              style={{
+                background: "linear-gradient(135deg, rgba(180,120,20,0.12), rgba(255,200,50,0.06))",
+                borderColor: "rgba(200,150,40,0.3)",
+              }}
+            >
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2 text-yellow-100">
                   <Crown className="h-5 w-5 text-primary" />
@@ -816,7 +828,8 @@ const Settings = () => {
                       // This would typically open Stripe customer portal
                       window.open(
                         import.meta.env.VITE_STRIPE_PORTAL_URL || "https://billing.stripe.com",
-                        "_blank"
+                        "_blank",
+                        "noopener,noreferrer"
                       );
                     }}
                   >

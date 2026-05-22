@@ -852,7 +852,7 @@ const Matches = () => {
   );
 
   return (
-    <div className="min-h-dvh bg-background pb-24" {...touchHandlers}>
+    <div className="min-h-dvh pb-24 page-bg" {...touchHandlers}>
       {pullDistance > 0 && (
         <div ref={pullDivRef} className="flex justify-center py-2">
           <div className={`text-sm text-muted-foreground ${refreshing ? "animate-spin" : ""}`}>
@@ -862,7 +862,7 @@ const Matches = () => {
       )}
       <div className="container mx-auto max-w-2xl p-4">
         {/* Header */}
-        <div className="bg-card rounded-2xl p-5 mb-6 shadow-card">
+        <div className="rounded-2xl p-5 mb-6 glass-header">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <img src="/eagle-logo.png" alt="Shqiponja" className="h-12 w-12 object-contain" />
@@ -892,22 +892,38 @@ const Matches = () => {
             <TabsList className="grid w-full grid-cols-2 bg-transparent gap-4 mt-6">
               <TabsTrigger
                 value="matches"
-                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold text-base transition-all duration-300 border-2 ${
-                  activeTab === "matches"
-                    ? "bg-primary/20 text-primary border-primary/50 shadow-lg shadow-primary/20"
-                    : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-primary"
+                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 ${
+                  activeTab === "matches" ? "text-white" : "text-white/40 hover:text-white/70"
                 }`}
+                style={
+                  activeTab === "matches"
+                    ? {
+                        background:
+                          "linear-gradient(135deg, rgba(232,39,75,0.25), rgba(255,107,53,0.2))",
+                        border: "1px solid rgba(232,39,75,0.4)",
+                        boxShadow: "0 4px 20px rgba(232,39,75,0.2)",
+                      }
+                    : { background: "transparent", border: "1px solid rgba(255,255,255,0.08)" }
+                }
               >
                 <Heart className="h-4 w-4" />
                 {t("matches.title")}
               </TabsTrigger>
               <TabsTrigger
                 value="instant"
-                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-semibold text-base transition-all duration-300 border-2 ${
-                  activeTab === "instant"
-                    ? "bg-primary/20 text-primary border-primary/50 shadow-lg shadow-primary/20"
-                    : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-primary"
+                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 ${
+                  activeTab === "instant" ? "text-white" : "text-white/40 hover:text-white/70"
                 }`}
+                style={
+                  activeTab === "instant"
+                    ? {
+                        background:
+                          "linear-gradient(135deg, rgba(232,39,75,0.25), rgba(255,107,53,0.2))",
+                        border: "1px solid rgba(232,39,75,0.4)",
+                        boxShadow: "0 4px 20px rgba(232,39,75,0.2)",
+                      }
+                    : { background: "transparent", border: "1px solid rgba(255,255,255,0.08)" }
+                }
               >
                 <MessageSquare className="h-4 w-4" />
                 Instant Messages
@@ -936,7 +952,8 @@ const Matches = () => {
                       placeholder={t("common.search") + "..."}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-2 w-full rounded-full bg-primary/10 border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                      className="pl-10 pr-4 py-2 w-full rounded-full border-0 text-white placeholder:text-white/30 focus:ring-1 focus:ring-primary/60"
+                      style={{ background: "rgba(255,255,255,0.06)" }}
                     />
                   </div>
                 </div>

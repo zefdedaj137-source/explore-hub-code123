@@ -163,8 +163,13 @@ const MyProfile = () => {
     }
 
     const parsed = JSON.parse(stored) as { lastDate: string; streak: number };
-    const lastDate = new Date(parsed.lastDate);
-    const diffDays = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays =
+      todayKey === parsed.lastDate
+        ? 0
+        : todayKey ===
+            new Date(new Date(parsed.lastDate).getTime() + 86400000).toISOString().slice(0, 10)
+          ? 1
+          : 2;
 
     if (diffDays === 0) {
       setStreak(parsed.streak);
@@ -321,10 +326,10 @@ const MyProfile = () => {
   }
 
   return (
-    <div className="min-h-dvh bg-background pb-20">
+    <div className="min-h-dvh pb-20 page-bg">
       {/* Header */}
       <div className="container mx-auto max-w-2xl p-4">
-        <div className="bg-card rounded-2xl p-5 mb-6 shadow-card">
+        <div className="rounded-2xl p-5 mb-6 glass-header">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <img src="/eagle-logo.png" alt="Shqiponja" className="h-12 w-12 object-contain" />

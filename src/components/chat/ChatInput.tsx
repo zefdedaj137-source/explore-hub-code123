@@ -77,7 +77,7 @@ export function ChatInput({
   const { t } = useTranslation();
 
   return (
-    <div className="fixed bottom-nav-offset left-0 right-0 bg-card/85 backdrop-blur-xl border-t border-white/6 z-10">
+    <div className="fixed bottom-nav-offset left-0 right-0 z-10 chat-input-bar">
       {/* Reply-to banner */}
       {replyingTo && (
         <div className="px-4 pt-2 pb-0">

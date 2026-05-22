@@ -87,6 +87,15 @@ const DoubleDatePlanner = () => {
 
   const loadPlans = useCallback(async () => {
     if (!user) return;
+
+    // Auto-expire any proposed plans whose scheduled time has already passed
+    await supabase
+      .from("double_date_plans")
+      .update({ status: "expired" })
+      .or(`planner_id.eq.${user.id},partner1_id.eq.${user.id},partner2_id.eq.${user.id}`)
+      .eq("status", "proposed")
+      .lt("scheduled_for", new Date().toISOString());
+
     const { data, error } = await supabase
       .from("double_date_plans")
       .select("id, location, notes, scheduled_for, status, partner1_id, partner2_id")

@@ -68,7 +68,7 @@ const SafetyCenter = () => {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => window.open("https://www.112.eu/", "_blank")}
+              onClick={() => window.open("https://www.112.eu/", "_blank", "noopener,noreferrer")}
             >
               Find Emergency Numbers
             </Button>

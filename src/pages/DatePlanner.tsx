@@ -44,6 +44,8 @@ const DatePlanner = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [profilesReady, setProfilesReady] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileItem>>({});
   const [plans, setPlans] = useState<DatePlan[]>([]);
@@ -54,9 +56,10 @@ const DatePlanner = () => {
 
   const partnerIds = useMemo(() => {
     if (!user) return [] as string[];
-    return matches
-      .map((match) => (match.user1_id === user.id ? match.user2_id : match.user1_id))
-      .filter(Boolean);
+    const ids = matches.map((match) =>
+      match.user1_id === user.id ? match.user2_id : match.user1_id
+    );
+    return [...new Set(ids.filter(Boolean))];
   }, [matches, user]);
 
   const loadMatches = useCallback(async () => {
@@ -88,6 +91,15 @@ const DatePlanner = () => {
 
   const loadPlans = useCallback(async () => {
     if (!user) return;
+
+    // Auto-expire any proposed plans whose scheduled time has already passed
+    await supabase
+      .from("date_plans")
+      .update({ status: "expired" })
+      .or(`planner_id.eq.${user.id},partner_id.eq.${user.id}`)
+      .eq("status", "proposed")
+      .lt("scheduled_for", new Date().toISOString());
+
     const { data, error } = await supabase
       .from("date_plans")
       .select("id, location, notes, scheduled_for, status, partner_id, planner_id")
@@ -106,6 +118,7 @@ const DatePlanner = () => {
     }
 
     setLoading(true);
+    setProfilesReady(false);
     loadMatches()
       .then(loadPlans)
       .catch((error) => {
@@ -116,18 +129,101 @@ const DatePlanner = () => {
   }, [user, navigate, loadMatches, loadPlans]);
 
   useEffect(() => {
-    loadProfiles().catch((error) => {
-      logger.error("Profile load error", error);
-    });
-  }, [loadProfiles]);
+    if (!loading) {
+      loadProfiles()
+        .catch((error) => {
+          logger.error("Profile load error", error);
+        })
+        .finally(() => setProfilesReady(true));
+    }
+  }, [loading, loadProfiles]);
+
+  // Realtime: server-side filtered channels so only THIS user's plans are received.
+  // Two channels needed: one where the user is the planner, one where they're the partner.
+  useEffect(() => {
+    if (!user) return;
+
+    const handleUpdate = (payload: { new: Record<string, unknown> }) => {
+      const updated = payload.new as DatePlan;
+      setPlans((prev) =>
+        prev.map((p) => (p.id === updated.id ? { ...p, status: updated.status } : p))
+      );
+    };
+
+    const handleInsert = (payload: { new: Record<string, unknown> }) => {
+      const inserted = payload.new as DatePlan;
+      setPlans((prev) => {
+        if (prev.some((p) => p.id === inserted.id)) return prev;
+        return [...prev, inserted].sort(
+          (a, b) => new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime()
+        );
+      });
+    };
+
+    // Plans where I am the planner
+    const plannerChannel = supabase
+      .channel(`date_plans_planner_${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "date_plans",
+          filter: `planner_id=eq.${user.id}`,
+        },
+        handleInsert
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "date_plans",
+          filter: `planner_id=eq.${user.id}`,
+        },
+        handleUpdate
+      )
+      .subscribe();
+
+    // Plans where I am the partner (incoming invites)
+    const partnerChannel = supabase
+      .channel(`date_plans_partner_${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "date_plans",
+          filter: `partner_id=eq.${user.id}`,
+        },
+        handleInsert
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "date_plans",
+          filter: `partner_id=eq.${user.id}`,
+        },
+        handleUpdate
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(plannerChannel);
+      supabase.removeChannel(partnerChannel);
+    };
+  }, [user]);
 
   const handleCreatePlan = async () => {
-    if (!user) return;
+    if (!user || submitting) return;
     if (!selectedPartner || !dateTime || !location) {
       toast.error("Please complete all required fields.");
       return;
     }
 
+    setSubmitting(true);
     try {
       // Check for an existing active plan with this partner
       const { data: existingPlans } = await supabase
@@ -201,11 +297,25 @@ const DatePlanner = () => {
     } catch (error) {
       logger.error("Create plan error", error);
       toast.error("Failed to create date plan.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleUpdateStatus = async (planId: string, status: string) => {
     if (!user) return;
+
+    const plan = plans.find((p) => p.id === planId);
+    if (!plan) return;
+
+    if (status === "confirmed") {
+      // Guard: never allow accepting a plan whose time has already passed
+      if (new Date(plan.scheduled_for) <= new Date()) {
+        toast.error("This date plan has already expired and cannot be accepted.");
+        return;
+      }
+    }
+
     const { error } = await supabase.from("date_plans").update({ status }).eq("id", planId);
     if (error) {
       logger.error("Update plan status error", error);
@@ -213,39 +323,39 @@ const DatePlanner = () => {
       return;
     }
 
-    const plan = plans.find((p) => p.id === planId);
     setPlans((prev) => prev.map((p) => (p.id === planId ? { ...p, status } : p)));
 
-    // Send chat notification when accepted or declined
-    if (plan) {
-      const otherUserId = plan.planner_id === user.id ? plan.partner_id : plan.planner_id;
-      const match = matches.find(
-        (m) =>
-          (m.user1_id === user.id && m.user2_id === otherUserId) ||
-          (m.user2_id === user.id && m.user1_id === otherUserId)
-      );
-      if (match) {
-        const formattedDate = new Date(plan.scheduled_for).toLocaleString();
-        let chatMessage = "";
-        if (status === "confirmed") {
-          chatMessage = `✅ Date accepted!\n📍 ${plan.location}\n🕐 ${formattedDate}\n\nIt's a date! 🎉`;
-        } else if (status === "canceled") {
-          chatMessage = `❌ Date declined.\n📍 ${plan.location}\n🕐 ${formattedDate}`;
-        }
-        if (chatMessage) {
-          const { error: msgError } = await supabase.from("messages").insert({
+    // Send chat notification to the primary plan's other user
+    const otherUserId = plan.planner_id === user.id ? plan.partner_id : plan.planner_id;
+    const match = matches.find(
+      (m) =>
+        (m.user1_id === user.id && m.user2_id === otherUserId) ||
+        (m.user2_id === user.id && m.user1_id === otherUserId)
+    );
+    if (match) {
+      const formattedDate = new Date(plan.scheduled_for).toLocaleString();
+      let chatMessage = "";
+      if (status === "confirmed") {
+        chatMessage = `✅ Date accepted!\n📍 ${plan.location}\n🕐 ${formattedDate}\n\nIt's a date! 🎉`;
+      } else if (status === "canceled") {
+        const wasConfirmed = plan.status === "confirmed";
+        chatMessage = wasConfirmed
+          ? `❌ Date canceled.\n📍 ${plan.location}\n🕐 ${formattedDate}`
+          : `❌ Date declined.\n📍 ${plan.location}\n🕐 ${formattedDate}`;
+      }
+      if (chatMessage) {
+        const { error: msgError } = await supabase.from("messages").insert({
+          match_id: match.id,
+          sender_id: user.id,
+          receiver_id: otherUserId,
+          content: chatMessage,
+        });
+        if (msgError) {
+          await supabase.from("messages").insert({
             match_id: match.id,
             sender_id: user.id,
-            receiver_id: otherUserId,
             content: chatMessage,
           });
-          if (msgError) {
-            await supabase.from("messages").insert({
-              match_id: match.id,
-              sender_id: user.id,
-              content: chatMessage,
-            });
-          }
         }
       }
     }
@@ -306,8 +416,12 @@ const DatePlanner = () => {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
               />
-              <Button className="w-full" onClick={handleCreatePlan}>
-                Create plan
+              <Button
+                className="w-full"
+                onClick={handleCreatePlan}
+                disabled={!profilesReady || submitting}
+              >
+                {submitting ? "Creating…" : profilesReady ? "Create plan" : "Loading matches…"}
               </Button>
             </Card>
 
@@ -317,59 +431,116 @@ const DatePlanner = () => {
                 <p className="text-sm text-muted-foreground">No plans yet.</p>
               ) : (
                 <div className="space-y-3">
-                  {plans.map((plan) => (
-                    <div
-                      key={plan.id}
-                      className="flex items-start justify-between gap-4 border-b border-primary/20 pb-3 last:border-b-0"
-                    >
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {profiles[plan.partner_id]?.full_name || "Match"}
-                        </p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {plan.location}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(plan.scheduled_for).toLocaleString()}
-                        </p>
-                        {plan.notes && (
-                          <p className="text-xs text-muted-foreground mt-1">{plan.notes}</p>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="text-xs uppercase text-primary">{plan.status}</span>
-                        {plan.status === "proposed" && user?.id === plan.partner_id && (
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleUpdateStatus(plan.id, "confirmed")}
-                            >
-                              Accept
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleUpdateStatus(plan.id, "canceled")}
-                            >
-                              Decline
-                            </Button>
+                  {[...plans]
+                    .sort((a, b) => {
+                      // Active plans first, then by date
+                      const activeStatuses = ["proposed", "confirmed"];
+                      const aActive = activeStatuses.includes(a.status) ? 0 : 1;
+                      const bActive = activeStatuses.includes(b.status) ? 0 : 1;
+                      if (aActive !== bActive) return aActive - bActive;
+                      return (
+                        new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime()
+                      );
+                    })
+                    .map((plan) => {
+                      const isPast = ["canceled", "expired", "completed"].includes(plan.status);
+                      const otherPersonId =
+                        plan.planner_id === user?.id ? plan.partner_id : plan.planner_id;
+                      const otherName = profiles[otherPersonId]?.full_name || "Match";
+                      const iSent = plan.planner_id === user?.id;
+
+                      const statusLabel: Record<string, string> = {
+                        proposed: "Pending",
+                        confirmed: "Confirmed",
+                        canceled: "Canceled",
+                        expired: "Expired",
+                        completed: "Done",
+                      };
+                      const statusColor: Record<string, string> = {
+                        proposed: "text-yellow-400",
+                        confirmed: "text-green-400",
+                        canceled: "text-red-400",
+                        expired: "text-muted-foreground",
+                        completed: "text-blue-400",
+                      };
+
+                      return (
+                        <div
+                          key={plan.id}
+                          className={`flex items-start justify-between gap-4 border-b border-primary/20 pb-3 last:border-b-0 ${isPast ? "opacity-50" : ""}`}
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">{otherName}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {iSent ? "You invited" : "Invited you"}
+                            </p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                              <MapPin className="h-3 w-3" />
+                              {plan.location}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(plan.scheduled_for).toLocaleString([], {
+                                weekday: "short",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                            {plan.notes && (
+                              <p className="text-xs text-muted-foreground mt-1">{plan.notes}</p>
+                            )}
                           </div>
-                        )}
-                        {user?.id === plan.planner_id &&
-                          plan.status !== "canceled" &&
-                          plan.status !== "completed" && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleUpdateStatus(plan.id, "canceled")}
+                          <div className="flex flex-col items-end gap-2 shrink-0">
+                            <span
+                              className={`text-xs font-semibold uppercase ${statusColor[plan.status] ?? "text-muted-foreground"}`}
                             >
-                              Cancel
-                            </Button>
-                          )}
-                      </div>
-                    </div>
-                  ))}
+                              {statusLabel[plan.status] ?? plan.status}
+                            </span>
+                            {plan.status === "proposed" &&
+                              user?.id === plan.partner_id &&
+                              new Date(plan.scheduled_for) > new Date() && (
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleUpdateStatus(plan.id, "confirmed")}
+                                  >
+                                    Accept
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleUpdateStatus(plan.id, "canceled")}
+                                  >
+                                    Decline
+                                  </Button>
+                                </div>
+                              )}
+                            {plan.status === "confirmed" && user?.id === plan.partner_id && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleUpdateStatus(plan.id, "canceled")}
+                              >
+                                Cancel
+                              </Button>
+                            )}
+                            {user?.id === plan.planner_id &&
+                              plan.status !== "canceled" &&
+                              plan.status !== "expired" &&
+                              plan.status !== "completed" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleUpdateStatus(plan.id, "canceled")}
+                                >
+                                  Cancel
+                                </Button>
+                              )}
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </Card>

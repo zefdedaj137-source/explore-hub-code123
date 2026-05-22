@@ -384,7 +384,7 @@ const WhoLikedYou = () => {
       const { data, error } = await supabase.functions.invoke("create-checkout");
       if (error) throw error;
       if (data?.url) {
-        window.open(data.url, "_blank");
+        window.open(data.url, "_blank", "noopener,noreferrer");
       }
     } catch (error) {
       toast.error((error as Error).message || "Failed to start checkout");
@@ -402,7 +402,7 @@ const WhoLikedYou = () => {
   // Show page with blurred profiles for non-premium users
 
   return (
-    <div className="min-h-dvh bg-background pb-24">
+    <div className="min-h-dvh pb-24 page-bg">
       <div className="container mx-auto max-w-2xl p-4">
         {/* Header */}
         <div className="bg-card rounded-2xl p-5 mb-6 shadow-card">

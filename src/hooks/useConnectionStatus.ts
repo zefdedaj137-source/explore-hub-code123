@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 /**
  * Hook that tracks online/offline status and shows reconnection state.
@@ -6,17 +6,19 @@ import { useState, useEffect } from "react";
 export function useConnectionStatus() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [wasOffline, setWasOffline] = useState(false);
+  const wasOfflineRef = useRef(false);
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      if (wasOffline) {
+      if (wasOfflineRef.current) {
         // Show "reconnected" briefly then clear
         setTimeout(() => setWasOffline(false), 3000);
       }
     };
     const handleOffline = () => {
       setIsOnline(false);
+      wasOfflineRef.current = true;
       setWasOffline(true);
     };
 
@@ -26,7 +28,7 @@ export function useConnectionStatus() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, [wasOffline]);
+  }, []);
 
   return { isOnline, wasOffline };
 }

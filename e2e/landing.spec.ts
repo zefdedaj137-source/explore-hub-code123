@@ -7,8 +7,9 @@ test.describe('Landing Page', () => {
     // Check that the page loads
     await expect(page).toHaveTitle(/Shqiponja/);
     
-    // Check for key elements
-    await expect(page.locator('text=Shqiponja')).toBeVisible();
+    // Check for key elements — brand logo image and hero headline
+    await expect(page.locator('img[alt="Albanian Eagle"]').first()).toBeVisible();
+    await expect(page.locator('h1').first()).toBeVisible();
   });
 
   test('should be mobile responsive', async ({ page }) => {
@@ -16,8 +17,9 @@ test.describe('Landing Page', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     
-    // Page should still be accessible
-    await expect(page.locator('text=Shqiponja')).toBeVisible();
+    // Page should still be accessible — brand logo and headline visible on mobile
+    await expect(page.locator('img[alt="Albanian Eagle"]').first()).toBeVisible();
+    await expect(page.locator('h1').first()).toBeVisible();
   });
 
   test('should have proper meta tags for SEO', async ({ page }) => {

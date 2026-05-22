@@ -520,7 +520,7 @@ const GameSessionDance = () => {
 
   if (loading || !opponent) {
     return (
-      <div className="min-h-dvh bg-gradient-to-br from-orange-50 to-yellow-50 flex items-center justify-center">
+      <div className="min-h-dvh flex items-center justify-center page-bg">
         <div className="text-center">
           <Music className="h-16 w-16 text-orange-500 animate-pulse mx-auto mb-4" />
           <p className="text-lg text-muted-foreground">Loading dance challenge...</p>
@@ -532,7 +532,7 @@ const GameSessionDance = () => {
   const currentSong = VALLE_SONGS[(currentRound - 1) % VALLE_SONGS.length];
 
   return (
-    <div className="min-h-dvh bg-gradient-to-br from-orange-50 to-yellow-50 p-4 pb-20">
+    <div className="min-h-dvh p-4 pb-20 page-bg">
       <div className="max-w-2xl mx-auto">
         <Card className="p-6 space-y-6 shadow-card">
           {/* Cancel button */}

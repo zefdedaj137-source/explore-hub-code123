@@ -46,7 +46,7 @@ const ResetPassword = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [location.state]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();

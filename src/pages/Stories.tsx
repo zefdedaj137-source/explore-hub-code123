@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, ArrowLeft, Upload, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,7 +29,7 @@ const Stories = () => {
   const [loadingStories, setLoadingStories] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchMyStories = async () => {
+  const fetchMyStories = useCallback(async () => {
     if (!user) return;
     setLoadingStories(true);
     try {
@@ -46,11 +46,11 @@ const Stories = () => {
     } finally {
       setLoadingStories(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchMyStories();
-  }, [user]);
+  }, [fetchMyStories]);
 
   const handleDelete = async (story: Story) => {
     if (!user) return;

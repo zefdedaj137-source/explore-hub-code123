@@ -174,58 +174,63 @@ All colors MUST be HSL.
     --shadow-luxury: 0 8px 30px -8px rgba(0, 0, 0, 0.08);
   }
 
-  /* Dark Theme — Deep luxury, warm charcoal */
+  /* Dark Theme — Cinematic luxury, deep purple-black */
   .dark {
-    --background: 350 8% 5%;
-    --foreground: 40 8% 92%;
+    --background: 270 25% 3.5%;
+    --foreground: 0 0% 92%;
 
-    --card: 350 8% 10%;
-    --card-foreground: 40 8% 92%;
+    --card: 270 20% 6%;
+    --card-foreground: 0 0% 90%;
 
-    --popover: 350 8% 12%;
-    --popover-foreground: 40 8% 92%;
+    --popover: 270 20% 7%;
+    --popover-foreground: 0 0% 90%;
 
-    /* Muted rose — refined, not harsh coral */
-    --primary: 350 65% 60%;
+    /* Vivid rose — brand punch */
+    --primary: 350 80% 52%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 350 65% 70%;
+    --primary-glow: 350 80% 65%;
 
-    --secondary: 350 8% 16%;
-    --secondary-foreground: 40 8% 88%;
+    --secondary: 270 18% 12%;
+    --secondary-foreground: 0 0% 88%;
 
     /* Champagne gold — luxurious accent */
-    --accent: 38 55% 62%;
+    --accent: 38 60% 58%;
     --accent-foreground: 0 0% 100%;
 
-    --muted: 350 8% 14%;
-    --muted-foreground: 350 5% 55%;
+    --muted: 270 18% 10%;
+    --muted-foreground: 270 5% 50%;
 
-    --destructive: 0 62.8% 50%;
+    --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 350 8% 18%;
-    --input: 350 8% 14%;
-    --ring: 350 65% 60%;
+    --border: 270 14% 13%;
+    --input: 270 18% 10%;
+    --ring: 350 80% 52%;
 
-    /* Luxury gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(350, 65%, 60%), hsl(18, 72%, 55%));
-    --gradient-hero: linear-gradient(160deg, hsl(350, 8%, 6%) 0%, hsl(350, 10%, 12%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(38, 55%, 62%), hsl(28, 65%, 55%));
-    --gradient-subtle: linear-gradient(180deg, hsl(350, 8%, 7%), hsl(350, 8%, 5%));
-    --gradient-velvet: linear-gradient(135deg, hsl(350, 8%, 14%) 0%, hsl(350, 8%, 8%) 100%);
-    --gradient-luxury: linear-gradient(135deg, hsl(350, 8%, 14%), hsl(350, 8%, 8%));
+    /* Cinematic luxury gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(350, 80%, 52%), hsl(18, 85%, 52%));
+    --gradient-hero: linear-gradient(
+      160deg,
+      hsl(270, 25%, 3.5%) 0%,
+      hsl(280, 22%, 6%) 50%,
+      hsl(270, 20%, 4%) 100%
+    );
+    --gradient-gold: linear-gradient(135deg, hsl(38, 60%, 58%), hsl(28, 70%, 52%));
+    --gradient-subtle: linear-gradient(180deg, hsl(270, 25%, 4.5%), hsl(270, 22%, 3%));
+    --gradient-velvet: linear-gradient(135deg, hsl(270, 20%, 10%) 0%, hsl(270, 22%, 6%) 100%);
+    --gradient-luxury: linear-gradient(135deg, hsl(270, 22%, 7%), hsl(270, 20%, 4%));
     --gradient-eagle: radial-gradient(
       circle at center,
-      hsl(350, 65%, 60%) 0%,
-      hsl(18, 72%, 55%) 100%
+      hsl(350, 80%, 52%) 0%,
+      hsl(18, 85%, 52%) 100%
     );
 
-    /* Deep layered shadows */
-    --shadow-elegant: 0 8px 32px -8px rgba(0, 0, 0, 0.65);
-    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.45);
-    --shadow-glow: 0 0 40px hsl(350, 65%, 60%, 0.18);
-    --shadow-luxury: 0 20px 60px -12px rgba(0, 0, 0, 0.75);
-    --shadow-gold: 0 4px 20px hsl(38, 55%, 62%, 0.2);
+    /* Deep cinematic shadows */
+    --shadow-elegant: 0 8px 40px -8px rgba(0, 0, 0, 0.8);
+    --shadow-card: 0 4px 32px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 50px hsl(350, 80%, 52%, 0.22);
+    --shadow-luxury: 0 24px 70px -12px rgba(0, 0, 0, 0.9);
+    --shadow-gold: 0 4px 24px hsl(38, 60%, 58%, 0.25);
   }
 
   /* Blue Theme — light sky blue */
@@ -425,7 +430,76 @@ All colors MUST be HSL.
   }
 }
 
-/* Luxurious UI enhancements */
+/* ── Float animation ─────────────────────────────── */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-float-delayed {
+  animation: float 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+.animate-float-slow {
+  animation: float 10s ease-in-out infinite;
+  animation-delay: 4s;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-24px) scale(1.03);
+  }
+}
+
+/* ── Shimmer animation ───────────────────────────── */
+.animate-shimmer {
+  animation: shimmer 2.5s linear infinite;
+  background-size: 200% 100%;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+/* ── Glow pulse ──────────────────────────────────── */
+.animate-glow-pulse {
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(232, 39, 75, 0.3),
+      0 0 40px rgba(232, 39, 75, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 40px rgba(232, 39, 75, 0.6),
+      0 0 80px rgba(232, 39, 75, 0.25);
+  }
+}
+
+/* ── Gradient-x (animated gradient text/bg) ─────── */
+.animate-gradient-x {
+  animation: gradient-x 4s ease infinite;
+  background-size: 300% 300%;
+}
+@keyframes gradient-x {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ── Luxurious UI enhancements ───────────────────── */
 @layer utilities {
   .bg-luxury {
     background: var(--gradient-luxury);
@@ -450,27 +524,107 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-gold);
   }
 
-  .border-luxury {
-    border: 1px solid hsl(210, 40%, 50%);
-    box-shadow: inset 0 1px 0 hsl(210, 50%, 60%);
+  /* ── Glassmorphism utilities ─── */
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  .glass-luxury {
-    background: linear-gradient(135deg, hsl(210, 50%, 85%, 0.8) 0%, hsl(210, 45%, 90%, 0.9) 100%);
-    backdrop-filter: blur(20px);
-    border: 1px solid hsl(210, 50%, 70%, 0.3);
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
-  .glow-burgundy {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     box-shadow:
-      0 0 20px hsl(210, 75%, 50%, 0.5),
-      0 0 40px hsl(210, 70%, 60%, 0.3);
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Gradient text ─── */
+  .text-gradient-fire {
+    background: linear-gradient(135deg, hsl(347, 85%, 65%), hsl(15, 100%, 65%), hsl(38, 100%, 65%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, hsl(38, 100%, 65%), hsl(28, 100%, 58%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Glow utilities ─── */
+  .glow-rose {
+    box-shadow:
+      0 0 30px rgba(232, 39, 75, 0.4),
+      0 0 60px rgba(232, 39, 75, 0.15);
   }
 
   .glow-gold {
     box-shadow:
-      0 0 20px hsl(210, 90%, 60%, 0.5),
-      0 0 40px hsl(200, 85%, 65%, 0.3);
+      0 0 20px rgba(212, 168, 73, 0.4),
+      0 0 40px rgba(212, 168, 73, 0.2);
+  }
+
+  .text-glow-rose {
+    text-shadow:
+      0 0 20px rgba(232, 39, 75, 0.6),
+      0 0 40px rgba(232, 39, 75, 0.3);
+  }
+
+  /* ── Border gradients ─── */
+  .border-gradient-rose {
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+  .border-gradient-rose::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(232, 39, 75, 0.5),
+      rgba(255, 120, 50, 0.3),
+      transparent
+    );
+    z-index: -1;
+  }
+
+  /* Legacy support */
+  .border-luxury {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-luxury {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glow-burgundy {
+    box-shadow:
+      0 0 20px rgba(232, 39, 75, 0.4),
+      0 0 40px rgba(232, 39, 75, 0.2);
   }
 
   /* iOS safe-area bottom padding — used by BottomNav to clear the home indicator */
@@ -482,5 +636,194 @@ All colors MUST be HSL.
      The nav is h-16 (4rem) + pb-3 (0.75rem) plus safe-area. */
   .bottom-nav-offset {
     bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ── Page background — light by default, dark when .dark class active ─── */
+  .page-bg {
+    background: hsl(var(--background));
+  }
+  .dark .page-bg {
+    background: linear-gradient(160deg, #07050d 0%, #0d0a18 50%, #08050e 100%);
+  }
+
+  /* ── Glassmorphism header / section card ─── */
+  .glass-header {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  }
+  .dark .glass-header {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  /* ── Chat input bar ─── */
+  .chat-input-bar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  .dark .chat-input-bar {
+    background: rgba(7, 5, 13, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Nav glass bar (top navbar, bottom nav) ─── */
+  .nav-glass {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+  .dark .nav-glass {
+    background: rgba(7, 5, 13, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Decorative background orbs ─── */
+  .orb-rose {
+    background: radial-gradient(circle, rgba(200, 30, 65, 0.22) 0%, transparent 70%);
+    filter: blur(60px);
+  }
+  .orb-purple {
+    background: radial-gradient(circle, rgba(130, 30, 180, 0.18) 0%, transparent 70%);
+    filter: blur(80px);
+  }
+  .orb-gold {
+    background: radial-gradient(circle, rgba(212, 140, 40, 0.06) 0%, transparent 70%);
+    filter: blur(60px);
+  }
+
+  /* ── Texture overlays ─── */
+  .bg-grid-overlay {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+  .bg-noise-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px;
+  }
+
+  /* ── Gradient overlays / halos ─── */
+  .glow-halo-rose {
+    background: linear-gradient(135deg, rgba(232, 39, 75, 0.5), rgba(255, 100, 50, 0.3));
+  }
+  .overlay-bottom-dark {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.1) 50%,
+      transparent 100%
+    );
+  }
+  .divider-rose {
+    background: linear-gradient(90deg, transparent, rgba(232, 39, 75, 0.5), transparent);
+  }
+
+  /* ── Hero image frame ─── */
+  .hero-image-frame {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 40px 100px rgba(0, 0, 0, 0.8),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  /* ── Primary CTA buttons ─── */
+  .btn-rose {
+    background: linear-gradient(135deg, #e8274b, #ff6b35);
+    box-shadow: 0 0 30px rgba(232, 39, 75, 0.35);
+  }
+  .btn-rose-hero {
+    background: linear-gradient(135deg, #e8274b, #ff6b35);
+    box-shadow:
+      0 0 40px rgba(232, 39, 75, 0.45),
+      0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  /* ── Auth page ─── */
+  .logo-rose {
+    background: linear-gradient(135deg, #e8274b, #ff6b35);
+    box-shadow:
+      0 0 50px rgba(232, 39, 75, 0.5),
+      0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  .dark .glass-panel {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 24px 80px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Bottom navigation ─── */
+  .bottom-nav-bar {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow:
+      0 -2px 20px rgba(0, 0, 0, 0.06),
+      0 4px 16px rgba(0, 0, 0, 0.04);
+  }
+  .dark .bottom-nav-bar {
+    background: rgba(10, 6, 18, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow:
+      0 -4px 40px rgba(0, 0, 0, 0.6),
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  .nav-glow-pill {
+    background: linear-gradient(135deg, rgba(232, 39, 75, 0.18), rgba(255, 107, 53, 0.12));
+    box-shadow: 0 0 20px rgba(232, 39, 75, 0.2);
+  }
+  .badge-rose {
+    background: linear-gradient(135deg, #e8274b, #ff6b35);
+    box-shadow: 0 0 8px rgba(232, 39, 75, 0.6);
+  }
+
+  /* ── Profile card ─── */
+  .profile-card-bg {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+  }
+  .dark .profile-card-bg {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow:
+      0 25px 80px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+  .profile-action-bar {
+    background: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid rgba(0, 0, 0, 0.07);
+  }
+  .dark .profile-action-bar {
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Text shadow for image overlays ─── */
+  .text-shadow-dark {
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
   }
 }

@@ -7,5 +7,6 @@ test("homepage loads", async ({ page }) => {
 
 test("auth page loads", async ({ page }) => {
   await page.goto("/auth");
-  await expect(page.locator("text=Shqiponja")).toBeVisible();
+  await expect(page.locator('input[type="email"]')).toBeVisible();
+  await expect(page.locator('input[type="password"]')).toBeVisible();
 });

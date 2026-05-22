@@ -1015,7 +1015,7 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="min-h-dvh bg-gradient-subtle py-8 px-4">
+    <div className="min-h-dvh py-8 px-4 page-bg">
       <div className="container mx-auto max-w-2xl">
         <Button variant="ghost" className="mb-4" onClick={() => navigate("/discover")}>
           <ArrowLeft className="h-5 w-5 mr-2" />

@@ -62,7 +62,7 @@ export function ChatHeader({
 
   return (
     <div className="container mx-auto max-w-2xl p-4">
-      <div className="bg-card rounded-2xl p-5 mb-6 shadow-card">
+      <div className="rounded-2xl p-5 mb-6 glass-header">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button

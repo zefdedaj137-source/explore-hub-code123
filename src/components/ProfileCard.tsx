@@ -48,8 +48,8 @@ const ProfileCard = ({
   const [showReportDialog, setShowReportDialog] = useState(false);
 
   return (
-    <Card className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.3)] transition-all duration-500 group border-0 rounded-3xl bg-card">
-      <div className="relative aspect-[3/4] bg-gradient-to-br from-background via-muted to-primary/20">
+    <div className="overflow-hidden transition-all duration-500 group rounded-3xl relative profile-card-bg">
+      <div className="relative aspect-[3/4]">
         <img
           src={image}
           alt={name}
@@ -58,8 +58,8 @@ const ProfileCard = ({
           decoding={priority ? "sync" : "async"}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
-        {/* Single gradient — bottom up only */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+        {/* Cinematic gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-transparent" />
 
         {profileId && currentUserId && (
           <Button
@@ -75,15 +75,19 @@ const ProfileCard = ({
 
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-3xl font-extrabold tracking-tight drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
-              {name}
-            </h3>
-            <span className="text-2xl font-light opacity-90">{age}</span>
+            <h3 className="text-3xl font-extrabold tracking-tight text-shadow-dark">{name}</h3>
+            <span className="text-2xl font-light opacity-85">{age}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-1 mb-2">
             {verified && (
-              <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
+              <Badge
+                className="border-none text-[10px] px-2 py-0.5 h-5 font-semibold rounded-full"
+                style={{
+                  background: "linear-gradient(135deg, #e8274b, #ff6b35)",
+                  boxShadow: "0 2px 10px rgba(232,39,75,0.4)",
+                }}
+              >
                 ✓ Verified
               </Badge>
             )}
@@ -149,18 +153,27 @@ const ProfileCard = ({
         </div>
       </div>
 
-      <div className="px-4 py-3 flex gap-2.5 justify-center bg-card border-t border-white/5">
+      <div className="px-4 py-3 flex gap-3 justify-center profile-action-bar">
         <Button
           size="lg"
-          variant="outline"
-          className="flex-1 rounded-2xl border-border/60 text-muted-foreground hover:text-foreground hover:border-border hover:bg-secondary/50 transition-all duration-200"
+          variant="ghost"
+          className="flex-1 rounded-2xl font-semibold transition-all duration-200 hover:scale-105"
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.7)",
+          }}
         >
           <X className="h-4 w-4 mr-2" />
           Pass
         </Button>
         <Button
           size="lg"
-          className="flex-1 rounded-2xl bg-gradient-to-r from-[hsl(350,65%,60%)] to-[hsl(18,72%,55%)] hover:brightness-110 text-white border-0 shadow-[0_4px_16px_hsl(350,65%,60%,0.35)] transition-all duration-200"
+          className="flex-1 rounded-2xl font-bold text-white border-0 transition-all duration-200 hover:scale-105 hover:brightness-110"
+          style={{
+            background: "linear-gradient(135deg, #e8274b, #ff6b35)",
+            boxShadow: "0 6px 20px rgba(232,39,75,0.45)",
+          }}
         >
           <Heart className="h-5 w-5 mr-2 fill-current" />
           Like
@@ -177,7 +190,7 @@ const ProfileCard = ({
           context="profile"
         />
       )}
-    </Card>
+    </div>
   );
 };
 

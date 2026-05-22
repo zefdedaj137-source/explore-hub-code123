@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { useParams } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -30,6 +31,11 @@ const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
 const Discover = lazy(() => import("./pages/Discover"));
 const Matches = lazy(() => import("./pages/Matches"));
 const Chat = lazy(() => import("./pages/Chat"));
+// Forces a full remount when matchId changes — prevents stale state (date plans, messages, profile) bleeding between chats
+const ChatWithKey = () => {
+  const { matchId } = useParams();
+  return <Chat key={matchId} />;
+};
 const MyProfile = lazy(() => import("./pages/MyProfile"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -168,7 +174,7 @@ const AppContent = () => {
             path="/chat/:matchId"
             element={
               <ProtectedRoute>
-                <Chat />
+                <ChatWithKey />
               </ProtectedRoute>
             }
           />

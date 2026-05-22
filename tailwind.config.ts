@@ -96,6 +96,35 @@ export default {
           "0%": { transform: "translateY(20px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
         },
+        "slide-in-right": {
+          "0%": { transform: "translateX(30px)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px) scale(1)" },
+          "50%": { transform: "translateY(-20px) scale(1.02)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "200% center" },
+          "100%": { backgroundPosition: "-200% center" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 20px rgba(232,39,75,0.3), 0 0 40px rgba(232,39,75,0.1)" },
+          "50%": { boxShadow: "0 0 50px rgba(232,39,75,0.7), 0 0 80px rgba(232,39,75,0.3)" },
+        },
+        "gradient-x": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "ping-once": {
+          "0%": { transform: "scale(1)", opacity: "1" },
+          "75%": { transform: "scale(2)", opacity: "0" },
+          "100%": { transform: "scale(2)", opacity: "0" },
+        },
+        "border-glow": {
+          "0%, 100%": { borderColor: "rgba(232,39,75,0.3)" },
+          "50%": { borderColor: "rgba(232,39,75,0.8)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -103,6 +132,14 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "slide-up": "slide-up 0.5s ease-out",
+        "slide-in-right": "slide-in-right 0.5s ease-out",
+        float: "float 6s ease-in-out infinite",
+        "float-slow": "float 9s ease-in-out infinite",
+        shimmer: "shimmer 2.5s linear infinite",
+        "glow-pulse": "glow-pulse 2.5s ease-in-out infinite",
+        "gradient-x": "gradient-x 4s ease infinite",
+        "ping-once": "ping-once 1s ease-out forwards",
+        "border-glow": "border-glow 2s ease-in-out infinite",
       },
     },
   },

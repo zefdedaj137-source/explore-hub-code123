@@ -131,27 +131,28 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
       incomingCall.callType === "video" ? "/video-call-ringtone.mp3" : "/voice-call-ringtone.mp3"
     );
     ringtone.loop = true;
+
+    let flashInterval: ReturnType<typeof setInterval> | null = null;
+    let vibrateInterval: ReturnType<typeof setInterval> | null = null;
+
     ringtone.play().catch(() => {
       logger.log("Autoplay blocked, using fallback");
       // Flash title as fallback
       const originalTitle = document.title;
-      const flashInterval = setInterval(() => {
+      flashInterval = setInterval(() => {
         document.title = document.title === originalTitle ? "🔔 INCOMING CALL!" : originalTitle;
       }, 500);
 
       // Vibrate on mobile
       if ("vibrate" in navigator) {
-        const vibrateInterval = setInterval(() => {
+        vibrateInterval = setInterval(() => {
           navigator.vibrate(500);
         }, 1000);
-
-        setTimeout(() => {
-          clearInterval(vibrateInterval);
-        }, 30000);
       }
 
       setTimeout(() => {
-        clearInterval(flashInterval);
+        if (flashInterval) clearInterval(flashInterval);
+        if (vibrateInterval) clearInterval(vibrateInterval);
         document.title = originalTitle;
       }, 30000);
     });
@@ -166,6 +167,8 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
     return () => {
       ringtone.pause();
       ringtone.currentTime = 0;
+      if (flashInterval) clearInterval(flashInterval);
+      if (vibrateInterval) clearInterval(vibrateInterval);
       if (rejectTimeoutRef.current) {
         clearTimeout(rejectTimeoutRef.current);
       }
