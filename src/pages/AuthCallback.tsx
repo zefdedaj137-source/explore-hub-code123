@@ -2,9 +2,11 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -20,7 +22,7 @@ const AuthCallback = () => {
         }
 
         if (!session) {
-          toast.error("Authentication failed");
+          toast.error(t("authCallback.authFailed"));
           navigate("/auth");
           return;
         }
@@ -34,30 +36,30 @@ const AuthCallback = () => {
 
         if (profileError && profileError.code !== "PGRST116") {
           // PGRST116 is "not found" - any other error is unexpected
-          toast.error("Error checking profile");
+          toast.error(t("authCallback.errorProfile"));
         }
 
         if (!profile) {
-          toast.success("Welcome! Please complete your profile.");
+          toast.success(t("authCallback.welcome"));
           navigate("/profile-setup");
         } else {
-          toast.success("Welcome back!");
+          toast.success(t("authCallback.welcomeBack"));
           navigate("/discover");
         }
       } catch (error) {
-        toast.error("Authentication failed");
+        toast.error(t("authCallback.authFailed"));
         navigate("/auth");
       }
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [navigate, t]);
 
   return (
     <div className="min-h-dvh flex items-center justify-center bg-gradient-hero">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Completing sign in...</p>
+        <p className="text-muted-foreground">{t("authCallback.completingSignIn")}</p>
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ import {
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 import BottomNav from "@/components/BottomNav";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslation } from "react-i18next";
 
 interface OnlinePlayer {
   id: string;
@@ -52,6 +53,7 @@ interface GameInvite {
 const GameLobby = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [onlinePlayers, setOnlinePlayers] = useState<OnlinePlayer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,6 +128,7 @@ const GameLobby = () => {
             .filter((p) => !matchedIds.has(p.id))
             .map((p) => ({
               ...p,
+              city: p.city ?? undefined,
               status: (p.game_status as "available" | "in-game") || "available",
             }))
         );
@@ -173,8 +176,8 @@ const GameLobby = () => {
               .single();
 
             if (data) {
-              setPendingInvites((prev) => [...prev, data]);
-              toast.info(`Someone invited you to play!`, {
+              setPendingInvites((prev) => [...prev, data as GameInvite]);
+              toast.info(t("gameLobby.inviteReceived"), {
                 duration: 5000,
               });
             }
@@ -203,7 +206,7 @@ const GameLobby = () => {
             const modeEmoji = gameMode === "history" ? "🏛️" : gameMode === "music" ? "🎵" : "💃";
 
             logger.log(`🎮 SENDER: Navigating to ${gameMode} session:`, sessionId);
-            toast.success(`${modeEmoji} Challenge accepted! Starting game...`);
+            toast.success(`${modeEmoji} ${t("gameLobby.challengeAccepted")}`);
 
             // Update status before navigating
             await updateUserStatus("in-game");
@@ -214,7 +217,7 @@ const GameLobby = () => {
               music: `/game-session-music/${sessionId}`,
               dance: `/game-session-dance/${sessionId}`,
             };
-            navigate(routeMap[gameMode]);
+            navigate(routeMap[gameMode as keyof typeof routeMap]);
           }
         }
       )
@@ -245,7 +248,7 @@ const GameLobby = () => {
         .maybeSingle();
 
       if (existingMatch) {
-        toast.error("You can't play games with someone you've matched with.");
+        toast.error(t("gameLobby.cannotPlayMatched"));
         setShowGameModeDialog(false);
         setSelectedPlayer(null);
         return;
@@ -258,7 +261,7 @@ const GameLobby = () => {
         .eq("to_user_id", selectedPlayer.id)
         .eq("status", "pending");
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("game_invites")
         .insert({
           from_user_id: user.id,
@@ -272,14 +275,13 @@ const GameLobby = () => {
       if (error) throw error;
 
       setSentInvites((prev) => new Set([...prev, selectedPlayer.id]));
-      toast.success(
-        `${gameMode === "history" ? "🏛️ History" : gameMode === "music" ? "🎵 Music" : "💃 Dance"} challenge sent to ${selectedPlayer.name}!`
-      );
+      const modeName = gameMode === "history" ? "🏛️ History" : gameMode === "music" ? "🎵 Music" : "💃 Dance";
+      toast.success(t("gameLobby.inviteSent", { mode: modeName, name: selectedPlayer.name }));
       setShowGameModeDialog(false);
       setSelectedPlayer(null);
     } catch (error) {
       logger.error("Error sending invite:", error);
-      toast.error("Failed to send invite");
+      toast.error(t("gameLobby.failedInvite"));
     }
   };
 
@@ -302,7 +304,7 @@ const GameLobby = () => {
       const modeEmoji = gameMode === "history" ? "🏛️" : gameMode === "music" ? "🎵" : "💃";
 
       logger.log(`🎮 RECEIVER: Navigating to ${gameMode} session:`, invite.id);
-      toast.success(`${modeEmoji} Challenge accepted! Starting game...`);
+      toast.success(`${modeEmoji} ${t("gameLobby.challengeAccepted")}`);
 
       // Navigate to correct game session based on mode
       const routeMap = {
@@ -313,7 +315,7 @@ const GameLobby = () => {
       navigate(routeMap[gameMode]);
     } catch (error) {
       logger.error("Error accepting invite:", error);
-      toast.error("Failed to accept invite");
+      toast.error(t("gameLobby.failedAccept"));
     }
   };
 
@@ -322,7 +324,7 @@ const GameLobby = () => {
       await supabase.from("game_invites").update({ status: "declined" }).eq("id", inviteId);
 
       setPendingInvites((prev) => prev.filter((inv) => inv.id !== inviteId));
-      toast.info("Invite declined");
+      toast.info(t("gameLobby.inviteDeclined"));
     } catch (error) {
       logger.error("Error declining invite:", error);
     }
@@ -333,7 +335,7 @@ const GameLobby = () => {
       <div className="min-h-dvh bg-gradient-subtle flex items-center justify-center">
         <div className="text-center">
           <Users className="h-16 w-16 text-primary animate-pulse mx-auto mb-4" />
-          <p className="text-lg text-muted-foreground">Loading game lobby...</p>
+          <p className="text-lg text-muted-foreground">{t("gameLobby.loadingLobby")}</p>
         </div>
       </div>
     );
@@ -350,11 +352,11 @@ const GameLobby = () => {
             </Button>
             <div className="flex items-center gap-2">
               <Gamepad2 className="h-6 w-6 text-primary" />
-              <h1 className="text-xl font-bold">Game Lobby</h1>
+              <h1 className="text-xl font-bold">{t("gameLobby.title")}</h1>
             </div>
             <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse" />
-              Online
+              {t("gameLobby.online")}
             </Badge>
           </div>
         </div>
@@ -366,7 +368,7 @@ const GameLobby = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Trophy className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Pending Challenges</h2>
+              <h2 className="text-lg font-bold text-foreground">{t("gameLobby.pendingChallenges")}</h2>
             </div>
 
             {pendingInvites.map((invite) => {
@@ -400,7 +402,7 @@ const GameLobby = () => {
                       </Avatar>
                       <div>
                         <p className="font-semibold text-foreground">
-                          Anonymous Player challenges you!
+                          {t("gameLobby.anonymousChallenge")}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {mode.emoji} {mode.name}
@@ -413,14 +415,14 @@ const GameLobby = () => {
                         onClick={() => handleAcceptInvite(invite)}
                         className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                       >
-                        Accept
+                        {t("gameLobby.accept")}
                       </Button>
                       <Button
                         variant="outline"
                         onClick={() => handleDeclineInvite(invite.id)}
                         className="border-red-300 hover:bg-red-50"
                       >
-                        Decline
+                        {t("gameLobby.decline")}
                       </Button>
                     </div>
                   </div>
@@ -435,9 +437,9 @@ const GameLobby = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Online Players</h2>
+              <h2 className="text-lg font-bold text-foreground">{t("gameLobby.onlinePlayers")}</h2>
               <Badge variant="outline" className="text-primary">
-                {onlinePlayers.length} online
+                {t("gameLobby.onlineCount", { count: onlinePlayers.length })}
               </Badge>
             </div>
           </div>
@@ -445,12 +447,12 @@ const GameLobby = () => {
           {onlinePlayers.length === 0 ? (
             <Card className="p-12 text-center">
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2 text-foreground">No Players Online</h3>
+              <h3 className="text-xl font-bold mb-2 text-foreground">{t("gameLobby.noPlayersTitle")}</h3>
               <p className="text-muted-foreground mb-4">
-                Be the first one here! Other players will join soon.
+                {t("gameLobby.noPlayersDesc")}
               </p>
               <p className="text-sm text-muted-foreground">
-                This list updates automatically every 10 seconds
+                {t("gameLobby.autoUpdates")}
               </p>
             </Card>
           ) : (
@@ -467,14 +469,14 @@ const GameLobby = () => {
 
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-foreground">Anonymous Player</h3>
+                          <h3 className="font-semibold text-foreground">{t("gameLobby.anonymousPlayer")}</h3>
                           {player.status === "available" ? (
                             <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">
-                              Available
+                              {t("gameLobby.available")}
                             </Badge>
                           ) : (
                             <Badge className="bg-orange-100 text-orange-700 border-orange-300 text-xs">
-                              In Game
+                              {t("gameLobby.inGame")}
                             </Badge>
                           )}
                         </div>
@@ -492,12 +494,12 @@ const GameLobby = () => {
                       {sentInvites.has(player.id) ? (
                         <>
                           <Sparkles className="h-4 w-4 mr-1" />
-                          Invited
+                          {t("gameLobby.invited")}
                         </>
                       ) : (
                         <>
                           <Send className="h-4 w-4 mr-1" />
-                          Challenge
+                          {t("gameLobby.challenge")}
                         </>
                       )}
                     </Button>
@@ -513,12 +515,12 @@ const GameLobby = () => {
           <div className="flex items-start gap-3">
             <Sparkles className="h-6 w-6 text-primary mt-1" />
             <div>
-              <h3 className="font-semibold text-foreground mb-2">How it works:</h3>
+              <h3 className="font-semibold text-foreground mb-2">{t("gameLobby.howItWorks")}</h3>
               <ul className="text-sm text-foreground space-y-1">
-                <li>• Send invites to players you want to play with</li>
-                <li>• Accept challenges from others to start a game</li>
-                <li>• Play Albanian Trivia together in real-time</li>
-                <li>• After the game, like or pass based on their smartness</li>
+                <li>• {t("gameLobby.tip1")}</li>
+                <li>• {t("gameLobby.tip2")}</li>
+                <li>• {t("gameLobby.tip3")}</li>
+                <li>• {t("gameLobby.tip4")}</li>
               </ul>
             </div>
           </div>
@@ -530,10 +532,10 @@ const GameLobby = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-center">
-              Choose Your Game! 🎮
+              {t("gameLobby.chooseGame")}
             </DialogTitle>
             <DialogDescription className="text-center">
-              Pick a game mode to challenge {selectedPlayer?.name}
+              {t("gameLobby.pickMode", { name: selectedPlayer?.name })}
             </DialogDescription>
           </DialogHeader>
 
@@ -546,9 +548,9 @@ const GameLobby = () => {
               <div className="flex flex-col items-center gap-2 w-full">
                 <div className="flex items-center gap-2">
                   <Trophy className="h-6 w-6" />
-                  <span className="text-xl font-bold">History Lovers</span>
+                  <span className="text-xl font-bold">{t("gameLobby.historyLovers")}</span>
                 </div>
-                <span className="text-sm opacity-90">🏛️ Albanian History & Culture Trivia</span>
+                <span className="text-sm opacity-90">{t("gameLobby.historyDesc")}</span>
               </div>
             </Button>
 
@@ -560,9 +562,9 @@ const GameLobby = () => {
               <div className="flex flex-col items-center gap-2 w-full">
                 <div className="flex items-center gap-2">
                   <Music className="h-6 w-6" />
-                  <span className="text-xl font-bold">Music Lovers</span>
+                  <span className="text-xl font-bold">{t("gameLobby.musicLovers")}</span>
                 </div>
-                <span className="text-sm opacity-90">🎵 Albanian Music & Artists Trivia</span>
+                <span className="text-sm opacity-90">{t("gameLobby.musicDesc")}</span>
               </div>
             </Button>
 
@@ -574,9 +576,9 @@ const GameLobby = () => {
               <div className="flex flex-col items-center gap-2 w-full">
                 <div className="flex items-center gap-2">
                   <PartyPopper className="h-6 w-6" />
-                  <span className="text-xl font-bold">Dance Challenge</span>
+                  <span className="text-xl font-bold">{t("gameLobby.danceChallenge")}</span>
                 </div>
-                <span className="text-sm opacity-90">💃 Valle & Albanian Dance Trivia</span>
+                <span className="text-sm opacity-90">{t("gameLobby.danceDesc")}</span>
               </div>
             </Button>
           </div>

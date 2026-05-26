@@ -11,6 +11,16 @@ const BottomNav = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [dailyRewardPending, setDailyRewardPending] = useState(false);
+
+  // Check if daily reward has not been claimed today
+  useEffect(() => {
+    if (!user) return;
+    const claimKey = `daily_reward_${user.id}`;
+    const lastClaim = localStorage.getItem(claimKey);
+    const today = new Date().toDateString();
+    setDailyRewardPending(lastClaim !== today);
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -60,11 +70,11 @@ const BottomNav = () => {
   }, [unreadCount]);
 
   const navItems = [
-    { icon: Search, label: t("nav.discover"), path: "/discover", badge: 0 },
-    { icon: Heart, label: t("nav.likes"), path: "/who-liked-you", badge: 0 },
-    { icon: Compass, label: t("nav.radar"), path: "/radar", badge: 0 },
-    { icon: MessageCircle, label: t("nav.chat"), path: "/matches", badge: unreadCount },
-    { icon: User, label: t("nav.profile"), path: "/my-profile", badge: 0 },
+    { icon: Search, label: t("nav.discover"), path: "/discover", badge: 0, dot: false },
+    { icon: Heart, label: t("nav.likes"), path: "/who-liked-you", badge: 0, dot: false },
+    { icon: Compass, label: t("nav.radar"), path: "/radar", badge: 0, dot: false },
+    { icon: MessageCircle, label: t("nav.chat"), path: "/matches", badge: unreadCount, dot: false },
+    { icon: User, label: t("nav.profile"), path: "/my-profile", badge: 0, dot: dailyRewardPending },
   ];
 
   return (
@@ -108,6 +118,9 @@ const BottomNav = () => {
                     <span className="absolute -top-1.5 -right-2 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 badge-rose">
                       {item.badge > 99 ? "99+" : item.badge}
                     </span>
+                  )}
+                  {item.dot && item.badge === 0 && (
+                    <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-orange-500 border-2 border-background animate-pulse" />
                   )}
                 </div>
                 <span

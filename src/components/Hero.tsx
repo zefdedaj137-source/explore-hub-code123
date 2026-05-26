@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Heart, Users, Globe, ArrowRight, Sparkles, MapPin, Shield } from "lucide-react";
 import albanianEagle from "@/assets/albanian-eagle.png";
 import heroCouple from "@/assets/hero-couple.jpg";
+import { useTranslation } from "react-i18next";
 
 const Hero = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <section className="relative min-h-dvh flex items-center justify-center overflow-hidden page-bg">
@@ -34,19 +36,18 @@ const Hero = () => {
               </span>
               <img src={albanianEagle} alt="" role="presentation" className="w-5 h-5 opacity-80" />
               <span className="text-sm font-semibold tracking-widest uppercase text-white/70">
-                Premium Albanian Dating
+                {t("hero.premiumDating")}
               </span>
             </div>
 
             {/* Headline */}
             <div className="space-y-3">
               <h1 className="text-6xl md:text-[82px] font-bold leading-[0.88] tracking-tight font-serif">
-                <span className="block text-white/95">Find Your</span>
-                <span className="block text-gradient-fire animate-gradient-x">Dashuri</span>
+                <span className="block text-white/95">{t("hero.findYour")}</span>
+                <span className="block text-gradient-fire animate-gradient-x">{t("hero.dashuri")}</span>
               </h1>
               <p className="text-lg md:text-xl leading-relaxed max-w-md font-light text-white/[0.42]">
-                Where Albanian hearts connect across the world. Authentic connections, real stories,
-                lasting love.
+                {t("hero.tagline")}
               </p>
             </div>
 
@@ -58,7 +59,7 @@ const Hero = () => {
                 className="group relative overflow-hidden text-white border-0 text-base px-8 py-6 rounded-2xl font-semibold transition-all hover:scale-105 hover:opacity-90 btn-rose-hero"
               >
                 <Heart className="mr-2 h-5 w-5 fill-current" />
-                Start Your Journey
+                {t("hero.startJourney")}
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button
@@ -69,16 +70,16 @@ const Hero = () => {
                 }
                 className="text-base px-8 py-6 rounded-2xl font-semibold transition-all hover:scale-105 bg-white/[0.06] border border-white/[0.12] text-white/75"
               >
-                Explore Profiles
+                {t("hero.exploreProfiles")}
               </Button>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3 pt-4">
               {[
-                { icon: Users, value: "50K+", label: "Members" },
-                { icon: Heart, value: "5K+", label: "Couples" },
-                { icon: Globe, value: "70+", label: "Countries" },
+                { icon: Users, value: "50K+", label: t("hero.members") },
+                { icon: Heart, value: "5K+", label: t("hero.couples") },
+                { icon: Globe, value: "70+", label: t("hero.countries") },
               ].map(({ icon: Icon, value, label }) => (
                 <div key={label} className="glass-card rounded-2xl p-4 text-center">
                   <Icon className="h-4 w-4 mx-auto mb-1.5 text-amber-400/70" />
@@ -114,9 +115,9 @@ const Hero = () => {
                   </div>
                   <div>
                     <p className="text-sm italic leading-relaxed text-white/[0.82]">
-                      "Found my perfect match here. Forever grateful! 🇦🇱"
+                      "{t("hero.testimonialQuote")}"
                     </p>
-                    <p className="text-xs mt-1 text-white/[0.38]">— Lora &amp; Ardit, New York</p>
+                    <p className="text-xs mt-1 text-white/[0.38]">{t("hero.testimonialAuthor")}</p>
                   </div>
                 </div>
               </div>
@@ -125,19 +126,19 @@ const Hero = () => {
             {/* Floating badge – verified */}
             <div className="absolute -top-4 -right-4 glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 animate-float-slow shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
               <Shield className="w-4 h-4 text-green-400" />
-              <span className="text-sm font-semibold text-white/85">Verified Profiles</span>
+              <span className="text-sm font-semibold text-white/85">{t("hero.verifiedProfiles")}</span>
             </div>
 
             {/* Floating badge – nearby */}
             <div className="absolute top-1/2 -left-6 glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 animate-float shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
               <MapPin className="w-4 h-4 text-[#e8274b]" />
-              <span className="text-sm font-semibold text-white/85">Near You</span>
+              <span className="text-sm font-semibold text-white/85">{t("hero.nearYou")}</span>
             </div>
 
             {/* Floating badge – premium */}
             <div className="absolute bottom-40 -right-5 glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-semibold text-white/85">Premium Matches</span>
+              <span className="text-sm font-semibold text-white/85">{t("hero.premiumMatches")}</span>
             </div>
           </div>
         </div>

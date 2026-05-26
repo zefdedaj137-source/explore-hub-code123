@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { X, Heart, Trophy, Sparkles, Music } from "lucide-react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface GameQuestion {
   question: string;
@@ -616,6 +617,7 @@ const GameSessionMusic = () => {
   const { sessionId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [opponent, setOpponent] = useState<OpponentProfile | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);
@@ -676,7 +678,7 @@ const GameSessionMusic = () => {
       setLoading(false);
     } catch (error) {
       logger.error("Error initializing game:", error);
-      toast.error("Failed to load game");
+      toast.error(t("gameSession.failedLoad"));
       navigate("/game-lobby");
     }
   };
@@ -704,12 +706,12 @@ const GameSessionMusic = () => {
           generateMyQuestion();
         }
       })
-      .on("broadcast", { event: "game_finished" }, (payload) => {
+      .on("broadcast", { event: "game_finished" }, (_payload) => {
         logger.log("🏁 Opponent finished the game!");
         setOpponentFinished(true);
       })
       .on("broadcast", { event: "game_cancelled" }, () => {
-        toast.info("Opponent left the game");
+        toast.info(t("gameSession.opponentLeft"));
         navigate("/game-lobby");
       })
       .subscribe();
@@ -726,7 +728,7 @@ const GameSessionMusic = () => {
       payload: { userId: user?.id },
     });
     navigate("/game-lobby");
-    toast.info("You left the game");
+    toast.info(t("gameSession.youLeft"));
   };
 
   const generateMyQuestion = () => {
@@ -786,7 +788,7 @@ const GameSessionMusic = () => {
 
   const switchTurn = () => {
     const nextTurnUserId = currentTurn === user?.id ? opponent?.id : user?.id;
-    setCurrentTurn(nextTurnUserId);
+    setCurrentTurn(nextTurnUserId ?? null);
 
     supabase.channel(`game-session-music-${sessionId}`).send({
       type: "broadcast",
@@ -813,17 +815,17 @@ const GameSessionMusic = () => {
       if (error) throw error;
 
       if (data?.is_match) {
-        toast.success("It's a Match! 🎉", {
-          description: `You and ${opponent.full_name} can now chat!`,
+        toast.success(t("gameSession.itsAMatch"), {
+          description: t("gameSession.matchDesc", { name: opponent.full_name }),
         });
       } else {
-        toast.success(`You liked ${opponent.full_name}! 💕`);
+        toast.success(t("gameSession.likedProfile", { name: opponent.full_name }));
       }
 
       navigate("/game-lobby");
     } catch (error) {
       logger.error("Error liking profile:", error);
-      toast.error("Failed to like profile");
+      toast.error(t("gameSession.failedLike"));
       setActionTaken(false);
     }
   };
@@ -840,7 +842,7 @@ const GameSessionMusic = () => {
       <div className="min-h-dvh bg-gradient-to-br from-primary/10 to-pink-50 flex items-center justify-center">
         <div className="text-center">
           <Music className="h-16 w-16 text-primary animate-pulse mx-auto mb-4" />
-          <p className="text-lg text-muted-foreground">Loading music game...</p>
+          <p className="text-lg text-muted-foreground">{t("gameSession.loadingMusic")}</p>
         </div>
       </div>
     );
@@ -859,7 +861,7 @@ const GameSessionMusic = () => {
                 onClick={handleCancelGame}
                 className="text-muted-foreground hover:text-destructive"
               >
-                <X className="h-4 w-4 mr-1" /> Exit Game
+                <X className="h-4 w-4 mr-1" /> {t("gameSession.exitGame")}
               </Button>
             </div>
 
@@ -867,7 +869,7 @@ const GameSessionMusic = () => {
             <div className="text-center mb-4">
               <Music className="h-10 w-10 text-primary mx-auto mb-2" />
               <h2 className="text-2xl font-bold text-primary">Music Lovers 🎵</h2>
-              <p className="text-sm text-muted-foreground">Albanian Music Trivia</p>
+              <p className="text-sm text-muted-foreground">{t("gameSession.albanianMusicTrivia")}</p>
             </div>
 
             {/* Players */}
@@ -892,7 +894,7 @@ const GameSessionMusic = () => {
                   } animate-pulse`}
                 />
                 <p className="text-sm font-semibold">
-                  {currentTurn === user?.id ? "Your Turn" : "Opponent's Turn"}
+                  {currentTurn === user?.id ? t("gameSession.yourTurn") : t("gameSession.opponentTurn")}
                 </p>
                 <Badge variant="outline" className="mt-1">
                   Question {questionNumber + 1}/6
@@ -956,11 +958,11 @@ const GameSessionMusic = () => {
                 {showResult && selectedAnswer !== null && (
                   <div className="text-center py-4">
                     <p className="text-2xl font-bold">
-                      {selectedAnswer === currentQuestion.correct ? "✅ Correct!" : "❌ Incorrect!"}
+                      {selectedAnswer === currentQuestion.correct ? t("gameSession.correct") : t("gameSession.incorrect")}
                     </p>
                     {selectedAnswer !== currentQuestion.correct && (
                       <p className="text-sm text-muted-foreground mt-2">
-                        Answer: {currentQuestion.answers[currentQuestion.correct]}
+                        {t("gameSession.answer", { answer: currentQuestion.answers[currentQuestion.correct] })}
                       </p>
                     )}
                   </div>
@@ -970,7 +972,7 @@ const GameSessionMusic = () => {
                 {currentTurn !== user?.id && !showResult && !gameFinished && (
                   <div className="text-center py-4">
                     <p className="text-muted-foreground animate-pulse">
-                      Your opponent is thinking...
+                      {t("gameSession.opponentThinking")}
                     </p>
                   </div>
                 )}
@@ -978,10 +980,10 @@ const GameSessionMusic = () => {
                 {gameFinished && !opponentFinished && (
                   <div className="text-center py-4 bg-yellow-50 rounded-lg p-4">
                     <p className="text-lg font-semibold text-yellow-800">
-                      ✨ You've completed all questions!
+                      {t("gameSession.completedAll")}
                     </p>
                     <p className="text-sm text-muted-foreground mt-2">
-                      Waiting for your opponent to finish...
+                      {t("gameSession.waitingOpponent")}
                     </p>
                   </div>
                 )}
@@ -993,20 +995,20 @@ const GameSessionMusic = () => {
             {!bothFinished ? (
               <div className="text-center py-12">
                 <Music className="h-20 w-20 text-primary mx-auto mb-4 animate-bounce" />
-                <h2 className="text-3xl font-bold mb-4">You Finished!</h2>
+                <h2 className="text-3xl font-bold mb-4">{t("gameSession.youFinished")}</h2>
                 <p className="text-xl text-foreground mb-2">
-                  Your Score: <span className="font-bold text-primary">{yourScore}/6</span>
+                  {t("gameSession.yourScore")}: <span className="font-bold text-primary">{yourScore}/6</span>
                 </p>
                 <div className="mt-8">
                   <p className="text-lg text-muted-foreground animate-pulse">
-                    Waiting for your opponent to finish...
+                    {t("gameSession.waitingOpponent")}
                   </p>
                 </div>
               </div>
             ) : (
               <div className="text-center">
                 <Trophy className="h-20 w-20 text-primary mx-auto mb-4" />
-                <h2 className="text-3xl font-bold mb-6">Game Finished!</h2>
+                <h2 className="text-3xl font-bold mb-6">{t("gameSession.gameFinished")}</h2>
 
                 <div className="flex justify-center gap-12 mb-8">
                   <div className="text-center">
@@ -1016,7 +1018,7 @@ const GameSessionMusic = () => {
                         You
                       </AvatarFallback>
                     </Avatar>
-                    <p className="text-sm text-muted-foreground mb-1">Your Score</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t("gameSession.yourScore")}</p>
                     <p className="text-5xl font-bold text-primary">{yourScore}</p>
                   </div>
 
@@ -1034,12 +1036,12 @@ const GameSessionMusic = () => {
 
                 <div className="mb-8">
                   <p className="text-2xl font-bold text-foreground mb-2">
-                    {yourScore > opponentScore && "You Won! 🏆"}
-                    {yourScore === opponentScore && "It's a Tie! 🤝"}
-                    {yourScore < opponentScore && `${opponent.full_name} Won! 🌟`}
+                    {yourScore > opponentScore && t("gameSession.youWon")}
+                    {yourScore === opponentScore && t("gameSession.tie")}
+                    {yourScore < opponentScore && t("gameSession.opponentWon", { name: opponent.full_name })}
                   </p>
                   <p className="text-muted-foreground">
-                    Did you enjoy playing with {opponent.full_name}?
+                    {t("gameSession.enjoyedPlaying", { name: opponent.full_name })}
                   </p>
                 </div>
 
@@ -1052,7 +1054,7 @@ const GameSessionMusic = () => {
                   >
                     <div className="flex flex-col items-center">
                       <X className="h-12 w-12 text-muted-foreground" />
-                      <span className="text-sm mt-2">Pass</span>
+                      <span className="text-sm mt-2">{t("gameSession.pass")}</span>
                     </div>
                   </Button>
 
@@ -1063,7 +1065,7 @@ const GameSessionMusic = () => {
                   >
                     <div className="flex flex-col items-center">
                       <Heart className="h-12 w-12 text-white fill-white" />
-                      <span className="text-sm mt-2 text-white">Like</span>
+                      <span className="text-sm mt-2 text-white">{t("gameSession.like")}</span>
                     </div>
                   </Button>
                 </div>

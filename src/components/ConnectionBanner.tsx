@@ -1,7 +1,9 @@
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { useTranslation } from "react-i18next";
 
 export function ConnectionBanner() {
   const { isOnline, wasOffline } = useConnectionStatus();
+  const { t } = useTranslation();
 
   if (isOnline && !wasOffline) return null;
 
@@ -11,7 +13,7 @@ export function ConnectionBanner() {
         isOnline ? "bg-green-500 text-white" : "bg-destructive text-destructive-foreground"
       }`}
     >
-      {isOnline ? "Back online ✓" : "No internet connection"}
+      {isOnline ? t("connectionBanner.backOnline") : t("connectionBanner.noInternet")}
     </div>
   );
 }

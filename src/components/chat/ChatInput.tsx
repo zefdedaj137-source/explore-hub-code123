@@ -121,7 +121,7 @@ export function ChatInput({
                 size="icon"
                 className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
                 onClick={onClearImage}
-                aria-label="Remove image"
+                aria-label={t("chatInput.removeImage")}
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -153,7 +153,7 @@ export function ChatInput({
           <div className="container mx-auto max-w-2xl flex gap-2 items-center">
             <div className="flex-1 bg-card rounded-lg p-3 flex items-center gap-2">
               <Mic className="h-5 w-5 text-primary" />
-              <span className="text-sm text-foreground">Voice message recorded</span>
+              <span className="text-sm text-foreground">{t("chatInput.voiceMessageRecorded")}</span>
             </div>
             <Button
               variant="outline"
@@ -197,7 +197,7 @@ export function ChatInput({
                 className="text-muted-foreground hover:text-foreground hover:bg-white/6 rounded-xl h-9 w-9"
                 disabled={blockedByYou || blockedYou}
                 title="Plan a date"
-                aria-label="Plan a date"
+                aria-label={t("chatInput.planADate")}
               >
                 <Calendar className="h-4.5 w-4.5" />
               </Button>
@@ -209,7 +209,7 @@ export function ChatInput({
                 className="text-muted-foreground hover:text-foreground hover:bg-white/6 rounded-xl h-9 w-9"
                 disabled={blockedByYou || blockedYou}
                 title="Send photo"
-                aria-label="Send photo"
+                aria-label={t("chatInput.sendPhoto")}
               >
                 <ImageIcon className="h-4.5 w-4.5" />
               </Button>
@@ -221,7 +221,7 @@ export function ChatInput({
                 className="text-muted-foreground hover:text-foreground hover:bg-white/6 rounded-xl h-9 w-9"
                 disabled={blockedByYou || blockedYou}
                 title="Take photo"
-                aria-label="Take photo"
+                aria-label={t("chatInput.takePhoto")}
               >
                 <Camera className="h-4.5 w-4.5" />
               </Button>
@@ -233,7 +233,7 @@ export function ChatInput({
                 className="text-muted-foreground hover:text-foreground hover:bg-white/6 rounded-xl h-9 w-9"
                 disabled={blockedByYou || blockedYou}
                 title="Send GIF"
-                aria-label="Send GIF"
+                aria-label={t("chatInput.sendGIF")}
               >
                 <span className="text-[11px] font-bold">GIF</span>
               </Button>

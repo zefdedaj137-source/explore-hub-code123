@@ -86,14 +86,14 @@ const extractSpotifyTrackId = (url: string): string | null => {
   return m ? m[1] : null;
 };
 
-const formatTimeAgo = (timestamp: string): string => {
+const formatTimeAgo = (timestamp: string, t: (key: string, opts?: Record<string, unknown>) => string): string => {
   const now = new Date();
   const past = new Date(timestamp);
   const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
-  if (diffInSeconds < 60) return "Just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  if (diffInSeconds < 60) return t("common.justNow");
+  if (diffInSeconds < 3600) return t("common.minutesAgo", { min: Math.floor(diffInSeconds / 60) });
+  if (diffInSeconds < 86400) return t("common.hoursAgo", { hr: Math.floor(diffInSeconds / 3600) });
+  return t("common.daysAgo", { day: Math.floor(diffInSeconds / 86400) });
 };
 
 const MyProfile = () => {
@@ -120,12 +120,12 @@ const MyProfile = () => {
 
     if (error) {
       logger.error("Error fetching profile:", error);
-      toast.error("Failed to load profile");
+      toast.error(t("profile.failedLoad"));
     } else {
       setProfile(data as Profile);
     }
     setLoading(false);
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     if (!user) {
@@ -246,12 +246,12 @@ const MyProfile = () => {
 
       if (updateError) throw updateError;
 
-      toast.success("Profile photo updated!");
+      toast.success(t("profile.photoUpdated"));
       // Refetch to get the updated profile
       await fetchProfile();
     } catch (error) {
       logger.error("Error uploading image:", error);
-      toast.error("Failed to upload photo");
+      toast.error(t("profile.failedUploadPhoto"));
     } finally {
       setUploading(false);
     }
@@ -322,7 +322,7 @@ const MyProfile = () => {
   if (!profile) {
     return (
       <div className="min-h-dvh bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Profile not found</p>
+        <p className="text-muted-foreground">{t("profile.profileNotFound")}</p>
       </div>
     );
   }
@@ -340,7 +340,7 @@ const MyProfile = () => {
             <button
               onClick={() => navigate(-1)}
               className="p-2 hover:bg-muted rounded-full transition-colors"
-              aria-label="Go back"
+              aria-label={t("profile.goBack")}
             >
               <ArrowLeft className="h-6 w-6 text-primary/80" />
             </button>
@@ -356,7 +356,7 @@ const MyProfile = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Profile Completion
+              {t("profile.profileCompletion")}
             </h2>
             <Badge className={`bg-gradient-to-r ${progressColor} text-white border-none`}>
               {completionPercent}%
@@ -370,7 +370,7 @@ const MyProfile = () => {
           </div>
           {completionPercent < 80 && nextIncompleteItem && (
             <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-xl">
-              <p className="text-xs text-muted-foreground mb-0.5">Next step</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{t("profile.nextStep")}</p>
               <p className="font-semibold text-sm text-foreground">{nextIncompleteItem.label}</p>
               <p className="text-xs text-primary mt-0.5">{nextIncompleteItem.tip}</p>
             </div>
@@ -433,7 +433,7 @@ const MyProfile = () => {
                 className="hidden"
                 onChange={handleImageUpload}
                 disabled={uploading}
-                aria-label="Upload profile picture"
+                aria-label={t("profile.uploadPicture")}
               />
             </label>
           </div>
@@ -452,13 +452,13 @@ const MyProfile = () => {
               <>
                 <span className="text-lg">{profile.mood_emoji}</span>
                 <span className="text-sm text-primary/60">
-                  {profile.mood_text || "Set your mood"}
+                  {profile.mood_text || t("profile.setYourMood")}
                 </span>
               </>
             ) : (
               <>
                 <Smile className="h-4 w-4 text-primary/80" />
-                <span className="text-sm text-primary/80">Set your mood</span>
+                <span className="text-sm text-primary/80">{t("profile.setYourMood")}</span>
               </>
             )}
           </button>
@@ -481,7 +481,7 @@ const MyProfile = () => {
               onClick={() => navigate("/edit-profile")}
               className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white px-6"
             >
-              Edit Profile
+              {t("profile.editProfile")}
             </Button>
             <Button
               onClick={() => {
@@ -492,15 +492,15 @@ const MyProfile = () => {
               className="px-6"
             >
               <Eye className="h-4 w-4 mr-2" />
-              Preview
+              {t("profile.preview")}
             </Button>
             <Button onClick={() => navigate("/stories")} variant="outline" className="px-6">
               <Camera className="h-4 w-4 mr-2" />
-              Story
+              {t("profile.story")}
             </Button>
             <Button onClick={() => navigate("/settings")} variant="outline" className="px-6">
               <Settings className="h-4 w-4 mr-2" />
-              Settings
+              {t("profile.settings")}
             </Button>
             <Button
               onClick={async () => {
@@ -517,14 +517,14 @@ const MyProfile = () => {
                   }
                 } else {
                   await navigator.clipboard.writeText(shareData.url);
-                  toast.success("Profile link copied!");
+                  toast.success(t("profile.linkCopied"));
                 }
               }}
               variant="outline"
               className="px-6"
             >
               <Share2 className="h-4 w-4 mr-2" />
-              Share
+              {t("profile.share")}
             </Button>
           </div>
 
@@ -532,8 +532,7 @@ const MyProfile = () => {
           {earnedBadges.length > 0 && (
             <div className="mt-6">
               <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-1">
-                <Sparkles className="h-4 w-4" /> Achievements ({earnedBadges.length}/
-                {ACHIEVEMENTS.length})
+                <Sparkles className="h-4 w-4" /> {t("profile.achievements", { earned: earnedBadges.length, total: ACHIEVEMENTS.length })}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {ACHIEVEMENTS.map((a) => {
@@ -579,7 +578,7 @@ const MyProfile = () => {
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold flex items-center gap-2">
                       <Music2 className="h-5 w-5 text-primary" />
-                      My Soundtrack
+                      {t("profile.mySoundtrack")}
                     </h3>
                     <Button
                       variant="ghost"
@@ -587,7 +586,7 @@ const MyProfile = () => {
                       onClick={() => navigate("/profile-soundtrack")}
                       className="text-xs text-muted-foreground"
                     >
-                      Edit
+                      {t("common.edit")}
                     </Button>
                   </div>
                   {(profile.soundtrack_title || profile.soundtrack_artist) && (
@@ -631,7 +630,7 @@ const MyProfile = () => {
             className="w-full flex items-center gap-3 p-4 bg-card border border-dashed border-primary/30 rounded-xl hover:border-primary/50 transition-colors"
           >
             <Music2 className="h-5 w-5 text-primary" />
-            <span className="text-sm text-muted-foreground">Add a theme song to your profile</span>
+            <span className="text-sm text-muted-foreground">{t("profile.addThemeSong")}</span>
             <Plus className="h-4 w-4 text-muted-foreground ml-auto" />
           </button>
         )}
@@ -643,7 +642,7 @@ const MyProfile = () => {
               <div className="flex items-center justify-center gap-2 mb-4">
                 <Crown className="h-6 w-6 text-primary animate-pulse" />
                 <h3 className="text-xl font-bold text-foreground">
-                  Get More with Shqiponja Premium
+                  {t("profile.getPremiumTitle")}
                 </h3>
               </div>
 
@@ -653,9 +652,9 @@ const MyProfile = () => {
                     <Heart className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">See Who Liked You</h4>
+                    <h4 className="font-semibold text-foreground">{t("profile.seeWhoLiked")}</h4>
                     <p className="text-sm text-muted-foreground">
-                      No more guessing - know exactly who's interested
+                      {t("profile.noMoreGuessing")}
                     </p>
                   </div>
                 </div>
@@ -665,9 +664,9 @@ const MyProfile = () => {
                     <Zap className="h-5 w-5 text-white" fill="currentColor" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">5 Free Boosts Monthly</h4>
+                    <h4 className="font-semibold text-foreground">{t("profile.freeBoostsMonthly")}</h4>
                     <p className="text-sm text-muted-foreground">
-                      Get 10x more profile views with booster
+                      {t("profile.get10xViews")}
                     </p>
                   </div>
                 </div>
@@ -677,9 +676,9 @@ const MyProfile = () => {
                     <Phone className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">Unlimited Video & Voice Calls</h4>
+                    <h4 className="font-semibold text-foreground">{t("profile.unlimitedCallsVideo")}</h4>
                     <p className="text-sm text-muted-foreground">
-                      Connect deeper with unlimited calling
+                      {t("profile.connectDeeper")}
                     </p>
                   </div>
                 </div>
@@ -689,9 +688,9 @@ const MyProfile = () => {
                     <Eye className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">Advanced Filters</h4>
+                    <h4 className="font-semibold text-foreground">{t("profile.advancedFilters")}</h4>
                     <p className="text-sm text-muted-foreground">
-                      Filter by height, education, lifestyle & more
+                      {t("profile.filterAdvanced")}
                     </p>
                   </div>
                 </div>
@@ -701,9 +700,9 @@ const MyProfile = () => {
                     <Users className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">Unlimited Swipes</h4>
+                    <h4 className="font-semibold text-foreground">{t("profile.unlimitedSwipes")}</h4>
                     <p className="text-sm text-muted-foreground">
-                      Never run out of potential matches
+                      {t("profile.neverRunOut")}
                     </p>
                   </div>
                 </div>
@@ -715,7 +714,7 @@ const MyProfile = () => {
                 size="lg"
               >
                 <Crown className="h-6 w-6 mr-2" fill="currentColor" />
-                Go Premium!
+                {t("profile.goPremium")}
               </Button>
             </div>
           </Card>
@@ -727,10 +726,10 @@ const MyProfile = () => {
             <div className="p-6 text-center">
               <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none text-lg px-6 py-2">
                 <Crown className="h-5 w-5 mr-2" fill="currentColor" />
-                Premium Member
+                {t("profile.premiumMember")}
               </Badge>
               <p className="text-sm text-muted-foreground mt-3">
-                You're enjoying all premium features! ✨
+                {t("profile.premiumEnjoy")}
               </p>
             </div>
           </Card>
@@ -749,15 +748,15 @@ const MyProfile = () => {
             </DialogTitle>
             <div className="flex flex-wrap gap-2">
               {profile.verified && (
-                <Badge className="bg-primary text-white border-none">Verified</Badge>
+                <Badge className="bg-primary text-white border-none">{t("common.verified")}</Badge>
               )}
               {profile.is_premium && (
                 <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
-                  Premium
+                  {t("common.premium")}
                 </Badge>
               )}
               {profile.video_intro_url && (
-                <Badge className="bg-background/80 text-white border-none">Video Intro</Badge>
+                <Badge className="bg-background/80 text-white border-none">{t("common.videoIntroLabel")}</Badge>
               )}
               {profile.mood_emoji && (
                 <Badge
@@ -825,7 +824,7 @@ const MyProfile = () => {
                 </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  No photo
+                  {t("common.noPhoto")}
                 </div>
               )}
             </div>
@@ -833,7 +832,7 @@ const MyProfile = () => {
             {/* Video Intro */}
             {profile.video_intro_url && (
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
                 <div className="rounded-lg overflow-hidden border border-primary/20">
                   <video
                     src={profile.video_intro_url}
@@ -1026,7 +1025,7 @@ const MyProfile = () => {
           className="max-w-md p-0 overflow-hidden bg-black border-0"
           aria-describedby={undefined}
         >
-          <DialogTitle className="sr-only">Story Viewer</DialogTitle>
+          <DialogTitle className="sr-only">{t("common.storyViewer")}</DialogTitle>
           {myStories[storyViewerIndex] && (
             <div className="relative">
               {/* Progress bars */}
@@ -1051,7 +1050,7 @@ const MyProfile = () => {
                     {profile?.full_name}
                   </p>
                   <p className="text-xs text-white/70">
-                    {formatTimeAgo(myStories[storyViewerIndex].created_at)}
+                    {formatTimeAgo(myStories[storyViewerIndex].created_at, t)}
                   </p>
                 </div>
               </div>
@@ -1090,7 +1089,7 @@ const MyProfile = () => {
                   onClick={() => {
                     if (storyViewerIndex > 0) setStoryViewerIndex(storyViewerIndex - 1);
                   }}
-                  aria-label="Previous story"
+                  aria-label={t("profile.previousStory")}
                 />
                 <button
                   className="w-1/2 h-full"
@@ -1099,7 +1098,7 @@ const MyProfile = () => {
                       setStoryViewerIndex(storyViewerIndex + 1);
                     else setShowStoryViewer(false);
                   }}
-                  aria-label="Next story"
+                  aria-label={t("profile.nextStory")}
                 />
               </div>
             </div>

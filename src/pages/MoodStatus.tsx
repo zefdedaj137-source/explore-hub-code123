@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const MOODS = [
   { emoji: "😊", label: "Happy" },
@@ -31,6 +32,7 @@ const MOODS = [
 const MoodStatus = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [selectedEmoji, setSelectedEmoji] = useState("😊");
   const [moodText, setMoodText] = useState("");
   const [savedMood, setSavedMood] = useState<{ emoji: string; text: string; date: string } | null>(
@@ -91,7 +93,7 @@ const MoodStatus = () => {
       } as never)
       .eq("id", user.id);
 
-    toast.success("Mood set! " + selectedEmoji);
+    toast.success(t("moodStatus.moodSet", { emoji: selectedEmoji }));
   };
 
   return (
@@ -101,20 +103,20 @@ const MoodStatus = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Smile className="h-5 w-5 text-primary" />
-        <h1 className="text-lg font-bold">Daily Mood</h1>
+        <h1 className="text-lg font-bold">{t("moodStatus.title")}</h1>
       </div>
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
         {savedMood && (
           <Card className="p-6 text-center bg-gradient-to-br from-yellow-100 to-orange-100">
             <p className="text-6xl mb-2">{savedMood.emoji}</p>
-            <p className="text-lg font-semibold">{savedMood.text || "Feeling good!"}</p>
-            <p className="text-sm text-muted-foreground mt-1">Today's mood</p>
+            <p className="text-lg font-semibold">{savedMood.text || t("moodStatus.feelingGood")}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t("moodStatus.todaysMood")}</p>
           </Card>
         )}
 
         <Card className="p-4">
-          <h2 className="font-semibold mb-3">Pick your mood</h2>
+          <h2 className="font-semibold mb-3">{t("moodStatus.pickMood")}</h2>
           <div className="grid grid-cols-4 gap-3">
             {MOODS.map((m) => (
               <button
@@ -134,9 +136,9 @@ const MoodStatus = () => {
         </Card>
 
         <Card className="p-4 space-y-3">
-          <h2 className="font-semibold">Add a status text</h2>
+          <h2 className="font-semibold">{t("moodStatus.addStatusText")}</h2>
           <Input
-            placeholder="What's on your mind? e.g. Looking for brunch buddies 🥞"
+            placeholder={t("moodStatus.placeholder")}
             value={moodText}
             onChange={(e) => setMoodText(e.target.value)}
             maxLength={60}
@@ -146,7 +148,7 @@ const MoodStatus = () => {
             onClick={saveMood}
             className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
           >
-            Set Mood {selectedEmoji}
+            {t("moodStatus.setMood")} {selectedEmoji}
           </Button>
         </Card>
       </div>

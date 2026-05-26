@@ -15,6 +15,7 @@ import { Plane, MapPin, X, Search } from "lucide-react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTranslation } from "react-i18next";
 
 // All cities by country — comprehensive worldwide list
 const CITIES: { city: string; country: string }[] = [
@@ -1779,6 +1780,7 @@ export const TravelMode = ({
   const [country, setCountry] = useState("");
   // When true, show city picker even while travel mode is active (Change City flow)
   const [isChangingCity, setIsChangingCity] = useState(false);
+  const { t } = useTranslation();
 
   const filteredCities = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -1803,7 +1805,7 @@ export const TravelMode = ({
 
   const handleActivateTravelMode = async () => {
     if (!city || !country) {
-      toast.error("Please select a destination");
+      toast.error(t("travelMode.pleaseSelect"));
       return;
     }
 
@@ -1824,7 +1826,7 @@ export const TravelMode = ({
         const geocodeData = await geocodeResponse.json();
 
         if (!geocodeData || geocodeData.length === 0) {
-          toast.error("Could not find that location. Please try again.");
+          toast.error(t("travelMode.locationNotFound"));
           setLoading(false);
           return;
         }
@@ -1851,11 +1853,11 @@ export const TravelMode = ({
         resetPicker();
         onTravelModeChange();
       } else {
-        toast.error(data?.error || "Failed to activate Travel Mode");
+        toast.error(data?.error || t("travelMode.activateFailed"));
       }
     } catch (err) {
       logger.error("Error activating travel mode:", err);
-      toast.error("Failed to activate Travel Mode");
+      toast.error(t("travelMode.activateFailed"));
     } finally {
       setLoading(false);
     }
@@ -1871,14 +1873,14 @@ export const TravelMode = ({
       if (error) throw error;
 
       if (data?.success) {
-        toast.success("Back to your home location");
+        toast.success(t("travelMode.backHome"));
         setOpen(false);
         resetPicker();
         onTravelModeChange();
       }
     } catch (err) {
       logger.error("Error deactivating travel mode:", err);
-      toast.error("Failed to deactivate Travel Mode");
+      toast.error(t("travelMode.deactivateFailed"));
     } finally {
       setLoading(false);
     }
@@ -1889,12 +1891,12 @@ export const TravelMode = ({
     <>
       <DialogHeader>
         <DialogTitle>
-          ✈️ {isChangingCity ? "Change Destination" : "Where are you going?"}
+          ✈️ {isChangingCity ? t("travelMode.changeDestination") : t("travelMode.whereGoing")}
         </DialogTitle>
         <DialogDescription>
           {isChangingCity
-            ? `Currently in ${travelCity}. Pick a new city to switch.`
-            : "Pick a city to start seeing matches there."}
+            ? t("travelMode.changeCityDesc", { city: travelCity })
+            : t("travelMode.startSeeingMatches")}
         </DialogDescription>
       </DialogHeader>
 
@@ -1921,7 +1923,7 @@ export const TravelMode = ({
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search any city or country..."
+          placeholder={t("travelMode.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-9"
@@ -1934,7 +1936,7 @@ export const TravelMode = ({
           {searchQuery.trim() === "" ? (
             <>
               <p className="text-xs text-muted-foreground font-medium px-3 pt-2 pb-1 uppercase tracking-wide">
-                Popular Albanian destinations
+                {t("travelMode.popularDestinations")}
               </p>
               {POPULAR_DESTINATIONS.map((entry) => (
                 <button
@@ -1954,7 +1956,7 @@ export const TravelMode = ({
               ))}
             </>
           ) : filteredCities.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">No cities found</p>
+            <p className="text-sm text-muted-foreground text-center py-6">{t("travelMode.noCitiesFound")}</p>
           ) : (
             filteredCities.map((entry) => (
               <button
@@ -1981,7 +1983,7 @@ export const TravelMode = ({
       <div className="flex gap-2">
         {isChangingCity && (
           <Button variant="outline" className="flex-1" onClick={() => setIsChangingCity(false)}>
-            Cancel
+            {t("travelMode.cancel")}
           </Button>
         )}
         <Button
@@ -1989,7 +1991,7 @@ export const TravelMode = ({
           disabled={loading || !city || !country}
           className="flex-1"
         >
-          {loading ? "Activating..." : city ? `Fly to ${city} ✈️` : "Select a city"}
+          {loading ? t("travelMode.activating") : city ? t("travelMode.flyTo", { city }) : t("travelMode.selectCity")}
         </Button>
       </div>
     </>
@@ -2001,19 +2003,18 @@ export const TravelMode = ({
         <DialogTrigger asChild>
           <Button variant="ghost" className={triggerClassName ?? "gap-2"}>
             <Plane className="h-4 w-4 mr-2" />
-            Travel Mode
+            {t("travelMode.title")}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>✈️ Travel Mode</DialogTitle>
+            <DialogTitle>✈️ {t("travelMode.title")}</DialogTitle>
             <DialogDescription>
-              Explore matches in any city before you even arrive. Upgrade to Premium to unlock
-              Travel Mode.
+              {t("travelMode.upgradePremium")}
             </DialogDescription>
           </DialogHeader>
           <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90">
-            Upgrade to Premium ✨
+            {t("travelMode.upgradeToPremium")}
           </Button>
         </DialogContent>
       </Dialog>
@@ -2034,13 +2035,13 @@ export const TravelMode = ({
             <Plane className="h-4 w-4 mr-2 animate-pulse" />
             <span className="truncate">{travelCity ?? "Traveling"}</span>
             <span className="ml-1 inline-flex items-center rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-              On
+              {t("travelMode.on")}
             </span>
           </Button>
         ) : (
           <Button variant="ghost" className={triggerClassName ?? "gap-2"}>
             <Plane className="h-4 w-4 mr-2" />
-            Travel Mode
+            {t("travelMode.title")}
           </Button>
         )}
       </DialogTrigger>
@@ -2049,9 +2050,9 @@ export const TravelMode = ({
         {travelModeActive && !isChangingCity ? (
           <>
             <DialogHeader>
-              <DialogTitle>✈️ Travel Mode Active</DialogTitle>
+              <DialogTitle>✈️ {t("travelMode.travelModeActive")}</DialogTitle>
               <DialogDescription>
-                You're exploring {travelCity}. Profiles from this city are shown to you.
+                {t("travelMode.exploringCity", { city: travelCity })}
               </DialogDescription>
             </DialogHeader>
 
@@ -2061,7 +2062,7 @@ export const TravelMode = ({
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold truncate">{travelCity}</p>
-                <p className="text-xs text-muted-foreground">Active destination</p>
+                <p className="text-xs text-muted-foreground">{t("travelMode.activeDestination")}</p>
               </div>
               <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
             </div>
@@ -2074,11 +2075,11 @@ export const TravelMode = ({
                 className="gap-2"
               >
                 <X className="h-4 w-4" />
-                Go Home
+                {t("travelMode.goHome")}
               </Button>
               <Button className="gap-2" onClick={() => setIsChangingCity(true)} disabled={loading}>
                 <MapPin className="h-4 w-4" />
-                Change City
+                {t("travelMode.changeCity")}
               </Button>
             </div>
           </>

@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Target, ArrowLeft, Flame, MessageSquare, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface StreakState {
   streak: number;
@@ -28,6 +29,7 @@ const getWeekStart = () => {
 const MatchGoals = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [weeklyMessages, setWeeklyMessages] = useState(0);
   const [weeklyMatches, setWeeklyMatches] = useState(0);
@@ -73,11 +75,11 @@ const MatchGoals = () => {
       setStreak(streakState?.streak || 0);
     } catch (error) {
       logger.error("Match goals load error", error);
-      toast.error("Failed to load goals.");
+      toast.error(t("matchGoals.failedLoad"));
     } finally {
       setLoading(false);
     }
-  }, [user, streakState]);
+  }, [user, streakState, t]);
 
   useEffect(() => {
     loadStats();
@@ -94,49 +96,49 @@ const MatchGoals = () => {
             <div className="flex items-center gap-3">
               <Target className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Match Goals</h1>
-                <p className="text-sm text-muted-foreground">Track streaks and weekly progress</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("matchGoals.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("matchGoals.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
         ) : (
           <>
             <div className="grid gap-4 sm:grid-cols-3">
               <Card className="p-4 rounded-2xl border-2 border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Flame className="h-4 w-4" />
-                  Streak
+                  {t("matchGoals.streak")}
                 </div>
-                <div className="text-3xl font-bold mt-2 text-foreground">{streak} days</div>
+                <div className="text-3xl font-bold mt-2 text-foreground">{streak} {t("matchGoals.days")}</div>
               </Card>
               <Card className="p-4 rounded-2xl border-2 border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MessageSquare className="h-4 w-4" />
-                  Messages this week
+                  {t("matchGoals.messagesThisWeek")}
                 </div>
                 <div className="text-3xl font-bold mt-2 text-foreground">{weeklyMessages}</div>
               </Card>
               <Card className="p-4 rounded-2xl border-2 border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Users className="h-4 w-4" />
-                  Matches this week
+                  {t("matchGoals.matchesThisWeek")}
                 </div>
                 <div className="text-3xl font-bold mt-2 text-foreground">{weeklyMatches}</div>
               </Card>
             </div>
 
             <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
-              <h2 className="text-lg font-semibold">Weekly goals</h2>
+              <h2 className="text-lg font-semibold">{t("matchGoals.weeklyGoals")}</h2>
               <div>
-                <p className="text-sm text-muted-foreground">Send {messageGoal} messages</p>
+                <p className="text-sm text-muted-foreground">{t("matchGoals.send")} {messageGoal} {t("matchGoals.messages")}</p>
                 <progress
                   className="mt-2 w-full h-2 rounded-full overflow-hidden"
                   value={Math.min(messageGoal, weeklyMessages)}
@@ -144,7 +146,7 @@ const MatchGoals = () => {
                 />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Get {matchGoal} new matches</p>
+                <p className="text-sm text-muted-foreground">{t("matchGoals.get")} {matchGoal} {t("matchGoals.newMatches")}</p>
                 <progress
                   className="mt-2 w-full h-2 rounded-full overflow-hidden"
                   value={Math.min(matchGoal, weeklyMatches)}

@@ -114,6 +114,7 @@ const Discover = () => {
   const [passedProfiles, setPassedProfiles] = useState<Set<string>>(new Set());
   const [showMatchAnimation, setShowMatchAnimation] = useState(false);
   const [matchedProfile, setMatchedProfile] = useState<Profile | null>(null);
+  const [matchedMatchId, setMatchedMatchId] = useState<string | null>(null);
   const [isPremiumRosesMatch, setIsPremiumRosesMatch] = useState(false);
   const [swipeLimit, setSwipeLimit] = useState({
     remainingSwipes: 15,
@@ -163,6 +164,9 @@ const Discover = () => {
   const lastLikeTime = useRef(0);
   const lastSuperlikeTime = useRef(0);
   const swipeResetPushScheduled = useRef(false);
+  // Refs to always call the latest handleLike/handlePass from handleSwipeEnd (avoids stale closure)
+  const handleLikeRef = useRef<((profileId: string) => Promise<void>) | null>(null);
+  const handlePassRef = useRef<((profileId: string) => Promise<void>) | null>(null);
 
   const SWIPE_THRESHOLD = 100;
 
@@ -187,9 +191,9 @@ const Discover = () => {
       setSwipeExiting(direction);
       setTimeout(() => {
         if (direction === "right") {
-          handleLike(currentProfile.id);
+          handleLikeRef.current?.(currentProfile.id);
         } else {
-          handlePass(currentProfile.id);
+          handlePassRef.current?.(currentProfile.id);
         }
         setSwipeExiting(null);
         setSwipeOffset(0);
@@ -201,7 +205,6 @@ const Discover = () => {
       setSwipeStartX(null);
       setIsSwiping(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSwiping, swipeOffset, profiles, currentProfileIndex]);
 
   const swipeRotation = swipeExiting
@@ -720,29 +723,12 @@ const Discover = () => {
             timestamp: like.created_at,
           }));
         setProfileLikes(likers);
-
-        // Calculate total notifications
-        const totalNotifications = profileViews.length + likers.length;
-
-        // Only show count for NEW notifications (since last time user opened the dialog)
-        const newNotificationCount = Math.max(0, totalNotifications - lastSeenNotificationCount);
-        setNotificationCount(newNotificationCount);
-
-        if (
-          newNotificationCount > 0 &&
-          "Notification" in window &&
-          Notification.permission === "granted"
-        ) {
-          new Notification("New activity", {
-            body: `${newNotificationCount} new ${newNotificationCount === 1 ? "notification" : "notifications"} on your profile`,
-          });
-        }
       }
     } catch (error) {
       logger.error("Error fetching profile likes:", error);
       setProfileLikes([]);
     }
-  }, [user, profileViews.length, lastSeenNotificationCount]);
+  }, [user]);
 
   // Fetch profiles for discovery — uses server-side RPC to avoid downloading
   // the entire profiles table. All filters run in PostgreSQL; only 50 rows
@@ -803,7 +789,7 @@ const Discover = () => {
           const rpcError = error as { code?: string; message?: string };
           if (rpcError.code === "PGRST202" || rpcError.message?.includes("not found")) {
             logger.error("get_discover_profiles RPC not found — run migration 20260517000001");
-            toast.error("Discovery update required. Please contact support.");
+            toast.error(t("discover.discoveryUpdateRequired"));
             return;
           }
           throw error;
@@ -831,12 +817,12 @@ const Discover = () => {
         }
       } catch (error) {
         logger.error("Error in fetchProfiles:", error);
-        toast.error("Failed to load profiles");
+        toast.error(t("discover.failedLoad"));
       } finally {
         setLoading(false);
       }
     },
-    [user, filters, fetchMyProfile, navigate, swipeLimit.isPremium, cacheProfiles]
+    [user, filters, fetchMyProfile, navigate, swipeLimit.isPremium, cacheProfiles, t]
   );
 
   // Automatically fetch the next page when fewer than 5 cards remain
@@ -971,7 +957,7 @@ const Discover = () => {
       }
     } catch (error) {
       logger.error("Error creating checkout:", error);
-      toast.error("Failed to start upgrade process");
+      toast.error(t("discover.failedUpgrade"));
     }
   };
 
@@ -980,15 +966,15 @@ const Discover = () => {
     if (!user) return;
     // Haptic feedback
     if (navigator.vibrate) navigator.vibrate(15);
-    // Rate limit: 1 like per 500ms
+    // Rate limit: 1 like per 500ms — check BEFORE recording history to avoid phantom rewind entries
     const now = Date.now();
-    // Track immediately for rewind (before async so rewind works right away)
+    if (now - lastLikeTime.current < 500) return;
+    lastLikeTime.current = now;
+    // Track for rewind after rate-limit passes
     setLastActionHistory((prev) => [
       ...prev,
       { type: "like" as const, profileId, timestamp: Date.now() },
     ]);
-    if (now - lastLikeTime.current < 500) return;
-    lastLikeTime.current = now;
     analytics.like(profileId);
 
     try {
@@ -1062,6 +1048,19 @@ const Discover = () => {
           setIsPremiumRosesMatch(false); // Regular match
           setShowMatchAnimation(true);
         }
+        // Fetch the newly created match ID so user can jump straight to chat
+        const [u1, u2] = user.id < profileId ? [user.id, profileId] : [profileId, user.id];
+        supabase
+          .from("matches")
+          .select("id")
+          .eq("user1_id", u1)
+          .eq("user2_id", u2)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single()
+          .then(({ data: matchRow }) => {
+            if (matchRow) setMatchedMatchId(matchRow.id);
+          });
         toast.success(t("discover.itsAMatch") + " 🎉");
         // Notify the other person of match (fire-and-forget)
         supabase.functions
@@ -1075,7 +1074,7 @@ const Discover = () => {
           })
           .catch((err) => logger.error("send-push (match) failed:", err));
       } else {
-        toast.success("Profile liked!");
+        toast.success(t("discover.profileLiked"));
         // Notify the liked person (fire-and-forget)
         supabase.functions
           .invoke("send-push", {
@@ -1094,9 +1093,11 @@ const Discover = () => {
     } catch (error) {
       logger.error("Error liking profile:", error);
       const errorMessage = (error as { message?: string } | null)?.message ?? "Unknown error";
-      toast.error(`Failed to like profile: ${errorMessage}`);
+      toast.error(t("discover.failedToLike", { error: errorMessage }));
     }
   };
+  // Keep ref in sync so handleSwipeEnd always calls the latest version
+  handleLikeRef.current = handleLike;
 
   // Handle superlike action
   const handleSuperlike = async () => {
@@ -1177,9 +1178,22 @@ const Discover = () => {
           setIsPremiumRosesMatch(false);
           setShowMatchAnimation(true);
         }
+        // Fetch match ID for chat navigation
+        const [u1, u2] = user.id < profileId ? [user.id, profileId] : [profileId, user.id];
+        supabase
+          .from("matches")
+          .select("id")
+          .eq("user1_id", u1)
+          .eq("user2_id", u2)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single()
+          .then(({ data: matchRow }) => {
+            if (matchRow) setMatchedMatchId(matchRow.id);
+          });
         toast.success(t("discover.itsAMatch") + " 🎉");
       } else {
-        toast.success("⚡ Superlike sent!");
+        toast.success(t("discover.superlikeSent"));
       }
 
       // Add to liked profiles
@@ -1195,10 +1209,10 @@ const Discover = () => {
           method: "rpc",
           payload: { current_user_id: user.id, target_user_id: currentProfile.id },
         });
-        toast.info("You're offline. Superlike will be sent when connection returns.");
+        toast.info(t("discover.superlikeOffline"));
         setCurrentProfileIndex((prev) => prev + 1);
       } else {
-        toast.error("Failed to send superlike");
+        toast.error(t("discover.failedSuperlike"));
       }
     } finally {
       setIsSuperliking(false);
@@ -1210,7 +1224,7 @@ const Discover = () => {
     if (!user || !rosesTargetProfile) return;
 
     if (walletBalance < 1) {
-      toast.error("Not enough coins. Please top up your wallet.");
+      toast.error(t("discover.notEnoughCoins"));
       return;
     }
 
@@ -1229,7 +1243,7 @@ const Discover = () => {
         .maybeSingle();
 
       if (existingMatch) {
-        toast.info("You're already matched with this person!");
+        toast.info(t("discover.alreadyMatched"));
         setShowPremiumRosesDialog(false);
         return;
       }
@@ -1288,12 +1302,23 @@ const Discover = () => {
 
       logger.log("✅ Premium Roses match created successfully!", matchData);
 
+      // Migrate any pre-existing instant messages into the match chat so conversation history
+      // is preserved and not left as an orphaned IM thread
+      if (matchData?.id) {
+        await supabase.rpc("migrate_instant_messages_to_match", {
+          p_match_id: matchData.id,
+          p_user1_id: user.id,
+          p_user2_id: profileId,
+        });
+      }
+
       // Show match animation with Premium Roses theme
       setMatchedProfile(rosesTargetProfile);
       setIsPremiumRosesMatch(true);
       setShowMatchAnimation(true);
+      if (matchData?.id) setMatchedMatchId(matchData.id);
 
-      toast.success("💐 Premium Roses sent! Instant match created with rose-themed chat!");
+      toast.success(t("discover.rosesSent"));
 
       // Add to liked profiles so they're excluded from discovery
       setLikedProfiles((prev) => new Set([...prev, profileId]));
@@ -1338,7 +1363,7 @@ const Discover = () => {
     } catch (error) {
       logger.error("Error starting superlike checkout:", error);
       const msg = error instanceof Error ? error.message : String(error);
-      toast.error(`Checkout failed: ${msg}`);
+      toast.error(t("discover.checkoutFailed", { msg }));
     } finally {
       setSuperlikeCheckoutLoading(null);
     }
@@ -1389,14 +1414,8 @@ const Discover = () => {
         isPremium: data.is_premium || false,
       });
 
-      // Show upgrade dialog if out of swipes
-      if (!data.is_premium && data.remaining_swipes <= 0) {
-        setShowUpgradeDialog(true);
-        toast.info("Out of swipes! Please wait or upgrade to premium.");
-        return;
-      }
-
-      // Store pass in database so it persists across sessions
+      // Store pass in database so it persists across sessions — always, even when out of swipes,
+      // so the profile doesn't reappear in the next session.
       const { error: passError } = await supabase
         .from("likes")
         .upsert(
@@ -1408,7 +1427,14 @@ const Discover = () => {
         logger.error("Error storing pass:", passError);
       }
 
-      toast.success("Profile passed");
+      toast.success(t("discover.profilePassed"));
+
+      // Show upgrade dialog if out of swipes (after persisting so the pass is saved regardless)
+      if (!data.is_premium && data.remaining_swipes <= 0) {
+        setShowUpgradeDialog(true);
+        toast.info(t("discover.outOfSwipes"));
+        return;
+      }
 
       // Increment swipe count in database for non-premium users
       if (!data.is_premium) {
@@ -1433,15 +1459,17 @@ const Discover = () => {
     } catch (error) {
       logger.error("Error passing profile:", error);
       const errorMessage = (error as { message?: string } | null)?.message ?? "Unknown error";
-      toast.error(`Failed to pass profile: ${errorMessage}`);
+      toast.error(t("discover.failedToPass", { error: errorMessage }));
     }
   };
+  // Keep ref in sync so handleSwipeEnd always calls the latest version
+  handlePassRef.current = handlePass;
 
   // Handle rewind (undo last action)
   const handleRewind = async () => {
     if (!user || lastActionHistory.length === 0 || rewindsRemaining <= 0) {
       if (rewindsRemaining <= 0) {
-        toast.error("No rewinds remaining today!");
+        toast.error(t("discover.noRewinds"));
       }
       return;
     }
@@ -1520,14 +1548,14 @@ const Discover = () => {
       toast.success(`${lastAction.type === "like" ? "Like" : "Pass"} undone!`);
     } catch (error) {
       logger.error("Error rewinding:", error);
-      toast.error("Failed to undo action");
+      toast.error(t("discover.failedUndo"));
     }
   };
 
   // Handle instant message
   const handleInstantMessage = (profile: Profile) => {
     if (instantMessageCredits <= 0) {
-      toast.error("No instant message credits! Purchase more to continue.");
+      toast.error(t("discover.noImCredits"));
       return;
     }
     setInstantMessageTargetProfile(profile);
@@ -1537,7 +1565,7 @@ const Discover = () => {
 
   const sendInstantMessage = async () => {
     if (!user || !instantMessageTargetProfile || !instantMessageText.trim()) {
-      toast.error("Please write a message");
+      toast.error(t("discover.writeMessage"));
       return;
     }
 
@@ -1547,7 +1575,7 @@ const Discover = () => {
         receiver_user_id: instantMessageTargetProfile.id,
         message_text: instantMessageText.trim(),
       })) as {
-        data: { success: boolean; error?: string; credits_remaining?: number } | null;
+        data: { success: boolean; error?: string; credits_remaining?: number; match_id?: string } | null;
         error: unknown;
       };
 
@@ -1557,13 +1585,22 @@ const Discover = () => {
       }
 
       if (data && !data.success) {
+        // If they're already matched, redirect to the match chat instead of wasting a credit
+        if (data.error === "already_matched" && data.match_id) {
+          setShowInstantMessageDialog(false);
+          setInstantMessageText("");
+          setInstantMessageTargetProfile(null);
+          toast.info(t("discover.alreadyMatched"));
+          navigate(`/chat/${data.match_id}`);
+          return;
+        }
         toast.error(data.error || "Failed to send instant message");
         return;
       }
 
       if (data && data.success) {
         setInstantMessageCredits(data.credits_remaining || 0);
-        toast.success(`Message sent to ${instantMessageTargetProfile.full_name}! 💬`);
+        toast.success(t("discover.messageSent", { name: instantMessageTargetProfile.full_name }));
         setShowInstantMessageDialog(false);
         setInstantMessageText("");
         setInstantMessageTargetProfile(null);
@@ -1571,7 +1608,7 @@ const Discover = () => {
     } catch (error) {
       logger.error("Error sending instant message:", error);
       logger.error("Error details:", JSON.stringify(error, null, 2));
-      toast.error("Failed to send message");
+      toast.error(t("discover.failedMessage"));
     }
   };
 
@@ -2102,7 +2139,7 @@ const Discover = () => {
 
           // Show toast when booster expires
           if (!newProfile.booster_active && boosterActive) {
-            toast.info("Your Spotlight Booster has expired");
+            toast.info(t("discover.spotlightExpired"));
           }
         }
       )
@@ -2111,7 +2148,7 @@ const Discover = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, boosterActive]);
+  }, [user, boosterActive, t]);
 
   // Subscribe to new matches so matched users are removed from discovery in real-time
   // (e.g. when someone sends you Premium Roses while you're browsing)
@@ -2253,6 +2290,25 @@ const Discover = () => {
     }
   }, [user, fetchProfileViews, fetchProfileLikes, fetchRewindCount]);
 
+  // Recompute notification badge whenever views, likes, or the last-seen watermark changes.
+  // Separated from fetchProfileLikes so the count is always accurate regardless of fetch order.
+  useEffect(() => {
+    const totalNotifications = profileViews.length + profileLikes.length;
+    const newNotificationCount = Math.max(0, totalNotifications - lastSeenNotificationCount);
+    setNotificationCount(newNotificationCount);
+    if (
+      newNotificationCount > 0 &&
+      "Notification" in window &&
+      Notification.permission === "granted"
+    ) {
+      new Notification("New activity", {
+        body: `${newNotificationCount} new ${
+          newNotificationCount === 1 ? "notification" : "notifications"
+        } on your profile`,
+      });
+    }
+  }, [profileViews.length, profileLikes.length, lastSeenNotificationCount]);
+
   if (loading) {
     return (
       <div className="min-h-dvh bg-gradient-subtle p-4">
@@ -2281,7 +2337,7 @@ const Discover = () => {
                   boosterActive ? setShowBoostStatusDialog(true) : setShowBoostDialog(true)
                 }
                 className={`relative p-2.5 rounded-full transition-colors group ${boosterActive ? "bg-primary/10" : "hover:bg-muted"}`}
-                aria-label="Boost"
+                aria-label={t("discover.boostAria")}
               >
                 <Zap
                   className={`h-6 w-6 ${boosterActive ? "text-primary animate-pulse" : "text-muted-foreground group-hover:text-primary"}`}
@@ -2296,7 +2352,7 @@ const Discover = () => {
                   swipeLimit.isPremium ? navigate("/settings") : setShowUpgradeDialog(true)
                 }
                 className="p-2.5 hover:bg-muted rounded-full transition-colors"
-                aria-label="Premium"
+                aria-label={t("discover.premiumAria")}
               >
                 <Crown
                   className={`h-6 w-6 ${swipeLimit.isPremium ? "text-accent animate-pulse" : "text-muted-foreground hover:text-accent"}`}
@@ -2305,7 +2361,7 @@ const Discover = () => {
               <button
                 onClick={handleOpenNotifications}
                 className="relative p-2.5 hover:bg-muted rounded-full transition-colors"
-                aria-label="Notifications"
+                aria-label={t("discover.notificationsAria")}
               >
                 <Bell className="h-6 w-6 text-foreground" />
                 {notificationCount > 0 && (
@@ -2321,7 +2377,7 @@ const Discover = () => {
                 <SheetTrigger asChild>
                   <button
                     className="p-2.5 hover:bg-muted rounded-full transition-colors"
-                    aria-label="Menu"
+                    aria-label={t("discover.menuAria")}
                   >
                     <Menu className="h-6 w-6 text-primary" />
                   </button>
@@ -2458,7 +2514,7 @@ const Discover = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    aria-label="Open filters"
+                    aria-label={t("discover.openFiltersAria")}
                     onClick={handleOpenFilterSheet}
                   >
                     <SlidersHorizontal className="h-4 w-4" />
@@ -2548,7 +2604,7 @@ const Discover = () => {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Everyone" />
+                          <SelectValue placeholder={t("discover.everyonePlaceholder")} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="everyone">{t("common.everyone")}</SelectItem>
@@ -2598,7 +2654,7 @@ const Discover = () => {
                         <div className="space-y-2">
                           <Label>{t("discover.sharedInterestsFilter")}</Label>
                           <Input
-                            placeholder="e.g. travel, music, fitness"
+                            placeholder={t("discover.interestsHint")}
                             value={tempFilters.specificInterests.join(", ")}
                             onChange={(e) =>
                               setTempFilters((prev) => ({
@@ -2817,7 +2873,7 @@ const Discover = () => {
                       <Card className="p-4 bg-background border-primary/30">
                         <div className="text-center space-y-2">
                           <Crown className="h-8 w-8 text-primary mx-auto" />
-                          <p className="text-sm font-semibold">Unlock Premium Filters</p>
+                          <p className="text-sm font-semibold">{t("discover.unlockPremiumFilters")}</p>
                           <p className="text-xs text-muted-foreground">
                             Get verified, height, lifestyle & more filters
                           </p>
@@ -2914,7 +2970,7 @@ const Discover = () => {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                           <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
                         </span>
-                        <span className="text-xs font-semibold text-white">View Story</span>
+                        <span className="text-xs font-semibold text-white">{t("discover.viewStory")}</span>
                       </button>
                     )}
                     <div className="relative aspect-[3/4] bg-gradient-to-br from-background via-muted to-primary/20">
@@ -3017,7 +3073,7 @@ const Discover = () => {
                                   currentProfile.travel_city ? (
                                     <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                                       <span className="text-base">✈️</span>
-                                      <span>Traveling in {currentProfile.travel_city}</span>
+                                      <span>{t("common.travelingIn")} {currentProfile.travel_city}</span>
                                     </div>
                                   ) : currentProfile.city ? (
                                     <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -3137,7 +3193,7 @@ const Discover = () => {
                     {t("discover.noMoreProfiles")}
                   </h3>
                   <p className="text-muted-foreground dark:text-primary/60/70 mb-4">
-                    Come back later to see more people
+                    {t("discover.comeBackLater")}
                   </p>
                   <Button
                     onClick={() => window.location.reload()}
@@ -3152,7 +3208,7 @@ const Discover = () => {
               {currentProfile && (
                 <div className="flex flex-col items-center gap-3 mt-6">
                   {/* Secondary actions row: Superlike · Roses · Instant Msg */}
-                  <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm border border-border/50 rounded-full px-3 py-1.5 shadow-sm">
+                  <div className="flex items-center gap-2 bg-muted border border-border rounded-full px-3 py-1.5 shadow-sm">
                     {/* Superlike */}
                     <div className="relative">
                       <button
@@ -3203,10 +3259,10 @@ const Discover = () => {
                         onClick={() => handleInstantMessage(currentProfile)}
                         disabled={instantMessageCredits === 0}
                         title="Instant Message"
-                        className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-full transition-all duration-200 hover:bg-primary/10 disabled:opacity-40 disabled:cursor-not-allowed group"
+                        className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-full transition-all duration-200 hover:bg-primary/10 disabled:opacity-60 disabled:cursor-not-allowed group"
                       >
                         <MessageSquare className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
-                        <span className="text-[9px] font-semibold text-primary/70 leading-none">
+                        <span className="text-[9px] font-semibold text-primary/80 leading-none">
                           {instantMessageCredits > 0 ? instantMessageCredits : "0"}
                         </span>
                       </button>
@@ -3288,9 +3344,9 @@ const Discover = () => {
           ) : (
             <div className="flex flex-col items-center justify-center h-96 text-center">
               <Sparkles className="h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Active Boosters</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">{t("discover.noActiveBoosters")}</h3>
               <p className="text-sm text-muted-foreground">
-                No users are currently using boost in your area
+                {t("discover.noBoosterDesc")}
               </p>
             </div>
           )}
@@ -3343,7 +3399,7 @@ const Discover = () => {
               <div className="flex items-start gap-3">
                 <Sparkles className="h-5 w-5 text-green-600 dark:text-red-400 mt-0.5" />
                 <div className="text-sm text-green-800 dark:text-red-200">
-                  <p className="font-semibold mb-1">Your profile is boosted!</p>
+                  <p className="font-semibold mb-1">{t("discover.profileBoosted")}</p>
                   <p>
                     You're being shown to more people in your area and appearing higher in their
                     discovery feed.
@@ -3403,7 +3459,7 @@ const Discover = () => {
                         if (error) throw error;
 
                         if (data?.success) {
-                          toast.success("Free 3-hour boost activated! ⚡");
+                          toast.success(t("discover.boost3hFree"));
                           setBoostCredits(data.credits_remaining || 0);
                           setShowBoostDialog(false);
                           await fetchMyProfile();
@@ -3412,7 +3468,7 @@ const Discover = () => {
                         }
                       } catch (error) {
                         logger.error("Error activating boost:", error);
-                        toast.error("Failed to activate boost");
+                        toast.error(t("discover.failedBoost"));
                       }
                     }}
                     className="w-full p-4 border-2 border-primary bg-primary/10 rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left"
@@ -3421,7 +3477,7 @@ const Discover = () => {
                       <div>
                         <div className="font-bold text-lg flex items-center gap-2">
                           3 Hours
-                          <Badge className="bg-primary">FREE</Badge>
+                          <Badge className="bg-primary">{t("common.freeBadge")}</Badge>
                         </div>
                         <div className="text-sm text-muted-foreground">
                           Use 1 of your {boostCredits} free boosts
@@ -3436,7 +3492,7 @@ const Discover = () => {
                       <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">Or buy more</span>
+                      <span className="bg-background px-2 text-muted-foreground">{t("discover.orBuyMore")}</span>
                     </div>
                   </div>
                 </>
@@ -3447,11 +3503,11 @@ const Discover = () => {
                 onClick={async () => {
                   const cost = 50;
                   if (!user?.id) {
-                    toast.error("Please sign in to boost.");
+                    toast.error(t("discover.signInToBoost"));
                     return;
                   }
                   if (walletBalance < cost) {
-                    toast.error("Not enough coins. Please top up your wallet.");
+                    toast.error(t("discover.notEnoughCoins"));
                     return;
                   }
                   try {
@@ -3481,12 +3537,12 @@ const Discover = () => {
                       .insert({ user_id: user.id, amount: -cost, type: "spend", item: "boost_3h" });
                     if (txError) throw txError;
                     setWalletBalance(Math.max(freshBalance - cost, 0));
-                    toast.success("3-hour boost activated! ⚡");
+                    toast.success(t("discover.boost3h"));
                     setShowBoostDialog(false);
                     await fetchMyProfile();
                   } catch (error) {
                     logger.error("Error activating boost:", error);
-                    toast.error("Failed to activate boost");
+                    toast.error(t("discover.failedBoost"));
                   }
                 }}
                 className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
@@ -3495,7 +3551,7 @@ const Discover = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">3 Hours</div>
-                    <div className="text-sm text-muted-foreground">Quick boost</div>
+                    <div className="text-sm text-muted-foreground">{t("discover.quickBoost")}</div>
                   </div>
                   <div className="text-2xl font-bold text-primary">50 coins</div>
                 </div>
@@ -3506,11 +3562,11 @@ const Discover = () => {
                 onClick={async () => {
                   const cost = 80;
                   if (!user?.id) {
-                    toast.error("Please sign in to boost.");
+                    toast.error(t("discover.signInToBoost"));
                     return;
                   }
                   if (walletBalance < cost) {
-                    toast.error("Not enough coins. Please top up your wallet.");
+                    toast.error(t("discover.notEnoughCoins"));
                     return;
                   }
                   try {
@@ -3540,12 +3596,12 @@ const Discover = () => {
                       .insert({ user_id: user.id, amount: -cost, type: "spend", item: "boost_6h" });
                     if (txError) throw txError;
                     setWalletBalance(Math.max(freshBalance - cost, 0));
-                    toast.success("6-hour boost activated! ⚡");
+                    toast.success(t("discover.boost6h"));
                     setShowBoostDialog(false);
                     await fetchMyProfile();
                   } catch (error) {
                     logger.error("Error activating boost:", error);
-                    toast.error("Failed to activate boost");
+                    toast.error(t("discover.failedBoost"));
                   }
                 }}
                 className="w-full p-4 border-2 border-primary bg-primary/10 rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
@@ -3554,7 +3610,7 @@ const Discover = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">6 Hours</div>
-                    <div className="text-sm text-muted-foreground">Most popular ⭐</div>
+                    <div className="text-sm text-muted-foreground">{t("discover.mostPopular")}</div>
                   </div>
                   <div className="text-2xl font-bold text-primary">80 coins</div>
                 </div>
@@ -3565,11 +3621,11 @@ const Discover = () => {
                 onClick={async () => {
                   const cost = 100;
                   if (!user?.id) {
-                    toast.error("Please sign in to boost.");
+                    toast.error(t("discover.signInToBoost"));
                     return;
                   }
                   if (walletBalance < cost) {
-                    toast.error("Not enough coins. Please top up your wallet.");
+                    toast.error(t("discover.notEnoughCoins"));
                     return;
                   }
                   try {
@@ -3602,12 +3658,12 @@ const Discover = () => {
                     });
                     if (txError) throw txError;
                     setWalletBalance(Math.max(freshBalance - cost, 0));
-                    toast.success("10-hour boost activated! ⚡");
+                    toast.success(t("discover.boost10h"));
                     setShowBoostDialog(false);
                     await fetchMyProfile();
                   } catch (error) {
                     logger.error("Error activating boost:", error);
-                    toast.error("Failed to activate boost");
+                    toast.error(t("discover.failedBoost"));
                   }
                 }}
                 className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
@@ -3616,7 +3672,7 @@ const Discover = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">10 Hours</div>
-                    <div className="text-sm text-muted-foreground">Best value 💎</div>
+                    <div className="text-sm text-muted-foreground">{t("discover.bestValueBadge")}</div>
                   </div>
                   <div className="text-2xl font-bold text-primary">100 coins</div>
                 </div>
@@ -3677,25 +3733,25 @@ const Discover = () => {
                       <li className="flex items-center gap-2">
                         <span className="text-primary">✓</span>
                         <span>
-                          <strong>Instant Match:</strong> Skip the waiting game
+                          <strong>{t("discover.instantMatch")}</strong> {t("discover.instantMatchDesc")}
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-primary">✓</span>
                         <span>
-                          <strong>Automatic Like Back:</strong> They'll match with you instantly
+                          <strong>{t("discover.automaticLikeBack")}</strong> {t("discover.automaticLikeBackDesc")}
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-primary">✓</span>
                         <span>
-                          <strong>Exclusive Rose Theme:</strong> Special chat background with roses
+                          <strong>{t("discover.exclusiveRoseTheme")}</strong> {t("discover.exclusiveRoseThemeDesc")}
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-primary">✓</span>
                         <span>
-                          <strong>VIP Status:</strong> Stand out as a premium member
+                          <strong>{t("discover.vipStatus")}</strong> {t("discover.vipStatusDesc")}
                         </span>
                       </li>
                     </ul>
@@ -3713,7 +3769,7 @@ const Discover = () => {
                     </span>
                   </div>
                   <span className="text-sm text-muted-foreground dark:text-primary/80">
-                    Per rose
+                    {t("discover.perRose")}
                   </span>
                 </div>
               </div>
@@ -3725,7 +3781,7 @@ const Discover = () => {
                 onClick={() => setShowPremiumRosesDialog(false)}
                 className="flex-1 border-2 border-border dark:border-primary hover:bg-muted dark:hover:bg-primary/50"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 disabled={walletBalance < 1}
@@ -3772,7 +3828,7 @@ const Discover = () => {
                 <div>
                   <div className="font-semibold">{instantMessageTargetProfile.full_name}</div>
                   <div className="text-sm text-muted-foreground">
-                    Send a message without matching first!
+                    {t("discover.sendMsgFirst")}
                   </div>
                 </div>
               </div>
@@ -3782,7 +3838,7 @@ const Discover = () => {
               <Label htmlFor="instant-message-text">{t("discover.yourMessage")}</Label>
               <Textarea
                 id="instant-message-text"
-                placeholder="Write something interesting... 💬"
+                placeholder={t("discover.writeSomethingPlaceholder")}
                 value={instantMessageText}
                 onChange={(e) => setInstantMessageText(e.target.value)}
                 rows={4}
@@ -3797,7 +3853,7 @@ const Discover = () => {
             <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-border">
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">Credits remaining:</span>
+                <span className="text-sm font-medium">{t("discover.creditsRemaining")}</span>
               </div>
               <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white">
                 {instantMessageCredits}
@@ -3843,7 +3899,7 @@ const Discover = () => {
                 <div className="h-16 w-16 rounded-full bg-gradient-gold flex items-center justify-center">
                   <Crown className="h-8 w-8 text-accent-foreground" />
                 </div>
-                <h4 className="text-lg font-semibold">You're Already Premium!</h4>
+                <h4 className="text-lg font-semibold">{t("discover.alreadyPremium")}</h4>
                 <p className="text-muted-foreground">
                   You have access to all premium features including unlimited swipes, advanced
                   filters, and the ability to see who liked you.
@@ -3866,7 +3922,7 @@ const Discover = () => {
             </div>
           ) : (
             <div className="py-6">
-              <h4 className="text-lg font-semibold mb-4">Premium Benefits:</h4>
+              <h4 className="text-lg font-semibold mb-4">{t("discover.premiumBenefits")}</h4>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
                   <Heart className="h-5 w-5 text-primary" />
@@ -3908,7 +3964,7 @@ const Discover = () => {
                 </DialogTitle>
                 <div className="flex flex-wrap gap-2">
                   {currentProfile.verified && (
-                    <Badge className="bg-primary text-white border-none">Verified</Badge>
+                    <Badge className="bg-primary text-white border-none">{t("common.verified")}</Badge>
                   )}
                   {currentProfile.is_premium && (
                     <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
@@ -3916,7 +3972,7 @@ const Discover = () => {
                     </Badge>
                   )}
                   {currentProfile.video_intro_url && (
-                    <Badge className="bg-background/80 text-white border-none">Video Intro</Badge>
+                    <Badge className="bg-background/80 text-white border-none">{t("common.videoIntroLabel")}</Badge>
                   )}
                 </div>
               </DialogHeader>
@@ -3985,7 +4041,7 @@ const Discover = () => {
 
                 {currentProfile.video_intro_url && (
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                    <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
                     <div className="rounded-lg overflow-hidden border border-primary/20">
                       <video
                         src={currentProfile.video_intro_url}
@@ -4000,7 +4056,7 @@ const Discover = () => {
                 {currentProfile.travel_mode_active && currentProfile.travel_city ? (
                   <div className="flex items-center gap-3 text-muted-foreground">
                     <span className="text-lg">✈️</span>
-                    <span className="font-medium">Traveling in {currentProfile.travel_city}</span>
+                    <span className="font-medium">{t("common.travelingIn")} {currentProfile.travel_city}</span>
                     {currentProfile.distance_km && (
                       <span className="text-muted-foreground">
                         • {formatDistance(currentProfile.distance_km)} away
@@ -4353,7 +4409,7 @@ const Discover = () => {
                 <div className="flex items-center gap-2">
                   <Crown className="h-5 w-5 text-primary" />
                   <div>
-                    <h3 className="font-semibold">Premium Member</h3>
+                    <h3 className="font-semibold">{t("discover.premiumMember")}</h3>
                     <p className="text-sm text-muted-foreground">
                       You receive 5 free Superlikes every month. Top up any time below.
                     </p>
@@ -4364,7 +4420,7 @@ const Discover = () => {
               <div className="bg-gradient-to-r from-primary/10 to-primary/10 border border-primary/20 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Crown className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold">Premium Benefit</h3>
+                  <h3 className="font-semibold">{t("discover.premiumBenefit")}</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Premium members get 5 free Superlikes every month!
@@ -4414,7 +4470,7 @@ const Discover = () => {
                 disabled={superlikeCheckoutLoading !== null}
                 onClick={() => handlePurchaseSuperlikes(5)}
               >
-                <Badge className="absolute -top-2 -right-2 bg-primary">Save 20%</Badge>
+                <Badge className="absolute -top-2 -right-2 bg-primary">{t("discover.save20")}</Badge>
                 <div className="flex items-center gap-2">
                   {superlikeCheckoutLoading === 5 ? (
                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -4437,7 +4493,7 @@ const Discover = () => {
                 disabled={superlikeCheckoutLoading !== null}
                 onClick={() => handlePurchaseSuperlikes(10)}
               >
-                <Badge className="absolute -top-2 -right-2 bg-primary">Best Value</Badge>
+                <Badge className="absolute -top-2 -right-2 bg-primary">{t("discover.bestValueLabel")}</Badge>
                 <div className="flex items-center gap-2">
                   {superlikeCheckoutLoading === 10 ? (
                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -4466,7 +4522,14 @@ const Discover = () => {
           onComplete={() => {
             setShowMatchAnimation(false);
             setIsPremiumRosesMatch(false);
+            setMatchedMatchId(null);
           }}
+          onChatNow={matchedMatchId ? () => {
+            setShowMatchAnimation(false);
+            setIsPremiumRosesMatch(false);
+            navigate(`/chat/${matchedMatchId}`);
+            setMatchedMatchId(null);
+          } : undefined}
           isPremiumRoses={isPremiumRosesMatch}
         />
       )}
@@ -4478,7 +4541,7 @@ const Discover = () => {
           aria-describedby={undefined}
         >
           <DialogHeader>
-            <DialogTitle>Notifications</DialogTitle>
+            <DialogTitle>{t("common.notifications")}</DialogTitle>
           </DialogHeader>
           <div className="flex border-b">
             <button
@@ -4491,7 +4554,7 @@ const Discover = () => {
             >
               <div className="flex items-center justify-center gap-2">
                 <Eye className="h-4 w-4" />
-                <span>Profile Views ({profileViews.length})</span>
+                <span>{t("discover.profileViews")} ({profileViews.length})</span>
               </div>
             </button>
             <button
@@ -4504,7 +4567,7 @@ const Discover = () => {
             >
               <div className="flex items-center justify-center gap-2">
                 <Heart className="h-4 w-4" />
-                <span>Likes ({profileLikes.length})</span>
+                <span>{t("discover.likes")} ({profileLikes.length})</span>
               </div>
             </button>
           </div>
@@ -4553,7 +4616,7 @@ const Discover = () => {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Eye className="h-12 w-12 text-muted-foreground mb-3" />
-                  <p className="text-muted-foreground font-medium">No profile views yet</p>
+                  <p className="text-muted-foreground font-medium">{t("discover.noProfileViews")}</p>
                   <p className="text-sm text-muted-foreground mt-1">
                     People who view your profile will appear here
                   </p>
@@ -4597,7 +4660,7 @@ const Discover = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-muted-foreground py-8">No likes yet</p>
+              <p className="text-center text-muted-foreground py-8">{t("discover.noLikesYet")}</p>
             )}
           </div>
         </DialogContent>
@@ -4634,7 +4697,7 @@ const Discover = () => {
                     </DialogTitle>
                     <div className="flex flex-wrap gap-2">
                       {p.verified && (
-                        <Badge className="bg-primary text-white border-none">Verified</Badge>
+                        <Badge className="bg-primary text-white border-none">{t("common.verified")}</Badge>
                       )}
                       {p.is_premium && (
                         <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
@@ -4706,7 +4769,7 @@ const Discover = () => {
                     {/* Video Intro */}
                     {p.video_intro_url && (
                       <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                        <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
                         <div className="rounded-lg overflow-hidden border border-primary/20">
                           <video
                             src={p.video_intro_url}
@@ -4721,7 +4784,7 @@ const Discover = () => {
                     {p.travel_mode_active && p.travel_city ? (
                       <div className="flex items-center gap-3 text-muted-foreground">
                         <span className="text-lg">✈️</span>
-                        <span className="font-medium">Traveling in {p.travel_city}</span>
+                        <span className="font-medium">{t("common.travelingIn")} {p.travel_city}</span>
                         {p.distance_km && (
                           <span className="text-muted-foreground">
                             • {formatDistance(p.distance_km)} away
@@ -5076,7 +5139,7 @@ const Discover = () => {
                               {p.travel_mode_active && p.travel_city ? (
                                 <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                                   <span>✈️</span>
-                                  <span>Traveling in {p.travel_city}</span>
+                                  <span>{t("common.travelingIn")} {p.travel_city}</span>
                                 </div>
                               ) : p.city ? (
                                 <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -5102,7 +5165,7 @@ const Discover = () => {
                     {/* Video Intro */}
                     {p.video_intro_url && (
                       <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                        <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
                         <div className="rounded-lg overflow-hidden border border-primary/20">
                           <video
                             src={p.video_intro_url}
@@ -5326,13 +5389,13 @@ const Discover = () => {
       {/* Daily Picks Dialog */}
       <Dialog open={showDailyPicks} onOpenChange={setShowDailyPicks}>
         <DialogContent className="max-w-sm p-0 overflow-hidden" aria-describedby={undefined}>
-          <DialogTitle className="sr-only">Daily Picks</DialogTitle>
+          <DialogTitle className="sr-only">{t("discover.dailyPicks")}</DialogTitle>
           <div className="p-4">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold">Daily Picks</h2>
+              <h2 className="text-lg font-bold">{t("discover.dailyPicks")}</h2>
               <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
-                Fresh today
+                {t("discover.freshToday")}
               </Badge>
             </div>
             <div className="space-y-2">
@@ -5370,7 +5433,7 @@ const Discover = () => {
               })}
               {dailyPicks.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No picks available today
+                  {t("discover.noPicks")}
                 </p>
               )}
             </div>
@@ -5384,7 +5447,7 @@ const Discover = () => {
           className="max-w-md p-0 overflow-hidden bg-black border-0"
           aria-describedby={undefined}
         >
-          <DialogTitle className="sr-only">Story Viewer</DialogTitle>
+          <DialogTitle className="sr-only">{t("common.storyViewer")}</DialogTitle>
           {profileStories[storyViewerIndex] && (
             <div className="relative">
               {/* Progress bars */}
@@ -5448,7 +5511,7 @@ const Discover = () => {
                   onClick={() => {
                     if (storyViewerIndex > 0) setStoryViewerIndex(storyViewerIndex - 1);
                   }}
-                  aria-label="Previous story"
+                  aria-label={t("discover.previousStory")}
                 />
                 <button
                   className="w-1/2 h-full"
@@ -5457,7 +5520,7 @@ const Discover = () => {
                       setStoryViewerIndex(storyViewerIndex + 1);
                     else setShowStoryViewer(false);
                   }}
-                  aria-label="Next story"
+                  aria-label={t("discover.nextStory")}
                 />
               </div>
             </div>
@@ -5482,14 +5545,14 @@ const Discover = () => {
       <AlertDialog open={showFilterDiscardConfirm} onOpenChange={setShowFilterDiscardConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Discard filter changes?</AlertDialogTitle>
+            <AlertDialogTitle>{t("discover.discardFilters")}</AlertDialogTitle>
             <AlertDialogDescription>
               You have unsaved filter changes. Close without applying?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setShowFilterDiscardConfirm(false)}>
-              Keep editing
+              {t("discover.keepEditing")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
@@ -5497,7 +5560,7 @@ const Discover = () => {
                 setShowFilterSheet(false);
               }}
             >
-              Discard
+              {t("discover.discard")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

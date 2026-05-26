@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ interface DancingVideo {
 }
 
 export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [videos, setVideos] = useState<DancingVideo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,11 +66,11 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
         setRatingValues(ratingsMap);
       }
     } catch (error) {
-      toast.error("Failed to load videos: " + (error as Error).message);
+      toast.error(t("videoIntro.failedLoadVideos"));
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     fetchVideos();
@@ -76,7 +78,7 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
 
   const submitRating = async (videoId: string, rating: number) => {
     if (!user) {
-      toast.error("Please log in to rate videos");
+      toast.error(t("videoIntro.loginToRate"));
       return;
     }
 
@@ -95,12 +97,12 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
       if (error) throw error;
 
       setUserRatings((prev) => ({ ...prev, [videoId]: rating }));
-      toast.success(`Rated ${rating}/10! ⭐`);
+      toast.success(t("dancing.rated", { rating }));
 
       // Refresh to get updated average
       setTimeout(fetchVideos, 500);
     } catch (error) {
-      toast.error("Failed to submit rating: " + (error as Error).message);
+      toast.error(t("videoIntro.failedRating"));
     }
   };
 
@@ -108,7 +110,7 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
     return (
       <div className="text-center py-8">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-        <p className="text-muted-foreground mt-4">Loading dance videos...</p>
+        <p className="text-muted-foreground mt-4">{t("dancing.loadingVideos")}</p>
       </div>
     );
   }
@@ -117,8 +119,8 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
     return (
       <Card className="p-12 text-center">
         <Star className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-        <h3 className="text-2xl font-bold mb-2">No videos yet</h3>
-        <p className="text-muted-foreground">Be the first to upload a dance video!</p>
+        <h3 className="text-2xl font-bold mb-2">{t("dancing.noVideos")}</h3>
+        <p className="text-muted-foreground">{t("dancing.beFirst")}</p>
       </Card>
     );
   }
@@ -162,7 +164,7 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
 
           <div className="p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Rate this dance:</span>
+              <span className="text-sm font-medium">{t("dancing.rateDance")}</span>
               <span className="text-2xl font-bold text-primary">
                 {ratingValues[video.id] || 0}/10
               </span>

@@ -165,10 +165,10 @@ interface InstantMessageConversation {
 }
 
 // Helper function to format message timestamp
-const formatMessageTime = (timestamp: string | null | undefined) => {
+const formatMessageTime = (timestamp: string | null | undefined, t: (key: string, opts?: Record<string, unknown>) => string) => {
   if (!timestamp) {
     logger.warn("⚠️ Empty timestamp received");
-    return "Just now";
+    return t("common.justNow");
   }
 
   const date = new Date(timestamp);
@@ -176,25 +176,26 @@ const formatMessageTime = (timestamp: string | null | undefined) => {
   // Check if date is valid
   if (isNaN(date.getTime())) {
     logger.warn("⚠️ Invalid timestamp:", timestamp);
-    return "Just now";
+    return t("common.justNow");
   }
 
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (diffInSeconds < 60) return "Just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  if (diffInSeconds < 60) return t("common.justNow");
+  if (diffInSeconds < 3600) return t("common.minutesAgo", { min: Math.floor(diffInSeconds / 60) });
+  if (diffInSeconds < 86400) return t("common.hoursAgo", { hr: Math.floor(diffInSeconds / 3600) });
+  if (diffInSeconds < 604800) return t("common.daysAgo", { day: Math.floor(diffInSeconds / 86400) });
 
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return date.toLocaleDateString("sq", { month: "short", day: "numeric" });
 };
 
 const MATCH_EXPIRY_HOURS = 168; // 7 days
 
 const getMatchExpiryInfo = (
   match: Match,
-  isPremium: boolean
+  isPremium: boolean,
+  t: (key: string, opts?: Record<string, unknown>) => string
 ): { isExpired: boolean; countdown: string | null } => {
   if (isPremium || match.lastMessage) return { isExpired: false, countdown: null };
   if (!match.created_at) return { isExpired: false, countdown: null };
@@ -203,7 +204,7 @@ const getMatchExpiryInfo = (
   if (msLeft <= 0) return { isExpired: true, countdown: null };
   const hoursLeft = Math.floor(msLeft / 3600000);
   if (hoursLeft < 48) {
-    return { isExpired: false, countdown: hoursLeft < 1 ? "< 1h left" : `${hoursLeft}h left` };
+    return { isExpired: false, countdown: hoursLeft < 1 ? t("common.lessThanHourLeft") : t("common.hoursLeft", { hours: hoursLeft }) };
   }
   return { isExpired: false, countdown: null };
 };
@@ -284,15 +285,15 @@ const Matches = () => {
           next.delete(matchId);
           return next;
         });
-        toast.success("Bookmark removed");
+        toast.success(t("matches.bookmarkRemoved"));
       } else {
         await supabase.from("bookmarked_matches").insert({ user_id: user.id, match_id: matchId });
         setBookmarkedMatchIds((prev) => new Set([...prev, matchId]));
-        toast.success("Match bookmarked ⭐");
+        toast.success(t("matches.matchBookmarked"));
       }
     } catch (err) {
       logger.error("Bookmark toggle error:", err);
-      toast.error("Failed to update bookmark");
+      toast.error(t("matches.failedBookmark"));
     }
   };
 
@@ -340,7 +341,7 @@ const Matches = () => {
       if (error) {
         logger.error("❌ Error fetching instant messages:", error);
         logger.error("Error details:", JSON.stringify(error, null, 2));
-        toast.error(`Failed to load instant messages: ${error.message}`);
+        toast.error(t("matches.failedToLoadMessages", { error: error.message }));
         return;
       }
 
@@ -348,11 +349,11 @@ const Matches = () => {
       setInstantMessages(data || []);
     } catch (error) {
       logger.error("❌ Exception fetching instant messages:", error);
-      toast.error("Failed to load instant messages");
+      toast.error(t("matches.failedLoadIm"));
     } finally {
       setInstantMessagesLoading(false);
     }
-  }, [user]);
+  }, [user, t]);
 
   const fetchMatches = useCallback(async () => {
     if (!user) return;
@@ -465,11 +466,11 @@ const Matches = () => {
       setMatches(sortedMatches);
     } catch (error) {
       logger.error("Error fetching matches:", error);
-      toast.error("Failed to load matches");
+      toast.error(t("matches.failedLoad"));
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, t]);
 
   const { refreshing, pullDistance, touchHandlers } = usePullToRefresh(fetchMatches);
   const pullDivRef = useRef<HTMLDivElement>(null);
@@ -499,10 +500,10 @@ const Matches = () => {
 
       // Remove the match from local state
       setMatches((prev) => prev.filter((m) => m.id !== match.id));
-      toast.success(`Unmatched with ${match.profile.full_name}`);
+      toast.success(t("matches.unmatched", { name: match.profile.full_name }));
     } catch (error) {
       logger.error("Error removing match:", error);
-      toast.error("Failed to unmatch");
+      toast.error(t("matches.failedUnmatch"));
     } finally {
       setShowUnmatchDialog(false);
       setSelectedMatch(null);
@@ -560,12 +561,12 @@ const Matches = () => {
             logger.error("Error deleting instant message messages:", deleteError);
           }
 
-          toast.success("🎉 It's a Match! You can now chat with them!");
+          toast.success(t("matches.itsAMatch"));
           // Refresh matches list
           await fetchMatches();
         }
       } else {
-        toast.success("Like sent! 💕");
+        toast.success(t("matches.likeSent"));
       }
 
       setShowProfileDialog(false);
@@ -573,7 +574,7 @@ const Matches = () => {
       await fetchInstantMessages();
     } catch (error) {
       logger.error("Error liking profile:", error);
-      toast.error("Failed to send like");
+      toast.error(t("matches.failedLike"));
     }
   };
 
@@ -608,7 +609,7 @@ const Matches = () => {
       setShowProfileDialog(true);
     } catch (error) {
       logger.error("Error fetching profile:", error);
-      toast.error("Failed to load profile");
+      toast.error(t("matches.failedLoadProfile"));
     }
   };
 
@@ -633,7 +634,7 @@ const Matches = () => {
 
       if (error) {
         logger.error("Error fetching conversation:", error);
-        toast.error("Failed to load conversation");
+        toast.error(t("matches.failedLoadConversation"));
         return;
       }
 
@@ -654,7 +655,7 @@ const Matches = () => {
       }
     } catch (error) {
       logger.error("Error fetching conversation:", error);
-      toast.error("Failed to load conversation");
+      toast.error(t("matches.failedLoadConversation"));
     } finally {
       setLoadingMessages(false);
     }
@@ -666,7 +667,7 @@ const Matches = () => {
     // Check if user has reached the message limit (20 messages per user)
     const userMessageCount = conversationMessages.filter((msg) => msg.is_sender).length;
     if (userMessageCount >= 20) {
-      toast.error("Message limit reached! Like their profile to unlock unlimited messaging.");
+      toast.error(t("matches.messageLimitReached"));
       return;
     }
 
@@ -684,14 +685,14 @@ const Matches = () => {
 
       if (error) {
         logger.error("❌ Error sending message:", error);
-        toast.error(`Failed to send: ${error.message}`);
+        toast.error(t("matches.failedToSend", { error: error.message }));
         return;
       }
 
       const result = data as { success: boolean; error?: string };
 
       if (!result.success) {
-        toast.error(result.error || "Failed to send message");
+        toast.error(result.error || t("matches.failedToSendMessage"));
         return;
       }
 
@@ -700,7 +701,7 @@ const Matches = () => {
       await viewInstantMessageConversation(viewingConversation);
     } catch (error) {
       logger.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      toast.error(t("matches.failedSendMessage"));
     } finally {
       setSendingReply(false);
     }
@@ -731,7 +732,7 @@ const Matches = () => {
       if (error) {
         logger.error("❌ Supabase error:", error);
         logger.error("Error details:", JSON.stringify(error, null, 2));
-        toast.error(`Failed to send reply: ${error.message}`);
+        toast.error(t("matches.failedToSendReply", { error: error.message }));
         return;
       }
 
@@ -747,7 +748,7 @@ const Matches = () => {
 
       logger.log("🎉 Reply sent successfully!", result);
 
-      toast.success("Reply sent! Keep messaging in Instant Messages tab.");
+      toast.success(t("matches.replySent"));
 
       setShowReplyDialog(false);
       setReplyMessage("");
@@ -757,7 +758,7 @@ const Matches = () => {
       fetchInstantMessages();
     } catch (error) {
       logger.error("Error sending reply:", error);
-      toast.error("Failed to send reply");
+      toast.error(t("matches.failedReply"));
     } finally {
       setSendingReply(false);
     }
@@ -851,12 +852,19 @@ const Matches = () => {
     (m) => bookmarkedMatchIds.has(m.id) && !blockedByYouSet.has(m.profile.id)
   );
 
+  // IDs of users we've already matched with — hide their IMs from the Instant tab
+  const matchedUserIds = new Set(matches.map((m) => m.profile.id));
+  const visibleInstantMessages = instantMessages.filter((im) => {
+    const otherId = im.is_sender ? im.receiver_id : im.sender_id;
+    return !matchedUserIds.has(otherId);
+  });
+
   return (
     <div className="min-h-dvh pb-24 page-bg" {...touchHandlers}>
       {pullDistance > 0 && (
         <div ref={pullDivRef} className="flex justify-center py-2">
           <div className={`text-sm text-muted-foreground ${refreshing ? "animate-spin" : ""}`}>
-            {refreshing ? "↻" : pullDistance > 60 ? "↓ Release to refresh" : "↓ Pull to refresh"}
+            {refreshing ? "↻" : pullDistance > 60 ? t("common.releaseToRefresh") : t("common.pullToRefresh")}
           </div>
         </div>
       )}
@@ -882,8 +890,8 @@ const Matches = () => {
             <h1 className="text-2xl font-bold text-foreground">{t("matches.title")}</h1>
             <p className="text-sm text-muted-foreground">
               {activeTab === "matches"
-                ? `${matches.length} ${matches.length === 1 ? "match" : "matches"}`
-                : `${instantMessages.length} instant ${instantMessages.length === 1 ? "message" : "messages"}`}
+                ? `${matches.length === 1 ? t("matches.matchCount", { count: matches.length }) : t("matches.matchCountPlural", { count: matches.length })}`
+                : `${visibleInstantMessages.length === 1 ? t("matches.instantMessageCount", { count: visibleInstantMessages.length }) : t("matches.instantMessageCountPlural", { count: visibleInstantMessages.length })}`}
             </p>
           </div>
 
@@ -893,7 +901,7 @@ const Matches = () => {
               <TabsTrigger
                 value="matches"
                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 ${
-                  activeTab === "matches" ? "text-white" : "text-white/40 hover:text-white/70"
+                  activeTab === "matches" ? "text-foreground" : "text-muted-foreground hover:text-foreground/70"
                 }`}
                 style={
                   activeTab === "matches"
@@ -903,7 +911,7 @@ const Matches = () => {
                         border: "1px solid rgba(232,39,75,0.4)",
                         boxShadow: "0 4px 20px rgba(232,39,75,0.2)",
                       }
-                    : { background: "transparent", border: "1px solid rgba(255,255,255,0.08)" }
+                    : { background: "transparent", border: "1px solid rgba(128,128,128,0.25)" }
                 }
               >
                 <Heart className="h-4 w-4" />
@@ -912,7 +920,7 @@ const Matches = () => {
               <TabsTrigger
                 value="instant"
                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 ${
-                  activeTab === "instant" ? "text-white" : "text-white/40 hover:text-white/70"
+                  activeTab === "instant" ? "text-foreground" : "text-muted-foreground hover:text-foreground/70"
                 }`}
                 style={
                   activeTab === "instant"
@@ -922,7 +930,7 @@ const Matches = () => {
                         border: "1px solid rgba(232,39,75,0.4)",
                         boxShadow: "0 4px 20px rgba(232,39,75,0.2)",
                       }
-                    : { background: "transparent", border: "1px solid rgba(255,255,255,0.08)" }
+                    : { background: "transparent", border: "1px solid rgba(128,128,128,0.25)" }
                 }
               >
                 <MessageSquare className="h-4 w-4" />
@@ -961,7 +969,7 @@ const Matches = () => {
                 {/* Horizontal Circular Profile Images */}
                 <div className="px-4 py-6 border-b border-border">
                   <h2 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
-                    Your Matches
+                    {t("matches.yourMatches")}
                   </h2>
                   <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                     {matches
@@ -987,7 +995,7 @@ const Matches = () => {
                             </Avatar>
                             {match.profile.video_intro_url && (
                               <div className="absolute -bottom-1 -left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full shadow text-[9px]">
-                                Video
+                                {t("common.video")}
                               </div>
                             )}
                             {blockedByYouSet.has(match.profile.id) && (
@@ -1016,7 +1024,7 @@ const Matches = () => {
                   {matchesWithMessages.length > 0 && (
                     <>
                       <h2 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
-                        Messages
+                        {t("matches.messages")}
                       </h2>
                       {matchesWithMessages
                         .filter((match) =>
@@ -1044,7 +1052,7 @@ const Matches = () => {
                                 </Avatar>
                                 {match.profile.video_intro_url && (
                                   <div className="absolute -bottom-1 -left-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full shadow text-[9px]">
-                                    Video
+                                    {t("common.video")}
                                   </div>
                                 )}
                                 {blockedByYouSet.has(match.profile.id) && (
@@ -1072,15 +1080,15 @@ const Matches = () => {
                                   </h3>
                                   {match.lastMessage && (
                                     <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
-                                      {formatMessageTime(match.lastMessage.created_at)}
+                                      {formatMessageTime(match.lastMessage.created_at, t)}
                                     </span>
                                   )}
                                 </div>
                                 {match.lastMessage && (
                                   <p className="text-xs text-muted-foreground/75 truncate">
-                                    {match.lastMessage.sender_id === user?.id ? "You: " : ""}
+                                    {match.lastMessage.sender_id === user?.id ? t("common.youPrefix") : ""}
                                     {match.lastMessage.voice_url
-                                      ? "🎙️ Voice message"
+                                      ? t("common.voiceMessage")
                                       : match.lastMessage.content}
                                   </p>
                                 )}
@@ -1099,7 +1107,7 @@ const Matches = () => {
                                   }}
                                 >
                                   <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
-                                  Chat
+                                  {t("matches.chat")}
                                 </Button>
                               </div>
 
@@ -1137,8 +1145,8 @@ const Matches = () => {
                                       <Bookmark className="h-4 w-4 mr-2" />
                                     )}
                                     {bookmarkedMatchIds.has(match.id)
-                                      ? "Remove Bookmark"
-                                      : "Bookmark"}
+                                      ? t("matches.removeBookmark")
+                                      : t("matches.bookmark")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -1186,7 +1194,7 @@ const Matches = () => {
                           <Card
                             key={match.id}
                             className={`p-4 hover:shadow-[0_16px_50px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer relative group bg-card border border-border/50 rounded-2xl ${
-                              getMatchExpiryInfo(match, currentUserIsPremium).isExpired
+                              getMatchExpiryInfo(match, currentUserIsPremium, t).isExpired
                                 ? "opacity-60 grayscale"
                                 : ""
                             }`}
@@ -1208,7 +1216,7 @@ const Matches = () => {
                                 </Avatar>
                                 {match.profile.video_intro_url && (
                                   <div className="absolute -bottom-1 -left-1 bg-primary text-white text-[10px] px-2 py-0.5 rounded-full shadow">
-                                    Video
+                                    {t("common.video")}
                                   </div>
                                 )}
                                 {blockedByYouSet.has(match.profile.id) && (
@@ -1238,11 +1246,11 @@ const Matches = () => {
                                     {t("matches.newMatch")}
                                   </Badge>
                                   {(() => {
-                                    const expiry = getMatchExpiryInfo(match, currentUserIsPremium);
+                                    const expiry = getMatchExpiryInfo(match, currentUserIsPremium, t);
                                     if (expiry.isExpired)
                                       return (
                                         <Badge className="bg-red-500/20 text-red-500 border border-red-500/30 text-[10px] font-bold px-2 ml-1">
-                                          Expired
+                                          {t("matches.expired")}
                                         </Badge>
                                       );
                                     if (expiry.countdown)
@@ -1255,10 +1263,10 @@ const Matches = () => {
                                   })()}
                                 </div>
                                 {blockedByYouSet.has(match.profile.id) ? (
-                                  <p className="text-sm text-red-600">You blocked this user.</p>
+                                  <p className="text-sm text-red-600">{t("matches.youBlockedUser")}</p>
                                 ) : (
                                   <p className="text-sm text-muted-foreground">
-                                    Say hi to {match.profile.full_name.split(" ")[0]}! 👋
+                                    {t("matches.sayHi", { name: match.profile.full_name.split(" ")[0] })}
                                   </p>
                                 )}
                                 {!blockedByYouSet.has(match.profile.id) && (
@@ -1297,7 +1305,7 @@ const Matches = () => {
                                   }}
                                 >
                                   <MessageCircle className="h-4 w-4 mr-2" />
-                                  Start Chat
+                                  {t("matches.startChat")}
                                 </Button>
                               </div>
 
@@ -1335,8 +1343,8 @@ const Matches = () => {
                                       <Bookmark className="h-4 w-4 mr-2" />
                                     )}
                                     {bookmarkedMatchIds.has(match.id)
-                                      ? "Remove Bookmark"
-                                      : "Bookmark"}
+                                      ? t("matches.removeBookmark")
+                                      : t("matches.bookmark")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
                                     onClick={(e) => {
@@ -1362,7 +1370,7 @@ const Matches = () => {
                   <div className="px-4 mt-6">
                     <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
                       <BookmarkCheck className="h-5 w-5 text-yellow-500" />
-                      Bookmarked ({bookmarkedMatches.length})
+                      {t("matches.bookmarkedSection", { count: bookmarkedMatches.length })}
                     </h3>
                     <div className="space-y-2">
                       {bookmarkedMatches.map((match) => (
@@ -1388,7 +1396,7 @@ const Matches = () => {
                               {match.lastMessage && (
                                 <p className="text-xs text-muted-foreground truncate">
                                   {match.lastMessage.voice_url
-                                    ? "🎙️ Voice message"
+                                    ? t("common.voiceMessage")
                                     : match.lastMessage.content}
                                 </p>
                               )}
@@ -1423,7 +1431,7 @@ const Matches = () => {
                       <Search className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                       <h3 className="font-semibold text-lg mb-1">{t("common.noResults")}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Try searching for a different name
+                        {t("matches.tryDifferentSearch")}
                       </p>
                     </div>
                   )}
@@ -1438,7 +1446,7 @@ const Matches = () => {
                     className="bg-gradient-primary text-primary-foreground hover:opacity-90"
                     onClick={() => navigate("/discover")}
                   >
-                    Start Discovering
+                    {t("matches.startDiscovering")}
                   </Button>
                 </Card>
               </div>
@@ -1453,10 +1461,10 @@ const Matches = () => {
                   <MatchCardSkeleton />
                 </div>
               </div>
-            ) : instantMessages.length > 0 ? (
+            ) : visibleInstantMessages.length > 0 ? (
               <div className="px-4 py-6">
                 <div className="space-y-4">
-                  {instantMessages.map((message) => (
+                  {visibleInstantMessages.map((message) => (
                     <Card
                       key={message.id}
                       className="p-4 shadow-elegant hover:shadow-lg transition-shadow cursor-pointer"
@@ -1509,12 +1517,12 @@ const Matches = () => {
                                   variant="outline"
                                   className="bg-primary/10 text-primary border-primary/60"
                                 >
-                                  {message.message_count} messages
+                                  {t("matches.messagesCount", { count: message.message_count })}
                                 </Badge>
                               )}
                             </div>
                             <Badge variant={message.is_sender ? "default" : "secondary"}>
-                              {message.is_sender ? "Sent" : "Received"}
+                              {message.is_sender ? t("matches.sent") : t("matches.received")}
                             </Badge>
                           </div>
 
@@ -1526,7 +1534,7 @@ const Matches = () => {
 
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-muted-foreground">
-                              {formatMessageTime(message.created_at)}
+                              {formatMessageTime(message.created_at, t)}
                             </span>
                             <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                               <Button
@@ -1539,7 +1547,7 @@ const Matches = () => {
                                 className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white hover:opacity-90"
                               >
                                 <MessageCircle className="h-4 w-4 mr-1" />
-                                {message.message_count > 1 ? "View Chat" : "Reply"}
+                                {message.message_count > 1 ? t("matches.viewChat") : t("matches.reply")}
                               </Button>
                             </div>
                           </div>
@@ -1551,8 +1559,7 @@ const Matches = () => {
 
                 <div className="mt-6 p-4 bg-gradient-to-br from-primary/10 to-primary/10 rounded-lg border border-primary/30">
                   <p className="text-sm text-center text-muted-foreground">
-                    <MessageSquare className="inline h-4 w-4 mb-1" /> Instant messages let you
-                    message before matching. Messages stay here until you both like each other!
+                    <MessageSquare className="inline h-4 w-4 mb-1" /> {t("matches.instantMessageInfo")}
                   </p>
                 </div>
               </div>
@@ -1560,15 +1567,15 @@ const Matches = () => {
               <div className="px-4 py-12">
                 <Card className="p-12 text-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-2 border-border rounded-2xl backdrop-blur-sm bg-gradient-to-br from-card to-primary/10/30">
                   <MessageSquare className="h-16 w-16 mx-auto mb-4 text-primary" />
-                  <h3 className="text-2xl font-bold mb-2">No instant messages yet</h3>
+                  <h3 className="text-2xl font-bold mb-2">{t("matches.noInstantMessages")}</h3>
                   <p className="text-muted-foreground mb-6">
-                    Use instant message credits to message users before matching!
+                    {t("matches.useCreditsPrompt")}
                   </p>
                   <Button
                     className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white hover:opacity-90"
                     onClick={() => navigate("/discover")}
                   >
-                    Start Discovering
+                    {t("matches.startDiscovering")}
                   </Button>
                 </Card>
               </div>
@@ -1710,7 +1717,7 @@ const Matches = () => {
                           )}
                           {viewingProfile.profile.video_intro_url && (
                             <Badge className="bg-background/70 text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              Video
+                              {t("common.video")}
                             </Badge>
                           )}
                         </div>
@@ -1719,7 +1726,7 @@ const Matches = () => {
                           viewingProfile.profile.travel_city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                               <span>✈️</span>
-                              <span>Traveling in {viewingProfile.profile.travel_city}</span>
+                              <span>{t("common.travelingIn")} {viewingProfile.profile.travel_city}</span>
                             </div>
                           ) : viewingProfile.profile.city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -1729,7 +1736,7 @@ const Matches = () => {
                           ) : null}
                           {viewingProfile.profile.distance_km && (
                             <div className="backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
-                              {Math.round(viewingProfile.profile.distance_km)} km away
+                              {t("chat.kmAway", { km: Math.round(viewingProfile.profile.distance_km) })}
                             </div>
                           )}
                         </div>
@@ -1774,7 +1781,7 @@ const Matches = () => {
                 {/* Video Intro */}
                 {viewingProfile.profile.video_intro_url && (
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                    <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
                     <div className="rounded-lg overflow-hidden border border-primary/20">
                       <video
                         src={viewingProfile.profile.video_intro_url}
@@ -1788,7 +1795,7 @@ const Matches = () => {
                 {/* Stories */}
                 {matchStories.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-lg">Stories</h3>
+                    <h3 className="font-semibold text-lg">{t("common.stories")}</h3>
                     <div className="flex gap-2 overflow-x-auto pb-1">
                       {matchStories.map((story, idx) => (
                         <button
@@ -2088,7 +2095,7 @@ const Matches = () => {
             <div className="space-y-4">
               {/* Original Message */}
               <div className="bg-background p-3 rounded-lg">
-                <p className="text-xs text-muted-foreground mb-1">Their message:</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("matches.theirMessage")}</p>
                 <p className="text-sm text-foreground">"{replyingToMessage.message_content}"</p>
               </div>
 
@@ -2137,7 +2144,7 @@ const Matches = () => {
                   className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white hover:opacity-90"
                 >
                   {sendingReply ? (
-                    <>Sending...</>
+                    <>{t("common.sending")}</>
                   ) : (
                     <>
                       <MessageCircle className="h-4 w-4 mr-2" />
@@ -2196,13 +2203,13 @@ const Matches = () => {
                         <p
                           className={`text-xs mt-1 ${msg.is_sender ? "text-rose-100" : "text-muted-foreground"}`}
                         >
-                          {formatMessageTime(msg.created_at)}
+                          {formatMessageTime(msg.created_at, t)}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center text-muted-foreground py-8">No messages yet</div>
+                  <div className="text-center text-muted-foreground py-8">{t("matches.noMessagesYet")}</div>
                 )}
               </div>
 
@@ -2229,7 +2236,7 @@ const Matches = () => {
               {/* Message Input */}
               <div className="mt-2 flex gap-2">
                 <Textarea
-                  placeholder="Type your message..."
+                  placeholder={t("matches.typeMessagePlaceholder")}
                   value={replyMessage}
                   onChange={(e) => setReplyMessage(e.target.value)}
                   onKeyDown={(e) => {
@@ -2249,7 +2256,7 @@ const Matches = () => {
                   disabled={!replyMessage.trim() || sendingReply}
                   className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white hover:opacity-90 self-end"
                 >
-                  {sendingReply ? <>Sending...</> : <MessageCircle className="h-4 w-4" />}
+                  {sendingReply ? <>{t("common.sending")}</> : <MessageCircle className="h-4 w-4" />}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground text-right mt-1">
@@ -2263,7 +2270,7 @@ const Matches = () => {
       {/* Story Viewer Dialog */}
       <Dialog open={showMatchStoryViewer} onOpenChange={setShowMatchStoryViewer}>
         <DialogContent className="max-w-sm p-0 bg-black border-none" aria-describedby={undefined}>
-          <DialogTitle className="sr-only">Story Viewer</DialogTitle>
+          <DialogTitle className="sr-only">{t("common.storyViewer")}</DialogTitle>
           {matchStories[matchStoryIndex] && viewingProfile && (
             <div className="relative">
               <div className="absolute top-0 left-0 right-0 z-10 flex gap-1 p-2">
@@ -2317,7 +2324,7 @@ const Matches = () => {
                   onClick={() => {
                     if (matchStoryIndex > 0) setMatchStoryIndex(matchStoryIndex - 1);
                   }}
-                  aria-label="Previous story"
+                  aria-label={t("matches.previousStory")}
                 />
                 <button
                   className="w-1/2 h-full"
@@ -2326,7 +2333,7 @@ const Matches = () => {
                       setMatchStoryIndex(matchStoryIndex + 1);
                     else setShowMatchStoryViewer(false);
                   }}
-                  aria-label="Next story"
+                  aria-label={t("matches.nextStory")}
                 />
               </div>
             </div>

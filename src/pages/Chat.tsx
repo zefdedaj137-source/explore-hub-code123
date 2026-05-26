@@ -393,7 +393,7 @@ const Chat = () => {
       toast.success(t("chat.voiceMessageSent"));
     } catch (error) {
       logger.error("Error sending voice message:", error);
-      toast.error("Failed to send voice message");
+      toast.error(t("chat.failedVoice"));
       URL.revokeObjectURL(tempVoiceUrl);
       setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
     }
@@ -482,7 +482,7 @@ const Chat = () => {
       toast.success(t("chat.photoSent"));
     } catch (error) {
       logger.error("Error sending photo:", error);
-      toast.error("Failed to send photo");
+      toast.error(t("chat.failedPhoto"));
       setMessages((prev) => prev.filter((msg) => !msg.id.startsWith("temp-img-")));
     } finally {
       setSendingImage(false);
@@ -825,12 +825,14 @@ const Chat = () => {
       const now = new Date();
       const day = now.getDay();
       const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(now.setDate(diff));
+      const monday = new Date(now);
+      monday.setDate(diff);
       monday.setHours(0, 0, 0, 0);
       return monday.toISOString().slice(0, 10);
     };
 
     const raw = localStorage.getItem(key);
+    const currentWeekStart = getWeekStart();
     const state = raw
       ? (JSON.parse(raw) as {
           lastMessageDate: string | null;
@@ -838,10 +840,10 @@ const Chat = () => {
           weekStart: string;
           messagesThisWeek: number;
         })
-      : { lastMessageDate: null, streak: 0, weekStart: getWeekStart(), messagesThisWeek: 0 };
+      : { lastMessageDate: null, streak: 0, weekStart: currentWeekStart, messagesThisWeek: 0 };
 
-    if (state.weekStart !== getWeekStart()) {
-      state.weekStart = getWeekStart();
+    if (state.weekStart !== currentWeekStart) {
+      state.weekStart = currentWeekStart;
       state.messagesThisWeek = 0;
     }
 
@@ -872,7 +874,7 @@ const Chat = () => {
       // Send cancel message in chat
       if (matchId) {
         const formattedDate = new Date(confirmedDatePlan.scheduled_for).toLocaleString();
-        const chatMessage = `\u274C Date plan canceled.\n\u{1F4CD} ${confirmedDatePlan.location}\n\u{1F550} ${formattedDate}`;
+        const chatMessage = t("chat.dateCanceledMsg", { location: confirmedDatePlan.location, date: formattedDate });
         const { error: msgError } = await supabase.from("messages").insert({
           match_id: matchId,
           sender_id: user.id,
@@ -889,10 +891,10 @@ const Chat = () => {
       }
 
       setConfirmedDatePlan(null);
-      toast.success("Date plan canceled.");
+      toast.success(t("chat.dateCanceled"));
     } catch (error) {
       logger.error("Cancel date plan error:", error);
-      toast.error("Failed to cancel date plan.");
+      toast.error(t("chat.failedCancelDate"));
     }
   };
 
@@ -911,8 +913,8 @@ const Chat = () => {
       if (matchId) {
         const formattedDate = new Date(confirmedDatePlan.scheduled_for).toLocaleString();
         const chatMessage = accept
-          ? `\u2705 Date accepted!\n\u{1F4CD} ${confirmedDatePlan.location}\n\u{1F550} ${formattedDate}\n\nIt's a date! \uD83C\uDF89`
-          : `\u274C Date declined.\n\u{1F4CD} ${confirmedDatePlan.location}\n\u{1F550} ${formattedDate}`;
+          ? t("chat.dateAcceptedMsg", { location: confirmedDatePlan.location, date: formattedDate })
+          : t("chat.dateDeclinedMsg", { location: confirmedDatePlan.location, date: formattedDate });
         const { error: msgError } = await supabase.from("messages").insert({
           match_id: matchId,
           sender_id: user.id,
@@ -930,21 +932,21 @@ const Chat = () => {
 
       if (accept) {
         setConfirmedDatePlan((prev) => (prev ? { ...prev, status: "confirmed" } : prev));
-        toast.success("Date accepted! 🎉");
+        toast.success(t("chat.dateAccepted"));
       } else {
         setConfirmedDatePlan(null);
-        toast.success("Date declined.");
+        toast.success(t("chat.dateDeclined"));
       }
     } catch (error) {
       logger.error("Respond to date plan error:", error);
-      toast.error("Failed to respond to date plan.");
+      toast.error(t("chat.failedDateResponse"));
     }
   };
 
   const handleCreateDatePlan = async () => {
     if (!user || !matchId || !otherUserId) return;
     if (!datePlanDateTime || !datePlanLocation) {
-      toast.error("Please fill in date/time and location.");
+      toast.error(t("chat.fillDateLocation"));
       return;
     }
 
@@ -987,7 +989,7 @@ const Chat = () => {
 
       // Send chat message
       const formattedDate = new Date(datePlanDateTime).toLocaleString();
-      const chatMessage = `📅 I planned a date!\n📍 ${datePlanLocation}\n🕐 ${formattedDate}${datePlanNotes ? `\n📝 ${datePlanNotes}` : ""}\n\nCheck your Date Planner to accept!`;
+      const chatMessage = t("chat.datePlannedMsg", { location: datePlanLocation, date: formattedDate, notes: datePlanNotes ? `\n📝 ${datePlanNotes}` : "" });
 
       const { error: msgError } = await supabase.from("messages").insert({
         match_id: matchId,
@@ -1004,7 +1006,7 @@ const Chat = () => {
         });
       }
 
-      toast.success("Date plan created!");
+      toast.success(t("chat.datePlanCreated"));
       setShowDatePlanDialog(false);
       setDatePlanDateTime("");
       setDatePlanLocation("");
@@ -1020,7 +1022,7 @@ const Chat = () => {
       });
     } catch (error) {
       logger.error("Create date plan error:", error);
-      toast.error("Failed to create date plan.");
+      toast.error(t("chat.failedCreateDate"));
     } finally {
       setCreatingDatePlan(false);
     }
@@ -1054,7 +1056,7 @@ const Chat = () => {
       const messageContent = validationResult.data.content;
 
       if (containsProfanity(messageContent)) {
-        toast.error("Your message contains inappropriate language. Please revise it.");
+        toast.error(t("chat.inappropriateMsg"));
         return;
       }
 
@@ -1107,6 +1109,19 @@ const Chat = () => {
           return [...withoutOptimistic, data as Message];
         });
         updateMessageStreak();
+        // Notify receiver via push notification (fire-and-forget)
+        if (otherUserId) {
+          supabase.functions
+            .invoke("send-push", {
+              body: {
+                user_id: otherUserId,
+                title: matchProfile?.full_name || "New message",
+                body: messageContent.slice(0, 80),
+                url: `/chat/${matchId}`,
+              },
+            })
+            .catch((err) => logger.error("send-push (message) failed:", err));
+        }
       }
     } catch (error) {
       // Queue for offline retry if network is down
@@ -1118,10 +1133,10 @@ const Chat = () => {
             match_id: matchId,
             sender_id: user.id,
             receiver_id: otherUserId || null,
-            content: newMessage,
+            content: messageContent,
           },
         });
-        toast.info("You're offline. Message will be sent when connection returns.");
+        toast.info(t("chat.offlineMessage"));
       } else {
         toast.error((error as Error).message || "Failed to send message");
       }
@@ -1159,7 +1174,7 @@ const Chat = () => {
 
   const toggleReaction = async (messageId: string, emoji: string) => {
     if (!user || reactionsTableMissing.current) {
-      if (reactionsTableMissing.current) toast.error("Reactions not available yet");
+      if (reactionsTableMissing.current) toast.error(t("chat.reactionsUnavailable"));
       return;
     }
     try {
@@ -1183,7 +1198,7 @@ const Chat = () => {
       setReactionPickerMsgId(null);
       fetchReactions(messages.map((m) => m.id).filter((id) => !id.startsWith("temp-")));
     } catch {
-      toast.error("Reactions not available yet");
+      toast.error(t("chat.reactionsUnavailable"));
       setReactionPickerMsgId(null);
     }
   };
@@ -1209,13 +1224,13 @@ const Chat = () => {
       if (hardError) {
         // Restore message on failure by re-fetching
         fetchMessages();
-        toast.error("Failed to delete message");
+        toast.error(t("chat.failedDeleteMsg"));
         return;
       }
-      toast.success("Message deleted");
+      toast.success(t("chat.messageDeleted"));
       return;
     }
-    toast.success("Message deleted");
+    toast.success(t("chat.messageDeleted"));
   };
 
   // --- Message Search ---
@@ -1307,7 +1322,7 @@ const Chat = () => {
       }
     } catch {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticMessage.id));
-      toast.error("Failed to send GIF");
+      toast.error(t("chat.failedGif"));
     }
   };
 
@@ -1343,7 +1358,7 @@ const Chat = () => {
       navigate("/matches");
     } catch (error) {
       logger.error("Error removing match:", error);
-      toast.error("Failed to unmatch");
+      toast.error(t("chat.failedUnmatch"));
     } finally {
       setShowUnmatchDialog(false);
     }
@@ -1355,10 +1370,10 @@ const Chat = () => {
     try {
       await blockUserApi(user.id, otherUserId);
       setBlockedByYou(true);
-      toast.success("User blocked. You won't receive calls or messages.");
+      toast.success(t("chat.userBlocked"));
     } catch (e) {
       logger.error(e);
-      toast.error("Failed to block user");
+      toast.error(t("chat.failedBlock"));
     }
   };
 
@@ -1367,10 +1382,10 @@ const Chat = () => {
     try {
       await unblockUserApi(user.id, otherUserId);
       setBlockedByYou(false);
-      toast.success("User unblocked.");
+      toast.success(t("chat.userUnblocked"));
     } catch (e) {
       logger.error(e);
-      toast.error("Failed to unblock user");
+      toast.error(t("chat.failedUnblock"));
     }
   };
 
@@ -1585,7 +1600,7 @@ const Chat = () => {
                 setMessageSearchQuery(e.target.value);
                 handleSearchMessages(e.target.value);
               }}
-              placeholder="Search messages..."
+              placeholder={t("chat.searchMessagesPlaceholder")}
               className="flex-1 h-8 text-sm bg-card border-border"
               autoFocus
             />
@@ -1650,7 +1665,7 @@ const Chat = () => {
             </div>
           )}
           {!hasOlderMessages && messages.length > 0 && (
-            <p className="text-center text-xs text-muted-foreground py-2">Start of conversation</p>
+            <p className="text-center text-xs text-muted-foreground py-2">{t("chat.startConversation")}</p>
           )}
 
           {/* Pinned Date Plan */}
@@ -1682,8 +1697,8 @@ const Chat = () => {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-semibold text-sm">
                       {confirmedDatePlan.status === "confirmed"
-                        ? "✅ Date Confirmed!"
-                        : "📅 Date Planned"}
+                        ? t("chat.dateConfirmedLabel")
+                        : t("chat.datePlannedLabel")}
                     </span>
                     <Badge
                       variant="outline"
@@ -1693,7 +1708,7 @@ const Chat = () => {
                           : "border-yellow-400 text-yellow-700 dark:text-yellow-400"
                       }`}
                     >
-                      {confirmedDatePlan.status === "confirmed" ? "Confirmed" : "Pending"}
+                      {confirmedDatePlan.status === "confirmed" ? t("chat.confirmed") : t("chat.pending")}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -1703,7 +1718,7 @@ const Chat = () => {
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <Clock className="h-3.5 w-3.5 flex-shrink-0" />
                     <span>
-                      {new Date(confirmedDatePlan.scheduled_for).toLocaleString("en-US", {
+                      {new Date(confirmedDatePlan.scheduled_for).toLocaleString("sq", {
                         weekday: "short",
                         month: "short",
                         day: "numeric",
@@ -1727,7 +1742,7 @@ const Chat = () => {
                           className="text-xs h-7 bg-green-600 hover:bg-green-700 text-white"
                           onClick={() => handleRespondDatePlan(true)}
                         >
-                          ✅ Accept
+                          ✅ {t("chat.accept")}
                         </Button>
                         <Button
                           variant="outline"
@@ -1735,7 +1750,7 @@ const Chat = () => {
                           className="text-xs h-7 border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                           onClick={() => handleRespondDatePlan(false)}
                         >
-                          ❌ Decline
+                          ❌ {t("chat.decline")}
                         </Button>
                       </div>
                     )}
@@ -1751,7 +1766,7 @@ const Chat = () => {
                         onClick={handleCancelDatePlan}
                       >
                         <X className="h-3 w-3 mr-1" />
-                        Cancel Plan
+                        {t("chat.cancelPlan")}
                       </Button>
                     )}
                 </div>
@@ -1763,14 +1778,14 @@ const Chat = () => {
             <div className="mb-4 p-3 rounded border border-primary text-sm bg-primary/10 text-primary">
               {blockedByYou && !blockedYou && (
                 <span>
-                  You blocked this user. You won't receive messages or calls. Unblock to continue.
+                  {t("chat.youBlockedUser")}
                 </span>
               )}
               {blockedYou && !blockedByYou && (
-                <span>This user has blocked you. You cannot message or call.</span>
+                <span>{t("chat.blockedByUser")}</span>
               )}
               {blockedYou && blockedByYou && (
-                <span>You both blocked each other. Communication is disabled.</span>
+                <span>{t("chat.mutualBlock")}</span>
               )}
             </div>
           )}
@@ -1815,7 +1830,7 @@ const Chat = () => {
         ref={fileInputRef}
         accept="image/*"
         className="hidden"
-        aria-label="Upload photo"
+        aria-label={t("chat.uploadPhoto")}
         title="Upload photo"
         onChange={handlePhotoSelected}
       />
@@ -1824,7 +1839,7 @@ const Chat = () => {
         ref={cameraInputRef}
         accept="image/*"
         className="hidden"
-        aria-label="Take photo"
+        aria-label={t("chat.takePhoto")}
         title="Take photo"
         onChange={handlePhotoSelected}
       />
@@ -1925,7 +1940,7 @@ const Chat = () => {
           className="max-w-3xl max-h-[90vh] overflow-y-auto"
           aria-describedby={undefined}
         >
-          {!matchProfile && <DialogTitle className="sr-only">Profile</DialogTitle>}
+          {!matchProfile && <DialogTitle className="sr-only">{t("common.profile")}</DialogTitle>}
           {matchProfile && (
             <>
               <DialogHeader>
@@ -1973,7 +1988,7 @@ const Chat = () => {
                                 prev === 0 ? matchProfile.profile_images!.length - 1 : prev - 1
                               )
                             }
-                            aria-label="Previous photo"
+                            aria-label={t("chat.previousPhoto")}
                           >
                             <ChevronLeft className="h-6 w-6" />
                           </Button>
@@ -1986,7 +2001,7 @@ const Chat = () => {
                                 prev === matchProfile.profile_images!.length - 1 ? 0 : prev + 1
                               )
                             }
-                            aria-label="Next photo"
+                            aria-label={t("chat.nextPhoto")}
                           >
                             <ChevronRight className="h-6 w-6" />
                           </Button>
@@ -2026,7 +2041,7 @@ const Chat = () => {
                           {matchProfile.travel_mode_active && matchProfile.travel_city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                               <span>✈️</span>
-                              <span>Traveling in {matchProfile.travel_city}</span>
+                              <span>{t("common.travelingIn")} {matchProfile.travel_city}</span>
                             </div>
                           ) : matchProfile.city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -2036,7 +2051,7 @@ const Chat = () => {
                           ) : null}
                           {matchProfile.distance_km && (
                             <div className="backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
-                              {Math.round(matchProfile.distance_km)} km away
+                              {t("chat.kmAway", { km: Math.round(matchProfile.distance_km) })}
                             </div>
                           )}
                         </div>
@@ -2079,7 +2094,7 @@ const Chat = () => {
                           {matchProfile.travel_mode_active && matchProfile.travel_city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                               <span>✈️</span>
-                              <span>Traveling in {matchProfile.travel_city}</span>
+                              <span>{t("common.travelingIn")} {matchProfile.travel_city}</span>
                             </div>
                           ) : matchProfile.city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -2096,7 +2111,7 @@ const Chat = () => {
                 {/* Video Intro */}
                 {matchProfile.video_intro_url && (
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                    <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
                     <div className="rounded-lg overflow-hidden border border-primary/20">
                       <video
                         src={matchProfile.video_intro_url}
@@ -2110,7 +2125,7 @@ const Chat = () => {
                 {/* Stories */}
                 {matchStories.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-lg">Stories</h3>
+                    <h3 className="font-semibold text-lg">{t("common.stories")}</h3>
                     <div className="flex gap-2 overflow-x-auto pb-1">
                       {matchStories.map((story, idx) => (
                         <button
@@ -2387,7 +2402,7 @@ const Chat = () => {
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Date & Time *</label>
+              <label className="text-sm font-medium">{t("chat.dateTimeLabel")}</label>
               <Input
                 type="datetime-local"
                 value={datePlanDateTime}
@@ -2395,17 +2410,17 @@ const Chat = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Location *</label>
+              <label className="text-sm font-medium">{t("chat.locationLabel")}</label>
               <Input
-                placeholder="e.g., Coffee shop downtown"
+                placeholder={t("chat.locationHint")}
                 value={datePlanLocation}
                 onChange={(e) => setDatePlanLocation(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Notes (optional)</label>
+              <label className="text-sm font-medium">{t("chat.notesLabel")}</label>
               <Textarea
-                placeholder="e.g., Can't wait to see you!"
+                placeholder={t("chat.notesHint")}
                 value={datePlanNotes}
                 onChange={(e) => setDatePlanNotes(e.target.value)}
                 rows={2}
@@ -2443,7 +2458,7 @@ const Chat = () => {
       {/* Story Viewer Dialog */}
       <Dialog open={showMatchStoryViewer} onOpenChange={setShowMatchStoryViewer}>
         <DialogContent className="max-w-sm p-0 bg-black border-none" aria-describedby={undefined}>
-          <DialogTitle className="sr-only">Story Viewer</DialogTitle>
+          <DialogTitle className="sr-only">{t("common.storyViewer")}</DialogTitle>
           {matchStories[matchStoryIndex] && (
             <div className="relative">
               <div className="absolute top-0 left-0 right-0 z-10 flex gap-1 p-2">
@@ -2519,7 +2534,7 @@ const Chat = () => {
                   onClick={() => {
                     if (matchStoryIndex > 0) setMatchStoryIndex(matchStoryIndex - 1);
                   }}
-                  aria-label="Previous story"
+                  aria-label={t("chat.previousStory")}
                 />
                 <button
                   className="w-1/2 h-full"
@@ -2528,7 +2543,7 @@ const Chat = () => {
                       setMatchStoryIndex(matchStoryIndex + 1);
                     else setShowMatchStoryViewer(false);
                   }}
-                  aria-label="Next story"
+                  aria-label={t("chat.nextStory")}
                 />
               </div>
             </div>
@@ -2544,7 +2559,7 @@ const Chat = () => {
           <div className="bg-card w-full max-w-2xl rounded-t-2xl p-4 max-h-[60vh] flex flex-col">
             <div className="flex items-center gap-2 mb-3">
               <Input
-                placeholder="Search GIFs..."
+                placeholder={t("chat.searchGifsPlaceholder")}
                 value={gifSearchQuery}
                 onChange={(e) => {
                   setGifSearchQuery(e.target.value);
@@ -2567,10 +2582,10 @@ const Chat = () => {
             </div>
             <div className="overflow-y-auto flex-1 grid grid-cols-2 gap-2">
               {searchingGifs && (
-                <p className="col-span-2 text-center text-muted-foreground py-4">Searching...</p>
+                <p className="col-span-2 text-center text-muted-foreground py-4">{t("common.searching")}</p>
               )}
               {!searchingGifs && gifResults.length === 0 && gifSearchQuery && (
-                <p className="col-span-2 text-center text-muted-foreground py-4">No GIFs found</p>
+                <p className="col-span-2 text-center text-muted-foreground py-4">{t("chat.noGifsFound")}</p>
               )}
               {gifResults.map((gif) => (
                 <button
@@ -2587,7 +2602,7 @@ const Chat = () => {
                 </button>
               ))}
             </div>
-            <p className="text-[10px] text-muted-foreground text-center mt-2">Powered by Tenor</p>
+            <p className="text-[10px] text-muted-foreground text-center mt-2">{t("chat.poweredByTenor")}</p>
           </div>
         </div>
       )}

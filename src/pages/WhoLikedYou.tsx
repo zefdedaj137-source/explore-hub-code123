@@ -254,11 +254,11 @@ const WhoLikedYou = () => {
       setLikes(likesWithProfiles);
     } catch (error) {
       logger.error("Error fetching likes:", error);
-      toast.error("Failed to load likes");
+      toast.error(t("whoLikedYou.failedLoad"));
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     if (!user) {
@@ -322,7 +322,7 @@ const WhoLikedYou = () => {
     };
 
     if (error || !data?.success) {
-      toast.error("Failed to use streak credit");
+      toast.error(t("whoLikedYou.failedStreakCredit"));
       return;
     }
 
@@ -361,7 +361,7 @@ const WhoLikedYou = () => {
           },
         });
       } else {
-        toast.success("Like sent! ❤️");
+        toast.success(t("whoLikedYou.likeSent"));
         // Notify liked person (fire-and-forget)
         supabase.functions.invoke("send-push", {
           body: {
@@ -377,7 +377,7 @@ const WhoLikedYou = () => {
       setLikes(likes.filter((like) => like.profile.id !== profileId));
     } catch (error) {
       logger.error("Like error:", error);
-      toast.error("Failed to like profile");
+      toast.error(t("whoLikedYou.failedLike"));
     }
   };
 
@@ -561,10 +561,10 @@ const WhoLikedYou = () => {
                         <span className="text-2xl animate-bounce [animation-delay:300ms]">🧡</span>
                       </div>
                       <p className="font-semibold text-white text-sm leading-tight text-center">
-                        They liked you!
+                        {t("whoLikedYou.theyLikedYou")}
                       </p>
                       <p className="text-white/60 text-xs text-center">
-                        Upgrade to see their full profile
+                        {t("whoLikedYou.upgradeToSee")}
                       </p>
                     </div>
                   )}
@@ -696,7 +696,7 @@ const WhoLikedYou = () => {
                     </DialogTitle>
                     <div className="flex flex-wrap gap-2">
                       {p.verified && (
-                        <Badge className="bg-primary text-white border-none">Verified</Badge>
+                        <Badge className="bg-primary text-white border-none">{t("common.verified")}</Badge>
                       )}
                       {p.is_premium && (
                         <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">

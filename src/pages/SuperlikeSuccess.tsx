@@ -5,9 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const SuperlikeSuccess = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [superlikesAdded, setSuperlikesAdded] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -24,7 +26,7 @@ const SuperlikeSuccess = () => {
 
         if (data?.success) {
           setSuperlikesAdded(data.superlikes_remaining);
-          toast.success("Super Likes added to your account! ⚡");
+          toast.success(t("superlikeSuccess.superlikesAdded"));
         } else {
           throw new Error(data?.error || "Fulfillment failed");
         }
@@ -44,7 +46,7 @@ const SuperlikeSuccess = () => {
       return;
     }
     fulfill(sessionId);
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   if (loading) {
     return (
@@ -63,7 +65,7 @@ const SuperlikeSuccess = () => {
         <Card className="w-full max-w-md p-8 text-center shadow-elegant">
           <p className="text-destructive font-semibold mb-4">{error}</p>
           <Button onClick={() => navigate("/discover")} className="w-full">
-            Back to Discover
+            {t("superlikeSuccess.backToDiscover")}
           </Button>
         </Card>
       </div>
@@ -77,20 +79,20 @@ const SuperlikeSuccess = () => {
           <Sparkles className="h-9 w-9 text-yellow-400" />
         </div>
         <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-3" />
-        <h1 className="text-2xl font-bold mb-2">Super Likes Added!</h1>
+        <h1 className="text-2xl font-bold mb-2">{t("superlikeSuccess.title")}</h1>
         <p className="text-muted-foreground mb-6">
-          Your purchase is confirmed. You now have{" "}
+          {t("superlikeSuccess.purchaseConfirmed")}{" "}
           <span className="font-bold text-foreground">
-            {superlikesAdded} Super Like{superlikesAdded !== 1 ? "s" : ""}
+            {superlikesAdded} {superlikesAdded !== 1 ? t("superlikeSuccess.plural") : t("superlikeSuccess.singular")}
           </span>{" "}
-          ready to use.
+          {t("superlikeSuccess.readyToUse")}
         </p>
         <Button
           className="w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold hover:brightness-110"
           onClick={() => navigate("/discover")}
         >
           <Sparkles className="h-4 w-4 mr-2" />
-          Start Super Liking
+          {t("superlikeSuccess.startSuperLiking")}
         </Button>
       </Card>
     </div>

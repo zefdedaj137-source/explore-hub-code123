@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { X, Heart, Trophy, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface GameQuestion {
   question: string;
@@ -563,6 +564,7 @@ const getRandomQuestions = (count: number = 6): GameQuestion[] => {
 const TRIVIA_QUESTIONS = getRandomQuestions(6);
 
 const GameSession = () => {
+  const { t } = useTranslation();
   const { sessionId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -632,7 +634,7 @@ const GameSession = () => {
       setLoading(false);
     } catch (error) {
       logger.error("Error initializing game:", error);
-      toast.error("Failed to load game");
+      toast.error(t("gameSession.failedLoad"));
       navigate("/game-lobby");
     }
   };
@@ -662,12 +664,12 @@ const GameSession = () => {
           generateMyQuestion();
         }
       })
-      .on("broadcast", { event: "game_finished" }, (payload) => {
+      .on("broadcast", { event: "game_finished" }, (_payload) => {
         logger.log("🏁 Opponent finished the game!");
         setOpponentFinished(true);
       })
       .on("broadcast", { event: "game_cancelled" }, () => {
-        toast.info("Opponent left the game");
+        toast.info(t("gameSession.opponentLeft"));
         navigate("/game-lobby");
       })
       .subscribe();
@@ -684,7 +686,7 @@ const GameSession = () => {
       payload: { userId: user?.id },
     });
     navigate("/game-lobby");
-    toast.info("You left the game");
+    toast.info(t("gameSession.youLeft"));
   };
 
   const generateMyQuestion = () => {
@@ -748,7 +750,7 @@ const GameSession = () => {
 
   const switchTurn = () => {
     const nextTurnUserId = currentTurn === user?.id ? opponent?.id : user?.id;
-    setCurrentTurn(nextTurnUserId);
+    setCurrentTurn(nextTurnUserId ?? null);
 
     // Broadcast turn change to opponent
     supabase.channel(`game-session-${sessionId}`).send({
@@ -777,17 +779,17 @@ const GameSession = () => {
       if (error) throw error;
 
       if (data?.is_match) {
-        toast.success("It's a Match! 🎉", {
-          description: `You and ${opponent.full_name} can now chat!`,
+        toast.success(t("gameSession.itsAMatch"), {
+          description: t("gameSession.matchDesc", { name: opponent.full_name }),
         });
       } else {
-        toast.success(`You liked ${opponent.full_name}! 💕`);
+        toast.success(t("gameSession.likedProfile", { name: opponent.full_name }));
       }
 
       navigate("/game-lobby");
     } catch (error) {
       logger.error("Error liking profile:", error);
-      toast.error("Failed to like profile");
+      toast.error(t("gameSession.failedLike"));
       setActionTaken(false);
     }
   };
@@ -795,7 +797,7 @@ const GameSession = () => {
   const handlePass = () => {
     if (actionTaken) return;
     setActionTaken(true);
-    toast("Returning to lobby...");
+    toast(t("gameSession.returningToLobby"));
     navigate("/game-lobby");
   };
 
@@ -804,7 +806,7 @@ const GameSession = () => {
       <div className="min-h-dvh bg-gradient-to-br from-pink-50 to-primary/10 flex items-center justify-center">
         <div className="text-center">
           <Trophy className="h-16 w-16 text-pink-500 animate-pulse mx-auto mb-4" />
-          <p className="text-lg text-muted-foreground">Loading game...</p>
+          <p className="text-lg text-muted-foreground">{t("gameSession.loadingGame")}</p>
         </div>
       </div>
     );
@@ -824,7 +826,7 @@ const GameSession = () => {
                 onClick={handleCancelGame}
                 className="text-muted-foreground hover:text-destructive"
               >
-                <X className="h-4 w-4 mr-1" /> Exit Game
+                <X className="h-4 w-4 mr-1" /> {t("gameSession.exitGame")}
               </Button>
             </div>
 
@@ -834,11 +836,11 @@ const GameSession = () => {
                 <Avatar className="h-12 w-12 border-2 border-pink-400">
                   <AvatarImage src={user?.user_metadata?.avatar_url} />
                   <AvatarFallback className="bg-gradient-to-br from-pink-400 to-primary/80 text-white">
-                    You
+                    {t("gameSession.you")}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-semibold">You</p>
+                  <p className="text-sm font-semibold">{t("gameSession.you")}</p>
                   <p className="text-2xl font-bold text-pink-500">{yourScore}</p>
                 </div>
               </div>
@@ -850,10 +852,10 @@ const GameSession = () => {
                   } animate-pulse`}
                 />
                 <p className="text-sm font-semibold">
-                  {currentTurn === user?.id ? "Your Turn" : "Opponent's Turn"}
+                  {currentTurn === user?.id ? t("gameSession.yourTurn") : t("gameSession.opponentTurn")}
                 </p>
                 <Badge variant="outline" className="mt-1">
-                  Question {questionNumber + 1}/6
+                  {t("gameSession.question", { num: questionNumber + 1 })}
                 </Badge>
               </div>
 
@@ -911,11 +913,11 @@ const GameSession = () => {
                 {showResult && selectedAnswer !== null && (
                   <div className="text-center py-4">
                     <p className="text-2xl font-bold">
-                      {selectedAnswer === currentQuestion.correct ? "✅ Correct!" : "❌ Incorrect!"}
+                      {selectedAnswer === currentQuestion.correct ? t("gameSession.correct") : t("gameSession.incorrect")}
                     </p>
                     {selectedAnswer !== currentQuestion.correct && (
                       <p className="text-sm text-muted-foreground mt-2">
-                        Answer: {currentQuestion.answers[currentQuestion.correct]}
+                        {t("gameSession.answer", { answer: currentQuestion.answers[currentQuestion.correct] })}
                       </p>
                     )}
                   </div>
@@ -925,7 +927,7 @@ const GameSession = () => {
                 {currentTurn !== user?.id && !showResult && !gameFinished && (
                   <div className="text-center py-4">
                     <p className="text-muted-foreground animate-pulse">
-                      Your opponent is thinking...
+                      {t("gameSession.opponentThinking")}
                     </p>
                   </div>
                 )}
@@ -934,10 +936,10 @@ const GameSession = () => {
                 {gameFinished && !opponentFinished && (
                   <div className="text-center py-4 bg-yellow-50 rounded-lg p-4">
                     <p className="text-lg font-semibold text-yellow-800">
-                      ✨ You've completed all questions!
+                      {t("gameSession.completedAll")}
                     </p>
                     <p className="text-sm text-muted-foreground mt-2">
-                      Waiting for your opponent to finish...
+                      {t("gameSession.waitingOpponent")}
                     </p>
                   </div>
                 )}
@@ -951,13 +953,13 @@ const GameSession = () => {
               /* Waiting for opponent to finish */
               <div className="text-center py-12">
                 <Trophy className="h-20 w-20 text-primary mx-auto mb-4 animate-bounce" />
-                <h2 className="text-3xl font-bold mb-4">You Finished!</h2>
+                <h2 className="text-3xl font-bold mb-4">{t("gameSession.youFinished")}</h2>
                 <p className="text-xl text-foreground mb-2">
-                  Your Score: <span className="font-bold text-pink-500">{yourScore}/6</span>
+                  {t("gameSession.yourScore")}: <span className="font-bold text-pink-500">{yourScore}/6</span>
                 </p>
                 <div className="mt-8">
                   <p className="text-lg text-muted-foreground animate-pulse">
-                    Waiting for your opponent to finish...
+                    {t("gameSession.waitingOpponent")}
                   </p>
                 </div>
               </div>
@@ -965,7 +967,7 @@ const GameSession = () => {
               /* Both finished - show final results and actions */
               <div className="text-center">
                 <Trophy className="h-20 w-20 text-primary mx-auto mb-4" />
-                <h2 className="text-3xl font-bold mb-6">Game Finished!</h2>
+                <h2 className="text-3xl font-bold mb-6">{t("gameSession.gameFinished")}</h2>
 
                 {/* Final Scores */}
                 <div className="flex justify-center gap-12 mb-8">
@@ -973,10 +975,10 @@ const GameSession = () => {
                     <Avatar className="h-20 w-20 border-4 border-pink-400 mx-auto mb-2">
                       <AvatarImage src={user?.user_metadata?.avatar_url} />
                       <AvatarFallback className="bg-gradient-to-br from-pink-400 to-primary/80 text-white text-2xl">
-                        You
+                        {t("gameSession.you")}
                       </AvatarFallback>
                     </Avatar>
-                    <p className="text-sm text-muted-foreground mb-1">Your Score</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t("gameSession.yourScore")}</p>
                     <p className="text-5xl font-bold text-pink-500">{yourScore}</p>
                   </div>
 
@@ -994,12 +996,12 @@ const GameSession = () => {
 
                 <div className="mb-8">
                   <p className="text-2xl font-bold text-foreground mb-2">
-                    {yourScore > opponentScore && "You Won! 🏆"}
-                    {yourScore === opponentScore && "It's a Tie! 🤝"}
-                    {yourScore < opponentScore && `${opponent.full_name} Won! 🌟`}
+                    {yourScore > opponentScore && t("gameSession.youWon")}
+                    {yourScore === opponentScore && t("gameSession.tie")}
+                    {yourScore < opponentScore && t("gameSession.opponentWon", { name: opponent.full_name })}
                   </p>
                   <p className="text-muted-foreground">
-                    Did you enjoy playing with {opponent.full_name}?
+                    {t("gameSession.enjoyedPlaying", { name: opponent.full_name })}
                   </p>
                 </div>
 
@@ -1013,7 +1015,7 @@ const GameSession = () => {
                   >
                     <div className="flex flex-col items-center">
                       <X className="h-12 w-12 text-muted-foreground" />
-                      <span className="text-sm mt-2">Pass</span>
+                      <span className="text-sm mt-2">{t("gameSession.pass")}</span>
                     </div>
                   </Button>
 
@@ -1024,7 +1026,7 @@ const GameSession = () => {
                   >
                     <div className="flex flex-col items-center">
                       <Heart className="h-12 w-12 text-white fill-white" />
-                      <span className="text-sm mt-2 text-white">Like</span>
+                      <span className="text-sm mt-2 text-white">{t("gameSession.like")}</span>
                     </div>
                   </Button>
                 </div>

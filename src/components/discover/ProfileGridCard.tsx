@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Zap } from "lucide-react";
@@ -12,7 +13,9 @@ interface ProfileGridCardProps {
 }
 
 export const ProfileGridCard = memo(
-  ({ profile, onClick, priority = false }: ProfileGridCardProps) => (
+  ({ profile, onClick, priority = false }: ProfileGridCardProps) => {
+    const { t } = useTranslation();
+    return (
     <Card
       className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.3)] transition-all duration-300 cursor-pointer border-0 rounded-3xl"
       onClick={onClick}
@@ -42,7 +45,7 @@ export const ProfileGridCard = memo(
         {/* Active status */}
         <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
           <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-[10px] text-white font-medium">Active</span>
+          <span className="text-[10px] text-white font-medium">{t("common.active")}</span>
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
@@ -78,7 +81,8 @@ export const ProfileGridCard = memo(
         </div>
       </div>
     </Card>
-  )
+    );
+  }
 );
 
 ProfileGridCard.displayName = "ProfileGridCard";

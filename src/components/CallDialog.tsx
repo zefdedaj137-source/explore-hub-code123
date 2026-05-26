@@ -12,6 +12,7 @@ import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff, Ban } from "lucide-react
 import { blockUser as blockUserApi } from "@/lib/blocking";
 import { logger } from "@/lib/logger";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface CallDialogProps {
   isOpen: boolean;
@@ -51,6 +52,7 @@ export const CallDialog = ({
   isAnswering = false,
 }: CallDialogProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // State
   const [callStatus, setCallStatus] = useState<"connecting" | "ringing" | "active" | "ended">(
@@ -140,8 +142,8 @@ export const CallDialog = ({
           window.location.protocol === "https:" || window.location.hostname === "localhost";
         throw new Error(
           isHttps
-            ? "Your browser doesn't support audio/video calls. Please use Chrome, Firefox, Safari 11+, or Edge."
-            : "Audio/video calls require HTTPS. Please use the secure ngrok URL (https://...)."
+            ? t("callDialog.browserNotSupported")
+            : t("callDialog.httpsRequired")
         );
       }
 

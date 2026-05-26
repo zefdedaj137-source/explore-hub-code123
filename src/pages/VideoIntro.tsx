@@ -9,10 +9,12 @@ import { Input } from "@/components/ui/input";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 const VideoIntro = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [customUrl, setCustomUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -54,10 +56,10 @@ const VideoIntro = () => {
 
       setVideoUrl(publicUrl);
       setCustomUrl("");
-      toast.success("Video intro updated.");
+      toast.success(t("videoIntro.videoUpdated"));
     } catch (error) {
       logger.error("Video upload failed", error);
-      toast.error("Failed to upload video intro.");
+      toast.error(t("videoIntro.failedUpload"));
     } finally {
       setUploading(false);
     }
@@ -72,10 +74,10 @@ const VideoIntro = () => {
         .eq("id", user.id);
       if (error) throw error;
       setVideoUrl(customUrl);
-      toast.success("Video intro link saved.");
+      toast.success(t("videoIntro.videoLinkSaved"));
     } catch (error) {
       logger.error("Save video intro failed", error);
-      toast.error("Failed to save video intro link.");
+      toast.error(t("videoIntro.failedSaveLink"));
     }
   };
 
@@ -86,11 +88,11 @@ const VideoIntro = () => {
       .update({ video_intro_url: null })
       .eq("id", user.id);
     if (error) {
-      toast.error("Failed to remove video intro.");
+      toast.error(t("videoIntro.failedRemove"));
       return;
     }
     setVideoUrl("");
-    toast.success("Video intro removed.");
+    toast.success(t("videoIntro.videoRemoved"));
   };
 
   return (
@@ -101,19 +103,19 @@ const VideoIntro = () => {
             <div className="flex items-center gap-3">
               <Video className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Video Intro</h1>
-                <p className="text-sm text-muted-foreground">Add a short video to your profile</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("videoIntro.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("videoIntro.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
-          <h2 className="text-lg font-semibold">Upload a video</h2>
+          <h2 className="text-lg font-semibold">{t("videoIntro.uploadVideo")}</h2>
           <Input
             type="file"
             accept="video/*"
@@ -128,34 +130,34 @@ const VideoIntro = () => {
           </p>
           <Button className="w-full" disabled={uploading}>
             <Upload className="h-4 w-4 mr-2" />
-            {uploading ? "Uploading..." : "Upload from device"}
+            {uploading ? t("videoIntro.uploading") : t("videoIntro.uploadFromDevice")}
           </Button>
         </Card>
 
         <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
-          <h2 className="text-lg font-semibold">Or paste a link</h2>
+          <h2 className="text-lg font-semibold">{t("videoIntro.pasteLink")}</h2>
           <Input
-            placeholder="https://..."
+            placeholder={t("videoIntro.urlPlaceholder")}
             value={customUrl}
             onChange={(e) => setCustomUrl(e.target.value)}
           />
           <Button className="w-full" onClick={handleSaveUrl} disabled={!customUrl}>
             <Link2 className="h-4 w-4 mr-2" />
-            Save link
+            {t("videoIntro.saveLink")}
           </Button>
         </Card>
 
         <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
-          <h2 className="text-lg font-semibold">Preview</h2>
+          <h2 className="text-lg font-semibold">{t("videoIntro.preview")}</h2>
           {videoUrl ? (
             <>
               <video src={videoUrl} controls className="w-full rounded-2xl" />
               <Button variant="outline" className="w-full" onClick={handleRemove}>
-                Remove video intro
+                {t("videoIntro.removeVideo")}
               </Button>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">No video intro yet.</p>
+            <p className="text-sm text-muted-foreground">{t("videoIntro.noVideoYet")}</p>
           )}
         </Card>
       </div>

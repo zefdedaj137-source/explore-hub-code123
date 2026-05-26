@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Ghost, Bell, Clock, MessageCircle, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface GhostAlert {
   matchId: string;
@@ -23,6 +24,7 @@ interface GhostAlert {
 const GhostModeAlert = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [enabled, setEnabled] = useState(true);
   const [alerts, setAlerts] = useState<GhostAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +95,7 @@ const GhostModeAlert = () => {
     const newVal = !enabled;
     setEnabled(newVal);
     localStorage.setItem(`ghost_settings_${user.id}`, JSON.stringify({ enabled: newVal }));
-    toast.success(newVal ? "Ghost alerts ON 👻" : "Ghost alerts OFF");
+    toast.success(newVal ? t("ghostAlerts.alertsOn") : t("ghostAlerts.alertsOff"));
   };
 
   const sendNudge = async (matchId: string, partnerName: string) => {
@@ -102,15 +104,15 @@ const GhostModeAlert = () => {
       await supabase.from("messages").insert({
         match_id: matchId,
         sender_id: user.id,
-        content: `Hey ${partnerName}! 👋 Just checking in – hope you're doing well!`,
+        content: `Hey ${partnerName}! ?? Just checking in � hope you're doing well!`,
       });
       const nudges = JSON.parse(localStorage.getItem(`nudges_${user.id}`) || "[]") as string[];
       nudges.push(matchId);
       localStorage.setItem(`nudges_${user.id}`, JSON.stringify(nudges));
       setAlerts((prev) => prev.map((a) => (a.matchId === matchId ? { ...a, nudgeSent: true } : a)));
-      toast.success(`Nudge sent to ${partnerName}! 👻`);
+      toast.success(t("ghostAlerts.nudgeSent", { name: partnerName }));
     } catch {
-      toast.error("Failed to send nudge");
+      toast.error(t("ghostAlerts.failedNudge"));
     }
   };
 
@@ -126,29 +128,29 @@ const GhostModeAlert = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Ghost className="h-5 w-5 text-muted-foreground" />
-        <h1 className="text-lg font-bold">Ghost Alerts</h1>
+        <h1 className="text-lg font-bold">{t("ghostAlerts.title")}</h1>
       </div>
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
         <Card className="p-4 flex items-center justify-between">
           <div>
-            <h2 className="font-semibold">Ghost Mode Alerts</h2>
-            <p className="text-sm text-muted-foreground">Notify when no reply for 48h+</p>
+            <h2 className="font-semibold">{t("ghostAlerts.heading")}</h2>
+            <p className="text-sm text-muted-foreground">{t("ghostAlerts.subtitle")}</p>
           </div>
           <Switch checked={enabled} onCheckedChange={toggleEnabled} />
         </Card>
 
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Checking conversations...</div>
+          <div className="text-center py-12 text-muted-foreground">{t("ghostAlerts.checking")}</div>
         ) : alerts.length === 0 ? (
           <div className="text-center py-12">
             <Ghost className="h-16 w-16 mx-auto text-muted-foreground mb-3" />
-            <h3 className="font-semibold text-lg">No ghosting detected! 🎉</h3>
-            <p className="text-muted-foreground text-sm">All your matches are responsive</p>
+            <h3 className="font-semibold text-lg">{t("ghostAlerts.noGhosting")}</h3>
+            <p className="text-muted-foreground text-sm">{t("ghostAlerts.allResponsive")}</p>
           </div>
         ) : (
           <div className="space-y-3">
-            <h2 className="font-semibold text-lg">⏳ Waiting for replies ({alerts.length})</h2>
+            <h2 className="font-semibold text-lg">{t("ghostAlerts.waitingReplies", { count: alerts.length })}</h2>
             {alerts.map((a) => (
               <Card key={a.matchId} className="p-4">
                 <div className="flex items-center gap-3">
@@ -167,14 +169,14 @@ const GhostModeAlert = () => {
                   </div>
                   <div className="flex flex-col gap-2">
                     {a.nudgeSent ? (
-                      <Badge className="bg-green-100 text-green-700">Nudged ✓</Badge>
+                      <Badge className="bg-green-100 text-green-700">{t("ghostAlerts.nudged")}</Badge>
                     ) : (
                       <Button
                         size="sm"
                         onClick={() => sendNudge(a.matchId, a.partnerName)}
                         className="bg-primary hover:bg-primary text-white"
                       >
-                        <Send className="h-3 w-3 mr-1" /> Nudge
+                        <Send className="h-3 w-3 mr-1" /> {t("ghostAlerts.nudge")}
                       </Button>
                     )}
                     <Button
@@ -182,7 +184,7 @@ const GhostModeAlert = () => {
                       variant="outline"
                       onClick={() => navigate(`/chat/${a.matchId}`)}
                     >
-                      <MessageCircle className="h-3 w-3 mr-1" /> Chat
+                      <MessageCircle className="h-3 w-3 mr-1" /> {t("ghostAlerts.chat")}
                     </Button>
                   </div>
                 </div>

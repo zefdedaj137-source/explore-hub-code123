@@ -366,14 +366,14 @@ export default function DancingChallenge() {
             <div className="inline-flex p-4 bg-primary/10 rounded-full">
               <Users className="h-12 w-12 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold">Valle Dancing Channel</h1>
+            <h1 className="text-4xl font-bold">{t("dancing.valleChannel")}</h1>
             <p className="text-xl text-muted-foreground">
               Join the exclusive Albanian dancing community
             </p>
           </div>
 
           <div className="space-y-4 text-left bg-muted/50 p-6 rounded-lg">
-            <h3 className="font-semibold text-lg">What you'll get:</h3>
+            <h3 className="font-semibold text-lg">{t("dancing.whatYouGet")}</h3>
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <Star className="h-5 w-5 text-primary mt-0.5" />
@@ -408,7 +408,7 @@ export default function DancingChallenge() {
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-2">
-            <h1 className="text-4xl font-bold">Dancing Valle Challenge</h1>
+            <h1 className="text-4xl font-bold">{t("dancing.challenge")}</h1>
             <Badge variant="secondary" className="gap-1">
               <Users className="h-3 w-3" />
               Channel Member
@@ -427,7 +427,7 @@ export default function DancingChallenge() {
           <div className="space-y-4">
             {currentSong && (
               <div className="text-center p-4 bg-primary/10 rounded-lg">
-                <p className="text-sm text-muted-foreground">Dancing to:</p>
+                <p className="text-sm text-muted-foreground">{t("dancing.dancingTo")}</p>
                 <p className="text-xl font-semibold">{currentSong}</p>
               </div>
             )}
@@ -459,7 +459,7 @@ export default function DancingChallenge() {
                     accept="video/*"
                     onChange={handleFileUpload}
                     className="hidden"
-                    aria-label="Upload dancing video file"
+                    aria-label={t("dancing.uploadVideo")}
                   />
                 </>
               )}
@@ -485,7 +485,7 @@ export default function DancingChallenge() {
         </Card>
 
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold">Dance Videos</h2>
+          <h2 className="text-2xl font-bold">{t("dancing.danceVideos")}</h2>
           {videos.map((video) => (
             <Card key={video.id} className="p-6">
               <div className="flex items-start gap-4">
@@ -516,7 +516,7 @@ export default function DancingChallenge() {
                     </div>
 
                     <div className="space-y-2">
-                      <p className="text-sm font-medium">Rate this video:</p>
+                      <p className="text-sm font-medium">{t("dancing.rateVideo")}</p>
                       <div className="flex items-center gap-4">
                         <Slider
                           min={0}

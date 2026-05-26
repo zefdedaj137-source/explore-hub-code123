@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PhoneCall, PhoneIncoming, PhoneMissed, Video, Clock, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface CallSessionRow {
   id: string;
@@ -59,6 +60,7 @@ const formatDuration = (answeredAt?: string | null, endedAt?: string | null) => 
 const CallHistory = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [calls, setCalls] = useState<CallSessionRow[]>([]);
 
@@ -74,12 +76,12 @@ const CallHistory = () => {
       .limit(100);
     if (error) {
       logger.error("Error loading call history:", error);
-      toast.error("Failed to load call history.");
+      toast.error(t("callHistory.failedLoad"));
       return;
     }
 
     setCalls((data as unknown as CallSessionRow[]) || []);
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     if (!user) {
@@ -112,24 +114,24 @@ const CallHistory = () => {
             <div className="flex items-center gap-3">
               <PhoneCall className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Call History</h1>
-                <p className="text-sm text-muted-foreground">Your recent voice and video calls</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("callHistory.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("callHistory.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
           <Card className="p-8 text-center rounded-2xl border border-white/6 shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
-            Loading...
+            {t("common.loading")}
           </Card>
         ) : items.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border border-white/6 shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
-            No calls yet.
+            {t("callHistory.noCalls")}
           </Card>
         ) : (
           <div className="space-y-3">
@@ -186,7 +188,7 @@ const CallHistory = () => {
                         className="rounded-xl border-white/15 hover:bg-white/8"
                         onClick={() => navigate(`/chat/${call.match_id}`)}
                       >
-                        Open Chat
+                        {t("callHistory.openChat")}
                       </Button>
                     </div>
                   </div>

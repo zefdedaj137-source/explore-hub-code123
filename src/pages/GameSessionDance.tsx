@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Video, Heart, X, Music, Sparkles, Trophy, Gamepad2 } from "lucide-react";
+import { Video, Heart, X, Music, Trophy, Gamepad2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface OpponentProfile {
   id: string;
@@ -32,10 +33,11 @@ const GameSessionDance = () => {
   const { sessionId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [opponent, setOpponent] = useState<OpponentProfile | null>(null);
   const [currentRound, setCurrentRound] = useState(1);
-  const [currentDancerId, setCurrentDancerId] = useState<string | null>(null);
+  const [_currentDancerId, setCurrentDancerId] = useState<string | null>(null);
   const [iLikedThem, setILikedThem] = useState(false);
   const [theyLikedMe, setTheyLikedMe] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -110,7 +112,8 @@ const GameSessionDance = () => {
         .single();
 
       if (!data) return;
-      const url = currentRoundRef.current === 1 ? data.round1_video_url : data.round2_video_url;
+      const videoData = data as unknown as { round1_video_url: string | null; round2_video_url: string | null };
+      const url = currentRoundRef.current === 1 ? videoData.round1_video_url : videoData.round2_video_url;
       if (url) {
         opponentVideoUrlRef.current = url;
         setOpponentVideoUrl(url);
@@ -158,8 +161,8 @@ const GameSessionDance = () => {
         }
         const result = data as { success: boolean; is_match: boolean } | null;
         if (result?.is_match) {
-          toast.success("It's a Match! 🎉", {
-            description: `You and ${opponent.full_name} can now chat!`,
+          toast.success(t("gameSession.itsAMatch"), {
+            description: t("gameSession.matchDesc", { name: opponent.full_name }),
           });
         }
       });
@@ -200,7 +203,7 @@ const GameSessionDance = () => {
       setLoading(false);
     } catch (error) {
       logger.error("Error initializing game:", error);
-      toast.error("Failed to load dance challenge");
+      toast.error(t("gameSession.failedDanceLoad"));
       navigate("/game-lobby");
     }
   };
@@ -281,10 +284,10 @@ const GameSessionDance = () => {
           setShowReview(false);
           if (user?.id === newDancerId) {
             setGamePhase("myTurn");
-            toast.info("Round 2! Now it's your turn to dance! 💃");
+            toast.info(t("gameSession.round2YourTurn"));
           } else {
             setGamePhase("theirTurn");
-            toast.info("Round 2 started! Waiting for their dance...");
+            toast.info(t("gameSession.round2Waiting"));
           }
         };
 
@@ -307,7 +310,7 @@ const GameSessionDance = () => {
         }
       })
       .on("broadcast", { event: "game_cancelled" }, () => {
-        toast.info("Opponent left the game");
+        toast.info(t("gameSession.opponentLeft"));
         navigate("/game-lobby");
       })
       .subscribe((status) => {
@@ -337,7 +340,7 @@ const GameSessionDance = () => {
       });
     }
     navigate("/game-lobby");
-    toast.info("You left the game");
+    toast.info(t("gameSession.youLeft"));
   };
 
   const requestCamera = async () => {
@@ -353,7 +356,7 @@ const GameSessionDance = () => {
       setCountdown(3);
     } catch (error) {
       logger.error("Error accessing camera:", error);
-      toast.error("Failed to access camera");
+      toast.error(t("gameSession.failedCamera"));
     }
   };
 
@@ -431,13 +434,13 @@ const GameSessionDance = () => {
     const MAX_SIZE_MB = 50;
     if (recordedVideo.size > MAX_SIZE_MB * 1024 * 1024) {
       toast.error(
-        `Video is too large (${(recordedVideo.size / 1024 / 1024).toFixed(1)} MB). Please try again.`
+        t("gameSession.fileTooLarge", { max: MAX_SIZE_MB })
       );
       setRecordedVideo(null);
       return;
     }
 
-    toast.info("Uploading video...");
+    toast.info(t("gameSession.uploadingVideo"));
 
     // Upload video to Supabase Storage
     const filePath = `dance-challenges/${sessionId}/round${currentRound}-${user.id}.webm`;
@@ -446,7 +449,7 @@ const GameSessionDance = () => {
       .upload(filePath, recordedVideo, { upsert: true, contentType: "video/webm" });
     if (uploadError) {
       logger.error("Upload error:", uploadError);
-      toast.error("Failed to upload video");
+      toast.error(t("gameSession.failedUpload"));
       return;
     }
 
@@ -457,7 +460,7 @@ const GameSessionDance = () => {
 
     if (signedError || !signedData) {
       logger.error("Signed URL error:", signedError);
-      toast.error("Failed to generate video URL");
+      toast.error(t("gameSession.failedUrl"));
       return;
     }
 
@@ -473,7 +476,7 @@ const GameSessionDance = () => {
 
     if (dbError) {
       logger.error("DB write error:", dbError);
-      toast.error("Failed to save video. Please try again.");
+      toast.error(t("gameSession.failedSave"));
       return;
     }
 
@@ -487,13 +490,13 @@ const GameSessionDance = () => {
     }
 
     setGamePhase("theirTurn");
-    toast.success("Video sent! 🎥");
+    toast.success(t("gameSession.videoSent"));
   };
 
   const reviewVideo = async (liked: boolean) => {
     if (!channelRef.current) {
       logger.error("❌ Channel not initialized!");
-      toast.error("Connection error. Please refresh and try again.");
+      toast.error(t("gameSession.connectionError"));
       return;
     }
 
@@ -512,9 +515,9 @@ const GameSessionDance = () => {
     setShowReview(false);
 
     if (liked) {
-      toast.success("You liked their dance! 💃");
+      toast.success(t("gameSession.likedDance"));
     } else {
-      toast.info("Waiting for final results...");
+      toast.info(t("gameSession.waitingResults"));
     }
   };
 
@@ -523,7 +526,7 @@ const GameSessionDance = () => {
       <div className="min-h-dvh flex items-center justify-center page-bg">
         <div className="text-center">
           <Music className="h-16 w-16 text-orange-500 animate-pulse mx-auto mb-4" />
-          <p className="text-lg text-muted-foreground">Loading dance challenge...</p>
+          <p className="text-lg text-muted-foreground">{t("gameSession.loadingDance")}</p>
         </div>
       </div>
     );
@@ -543,24 +546,24 @@ const GameSessionDance = () => {
               onClick={handleCancelGame}
               className="text-muted-foreground hover:text-destructive"
             >
-              <X className="h-4 w-4 mr-1" /> Exit Game
+                <X className="h-4 w-4 mr-1" /> {t("gameSession.exitGame")}
             </Button>
           </div>
 
           {/* Header */}
           <div className="text-center mb-4">
             <Music className="h-10 w-10 text-orange-500 mx-auto mb-2" />
-            <h2 className="text-2xl font-bold text-orange-600">Dance Challenge 💃</h2>
-            <p className="text-sm text-muted-foreground">Dance to Albanian Valle!</p>
+            <h2 className="text-2xl font-bold text-orange-600">{t("gameSession.danceChallenge")}</h2>
+            <p className="text-sm text-muted-foreground">{t("gameSession.danceToValley")}</p>
             <Badge variant="outline" className="mt-2">
-              {currentSong.emoji} {currentSong.name} - Round {currentRound}/2
+              {currentSong.emoji} {currentSong.name} - {t("gameSession.round", { num: currentRound })}
             </Badge>
           </div>
 
           {/* Current Round Info */}
           <div className="text-center mb-6">
             <Badge className="text-lg px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500">
-              Dance Challenge
+              {t("gameSession.danceChallengeBadge")}
             </Badge>
           </div>
 
@@ -570,16 +573,16 @@ const GameSessionDance = () => {
               {/* Pre-camera: show start button */}
               {countdown === null && !isRecording && (
                 <div className="space-y-4">
-                  <p className="text-lg font-semibold">Your Turn! 🎵</p>
+                  <p className="text-lg font-semibold">{t("gameSession.yourTurnDance")}</p>
                   <p className="text-muted-foreground">
-                    Dance to {currentSong.name} for 10 seconds
+                    {t("gameSession.danceToSong", { song: currentSong.name })}
                   </p>
                   <Button
                     onClick={requestCamera}
                     size="lg"
                     className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
                   >
-                    <Video className="mr-2" /> Start Dancing
+                    <Video className="mr-2" /> {t("gameSession.startDancing")}
                   </Button>
                 </div>
               )}
@@ -605,12 +608,12 @@ const GameSessionDance = () => {
                     {isRecording && (
                       <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 text-white rounded-full px-3 py-1">
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                        <span className="text-sm font-semibold">REC {recordingTime}s</span>
+                        <span className="text-sm font-semibold">{t("gameSession.recTime", { time: recordingTime })}</span>
                       </div>
                     )}
                   </div>
                   {countdown !== null && (
-                    <p className="text-center text-sm text-muted-foreground">Get ready to dance!</p>
+                    <p className="text-center text-sm text-muted-foreground">{t("gameSession.getReadyDance")}</p>
                   )}
                 </div>
               )}
@@ -619,7 +622,7 @@ const GameSessionDance = () => {
 
           {gamePhase === "myTurn" && recordedVideo && recordedVideoUrl && (
             <div className="text-center space-y-4">
-              <p className="text-lg font-semibold">Preview Your Dance 💃</p>
+              <p className="text-lg font-semibold">{t("gameSession.previewDance")}</p>
               <video
                 src={recordedVideoUrl}
                 controls
@@ -633,13 +636,13 @@ const GameSessionDance = () => {
                   }}
                   variant="outline"
                 >
-                  Record Again
+                  {t("gameSession.recordAgain")}
                 </Button>
                 <Button
                   onClick={sendVideo}
                   className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
                 >
-                  Send Video 🚀
+                  {t("gameSession.sendVideo")}
                 </Button>
               </div>
             </div>
@@ -648,14 +651,14 @@ const GameSessionDance = () => {
           {gamePhase === "theirTurn" && (
             <div className="text-center py-12">
               <Music className="h-16 w-16 text-orange-500 animate-pulse mx-auto mb-4" />
-              <p className="text-lg font-semibold">Your opponent is dancing...</p>
-              <p className="text-sm text-muted-foreground mt-2">Get ready to review!</p>
+              <p className="text-lg font-semibold">{t("gameSession.opponentDancing")}</p>
+              <p className="text-sm text-muted-foreground mt-2">{t("gameSession.getReadyReview")}</p>
             </div>
           )}
 
           {showReview && opponentVideoUrl && (
             <div className="text-center space-y-4">
-              <p className="text-lg font-semibold">Rate your opponent's Dance! 🎵</p>
+              <p className="text-lg font-semibold">{t("gameSession.rateOpponentDance")}</p>
               <video
                 src={opponentVideoUrl}
                 controls
@@ -670,7 +673,7 @@ const GameSessionDance = () => {
                 >
                   <div className="flex flex-col items-center">
                     <X className="h-8 w-8 text-muted-foreground" />
-                    <span className="text-xs mt-1">Pass</span>
+                    <span className="text-xs mt-1">{t("gameSession.pass")}</span>
                   </div>
                 </Button>
                 <Button
@@ -679,7 +682,7 @@ const GameSessionDance = () => {
                 >
                   <div className="flex flex-col items-center">
                     <Heart className="h-8 w-8 text-white fill-white" />
-                    <span className="text-xs mt-1 text-white">Like</span>
+                    <span className="text-xs mt-1 text-white">{t("gameSession.like")}</span>
                   </div>
                 </Button>
               </div>
@@ -707,24 +710,24 @@ const GameSessionDance = () => {
               {iLikedThem && theyLikedMe ? (
                 <>
                   <Trophy className="h-20 w-20 text-primary mx-auto animate-bounce" />
-                  <h2 className="text-3xl font-bold text-primary">It's a Match! 🎉</h2>
+                  <h2 className="text-3xl font-bold text-primary">{t("gameSession.itsAMatch")}</h2>
                   <p className="text-xl text-foreground">
-                    You both liked each other's dance moves!
+                    {t("gameSession.bothLiked")}
                   </p>
                   <p className="text-muted-foreground">
-                    A like has been automatically created. Check your matches to start chatting!
+                    {t("gameSession.bothLikedDesc")}
                   </p>
                 </>
               ) : (
                 <>
                   <Music className="h-20 w-20 text-muted-foreground mx-auto" />
-                  <h2 className="text-3xl font-bold text-foreground">No Match</h2>
+                  <h2 className="text-3xl font-bold text-foreground">{t("gameSession.noMatch")}</h2>
                   <p className="text-xl text-muted-foreground">
-                    {!iLikedThem && !theyLikedMe && "Neither of you liked each other's dance"}
-                    {iLikedThem && !theyLikedMe && "You liked them, but they passed"}
-                    {!iLikedThem && theyLikedMe && "They liked you, but you passed"}
+                    {!iLikedThem && !theyLikedMe && t("gameSession.neitherLiked")}
+                    {iLikedThem && !theyLikedMe && t("gameSession.youLikedTheyPassed")}
+                    {!iLikedThem && theyLikedMe && t("gameSession.theyLikedYouPassed")}
                   </p>
-                  <p className="text-muted-foreground">Better luck next time!</p>
+                  <p className="text-muted-foreground">{t("gameSession.betterLuck")}</p>
                 </>
               )}
 
@@ -734,10 +737,10 @@ const GameSessionDance = () => {
                   className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
                 >
                   <Gamepad2 className="mr-2 h-5 w-5" />
-                  Back to Lobby
+                  {t("gameSession.backToLobby")}
                 </Button>
                 <Button onClick={() => navigate("/discover")} variant="outline">
-                  Find More Matches
+                  {t("gameSession.findMoreMatches")}
                 </Button>
               </div>
             </div>

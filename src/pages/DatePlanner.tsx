@@ -125,10 +125,10 @@ const DatePlanner = () => {
       .then(loadPlans)
       .catch((error) => {
         logger.error("Date planner load error", error);
-        toast.error("Failed to load date planner.");
+        toast.error(t("datePlanner.failedLoad"));
       })
       .finally(() => setLoading(false));
-  }, [user, navigate, loadMatches, loadPlans]);
+  }, [user, navigate, loadMatches, loadPlans, t]);
 
   useEffect(() => {
     if (!loading) {
@@ -221,7 +221,7 @@ const DatePlanner = () => {
   const handleCreatePlan = async () => {
     if (!user || submitting) return;
     if (!selectedPartner || !dateTime || !location) {
-      toast.error("Please complete all required fields.");
+      toast.error(t("datePlanner.fillRequired"));
       return;
     }
 
@@ -282,15 +282,15 @@ const DatePlanner = () => {
           });
           if (msgError2) {
             logger.error("Message fallback also failed:", msgError2.message);
-            toast.error("Date created but failed to notify in chat.");
+            toast.error(t("datePlanner.createdNoChat"));
           }
         }
       } else {
         logger.warn("No match found for partner, cannot send chat notification.");
-        toast.error("Date created but couldn't send chat notification — no match found.");
+        toast.error(t("datePlanner.createdNoMatch"));
       }
 
-      toast.success("Date plan created & partner notified in chat!");
+      toast.success(t("datePlanner.created"));
       setSelectedPartner("");
       setDateTime("");
       setLocation("");
@@ -298,7 +298,7 @@ const DatePlanner = () => {
       loadPlans();
     } catch (error) {
       logger.error("Create plan error", error);
-      toast.error("Failed to create date plan.");
+      toast.error(t("datePlanner.failedCreate"));
     } finally {
       setSubmitting(false);
     }
@@ -313,7 +313,7 @@ const DatePlanner = () => {
     if (status === "confirmed") {
       // Guard: never allow accepting a plan whose time has already passed
       if (new Date(plan.scheduled_for) <= new Date()) {
-        toast.error("This date plan has already expired and cannot be accepted.");
+        toast.error(t("datePlanner.expired"));
         return;
       }
     }
@@ -321,7 +321,7 @@ const DatePlanner = () => {
     const { error } = await supabase.from("date_plans").update({ status }).eq("id", planId);
     if (error) {
       logger.error("Update plan status error", error);
-      toast.error("Failed to update plan status.");
+      toast.error(t("datePlanner.failedUpdate"));
       return;
     }
 
@@ -362,7 +362,7 @@ const DatePlanner = () => {
       }
     }
 
-    toast.success("Plan updated.");
+    toast.success(t("datePlanner.planUpdated"));
   };
 
   return (

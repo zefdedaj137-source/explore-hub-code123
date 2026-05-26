@@ -44,7 +44,7 @@ const ReportUserDialog = ({
 
   const handleSubmit = async () => {
     if (!reason) {
-      toast.error("Please select a reason");
+      toast.error(t("report.pleaseSelect"));
       return;
     }
 
@@ -59,13 +59,13 @@ const ReportUserDialog = ({
 
       if (error) throw error;
 
-      toast.success("Report submitted. Thank you for keeping the community safe.");
+      toast.success(t("report.submitted"));
       setReason("");
       setDetails("");
       onOpenChange(false);
     } catch (error) {
       logger.error("Report error:", error);
-      toast.error("Failed to submit report. Please try again.");
+      toast.error(t("report.failedSubmit"));
     } finally {
       setSubmitting(false);
     }

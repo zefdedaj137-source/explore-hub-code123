@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Heart, X } from "lucide-react";
 import { sanitizeText } from "@/lib/sanitize";
 import albanianEagle from "@/assets/albanian-eagle.png";
+import { useTranslation } from "react-i18next";
 
 import arberesheImg from "@/assets/arbereshe.jpg";
 import flamurImg from "@/assets/flamur.jpg";
@@ -20,6 +21,7 @@ const nearbyProfiles = [
 const RadarNearby = () => {
   const [scanning, setScanning] = useState(false);
   const [showProfiles, setShowProfiles] = useState(false);
+  const { t } = useTranslation();
 
   const handleScan = () => {
     setScanning(true);
@@ -39,11 +41,11 @@ const RadarNearby = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="text-transparent bg-clip-text bg-gradient-gold">Radar</span>{" "}
-            <span className="text-foreground">Nearby</span>
+            <span className="text-transparent bg-clip-text bg-gradient-gold">{t("radarNearby.title")}</span>{" "}
+            <span className="text-foreground">{t("radarNearby.nearby")}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover Albanian singles in your area. Real-time location matching.
+            {t("radarNearby.tagline")}
           </p>
         </div>
 
@@ -97,7 +99,7 @@ const RadarNearby = () => {
               className="bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-elegant px-12 py-6 text-lg rounded-xl border-2 border-accent/20 transition-all hover:shadow-glow hover:scale-105"
             >
               <MapPin className="mr-2 h-5 w-5" />
-              {scanning ? "Scanning..." : "Scan Nearby"}
+              {scanning ? t("radarNearby.scanning") : t("radarNearby.scanNearby")}
             </Button>
           </div>
         </div>
@@ -146,7 +148,7 @@ const RadarNearby = () => {
                         className="flex-1 bg-gradient-to-r from-[hsl(350,65%,60%)] to-[hsl(18,72%,55%)] text-white border-0 shadow-[0_4px_12px_hsl(350,65%,60%,0.35)] hover:brightness-110 rounded-xl h-9"
                       >
                         <Heart className="h-4 w-4 mr-1" />
-                        Like
+                        {t("radarNearby.like")}
                       </Button>
                     </div>
                   </div>

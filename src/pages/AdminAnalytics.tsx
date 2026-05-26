@@ -8,10 +8,12 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 const AdminAnalytics = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isAdmin, setIsAdmin] = useState(false);
   const [exporting, setExporting] = useState<string | null>(null);
   const [scheduleTitle, setScheduleTitle] = useState("");
@@ -23,11 +25,13 @@ const AdminAnalytics = () => {
   const [dispatching, setDispatching] = useState(false);
   const [stats, setStats] = useState({
     profiles: 0,
+    likes: 0,
     matches: 0,
     messages: 0,
     reports: 0,
     dataRequests: 0,
     wallets: 0,
+    dailySwipes: 0,
   });
 
   const checkAdmin = useCallback(async () => {
@@ -51,28 +55,33 @@ const AdminAnalytics = () => {
   }, [user]);
 
   const loadStats = useCallback(async () => {
-    const [profiles, matches, messages, reports, dataRequests, wallets] = await Promise.all([
-      supabase.from("profiles").select("id", { count: "exact", head: true }),
-      supabase.from("matches").select("id", { count: "exact", head: true }),
-      supabase.from("messages").select("id", { count: "exact", head: true }),
-      supabase.from("reports").select("id", { count: "exact", head: true }),
-      supabase.from("data_requests").select("id", { count: "exact", head: true }),
-      supabase.from("wallets").select("id", { count: "exact", head: true }),
-    ]);
+    const [profiles, likes, matches, messages, reports, dataRequests, wallets, dailySwipes] =
+      await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("likes").select("id", { count: "exact", head: true }),
+        supabase.from("matches").select("id", { count: "exact", head: true }),
+        supabase.from("messages").select("id", { count: "exact", head: true }),
+        supabase.from("reports").select("id", { count: "exact", head: true }),
+        supabase.from("data_requests").select("id", { count: "exact", head: true }),
+        supabase.from("wallets").select("id", { count: "exact", head: true }),
+        supabase.from("daily_swipes").select("id", { count: "exact", head: true }),
+      ]);
 
     setStats({
       profiles: profiles.count || 0,
+      likes: likes.count || 0,
       matches: matches.count || 0,
       messages: messages.count || 0,
       reports: reports.count || 0,
       dataRequests: dataRequests.count || 0,
       wallets: wallets.count || 0,
+      dailySwipes: dailySwipes.count || 0,
     });
   }, []);
 
   const downloadCsv = (filename: string, rows: Record<string, unknown>[]) => {
     if (!rows.length) {
-      toast.info("No rows to export.");
+      toast.info(t("adminAnalytics.noRowsExport"));
       return;
     }
 
@@ -125,10 +134,10 @@ const AdminAnalytics = () => {
 
       if (response.error) throw response.error;
       downloadCsv(`${table}_export.csv`, (response.data as Record<string, unknown>[]) || []);
-      toast.success(`Exported ${table}.`);
+      toast.success(t("adminAnalytics.exportSuccess", { table }));
     } catch (error) {
       logger.error("Export failed:", error);
-      toast.error("Export failed.");
+      toast.error(t("adminAnalytics.exportFailed"));
     } finally {
       setExporting(null);
     }
@@ -136,7 +145,7 @@ const AdminAnalytics = () => {
 
   const handleSchedulePush = async () => {
     if (!scheduleTitle || !scheduleBody || !scheduleAt) {
-      toast.error("Title, body, and send time are required.");
+      toast.error(t("adminAnalytics.requiredFields"));
       return;
     }
     setScheduling(true);
@@ -149,14 +158,14 @@ const AdminAnalytics = () => {
         send_at: new Date(scheduleAt).toISOString(),
       });
       if (error) throw error;
-      toast.success("Push scheduled.");
+      toast.success(t("adminAnalytics.pushScheduled"));
       setScheduleTitle("");
       setScheduleBody("");
       setScheduleUserId("");
       setScheduleAt("");
     } catch (error) {
       logger.error("Schedule push error", error);
-      toast.error("Failed to schedule push.");
+      toast.error(t("adminAnalytics.failedSchedule"));
     } finally {
       setScheduling(false);
     }
@@ -167,10 +176,10 @@ const AdminAnalytics = () => {
     try {
       const { error } = await supabase.functions.invoke("dispatch-scheduled-push");
       if (error) throw error;
-      toast.success("Scheduled pushes dispatched.");
+      toast.success(t("adminAnalytics.dispatched"));
     } catch (error) {
       logger.error("Dispatch scheduled push error", error);
-      toast.error("Failed to dispatch scheduled pushes.");
+      toast.error(t("adminAnalytics.failedDispatch"));
     } finally {
       setDispatching(false);
     }
@@ -191,7 +200,7 @@ const AdminAnalytics = () => {
   if (!isAdmin) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
-        <Card className="p-8 text-center">Access denied.</Card>
+        <Card className="p-8 text-center">{t("adminAnalytics.accessDenied")}</Card>
       </div>
     );
   }
@@ -204,12 +213,12 @@ const AdminAnalytics = () => {
             <div className="flex items-center gap-3">
               <BarChart3 className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Admin Analytics</h1>
-                <p className="text-sm text-muted-foreground">High‑level metrics</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("adminAnalytics.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("adminAnalytics.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
-              Back
+              {t("adminAnalytics.back")}
             </Button>
           </div>
         </div>
@@ -226,8 +235,8 @@ const AdminAnalytics = () => {
         <Card className="mt-6 p-6 rounded-2xl border-2 border-border bg-card/80">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-semibold">Export Data</h2>
-              <p className="text-sm text-muted-foreground">Download recent rows (up to 1000)</p>
+              <h2 className="text-lg font-semibold">{t("adminAnalytics.exportTitle")}</h2>
+              <p className="text-sm text-muted-foreground">{t("adminAnalytics.exportSubtitle")}</p>
             </div>
           </div>
           <div className="grid sm:grid-cols-2 gap-3">
@@ -263,52 +272,52 @@ const AdminAnalytics = () => {
 
         <Card className="mt-6 p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
           <div>
-            <h2 className="text-lg font-semibold">Schedule Push</h2>
-            <p className="text-sm text-muted-foreground">Queue a push notification for later</p>
+            <h2 className="text-lg font-semibold">{t("adminAnalytics.scheduleTitle")}</h2>
+            <p className="text-sm text-muted-foreground">{t("adminAnalytics.scheduleSubtitle")}</p>
           </div>
           <div className="grid gap-3">
             <input
               className="w-full rounded-md border border-border p-2"
-              placeholder="Title"
-              aria-label="Push title"
+              placeholder={t("adminAnalytics.pushTitle")}
+              aria-label={t("adminAnalytics.pushTitle")}
               value={scheduleTitle}
               onChange={(e) => setScheduleTitle(e.target.value)}
             />
             <input
               className="w-full rounded-md border border-border p-2"
-              placeholder="Body"
-              aria-label="Push body"
+              placeholder={t("adminAnalytics.pushBody")}
+              aria-label={t("adminAnalytics.pushBody")}
               value={scheduleBody}
               onChange={(e) => setScheduleBody(e.target.value)}
             />
             <input
               className="w-full rounded-md border border-border p-2"
-              placeholder="Target user id (optional)"
-              aria-label="Target user id"
+              placeholder={t("adminAnalytics.targetUserId")}
+              aria-label={t("adminAnalytics.targetUserId")}
               value={scheduleUserId}
               onChange={(e) => setScheduleUserId(e.target.value)}
             />
             <input
               className="w-full rounded-md border border-border p-2"
-              placeholder="Target URL (optional)"
-              aria-label="Target URL"
+              placeholder={t("adminAnalytics.targetUrl")}
+              aria-label={t("adminAnalytics.targetUrl")}
               value={scheduleUrl}
               onChange={(e) => setScheduleUrl(e.target.value)}
             />
             <input
               type="datetime-local"
               className="w-full rounded-md border border-border p-2"
-              aria-label="Send at"
+              aria-label={t("adminAnalytics.sendAt")}
               value={scheduleAt}
               onChange={(e) => setScheduleAt(e.target.value)}
             />
           </div>
           <div className="flex gap-2">
             <Button onClick={handleSchedulePush} disabled={scheduling}>
-              {scheduling ? "Scheduling..." : "Schedule Push"}
+              {scheduling ? t("adminAnalytics.scheduling") : t("adminAnalytics.schedulePush")}
             </Button>
             <Button variant="outline" onClick={handleDispatchScheduled} disabled={dispatching}>
-              {dispatching ? "Dispatching..." : "Dispatch Due Pushes"}
+              {dispatching ? t("adminAnalytics.dispatching") : t("adminAnalytics.dispatchDue")}
             </Button>
           </div>
         </Card>

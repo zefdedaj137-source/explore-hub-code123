@@ -7,7 +7,6 @@ import {
   X,
   Star,
   RefreshCw,
-  Zap,
   MapPin,
   Briefcase,
   GraduationCap,
@@ -21,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface PickProfile {
   id: string;
@@ -41,19 +41,6 @@ interface PickProfile {
   matchReasons: string[];
 }
 
-const COMPATIBILITY_FACTORS = [
-  "Shared interests",
-  "Similar age range",
-  "Same city",
-  "Compatible zodiac signs",
-  "Similar lifestyle",
-  "Both verified",
-  "Complementary personalities",
-  "Active recently",
-  "Similar education level",
-  "Mutual hobbies",
-];
-
 const ZODIAC_COMPATIBILITY: Record<string, string[]> = {
   aries: ["leo", "sagittarius", "gemini", "aquarius"],
   taurus: ["virgo", "capricorn", "cancer", "pisces"],
@@ -72,6 +59,7 @@ const ZODIAC_COMPATIBILITY: Record<string, string[]> = {
 const AIMatchmaker = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [topPicks, setTopPicks] = useState<PickProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -254,12 +242,12 @@ const AIMatchmaker = () => {
       setTopPicks(scored);
     } catch (error) {
       logger.error("Error fetching top picks:", error);
-      toast.error("Failed to load your matches");
+      toast.error(t("aiMatchmaker.failedLoad"));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user, calculateCompatibility]);
+  }, [user, calculateCompatibility, t]);
 
   useEffect(() => {
     fetchTopPicks();
@@ -269,7 +257,7 @@ const AIMatchmaker = () => {
     setRefreshing(true);
     setDismissedPicks(new Set());
     fetchTopPicks();
-    toast.success("Refreshing your top picks...");
+    toast.success(t("aiMatchmaker.refreshing"));
   };
 
   const handleLikePick = async (pick: PickProfile) => {
@@ -285,13 +273,13 @@ const AIMatchmaker = () => {
       setLikedPicks((prev) => new Set([...prev, pick.id]));
 
       if (data?.is_match) {
-        toast.success(`🎉 It's a match with ${pick.full_name}!`);
+        toast.success(t("aiMatchmaker.match", { name: pick.full_name }));
       } else {
-        toast.success(`💕 Liked ${pick.full_name}`);
+        toast.success(t("aiMatchmaker.liked", { name: pick.full_name }));
       }
     } catch (error) {
       logger.error("Error liking pick:", error);
-      toast.error("Failed to like this profile");
+      toast.error(t("aiMatchmaker.failedLike"));
     }
   };
 
@@ -309,10 +297,10 @@ const AIMatchmaker = () => {
   };
 
   const getCompatibilityLabel = (score: number) => {
-    if (score >= 85) return "Excellent Match";
-    if (score >= 70) return "Great Match";
-    if (score >= 55) return "Good Match";
-    return "Potential Match";
+    if (score >= 85) return t("aiMatchmaker.excellentMatch");
+    if (score >= 70) return t("aiMatchmaker.greatMatch");
+    if (score >= 55) return t("aiMatchmaker.goodMatch");
+    return t("aiMatchmaker.potentialMatch");
   };
 
   return (
@@ -328,8 +316,8 @@ const AIMatchmaker = () => {
               <Sparkles className="h-4 w-4 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold">AI Matchmaker</h1>
-              <p className="text-xs text-muted-foreground">Your daily curated picks</p>
+              <h1 className="text-lg font-bold">{t("aiMatchmaker.title")}</h1>
+              <p className="text-xs text-muted-foreground">{t("aiMatchmaker.subtitle")}</p>
             </div>
           </div>
           <Button
@@ -339,8 +327,8 @@ const AIMatchmaker = () => {
             disabled={refreshing}
             className="gap-1"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
-            Refresh
+            {refreshing ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {t("aiMatchmaker.refresh")}
           </Button>
         </div>
       </div>
@@ -353,9 +341,9 @@ const AIMatchmaker = () => {
               <Sparkles className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-bold">Today's Top Picks</h2>
+              <h2 className="font-bold">{t("aiMatchmaker.todaysPicks")}</h2>
               <p className="text-sm text-primary/20">
-                {visiblePicks.length} profiles curated just for you based on compatibility
+                {t("aiMatchmaker.profilesCurated", { count: visiblePicks.length })}
               </p>
             </div>
           </div>
@@ -379,12 +367,12 @@ const AIMatchmaker = () => {
         ) : visiblePicks.length === 0 ? (
           <Card className="p-8 text-center">
             <Sparkles className="h-12 w-12 mx-auto text-primary/80 mb-3" />
-            <h3 className="font-bold text-lg">All caught up!</h3>
+            <h3 className="font-bold text-lg">{t("aiMatchmaker.caughtUp")}</h3>
             <p className="text-muted-foreground text-sm mt-1">
-              You've reviewed all your picks. Come back tomorrow for new ones!
+              {t("aiMatchmaker.caughtUpDesc")}
             </p>
             <Button onClick={handleRefresh} className="mt-4 gap-2">
-              <RefreshCw className="h-4 w-4" /> Generate New Picks
+              <RefreshCw className="h-4 w-4" /> {t("aiMatchmaker.generateNew")}
             </Button>
           </Card>
         ) : (
@@ -450,7 +438,7 @@ const AIMatchmaker = () => {
                       <div
                         className={`bg-gradient-to-r ${getCompatibilityColor(pick.compatibility)} text-white text-xs font-bold px-2.5 py-1 rounded-full`}
                       >
-                        {pick.compatibility}% {getCompatibilityLabel(pick.compatibility)}
+                        {t("aiMatchmaker.compatibilityLabel", { score: pick.compatibility, label: getCompatibilityLabel(pick.compatibility) })}
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>
@@ -494,7 +482,7 @@ const AIMatchmaker = () => {
               <div
                 className={`absolute top-4 right-4 bg-gradient-to-r ${getCompatibilityColor(selectedPick.compatibility)} text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-lg`}
               >
-                {selectedPick.compatibility}% Match
+                {t("aiMatchmaker.matchPercent", { score: selectedPick.compatibility })}
               </div>
             </div>
 
@@ -502,7 +490,7 @@ const AIMatchmaker = () => {
             <div className="p-5 space-y-4">
               <div>
                 <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">
-                  Why You Match
+                  {t("aiMatchmaker.whyYouMatch")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedPick.matchReasons.map((reason, i) => (
@@ -516,7 +504,7 @@ const AIMatchmaker = () => {
               {selectedPick.bio && (
                 <div>
                   <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-1">
-                    About
+                    {t("aiMatchmaker.about")}
                   </h3>
                   <p className="text-foreground">{selectedPick.bio}</p>
                 </div>
@@ -539,7 +527,7 @@ const AIMatchmaker = () => {
               {selectedPick.interests && selectedPick.interests.length > 0 && (
                 <div>
                   <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">
-                    Interests
+                    {t("aiMatchmaker.interests")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {selectedPick.interests.map((interest) => (
@@ -555,7 +543,7 @@ const AIMatchmaker = () => {
               {selectedPick.profile_images && selectedPick.profile_images.length > 1 && (
                 <div>
                   <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-2">
-                    Photos
+                    {t("aiMatchmaker.photos")}
                   </h3>
                   <div className="grid grid-cols-3 gap-2">
                     {selectedPick.profile_images.slice(0, 6).map((img, i) => (
@@ -580,7 +568,7 @@ const AIMatchmaker = () => {
                     setSelectedPick(null);
                   }}
                 >
-                  <X className="h-4 w-4" /> Pass
+                  <X className="h-4 w-4" /> {t("aiMatchmaker.pass")}
                 </Button>
                 <Button
                   className="flex-1 gap-2 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700"
@@ -589,7 +577,7 @@ const AIMatchmaker = () => {
                     setSelectedPick(null);
                   }}
                 >
-                  <Heart className="h-4 w-4" /> Like
+                  <Heart className="h-4 w-4" /> {t("aiMatchmaker.like")}
                 </Button>
               </div>
             </div>

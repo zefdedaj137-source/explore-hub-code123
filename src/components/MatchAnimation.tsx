@@ -4,12 +4,14 @@ import { Heart, Sparkles, X, Flower2 } from "lucide-react";
 import { Button } from "./ui/button";
 import roseBouquet from "@/assets/rose-bouquet.png";
 import albanianEagle from "@/assets/albanian-eagle.png";
+import { useTranslation } from "react-i18next";
 
 interface MatchAnimationProps {
   show: boolean;
   matchName: string;
   onComplete: () => void;
   isPremiumRoses?: boolean;
+  onChatNow?: () => void;
 }
 
 export const MatchAnimation = ({
@@ -17,8 +19,10 @@ export const MatchAnimation = ({
   matchName,
   onComplete,
   isPremiumRoses = false,
+  onChatNow,
 }: MatchAnimationProps) => {
   const [phase, setPhase] = useState<"eagle" | "transform" | "heart">("eagle");
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!show) {
@@ -322,7 +326,7 @@ export const MatchAnimation = ({
                   repeat: Infinity,
                 }}
               >
-                {isPremiumRoses ? "💐 Premium Roses Match! 🌹" : "It's a Match! 🎉"}
+                {isPremiumRoses ? t("discover.premiumRosesMatch") : t("discover.itsAMatch")}
               </motion.h2>
               <motion.p
                 className="text-xl text-white/90"
@@ -331,8 +335,8 @@ export const MatchAnimation = ({
                 transition={{ delay: 0.8 }}
               >
                 {isPremiumRoses
-                  ? `You sent Premium Roses to ${matchName}!`
-                  : `You and ${matchName} liked each other!`}
+                  ? t("discover.premiumRosesMsg", { name: matchName })
+                  : t("discover.matchMsg", { name: matchName })}
               </motion.p>
             </motion.div>
 
@@ -368,6 +372,29 @@ export const MatchAnimation = ({
                 </motion.div>
               ))}
             </div>
+            {/* Action buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
+              className="flex flex-col gap-3 w-64"
+            >
+              {onChatNow && (
+                <Button
+                  onClick={(e) => { e.stopPropagation(); onChatNow(); }}
+                  className="w-full bg-white text-primary font-bold text-base py-6 rounded-2xl shadow-lg hover:bg-white/90"
+                >
+                  💬 {t("discover.startChatting")}
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                onClick={(e) => { e.stopPropagation(); onComplete(); }}
+                className="w-full text-white/70 hover:text-white hover:bg-white/10 rounded-2xl"
+              >
+                {t("discover.keepSwiping")}
+              </Button>
+            </motion.div>
           </div>
         </motion.div>
       )}

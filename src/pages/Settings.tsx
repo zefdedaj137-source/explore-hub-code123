@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -172,15 +172,15 @@ const Settings = () => {
 
   const handleChangePassword = async () => {
     if (!oldPassword || !newPassword || !confirmPassword) {
-      toast.error("Please fill in all fields");
+      toast.error(t("settings.fillAllFields"));
       return;
     }
     if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+      toast.error(t("settings.passwordMin"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("settings.passwordsDoNotMatch"));
       return;
     }
     setPasswordLoading(true);
@@ -188,7 +188,7 @@ const Settings = () => {
       // Verify old password by re-authenticating
       const email = user?.email;
       if (!email) {
-        toast.error("Unable to verify account");
+        toast.error(t("settings.unableVerify"));
         return;
       }
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -196,12 +196,12 @@ const Settings = () => {
         password: oldPassword,
       });
       if (signInError) {
-        toast.error("Current password is incorrect");
+        toast.error(t("settings.wrongPassword"));
         return;
       }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Password updated successfully");
+      toast.success(t("settings.passwordUpdated"));
       setShowPasswordDialog(false);
       setOldPassword("");
       setNewPassword("");
@@ -257,7 +257,7 @@ const Settings = () => {
 
             if (refreshError || !session) {
               logger.error("Session refresh failed:", refreshError);
-              toast.error("Session expired. Please log in again.");
+              toast.error(t("settings.sessionExpired"));
               navigate("/auth");
               return;
             }
@@ -340,12 +340,12 @@ const Settings = () => {
         setPushSubscribed(!!subs?.length);
       } catch (error) {
         logger.error("Error fetching user status:", error);
-        toast.error("Failed to load settings. Please try refreshing the page.");
+        toast.error(t("settings.failedLoad"));
       }
     };
 
     fetchUserStatus();
-  }, [user, navigate]);
+  }, [user, navigate, t]);
 
   const applyTheme = (themeValue: "light" | "white" | "dark" | "blue") => {
     const root = document.documentElement;
@@ -358,7 +358,7 @@ const Settings = () => {
   const handleSendVerificationEmail = async () => {
     const registeredEmail = user?.email;
     if (!registeredEmail) {
-      toast.error("No registered email found on your account");
+      toast.error(t("settings.noEmail"));
       return;
     }
 
@@ -371,7 +371,7 @@ const Settings = () => {
 
       if (error) throw error;
       setOtpSent(true);
-      toast.success(`Verification code sent to ${registeredEmail}`);
+      toast.success(t("settings.verificationSent", { email: registeredEmail }));
     } catch (error) {
       toast.error((error as Error).message || "Failed to send verification email");
     } finally {
@@ -382,7 +382,7 @@ const Settings = () => {
   const handleVerifyOTP = async () => {
     const registeredEmail = user?.email;
     if (!registeredEmail || !otpCode) {
-      toast.error("Please enter the OTP code");
+      toast.error(t("settings.enterOtpCode"));
       return;
     }
 
@@ -408,7 +408,7 @@ const Settings = () => {
       setOtpSent(false);
       setOtpCode("");
       setShowVerificationSection(false);
-      toast.success("Account verified! ✓ Your verified badge is now active.");
+      toast.success(t("settings.accountVerified"));
     } catch (error) {
       toast.error((error as Error).message || "Invalid or expired code. Please try again.");
     } finally {
@@ -425,7 +425,7 @@ const Settings = () => {
       if (error) throw error;
 
       await supabase.auth.signOut();
-      toast.success("Account permanently deleted");
+      toast.success(t("settings.accountDeleted"));
       navigate("/", { replace: true });
     } catch (error) {
       logger.error("Delete account error:", error);
@@ -499,7 +499,7 @@ const Settings = () => {
           } = await supabase.auth.refreshSession();
 
           if (refreshError || !session) {
-            toast.error("Session expired. Please log in again.");
+            toast.error(t("settings.sessionExpired"));
             navigate("/auth");
             return;
           }
@@ -517,16 +517,16 @@ const Settings = () => {
 
           if (retryError) throw retryError;
 
-          toast.success("Discovery settings updated successfully!");
+          toast.success(t("settings.discoveryUpdated"));
           return;
         }
         throw error;
       }
 
-      toast.success("Discovery settings updated successfully!");
+      toast.success(t("settings.discoveryUpdated"));
     } catch (error) {
       logger.error("Error updating discovery settings:", error);
-      toast.error("Failed to update discovery settings");
+      toast.error(t("settings.failedDiscovery"));
     } finally {
       setLoading(false);
     }
@@ -544,13 +544,13 @@ const Settings = () => {
       });
     } else {
       navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-      toast.success("Invite link copied to clipboard!");
+      toast.success(t("settings.linkCopied"));
     }
   };
 
   const requestPushPermission = async () => {
     if (!("Notification" in window)) {
-      toast.error("Notifications are not supported in this browser.");
+      toast.error(t("settings.notificationsUnsupported"));
       return;
     }
 
@@ -558,9 +558,9 @@ const Settings = () => {
     setPushPermission(permission);
 
     if (permission === "granted") {
-      toast.success("Push notifications enabled.");
+      toast.success(t("settings.pushEnabled"));
     } else {
-      toast.info("Push notifications not enabled.");
+      toast.info(t("settings.pushNotEnabled"));
     }
   };
 
@@ -569,10 +569,10 @@ const Settings = () => {
     try {
       await subscribeToPush(user.id);
       setPushSubscribed(true);
-      toast.success("Push subscription saved.");
+      toast.success(t("settings.pushSaved"));
     } catch (error) {
       logger.error("Push subscribe error", error);
-      toast.error("Failed to enable push.");
+      toast.error(t("settings.failedPush"));
     }
   };
 
@@ -581,10 +581,10 @@ const Settings = () => {
     try {
       await unsubscribeFromPush(user.id);
       setPushSubscribed(false);
-      toast.success("Push subscription removed.");
+      toast.success(t("settings.pushRemoved"));
     } catch (error) {
       logger.error("Push unsubscribe error", error);
-      toast.error("Failed to disable push.");
+      toast.error(t("settings.failedDisablePush"));
     }
   };
 
@@ -603,7 +603,7 @@ const Settings = () => {
       );
     } catch (error) {
       logger.error("Data request error:", error);
-      toast.error("Failed to submit request.");
+      toast.error(t("settings.failedReport"));
     } finally {
       setLoading(false);
     }
@@ -669,31 +669,30 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-yellow-600" />
-                  Spotlight Booster
+                  {t("settings.spotlightBooster")}
                   {isPremium && (
                     <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-none ml-2">
                       <Crown className="h-3 w-3 mr-1" />
-                      Premium
+                      {t("common.premium")}
                     </Badge>
                   )}
                 </CardTitle>
                 <CardDescription>
-                  Be featured in "Last Active" and get up to 10x more profile views
+                  {t("settings.boosterDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-card/50 rounded-lg p-4 space-y-2">
                   <div className="flex items-center gap-2 text-green-600 font-semibold">
                     <Zap className="h-5 w-5" />
-                    Booster Active!
+                    {t("settings.boosterActive")}
                   </div>
                   <p className="text-sm text-foreground">
-                    Your profile is in the spotlight. Expires at:{" "}
-                    {new Date(boosterExpiresAt).toLocaleString()}
+                    {t("settings.boosterExpires", { time: new Date(boosterExpiresAt).toLocaleString() })}
                   </p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-                    You're visible to everyone in "Last Active"
+                    {t("settings.visibleInLastActive")}
                   </div>
                 </div>
               </CardContent>
@@ -712,40 +711,40 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2 text-yellow-100">
                   <Crown className="h-5 w-5 text-primary" />
-                  Premium Membership
+                  {t("settings.premiumMembership")}
                   <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black border-none ml-2 font-bold">
-                    Active
+                    {t("common.active")}
                   </Badge>
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
-                  Manage your premium subscription
+                  {t("settings.managePremiumDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-primary/10 rounded-lg p-4 space-y-3 border border-yellow-500/50">
                   <div className="flex items-start gap-3">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-primary mb-2">Premium Benefits</h4>
+                      <h4 className="font-semibold text-primary mb-2">{t("settings.premiumBenefits")}</h4>
                       <ul className="space-y-1.5 text-sm text-foreground">
                         <li className="flex items-center gap-2">
                           <div className="h-1.5 w-1.5 bg-yellow-500 rounded-full"></div>
-                          Unlimited swipes
+                          {t("settings.unlimitedSwipes")}
                         </li>
                         <li className="flex items-center gap-2">
                           <div className="h-1.5 w-1.5 bg-yellow-500 rounded-full"></div>
-                          See who liked you
+                          {t("settings.seeWhoLiked")}
                         </li>
                         <li className="flex items-center gap-2">
                           <div className="h-1.5 w-1.5 bg-yellow-500 rounded-full"></div>
-                          Advanced filters
+                          {t("settings.advancedFiltersFeature")}
                         </li>
                         <li className="flex items-center gap-2">
                           <div className="h-1.5 w-1.5 bg-yellow-500 rounded-full"></div>
-                          Spotlight booster access
+                          {t("settings.spotlightAccess")}
                         </li>
                         <li className="flex items-center gap-2">
                           <div className="h-1.5 w-1.5 bg-yellow-500 rounded-full"></div>
-                          No ads
+                          {t("settings.noAds")}
                         </li>
                       </ul>
                     </div>
@@ -759,7 +758,7 @@ const Settings = () => {
                     variant="outline"
                     className="w-full bg-yellow-600/10 border-yellow-600/50 text-yellow-100 hover:bg-yellow-600/20 hover:text-yellow-50"
                     onClick={() => {
-                      toast.info("Opening subscription management...");
+                      toast.info(t("settings.openingSubscription"));
                       // This would typically open Stripe customer portal
                       window.open(
                         import.meta.env.VITE_STRIPE_PORTAL_URL || "https://billing.stripe.com",
@@ -768,7 +767,7 @@ const Settings = () => {
                       );
                     }}
                   >
-                    Manage Subscription
+                    {t("settings.manageSubscription")}
                   </Button>
 
                   <AlertDialog>
@@ -777,25 +776,23 @@ const Settings = () => {
                         variant="outline"
                         className="w-full bg-primary/50 border-primary/50 text-primary/80 hover:bg-primary hover:text-primary/60"
                       >
-                        Cancel Membership
+                        {t("settings.cancelMembership")}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Cancel Premium Membership?</AlertDialogTitle>
+                        <AlertDialogTitle>{t("settings.cancelPremium")}</AlertDialogTitle>
                         <AlertDialogDescription asChild>
                           <div className="text-sm text-muted-foreground">
-                            Are you sure you want to cancel your premium membership? You'll lose
-                            access to:
+                            {t("settings.cancelPremiumConfirmDesc")}
                             <ul className="mt-2 space-y-1 text-sm">
-                              <li>• Unlimited swipes</li>
-                              <li>• See who liked you</li>
-                              <li>• Advanced filters</li>
-                              <li>• Spotlight booster</li>
+                              <li>{t("settings.unlimitedSwipes")}</li>
+                              <li>{t("settings.seeWhoLiked")}</li>
+                              <li>{t("settings.advancedFiltersFeature")}</li>
+                              <li>{t("settings.spotlightAccess")}</li>
                             </ul>
                             <div className="mt-2 font-semibold">
-                              Your subscription will remain active until the end of the current
-                              billing period.
+                              {t("settings.subscriptionRemainActive")}
                             </div>
                           </div>
                         </AlertDialogDescription>
@@ -814,11 +811,9 @@ const Settings = () => {
                               if (error) throw error;
 
                               setIsPremium(false);
-                              toast.success(
-                                "Premium membership cancelled. You'll have access until the end of your billing period."
-                              );
+                              toast.success(t("settings.premiumCancelledSuccess"));
                             } catch (error) {
-                              toast.error("Failed to cancel membership. Please try again.");
+                              toast.error(t("settings.failedCancelMembership"));
                               logger.error(error);
                             } finally {
                               setLoading(false);
@@ -826,7 +821,7 @@ const Settings = () => {
                           }}
                           className="bg-primary hover:bg-primary"
                         >
-                          Cancel Membership
+                          {t("settings.cancelMembership")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -870,7 +865,7 @@ const Settings = () => {
                         <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
                         <div className="min-w-0">
                           <p className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none mb-0.5">
-                            Sending code to
+                            {t("settings.sendingCodeTo")}
                           </p>
                           <p className="text-sm font-medium truncate">{user?.email}</p>
                         </div>
@@ -883,12 +878,12 @@ const Settings = () => {
                           className="w-full"
                         >
                           <Mail className="h-4 w-4 mr-2" />
-                          {loading ? "Sending..." : "Send Verification Code"}
+                          {loading ? t("common.sending") : t("settings.sendVerificationCode")}
                         </Button>
                       ) : (
                         <div className="space-y-3">
                           <p className="text-xs text-muted-foreground text-center">
-                            Enter the 6-digit code sent to your email
+                            {t("settings.enterOtpCode")}
                           </p>
                           <Input
                             id="otp-code"
@@ -908,7 +903,7 @@ const Settings = () => {
                             className="w-full"
                           >
                             <ShieldCheck className="h-4 w-4 mr-2" />
-                            {loading ? "Verifying..." : "Verify Code"}
+                            {loading ? t("settings.verifyingCode") : t("settings.verifyCode")}
                           </Button>
                           <button
                             className="text-xs text-muted-foreground underline w-full text-center"
@@ -917,7 +912,7 @@ const Settings = () => {
                               setOtpCode("");
                             }}
                           >
-                            Resend code
+                            {t("settings.resendCode")}
                           </button>
                         </div>
                       )}
@@ -952,7 +947,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Discovery Settings
+                {t("settings.discoverySettings")}
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.discovery ? "rotate-180" : ""}`}
                 />
@@ -972,21 +967,21 @@ const Settings = () => {
                     <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
                       <RadioGroupItem value="male" id="pref-male" />
                       <Label htmlFor="pref-male" className="flex-1 cursor-pointer font-normal">
-                        Men
+                        {t("settings.men")}
                       </Label>
                     </div>
 
                     <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
                       <RadioGroupItem value="female" id="pref-female" />
                       <Label htmlFor="pref-female" className="flex-1 cursor-pointer font-normal">
-                        Women
+                        {t("settings.women")}
                       </Label>
                     </div>
 
                     <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors">
                       <RadioGroupItem value="everyone" id="pref-everyone" />
                       <Label htmlFor="pref-everyone" className="flex-1 cursor-pointer font-normal">
-                        Everyone
+                        {t("settings.everyone")}
                       </Label>
                     </div>
                   </RadioGroup>
@@ -1002,7 +997,7 @@ const Settings = () => {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Min Age</span>
+                        <span className="text-muted-foreground">{t("settings.minAge")}</span>
                         <span className="font-medium">{minAge}</span>
                       </div>
                       <Slider
@@ -1020,7 +1015,7 @@ const Settings = () => {
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Max Age</span>
+                        <span className="text-muted-foreground">{t("settings.maxAge")}</span>
                         <span className="font-medium">{maxAge}</span>
                       </div>
                       <Slider
@@ -1055,7 +1050,7 @@ const Settings = () => {
                     className="w-full"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Show profiles within {maxDistance} kilometers from your location
+                    {t("settings.showProfilesWithin", { distance: maxDistance })}
                   </p>
                 </div>
 
@@ -1064,7 +1059,7 @@ const Settings = () => {
                   disabled={loading}
                   className="w-full"
                 >
-                  Save Discovery Settings
+                  {t("settings.saveDiscoverySettings")}
                 </Button>
               </CardContent>
             )}
@@ -1081,7 +1076,7 @@ const Settings = () => {
                 {t("settings.activityHistory")}
                 {isPremium ? (
                   <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black border-none">
-                    Premium
+                    {t("common.premium")}
                   </Badge>
                 ) : (
                   <Lock className="h-4 w-4 text-muted-foreground" />
@@ -1151,8 +1146,8 @@ const Settings = () => {
                     </div>
                     <p className="text-sm font-medium">{t("settings.premiumFeature")}</p>
                     <p className="text-xs text-muted-foreground max-w-xs">
-                      Unlock Activity & History — including call logs, recently viewed profiles,
-                      insights, and more — with a premium subscription.
+                      {t("settings.unlockActivityHistory")}� including call logs, recently viewed profiles,
+                      insights, and more � with a premium subscription.
                     </p>
                     <Button size="sm" onClick={() => navigate("/boost-bundles")}>
                       <Crown className="h-4 w-4 mr-1" />
@@ -1170,10 +1165,10 @@ const Settings = () => {
               onClick={() => toggleSection("travel")}
             >
               <CardTitle className="text-lg flex items-center gap-2">
-                <span>✈️ Travel Mode</span>
+                <span>✈️ {t("settings.travelMode")}</span>
                 {isPremium ? (
                   <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black border-none">
-                    Premium
+                    {t("common.premium")}
                   </Badge>
                 ) : (
                   <Lock className="h-4 w-4 text-muted-foreground" />
@@ -1183,7 +1178,7 @@ const Settings = () => {
                 />
               </CardTitle>
               <CardDescription>
-                Explore matches in different cities around the world
+                {t("settings.travelModeDesc")}
               </CardDescription>
             </CardHeader>
             {expandedSections.travel && (
@@ -1458,20 +1453,20 @@ const Settings = () => {
                   <div>
                     <Label className="font-normal">{t("settings.pushNotifications")}</Label>
                     <p className="text-xs text-muted-foreground">
-                      Browser permission: {pushPermission}
+                      {t("settings.browserPermission")}: {pushPermission}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={requestPushPermission}>
-                      Permission
+                      {t("settings.permissionBtn")}
                     </Button>
                     {pushSubscribed ? (
                       <Button variant="outline" size="sm" onClick={handlePushUnsubscribe}>
-                        Disable
+                        {t("settings.disableBtn")}
                       </Button>
                     ) : (
                       <Button size="sm" onClick={handlePushSubscribe}>
-                        Subscribe
+                        {t("settings.subscribeBtn")}
                       </Button>
                     )}
                   </div>
@@ -1483,14 +1478,14 @@ const Settings = () => {
                 <div className="space-y-3">
                   <Label className="font-medium flex items-center gap-2">
                     <Moon className="h-4 w-4" />
-                    Do Not Disturb
+                    {t("settings.doNotDisturb")}
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    Set quiet hours when you won't receive notifications
+                    {t("settings.dndDesc")}
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <Label className="text-xs text-muted-foreground">From</Label>
+                      <Label className="text-xs text-muted-foreground">{t("settings.from")}</Label>
                       <Input
                         type="time"
                         value={dndStart}
@@ -1509,7 +1504,7 @@ const Settings = () => {
                       />
                     </div>
                     <div className="flex-1">
-                      <Label className="text-xs text-muted-foreground">To</Label>
+                      <Label className="text-xs text-muted-foreground">{t("settings.to")}</Label>
                       <Input
                         type="time"
                         value={dndEnd}
@@ -1540,16 +1535,16 @@ const Settings = () => {
                               .from("profiles")
                               .update({ dnd_start: null, dnd_end: null } as Record<string, unknown>)
                               .eq("id", user.id);
-                          toast.success("DND disabled");
+                          toast.success(t("settings.dndDisabled"));
                         }}
                       >
-                        Clear
+                        {t("settings.clear")}
                       </Button>
                     )}
                   </div>
                   {dndStart && dndEnd && (
                     <p className="text-xs text-muted-foreground">
-                      Quiet hours: {dndStart} – {dndEnd}
+                      {t("settings.quietHours", { start: dndStart, end: dndEnd })}� {dndEnd}
                     </p>
                   )}
                 </div>
@@ -1598,13 +1593,13 @@ const Settings = () => {
                   icon={Star}
                   title={t("settings.reviewUs")}
                   description={t("settings.reviewUsDesc")}
-                  onClick={() => toast.info("Thank you for your support! ❤️")}
+                  onClick={() => toast.info(t("settings.supportMsg"))}
                 />
                 <SettingsSection
                   icon={Users}
                   title={t("settings.socialMedia")}
                   description={t("settings.socialMediaDesc")}
-                  onClick={() => toast.info("Follow us @shqiponja on social media!")}
+                  onClick={() => toast.info(t("settings.followUs"))}
                 />
               </CardContent>
             )}
@@ -1634,20 +1629,20 @@ const Settings = () => {
                 />
                 <SettingsSection
                   icon={FileText}
-                  title="Bildrichtlinien"
-                  description="Image guidelines"
+                  title={t("settings.imageGuidelines")}
+                  description={t("settings.imageGuidelinesDesc")}
                   onClick={() => navigate("/safety")}
                 />
                 <SettingsSection
                   icon={Lock}
-                  title="Datenschutz"
-                  description="Privacy policy"
+                  title={t("settings.privacyPolicyTitle")}
+                  description={t("settings.privacyPolicyDesc")}
                   onClick={() => navigate("/privacy")}
                 />
                 <SettingsSection
                   icon={FileText}
-                  title="AGB"
-                  description="Terms & conditions"
+                  title={t("settings.termsTitle")}
+                  description={t("settings.termsDesc")}
                   onClick={() => navigate("/terms")}
                 />
                 <SettingsSection
@@ -1658,22 +1653,22 @@ const Settings = () => {
                 />
                 <SettingsSection
                   icon={Info}
-                  title="About Us"
-                  description="Learn more about Shqiponja"
-                  onClick={() => toast.info("Shqiponja — Where hearts connect. v1.0.0")}
+                  title={t("settings.aboutUsTitle")}
+                  description={t("settings.aboutUsDesc")}
+                  onClick={() => toast.info(t("settings.aboutApp"))}
                 />
 
                 <Separator className="my-2" />
 
                 <div className="space-y-3 pt-2">
-                  <p className="text-sm font-medium text-muted-foreground">Data Controls</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("settings.dataControls")}</p>
                   <Button
                     variant="outline"
                     className="w-full"
                     onClick={() => handleDataRequest("export")}
                     disabled={loading}
                   >
-                    Request Data Export
+                    {t("settings.requestDataExport")}
                   </Button>
                   <Button
                     variant="outline"
@@ -1681,7 +1676,7 @@ const Settings = () => {
                     onClick={() => handleDataRequest("delete")}
                     disabled={loading}
                   >
-                    Request Data Deletion
+                    {t("settings.requestDataDeletion")}
                   </Button>
                 </div>
               </CardContent>
@@ -1696,7 +1691,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2 text-destructive">
                 <Trash2 className="h-5 w-5" />
-                Danger Zone
+                {t("settings.dangerZone")}
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.danger ? "rotate-180" : ""}`}
                 />
@@ -1706,10 +1701,9 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 {/* Data Export (GDPR) */}
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Export Your Data</p>
+                  <p className="text-sm font-medium">{t("settings.exportData")}</p>
                   <p className="text-xs text-muted-foreground">
-                    Download a copy of all your personal data (profile, matches, messages, likes) as
-                    a JSON file.
+                    {t("settings.downloadDataDesc")}
                   </p>
                   <Button
                     variant="outline"
@@ -1717,20 +1711,20 @@ const Settings = () => {
                     onClick={async () => {
                       if (!user) return;
                       try {
-                        toast.info("Preparing your data export...");
+                        toast.info(t("settings.preparingExport"));
                         const blob = await exportUserData(user.id);
                         downloadBlob(
                           blob,
                           `shqiponja-data-${new Date().toISOString().slice(0, 10)}.json`
                         );
-                        toast.success("Data exported successfully!");
+                        toast.success(t("settings.dataExported"));
                       } catch {
-                        toast.error("Failed to export data. Please try again.");
+                        toast.error(t("settings.failedExport"));
                       }
                     }}
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    Download My Data
+                    {t("settings.downloadMyData")}
                   </Button>
                 </div>
 
@@ -1738,7 +1732,7 @@ const Settings = () => {
 
                 {/* Deactivate Account */}
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Deactivate Account</p>
+                  <p className="text-sm font-medium">{t("settings.deactivateAccount")}</p>
                   <p className="text-xs text-muted-foreground">
                     Temporarily hide your profile. After the chosen period, your account will be
                     permanently deleted unless you log back in.
@@ -1756,10 +1750,9 @@ const Settings = () => {
 
                 {/* Permanent Delete */}
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-destructive">Permanent Deletion</p>
+                  <p className="text-sm font-medium text-destructive">{t("settings.permanentDeletion")}</p>
                   <p className="text-xs text-muted-foreground">
-                    Immediately and permanently delete your account, matches, messages, and all
-                    data. This cannot be undone.
+                    {t("settings.deleteAccountDesc")}
                   </p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -1770,11 +1763,9 @@ const Settings = () => {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>{t("settings.areYouSure")}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This will <strong>permanently</strong> delete your account and remove all
-                          your data from our servers — including matches, messages, likes, and your
-                          profile. This action cannot be undone.
+                          {t("settings.deleteDialogDesc")} This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -1784,7 +1775,7 @@ const Settings = () => {
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           disabled={loading}
                         >
-                          Delete Everything
+                          {t("settings.deleteEverything")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -1816,7 +1807,7 @@ const Settings = () => {
                 <LogOut className="h-4 w-4 mr-2" />
                 {t("auth.signOut")}
               </Button>
-              <p className="text-center text-sm text-muted-foreground mt-4">Version 1.0.0</p>
+              <p className="text-center text-sm text-muted-foreground mt-4">{t("settings.versionLabel")}</p>
             </CardContent>
           </Card>
 
@@ -1828,7 +1819,7 @@ const Settings = () => {
               >
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Shield className="h-5 w-5" />
-                  Admin
+                  {t("settings.adminSection")}
                   <ChevronDown
                     className={`h-4 w-4 ml-auto transition-transform ${expandedSections.admin ? "rotate-180" : ""}`}
                   />
@@ -1838,14 +1829,14 @@ const Settings = () => {
                 <CardContent className="space-y-2">
                   <SettingsSection
                     icon={Shield}
-                    title="Safety Console"
-                    description="Review reports & data requests"
+                    title={t("settings.safetyConsole")}
+                    description={t("settings.safetyConsoleDesc")}
                     onClick={() => navigate("/admin/safety")}
                   />
                   <SettingsSection
                     icon={BarChart3}
-                    title="Analytics Dashboard"
-                    description="View key metrics"
+                    title={t("settings.analyticsDashboard")}
+                    description={t("settings.analyticsDashboardDesc")}
                     onClick={() => navigate("/admin/analytics")}
                   />
                 </CardContent>
@@ -1853,7 +1844,7 @@ const Settings = () => {
             </Card>
           )}
 
-          {/* Admin self-escalation removed — admin access is granted via Supabase dashboard only */}
+          {/* Admin self-escalation removed � admin access is granted via Supabase dashboard only */}
         </div>
       </div>
 
@@ -1863,16 +1854,15 @@ const Settings = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-orange-400">
               <EyeOff className="h-5 w-5" />
-              Deactivate Account
+              {t("settings.deactivateAccount")}
             </DialogTitle>
             <DialogDescription>
-              Your profile will be hidden immediately. After the chosen period, your account and all
-              data will be permanently deleted unless you log back in.
+              {t("settings.deactivateDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Auto-delete after:</Label>
+              <Label>{t("settings.autoDeleteAfter")}</Label>
               <RadioGroup
                 value={String(deactivateDays)}
                 onValueChange={(v) => setDeactivateDays(Number(v))}
@@ -1909,7 +1899,7 @@ const Settings = () => {
               disabled={loading}
               className="w-full bg-orange-600 hover:bg-orange-700 text-white"
             >
-              Deactivate for {deactivateDays} days
+              {t("settings.deactivateFor", { days: deactivateDays })}
             </Button>
           </div>
         </DialogContent>
@@ -1945,7 +1935,7 @@ const Settings = () => {
                 <Input
                   id="old-password"
                   type={showOldPassword ? "text" : "password"}
-                  placeholder="Enter current password"
+                  placeholder={t("settings.enterCurrentPasswordPlaceholder")}
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
@@ -1969,7 +1959,7 @@ const Settings = () => {
                 <Input
                   id="new-password"
                   type={showNewPassword ? "text" : "password"}
-                  placeholder="At least 6 characters"
+                  placeholder={t("settings.atLeast6Placeholder")}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
@@ -1986,7 +1976,7 @@ const Settings = () => {
                 </button>
               </div>
               {newPassword.length > 0 && newPassword.length < 6 && (
-                <p className="text-xs text-destructive">Password must be at least 6 characters</p>
+                <p className="text-xs text-destructive">{t("settings.passwordMinChars")}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -1995,7 +1985,7 @@ const Settings = () => {
                 <Input
                   id="confirm-password"
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Repeat new password"
+                  placeholder={t("settings.repeatPasswordPlaceholder")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleChangePassword()}
@@ -2016,7 +2006,7 @@ const Settings = () => {
                 </button>
               </div>
               {confirmPassword.length > 0 && confirmPassword !== newPassword && (
-                <p className="text-xs text-destructive">Passwords do not match</p>
+                <p className="text-xs text-destructive">{t("settings.passwordsNotMatch")}</p>
               )}
             </div>
             <div className="flex gap-2">
@@ -2030,10 +2020,10 @@ const Settings = () => {
                   newPassword !== confirmPassword
                 }
               >
-                {passwordLoading ? "Updating..." : "Update Password"}
+                {passwordLoading ? t("settings.updating") : t("settings.updatePassword")}
               </Button>
               <Button variant="outline" onClick={() => setShowPasswordDialog(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface SpotlightProfile {
   id: string;
@@ -23,23 +24,47 @@ interface SpotlightProfile {
 const WeeklySpotlight = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [spotlight, setSpotlight] = useState<SpotlightProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [previousSpotlights, setPreviousSpotlights] = useState<SpotlightProfile[]>([]);
+  const [weekStats, setWeekStats] = useState<{ matches: number; likes: number } | null>(null);
 
   const loadSpotlight = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
-      // Fetch matched user IDs to exclude them from spotlight
-      const { data: matchData } = await supabase
-        .from("matches")
-        .select("user1_id, user2_id")
-        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+      // Calculate start of the current week (Monday)
+      const now = new Date();
+      const day = now.getDay();
+      const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+      const weekStart = new Date(now);
+      weekStart.setDate(diff);
+      weekStart.setHours(0, 0, 0, 0);
+      const weekStartISO = weekStart.toISOString();
+
+      // Load this week's stats in parallel with spotlight
+      const [matchData, likesData] = await Promise.all([
+        supabase
+          .from("matches")
+          .select("user1_id, user2_id")
+          .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+          .gte("created_at", weekStartISO),
+        supabase
+          .from("likes")
+          .select("id", { count: "exact", head: true })
+          .eq("liked_id", user.id)
+          .gte("created_at", weekStartISO),
+      ]);
 
       const matchedIds = new Set(
-        (matchData || []).map((m) => (m.user1_id === user.id ? m.user2_id : m.user1_id))
+        (matchData.data || []).map((m) => (m.user1_id === user.id ? m.user2_id : m.user1_id))
       );
+
+      setWeekStats({
+        matches: matchData.data?.length ?? 0,
+        likes: likesData.count ?? 0,
+      });
 
       // Get a "random" featured profile (simulate weekly spotlight)
       const { data: profiles } = await supabase
@@ -87,12 +112,32 @@ const WeeklySpotlight = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Star className="h-5 w-5 text-amber-500" />
-        <h1 className="text-lg font-bold">Weekly Spotlight</h1>
+        <h1 className="text-lg font-bold">{t("weeklySpotlight.title")}</h1>
       </div>
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
+        {/* Your stats this week */}
+        {weekStats && (
+          <Card className="p-4 rounded-2xl border border-border bg-card/80">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-amber-500" />
+              {t("weeklySpotlight.yourStatsThisWeek", "Your stats this week")}
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-primary/10 rounded-xl p-3 text-center">
+                <div className="text-2xl font-bold text-primary">{weekStats.matches}</div>
+                <div className="text-xs text-muted-foreground">{t("weeklySpotlight.newMatches", "New matches")}</div>
+              </div>
+              <div className="bg-primary/10 rounded-xl p-3 text-center">
+                <div className="text-2xl font-bold text-primary">{weekStats.likes}</div>
+                <div className="text-xs text-muted-foreground">{t("weeklySpotlight.likesReceived", "Likes received")}</div>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {loading ? (
-          <div className="text-center py-16 text-muted-foreground">Loading spotlight...</div>
+          <div className="text-center py-16 text-muted-foreground">{t("weeklySpotlight.loading")}</div>
         ) : spotlight ? (
           <>
             <Card className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] border-0 rounded-3xl">
@@ -108,7 +153,7 @@ const WeeklySpotlight = () => {
                 {/* Spotlight badge */}
                 <div className="absolute top-4 left-4">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/90 backdrop-blur-sm text-white text-xs font-semibold">
-                    <Crown className="h-3 w-3" /> This Week's Spotlight
+                    <Crown className="h-3 w-3" /> {t("weeklySpotlight.thisWeeksSpotlight")}
                   </span>
                 </div>
 
@@ -128,7 +173,7 @@ const WeeklySpotlight = () => {
                   <div className="flex flex-wrap items-center gap-1 mb-2">
                     {spotlight.verified && (
                       <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
-                        ✓ Verified
+                        ✓ {t("weeklySpotlight.verified")}
                       </Badge>
                     )}
                   </div>
@@ -167,7 +212,7 @@ const WeeklySpotlight = () => {
                   onClick={() => navigate("/discover")}
                 >
                   <Heart className="h-5 w-5 mr-2 fill-current" />
-                  View on Discover
+                  {t("weeklySpotlight.viewOnDiscover")}
                 </Button>
               </div>
             </Card>
@@ -175,7 +220,7 @@ const WeeklySpotlight = () => {
             {previousSpotlights.length > 0 && (
               <>
                 <h2 className="font-semibold text-lg flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-amber-500" /> Previous Spotlights
+                  <Sparkles className="h-5 w-5 text-amber-500" /> {t("weeklySpotlight.previousSpotlights")}
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {previousSpotlights.map((p) => (
@@ -203,7 +248,7 @@ const WeeklySpotlight = () => {
                           <div className="flex flex-wrap items-center gap-1 mb-1">
                             {p.verified && (
                               <Badge className="bg-primary text-white border-none text-[9px] px-1 py-0 h-3.5">
-                                ✓ Verified
+                                ✓ {t("weeklySpotlight.verified")}
                               </Badge>
                             )}
                           </div>
@@ -224,8 +269,8 @@ const WeeklySpotlight = () => {
         ) : (
           <div className="text-center py-16">
             <Star className="h-16 w-16 mx-auto text-muted-foreground mb-3" />
-            <h3 className="font-semibold text-lg">No spotlight this week</h3>
-            <p className="text-muted-foreground">Check back soon!</p>
+            <h3 className="font-semibold text-lg">{t("weeklySpotlight.noSpotlight")}</h3>
+            <p className="text-muted-foreground">{t("weeklySpotlight.checkBackSoon")}</p>
           </div>
         )}
       </div>

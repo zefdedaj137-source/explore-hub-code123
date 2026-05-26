@@ -3,9 +3,11 @@ import { ShieldCheck, ArrowLeft, Phone, MapPin, MessageCircle } from "lucide-rea
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
+import { useTranslation } from "react-i18next";
 
 const SafetyTips = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-dvh bg-background pb-24">
@@ -15,13 +17,13 @@ const SafetyTips = () => {
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Safety Tips</h1>
-                <p className="text-sm text-muted-foreground">Meet safely and confidently</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("safetyTips.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("safetyTips.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
@@ -31,10 +33,8 @@ const SafetyTips = () => {
             <div className="flex items-start gap-3">
               <MapPin className="h-6 w-6 text-primary mt-1" />
               <div>
-                <h2 className="text-lg font-semibold">Meet in public places</h2>
-                <p className="text-sm text-muted-foreground">
-                  Choose a busy, well-lit location and arrange your own transportation.
-                </p>
+                <h2 className="text-lg font-semibold">{t("safetyTips.meetInPublic")}</h2>
+                <p className="text-sm text-muted-foreground">{t("safetyTips.meetInPublicDesc")}</p>
               </div>
             </div>
           </Card>
@@ -43,10 +43,8 @@ const SafetyTips = () => {
             <div className="flex items-start gap-3">
               <MessageCircle className="h-6 w-6 text-primary mt-1" />
               <div>
-                <h2 className="text-lg font-semibold">Keep chats in-app</h2>
-                <p className="text-sm text-muted-foreground">
-                  Maintain conversations inside Explore Hub until you feel comfortable.
-                </p>
+                <h2 className="text-lg font-semibold">{t("safetyTips.keepChatsInApp")}</h2>
+                <p className="text-sm text-muted-foreground">{t("safetyTips.keepChatsDesc")}</p>
               </div>
             </div>
           </Card>
@@ -55,10 +53,8 @@ const SafetyTips = () => {
             <div className="flex items-start gap-3">
               <Phone className="h-6 w-6 text-primary mt-1" />
               <div>
-                <h2 className="text-lg font-semibold">Share your plans</h2>
-                <p className="text-sm text-muted-foreground">
-                  Tell a friend where you’re going and when you expect to be back.
-                </p>
+                <h2 className="text-lg font-semibold">{t("safetyTips.sharePlans")}</h2>
+                <p className="text-sm text-muted-foreground">{t("safetyTips.sharePlansDesc")}</p>
               </div>
             </div>
           </Card>
@@ -67,10 +63,8 @@ const SafetyTips = () => {
             <div className="flex items-start gap-3">
               <ShieldCheck className="h-6 w-6 text-primary mt-1" />
               <div>
-                <h2 className="text-lg font-semibold">Report anything suspicious</h2>
-                <p className="text-sm text-muted-foreground">
-                  Use the report option to alert our team about inappropriate behavior.
-                </p>
+                <h2 className="text-lg font-semibold">{t("safetyTips.reportSuspicious")}</h2>
+                <p className="text-sm text-muted-foreground">{t("safetyTips.reportSuspiciousDesc")}</p>
               </div>
             </div>
           </Card>

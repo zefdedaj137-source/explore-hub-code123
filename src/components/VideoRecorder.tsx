@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Video, Upload, Music, Play, StopCircle } from "lucide-react";
@@ -20,6 +21,7 @@ const DANCE_SONGS = [
 ];
 
 export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [currentSong, setCurrentSong] = useState("");
@@ -72,9 +74,9 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
       mediaRecorder.start();
       setIsRecording(true);
 
-      toast.success(`Dance to: ${newSong}! 💃`);
+      toast.success(t("dancing.danceTo", { song: newSong }));
     } catch (error) {
-      toast.error("Could not access camera: " + (error as Error).message);
+      toast.error(t("videoIntro.cameraError"));
     }
   };
 
@@ -110,10 +112,10 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
 
       if (dbError) throw dbError;
 
-      toast.success("Dance video uploaded! 🎉");
+      toast.success(t("videoIntro.danceUploaded"));
       onVideoUploaded();
     } catch (error) {
-      toast.error("Failed to upload video: " + (error as Error).message);
+      toast.error(t("videoIntro.failedUploadVideo"));
     } finally {
       setUploading(false);
     }
@@ -148,10 +150,10 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
 
       if (dbError) throw dbError;
 
-      toast.success(`Dance video uploaded with song: ${newSong}! 🎉`);
+      toast.success(t("dancing.videoUploaded", { song: newSong }));
       onVideoUploaded();
     } catch (error) {
-      toast.error("Failed to upload video: " + (error as Error).message);
+      toast.error(t("videoIntro.failedUploadVideo"));
     } finally {
       setUploading(false);
     }
@@ -162,7 +164,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
       <div className="space-y-4">
         <div className="flex items-center gap-2 mb-4">
           <Video className="h-6 w-6 text-primary" />
-          <h3 className="text-xl font-bold">Record Your Valle</h3>
+          <h3 className="text-xl font-bold">{t("dancing.recordValle")}</h3>
         </div>
 
         {currentSong && (
@@ -206,7 +208,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
                 type="file"
                 accept="video/*"
                 onChange={handleFileUpload}
-                aria-label="Upload video file"
+                aria-label={t("dancing.uploadVideo")}
                 className="hidden"
               />
             </>

@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface EventRow {
   id: string;
@@ -24,6 +25,7 @@ interface EventRow {
 const Events = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [title, setTitle] = useState("");
@@ -67,10 +69,10 @@ const Events = () => {
     loadEvents()
       .catch((error) => {
         logger.error("Events load error", error);
-        toast.error("Failed to load events.");
+        toast.error(t("events.failedLoadEvents"));
       })
       .finally(() => setLoading(false));
-  }, [loadEvents]);
+  }, [loadEvents, t]);
 
   useEffect(() => {
     if (!events.length) return;
@@ -89,11 +91,11 @@ const Events = () => {
       .upsert({ event_id: eventId, user_id: user.id, status });
     if (error) {
       logger.error("RSVP update error", error);
-      toast.error("Failed to update RSVP.");
+      toast.error(t("events.failedRsvp"));
       return;
     }
     setRsvpStatus((prev) => ({ ...prev, [eventId]: status }));
-    toast.success("RSVP updated.");
+    toast.success(t("events.rsvpUpdated"));
   };
 
   const handleCheckIn = async (eventId: string, file: File) => {
@@ -119,10 +121,10 @@ const Events = () => {
       });
       if (insertError) throw insertError;
 
-      toast.success("Check-in posted.");
+      toast.success(t("events.checkInPosted"));
     } catch (error) {
       logger.error("Check-in failed", error);
-      toast.error("Failed to post check-in.");
+      toast.error(t("events.checkInFailed"));
     } finally {
       setCheckingInId(null);
     }
@@ -134,7 +136,7 @@ const Events = () => {
       return;
     }
     if (!title || !location || !scheduledFor) {
-      toast.error("Title, location, and time are required.");
+      toast.error(t("events.requiredFields"));
       return;
     }
 
@@ -148,7 +150,7 @@ const Events = () => {
         capacity: capacity ? parseInt(capacity, 10) : null,
       });
       if (error) throw error;
-      toast.success("Event created.");
+      toast.success(t("events.eventCreated"));
       setTitle("");
       setDescription("");
       setLocation("");
@@ -157,7 +159,7 @@ const Events = () => {
       loadEvents();
     } catch (error) {
       logger.error("Create event error", error);
-      toast.error("Failed to create event.");
+      toast.error(t("events.eventCreateFailed"));
     }
   };
 
@@ -169,8 +171,8 @@ const Events = () => {
             <div className="flex items-center gap-3">
               <CalendarDays className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Events</h1>
-                <p className="text-sm text-muted-foreground">Meetups and gatherings</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("events.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("events.subtitle")}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -180,27 +182,27 @@ const Events = () => {
                 onClick={() => navigate("/events-map")}
               >
                 <MapPin className="h-4 w-4 mr-2" />
-                Map
+                {t("events.map")}
               </Button>
               <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                {t("events.back")}
               </Button>
             </div>
           </div>
         </div>
 
         <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4 mb-6">
-          <h2 className="text-lg font-semibold">Create Event</h2>
-          <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <h2 className="text-lg font-semibold">{t("events.createEvent")}</h2>
+          <Input placeholder={t("events.titlePlaceholder")} value={title} onChange={(e) => setTitle(e.target.value)} />
           <Textarea
-            placeholder="Description (optional)"
+            placeholder={t("events.descriptionPlaceholder")}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
           />
           <Input
-            placeholder="Location"
+            placeholder={t("events.locationPlaceholder")}
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           />
@@ -210,19 +212,19 @@ const Events = () => {
             onChange={(e) => setScheduledFor(e.target.value)}
           />
           <Input
-            placeholder="Capacity (optional)"
+            placeholder={t("events.capacityPlaceholder")}
             value={capacity}
             onChange={(e) => setCapacity(e.target.value)}
           />
           <Button className="w-full" onClick={handleCreate}>
-            Create Event
+            {t("events.createEventBtn")}
           </Button>
         </Card>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("events.loading")}</Card>
         ) : events.length === 0 ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">No events yet.</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("events.noEvents")}</Card>
         ) : (
           <div className="space-y-4">
             {events.map((event) => (
@@ -246,21 +248,21 @@ const Events = () => {
                         variant={rsvpStatus[event.id] === "going" ? "default" : "outline"}
                         onClick={() => handleRsvp(event.id, "going")}
                       >
-                        Going
+                        {t("events.going")}
                       </Button>
                       <Button
                         size="sm"
                         variant={rsvpStatus[event.id] === "interested" ? "default" : "outline"}
                         onClick={() => handleRsvp(event.id, "interested")}
                       >
-                        Interested
+                        {t("events.interested")}
                       </Button>
                       <Button
                         size="sm"
                         variant={rsvpStatus[event.id] === "not_going" ? "default" : "outline"}
                         onClick={() => handleRsvp(event.id, "not_going")}
                       >
-                        Not going
+                        {t("events.notGoing")}
                       </Button>
                     </div>
                     <div className="mt-3">
@@ -276,14 +278,14 @@ const Events = () => {
                       />
                       <p className="text-xs text-muted-foreground mt-1">
                         {checkingInId === event.id
-                          ? "Uploading check-in..."
-                          : "Upload a check-in photo"}
+                          ? t("events.uploadingCheckIn")
+                          : t("events.uploadCheckIn")}
                       </p>
                     </div>
                   </div>
                   {event.capacity && (
                     <span className="text-xs uppercase text-primary">
-                      Capacity {event.capacity}
+                    {t("events.capacity", { n: event.capacity })}
                     </span>
                   )}
                 </div>

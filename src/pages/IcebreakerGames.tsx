@@ -16,6 +16,7 @@ import { Card } from "@/components/ui/card";
 import BottomNav from "@/components/BottomNav";
 import ProgressBar from "@/components/ProgressBar";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const GAMES = [
   {
@@ -105,6 +106,7 @@ interface GameSession {
 const IcebreakerGames = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const matchId = searchParams.get("match");
   const matchName = searchParams.get("name") || "Your Match";
@@ -164,9 +166,9 @@ const IcebreakerGames = () => {
 
     try {
       await navigator.clipboard.writeText(text);
-      toast.success("Answers copied! Paste in chat to share 📋");
+      toast.success(t("icebreakerGames.answersCopied"));
     } catch {
-      toast.error("Couldn't copy — try again");
+      toast.error(t("icebreakerGames.copyFailed"));
     }
   };
 
@@ -192,9 +194,9 @@ const IcebreakerGames = () => {
           <Gamepad2 className="h-5 w-5 text-primary" />
           <div>
             <h1 className="text-lg font-bold">
-              {selectedGame ? selectedGame.name : "Icebreaker Games"}
+              {selectedGame ? selectedGame.name : t("icebreakerGames.title")}
             </h1>
-            <p className="text-xs text-muted-foreground">Answer & share with your matches</p>
+            <p className="text-xs text-muted-foreground">{t("icebreakerGames.subtitle")}</p>
           </div>
         </div>
       </div>
@@ -207,9 +209,9 @@ const IcebreakerGames = () => {
               <div className="flex items-center gap-3">
                 <Sparkles className="h-8 w-8" />
                 <div>
-                  <h2 className="font-bold">Break the ice! 🧊</h2>
+                  <h2 className="font-bold">{t("icebreakerGames.breakTheIce")}</h2>
                   <p className="text-sm text-primary/20">
-                    Answer fun questions, then share your results in chat to compare!
+                    {t("icebreakerGames.breakTheIceDesc")}
                   </p>
                 </div>
               </div>
@@ -246,7 +248,7 @@ const IcebreakerGames = () => {
             {/* Progress */}
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                Question {session.currentRound + 1} / 5
+                {t("icebreakerGames.question", { current: session.currentRound + 1, total: 5 })}
               </span>
               <ProgressBar
                 percent={(session.currentRound / 5) * 100}
@@ -293,7 +295,7 @@ const IcebreakerGames = () => {
                 <div className="flex gap-2">
                   <input
                     className="flex-1 rounded-xl border border-border px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="Your answer..."
+                    placeholder={t("icebreakerGames.yourAnswerPlaceholder")}
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
                     onKeyDown={(e) =>
@@ -346,13 +348,13 @@ const IcebreakerGames = () => {
         {completed && session && (
           <div className="space-y-6 pt-8 text-center">
             <div className="text-6xl mb-2">🎉</div>
-            <h2 className="text-2xl font-bold">All done!</h2>
-            <p className="text-muted-foreground">Share your answers with your match to compare!</p>
+            <h2 className="text-2xl font-bold">{t("icebreakerGames.allDone")}</h2>
+            <p className="text-muted-foreground">{t("icebreakerGames.shareAnswers")}</p>
 
             {/* Review answers */}
             <Card className="p-4 text-left space-y-3">
               <h3 className="font-semibold text-sm text-muted-foreground uppercase">
-                Your Answers
+                {t("icebreakerGames.yourAnswers")}
               </h3>
               {session.myAnswers.map((ans, i) => {
                 const questions = (selectedGame as { questions?: { a: string; b: string }[] })
@@ -380,13 +382,13 @@ const IcebreakerGames = () => {
 
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1 gap-2" onClick={resetGame}>
-                <RotateCcw className="h-4 w-4" /> Play Again
+                <RotateCcw className="h-4 w-4" /> {t("icebreakerGames.playAgain")}
               </Button>
               <Button
                 className="flex-1 gap-2 bg-gradient-to-r from-primary to-primary"
                 onClick={shareResults}
               >
-                <Share2 className="h-4 w-4" /> Copy to Share
+                <Share2 className="h-4 w-4" /> {t("icebreakerGames.copyToShare")}
               </Button>
             </div>
             {matchId && (
@@ -394,7 +396,7 @@ const IcebreakerGames = () => {
                 className="w-full gap-2 bg-gradient-to-r from-pink-500 to-rose-600"
                 onClick={() => navigate(`/chat/${matchId}`)}
               >
-                <MessageSquare className="h-4 w-4" /> Send to {matchName} in Chat
+                <MessageSquare className="h-4 w-4" /> {t("icebreakerGames.sendToMatch", { name: matchName })}
               </Button>
             )}
           </div>

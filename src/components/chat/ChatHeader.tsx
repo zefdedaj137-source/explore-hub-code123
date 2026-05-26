@@ -70,7 +70,7 @@ export function ChatHeader({
               size="icon"
               onClick={onBack}
               className="hover:bg-muted rounded-full"
-              aria-label="Back to matches"
+              aria-label={t("chatHeader.backToMatches")}
             >
               <ArrowLeft className="h-5 w-5 text-primary/80" />
             </Button>
@@ -126,7 +126,7 @@ export function ChatHeader({
               size="icon"
               onClick={onSearchToggle}
               className="hover:bg-primary/20 hover:text-primary text-muted-foreground rounded-full"
-              aria-label="Search messages"
+              aria-label={t("chatHeader.searchMessages")}
             >
               <Search className="h-5 w-5" />
             </Button>
@@ -158,7 +158,7 @@ export function ChatHeader({
                   variant="ghost"
                   size="icon"
                   className="hover:bg-muted text-muted-foreground rounded-full"
-                  aria-label="Chat menu"
+                  aria-label={t("chatHeader.chatMenu")}
                 >
                   <MoreVertical className="h-5 w-5" />
                 </Button>

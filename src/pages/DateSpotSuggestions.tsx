@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface DateSpot {
   name: string;
@@ -132,6 +133,7 @@ const SPOTS: DateSpot[] = [
 const DateSpotSuggestions = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<string>("all");
   const [randomPick, setRandomPick] = useState<DateSpot | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -153,14 +155,14 @@ const DateSpotSuggestions = () => {
       : [...favorites, name];
     setFavorites(updated);
     localStorage.setItem(`date_spots_fav_${user.id}`, JSON.stringify(updated));
-    toast.success(updated.includes(name) ? "Added to favorites ⭐" : "Removed from favorites");
+    toast.success(updated.includes(name) ? t("dateSpots.addedFavorite") : t("dateSpots.removedFavorite"));
   };
 
   const pickRandom = () => {
     const filtered = filter === "all" ? SPOTS : SPOTS.filter((s) => s.type === filter);
     const pick = filtered[Math.floor(Math.random() * filtered.length)];
     setRandomPick(pick);
-    toast.success(`Random pick: ${pick.name} ${pick.emoji}`);
+    toast.success(t("dateSpots.randomPick", { name: pick.name, emoji: pick.emoji }));
   };
 
   const filtered = filter === "all" ? SPOTS : SPOTS.filter((s) => s.type === filter);
@@ -180,7 +182,7 @@ const DateSpotSuggestions = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <MapPin className="h-5 w-5 text-rose-500" />
-        <h1 className="text-lg font-bold">Date Spots</h1>
+        <h1 className="text-lg font-bold">{t("dateSpots.title")}</h1>
       </div>
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
@@ -188,7 +190,7 @@ const DateSpotSuggestions = () => {
           onClick={pickRandom}
           className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:from-rose-600 hover:to-pink-600"
         >
-          <RefreshCw className="h-4 w-4 mr-2" /> Pick a Random Spot 🎲
+          <RefreshCw className="h-4 w-4 mr-2" /> {t("dateSpots.pickRandom")}
         </Button>
 
         {randomPick && (
@@ -207,17 +209,17 @@ const DateSpotSuggestions = () => {
         )}
 
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {["all", "cafe", "restaurant", "bar", "activity", "park"].map((t) => (
+          {["all", "cafe", "restaurant", "bar", "activity", "park"].map((type) => (
             <button
-              key={t}
-              onClick={() => setFilter(t)}
+              key={type}
+              onClick={() => setFilter(type)}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                filter === t
+                filter === type
                   ? "bg-rose-500 text-white"
                   : "bg-muted text-muted-foreground hover:bg-muted"
               }`}
             >
-              {t === "all" ? "🌟 All" : `${typeIcons[t]} ${t.charAt(0).toUpperCase() + t.slice(1)}`}
+              {type === "all" ? t("dateSpots.filterAll") : `${typeIcons[type]} ${type.charAt(0).toUpperCase() + type.slice(1)}`}
             </button>
           ))}
         </div>
@@ -233,7 +235,7 @@ const DateSpotSuggestions = () => {
                     <button
                       onClick={() => toggleFav(spot.name)}
                       aria-label={
-                        favorites.includes(spot.name) ? "Remove from favorites" : "Add to favorites"
+                        favorites.includes(spot.name) ? t("dateSpots.removeFromFav") : t("dateSpots.addToFav")
                       }
                     >
                       <Star

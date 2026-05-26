@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
 import albanianEagle from "@/assets/albanian-eagle.png";
+import { useTranslation } from "react-i18next";
 
 const iceBreaker = {
   name: "Albanian Trivia",
@@ -88,6 +89,7 @@ const iceBreaker = {
 
 const DatingGames = () => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const { t } = useTranslation();
   const [currentQuestion, setCurrentQuestion] = useState<{
     question: string;
     answers: string[];
@@ -138,10 +140,10 @@ const DatingGames = () => {
         {/* Header Card */}
         <div className="bg-card rounded-2xl p-5 shadow-card mb-6">
           <h2 className="text-3xl md:text-4xl font-bold text-center">
-            <span className="text-primary">Dating</span> <span className="text-white">Games</span>
+            <span className="text-primary">{t("datingGamesComponent.title")}</span> <span className="text-white">{t("datingGamesComponent.gamesWord")}</span>
           </h2>
           <p className="text-center text-muted-foreground mt-2">
-            Break the ice with fun Albanian-inspired games
+            {t("datingGamesComponent.tagline")}
           </p>
         </div>
 
@@ -151,12 +153,12 @@ const DatingGames = () => {
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-yellow-600/20 border-2 border-yellow-600/50 shadow-lg shadow-yellow-600/20">
               <Sparkles className="h-6 w-6 text-yellow-500" />
-              <span className="text-lg font-bold text-yellow-500">Albanian Trivia</span>
+              <span className="text-lg font-bold text-yellow-500">{t("datingGamesComponent.albanianTrivia")}</span>
             </div>
 
             <h3 className="text-3xl font-bold text-foreground">{iceBreaker.name}</h3>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              {iceBreaker.description}
+              {t("datingGamesComponent.triviaDesc")}
             </p>
 
             {/* Game Area */}
@@ -175,7 +177,7 @@ const DatingGames = () => {
                     className="bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-500 shadow-lg shadow-yellow-600/20 text-xl px-16 py-8 rounded-xl border-2 border-yellow-600/50 transition-all hover:scale-105"
                   >
                     <Sparkles className="mr-3 h-6 w-6" />
-                    Start Trivia!
+                    {t("datingGamesComponent.startTrivia")}
                   </Button>
                 </div>
               )}
@@ -226,11 +228,11 @@ const DatingGames = () => {
                       <div className="text-center">
                         <div className="text-6xl mb-4">{isCorrect ? "🎉" : "😅"}</div>
                         <div className="text-2xl font-bold text-white">
-                          {isCorrect ? "Correct!" : "Not quite!"}
+                          {isCorrect ? t("datingGamesComponent.correct") : t("datingGamesComponent.notQuite")}
                         </div>
                         {!isCorrect && (
                           <div className="text-sm text-muted-foreground mt-2">
-                            Answer: {currentQuestion.answers[currentQuestion.correct]}
+                            {t("datingGamesComponent.answer")}{currentQuestion.answers[currentQuestion.correct]}
                           </div>
                         )}
                       </div>
@@ -239,15 +241,15 @@ const DatingGames = () => {
                   <div className="space-y-4">
                     <p className="text-xl text-white font-semibold">
                       {isCorrect
-                        ? "🔥 Impressive! Your Albanian knowledge is on point!"
-                        : "💪 Good try! Learn more about Albanian culture and try again!"}
+                        ? t("datingGamesComponent.impressive")
+                        : t("datingGamesComponent.encouraging")}
                     </p>
                     <Button
                       size="lg"
                       onClick={startTrivia}
                       className="bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-500 shadow-lg shadow-yellow-600/20 text-lg px-12 py-6 rounded-xl border-2 border-yellow-600/50 transition-all hover:scale-105"
                     >
-                      Next Question
+                      {t("datingGamesComponent.nextQuestion")}
                     </Button>
                   </div>
                 </div>

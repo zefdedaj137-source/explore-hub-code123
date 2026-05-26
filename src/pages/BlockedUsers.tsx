@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface BlockedProfile {
   id: string;
@@ -27,6 +28,7 @@ interface BlockRow {
 const BlockedUsers = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [blocks, setBlocks] = useState<BlockRow[]>([]);
 
@@ -58,7 +60,7 @@ const BlockedUsers = () => {
     if (blockError || !blockRows?.length) {
       if (blockError) {
         logger.error("Failed to load blocked users", blockError);
-        toast.error("Failed to load blocked users.");
+        toast.error(t("blockedUsers.failedLoad"));
       }
       setBlocks([]);
       return;
@@ -77,7 +79,7 @@ const BlockedUsers = () => {
         blocked_profile: (profileMap.get(r.blocked_id) as BlockedProfile) || null,
       }))
     );
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     if (!user) {
@@ -99,12 +101,12 @@ const BlockedUsers = () => {
 
     if (error) {
       logger.error("Failed to unblock", error);
-      toast.error("Failed to unblock user.");
+      toast.error(t("blockedUsers.failedUnblock"));
       return;
     }
 
     setBlocks((prev) => prev.filter((row) => row.blocked_id !== blockedId));
-    toast.success("User unblocked.");
+    toast.success(t("blockedUsers.unblocked"));
   };
 
   return (
@@ -115,22 +117,22 @@ const BlockedUsers = () => {
             <div className="flex items-center gap-3">
               <UserX className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Blocked Users</h1>
-                <p className="text-sm text-muted-foreground">Manage your block list</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("blockedUsers.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("blockedUsers.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
         ) : blocks.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border-2 border-border">
-            You have no blocked users.
+            {t("blockedUsers.noBlocked")}
           </Card>
         ) : (
           <div className="space-y-4">
@@ -163,7 +165,7 @@ const BlockedUsers = () => {
                     variant="outline"
                     onClick={() => handleUnblock(block.blocked_id)}
                   >
-                    Unblock
+                    {t("blockedUsers.unblock")}
                   </Button>
                 </div>
               </Card>

@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import DatingGames from "@/components/DatingGames";
 import BottomNav from "@/components/BottomNav";
+import { useTranslation } from "react-i18next";
 
 const Games = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-dvh bg-gradient-subtle pb-20">
@@ -15,7 +17,7 @@ const Games = () => {
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-semibold">Dating Games</h1>
+          <h1 className="text-xl font-semibold">{t("games.datingGames")}</h1>
         </div>
       </div>
 

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface ProfileItem {
   id: string;
@@ -23,6 +24,7 @@ interface ProfileItem {
 const NotificationsCenter = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [tab, setTab] = useState<"views" | "likes">("views");
   const [views, setViews] = useState<ProfileItem[]>([]);
   const [likes, setLikes] = useState<ProfileItem[]>([]);
@@ -97,10 +99,10 @@ const NotificationsCenter = () => {
       });
 
       if (error) throw error;
-      toast.success("Push sent.");
+      toast.success(t("notificationsCenter.pushSent"));
     } catch (error) {
       logger.error("Push send error", error);
-      toast.error("Failed to send push.");
+      toast.error(t("notificationsCenter.failedPush"));
     } finally {
       setSending(false);
     }
@@ -114,12 +116,12 @@ const NotificationsCenter = () => {
             <div className="flex items-center gap-3">
               <Bell className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
-                <p className="text-sm text-muted-foreground">Views & likes activity</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("notificationsCenter.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("notificationsCenter.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
@@ -131,7 +133,7 @@ const NotificationsCenter = () => {
             onClick={() => setTab("views")}
           >
             <Eye className="h-4 w-4 mr-2" />
-            Views
+            {t("notificationsCenter.viewsTab")}
           </Button>
           <Button
             variant="outline"
@@ -139,27 +141,27 @@ const NotificationsCenter = () => {
             onClick={() => setTab("likes")}
           >
             <Heart className="h-4 w-4 mr-2" />
-            Likes
+            {t("notificationsCenter.likesTab")}
           </Button>
         </div>
 
         <Card className="p-4 mb-6 rounded-2xl border-2 border-border bg-card/80">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold">Push Notifications</h2>
-              <p className="text-xs text-muted-foreground">Send a test push to your device</p>
+              <h2 className="text-sm font-semibold">{t("notificationsCenter.pushNotifications")}</h2>
+              <p className="text-xs text-muted-foreground">{t("notificationsCenter.sendTestDesc")}</p>
             </div>
             <Button size="sm" onClick={handleTestPush} disabled={sending}>
-              {sending ? "Sending..." : "Send Test Push"}
+              {sending ? t("notificationsCenter.sending") : t("notificationsCenter.sendTest")}
             </Button>
           </div>
         </Card>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
         ) : items.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border-2 border-border bg-gradient-to-br from-card to-background">
-            <p className="text-muted-foreground">No notifications yet.</p>
+            <p className="text-muted-foreground">{t("notificationsCenter.noNotifications")}</p>
           </Card>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -186,7 +188,7 @@ const NotificationsCenter = () => {
                           : "bg-blue-500/90 backdrop-blur-sm"
                       }`}
                     >
-                      {tab === "views" ? "Viewed you" : "Liked you"}
+                      {tab === "views" ? t("notificationsCenter.viewedYou") : t("notificationsCenter.likedYou")}
                     </Badge>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-4 text-white">

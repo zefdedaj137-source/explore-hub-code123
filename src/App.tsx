@@ -112,16 +112,6 @@ const AppContent = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Heartbeat: update last_active every 2 minutes
-  useEffect(() => {
-    if (!user) return;
-    const update = () =>
-      supabase.from("profiles").update({ last_active: new Date().toISOString() }).eq("id", user.id);
-    update(); // immediate
-    const interval = setInterval(update, 2 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [user]);
-
   const handleAcceptCall = (matchId: string, callType: "voice" | "video") => {
     logger.log("📞 Accepting call, navigating to chat:", { matchId, callType });
     // Navigate to chat page which will handle the call

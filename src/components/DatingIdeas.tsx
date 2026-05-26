@@ -68,8 +68,8 @@ const DatingIdeas = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="text-transparent bg-clip-text bg-gradient-gold">Dating</span>{" "}
-            <span className="text-foreground">Ideas</span>
+            <span className="text-transparent bg-clip-text bg-gradient-gold">{t("datingIdeas.titleWord1")}</span>{" "}
+            <span className="text-foreground">{t("datingIdeas.titleWord2")}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Creative date ideas that celebrate Albanian culture and create memorable moments
@@ -111,7 +111,7 @@ const DatingIdeas = () => {
         <div className="text-center mt-16">
           <Card className="max-w-2xl mx-auto p-8 bg-gradient-luxury border-2 border-accent/20 shadow-luxury">
             <Heart className="h-12 w-12 text-accent mx-auto mb-4 fill-accent" />
-            <h3 className="text-2xl font-bold text-foreground mb-3">Share Your Date Ideas</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-3">{t("datingIdeas.shareTitle")}</h3>
             <p className="text-muted-foreground mb-6">
               Have a unique Albanian date idea? Share it with the community and inspire other
               couples!

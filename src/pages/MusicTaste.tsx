@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const GENRES = [
   "Pop",
@@ -35,6 +36,7 @@ const GENRES = [
 const MusicTaste = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [topArtists, setTopArtists] = useState<string[]>([]);
   const [artistInput, setArtistInput] = useState("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
@@ -58,11 +60,11 @@ const MusicTaste = () => {
   const addArtist = () => {
     if (!artistInput.trim()) return;
     if (topArtists.length >= 5) {
-      toast.error("Max 5 artists");
+      toast.error(t("musicTaste.maxArtists"));
       return;
     }
     if (topArtists.includes(artistInput.trim())) {
-      toast.error("Already added");
+      toast.error(t("musicTaste.alreadyAdded"));
       return;
     }
     setTopArtists([...topArtists, artistInput.trim()]);
@@ -74,7 +76,7 @@ const MusicTaste = () => {
       setSelectedGenres(selectedGenres.filter((x) => x !== g));
     } else {
       if (selectedGenres.length >= 5) {
-        toast.error("Max 5 genres");
+        toast.error(t("musicTaste.maxGenres"));
         return;
       }
       setSelectedGenres([...selectedGenres, g]);
@@ -87,7 +89,7 @@ const MusicTaste = () => {
       `music_${user.id}`,
       JSON.stringify({ artists: topArtists, genres: selectedGenres, anthem })
     );
-    toast.success("Music taste saved! 🎵");
+    toast.success(t("musicTaste.saved"));
   };
 
   return (
@@ -97,17 +99,17 @@ const MusicTaste = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Music className="h-5 w-5 text-green-500" />
-        <h1 className="text-lg font-bold">Music Taste</h1>
+        <h1 className="text-lg font-bold">{t("musicTaste.title")}</h1>
       </div>
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
         <Card className="p-4 space-y-3">
           <h2 className="font-semibold flex items-center gap-2">
-            <Heart className="h-4 w-4 text-red-500" /> Top Artists (max 5)
+            <Heart className="h-4 w-4 text-red-500" /> {t("musicTaste.topArtists")}
           </h2>
           <div className="flex gap-2">
             <Input
-              placeholder="Add an artist..."
+              placeholder={t("musicTaste.addArtist")}
               value={artistInput}
               onChange={(e) => setArtistInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addArtist()}
@@ -136,7 +138,7 @@ const MusicTaste = () => {
         </Card>
 
         <Card className="p-4 space-y-3">
-          <h2 className="font-semibold">Favorite Genres</h2>
+          <h2 className="font-semibold">{t("musicTaste.favoriteGenres")}</h2>
           <div className="flex flex-wrap gap-2">
             {GENRES.map((g) => (
               <button
@@ -155,9 +157,9 @@ const MusicTaste = () => {
         </Card>
 
         <Card className="p-4 space-y-3">
-          <h2 className="font-semibold">🎶 Profile Anthem</h2>
+          <h2 className="font-semibold">🎶 {t("musicTaste.profileAnthem")}</h2>
           <Input
-            placeholder="Song that describes you, e.g. Blinding Lights - The Weeknd"
+            placeholder={t("musicTaste.anthemPlaceholder")}
             value={anthem}
             onChange={(e) => setAnthem(e.target.value)}
             maxLength={80}
@@ -165,7 +167,7 @@ const MusicTaste = () => {
         </Card>
 
         <Button onClick={save} className="w-full bg-green-500 hover:bg-green-600 text-white">
-          Save Music Taste 🎵
+          {t("musicTaste.saveMusicTaste")}
         </Button>
       </div>
       <BottomNav />

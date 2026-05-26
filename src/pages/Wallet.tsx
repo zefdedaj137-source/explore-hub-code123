@@ -10,6 +10,7 @@ import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { analytics } from "@/lib/analytics";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 const PACKS = [
   { id: "pack_5", coins: 5, price: "€2.99" },
@@ -20,6 +21,7 @@ const PACKS = [
 const Wallet = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
@@ -69,7 +71,7 @@ const Wallet = () => {
   const buyPack = async (coins: number, packId: string) => {
     if (!user || purchasing) return;
     if (coins <= 0) {
-      toast.error("Invalid coin amount");
+      toast.error(t("wallet.invalidAmount"));
       return;
     }
     setPurchasing(true);
@@ -84,7 +86,7 @@ const Wallet = () => {
       if (!rpcError && rpcResult?.success) {
         analytics.purchase(packId, coins);
         setBalance(rpcResult.balance);
-        toast.success(`Added ${coins} coins to your wallet.`);
+        toast.success(t("wallet.coinsAdded", { coins }));
         return;
       }
 
@@ -114,10 +116,10 @@ const Wallet = () => {
       }
 
       setBalance(newBalance);
-      toast.success(`Added ${coins} coins to your wallet.`);
+      toast.success(t("wallet.coinsAdded", { coins }));
     } catch (error) {
       logger.error("Wallet purchase error", error);
-      toast.error("Failed to update wallet");
+      toast.error(t("wallet.failedUpdate"));
     } finally {
       setPurchasing(false);
     }
@@ -131,12 +133,12 @@ const Wallet = () => {
             <div className="flex items-center gap-3">
               <WalletIcon className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Wallet</h1>
-                <p className="text-sm text-muted-foreground">Use coins for boosts & roses</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("wallet.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("wallet.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
@@ -144,9 +146,9 @@ const Wallet = () => {
         <Card className="p-6 rounded-2xl border-2 border-border bg-gradient-to-br from-card to-background shadow-[0_8px_30px_rgb(0,0,0,0.12)] mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Current balance</p>
+              <p className="text-sm text-muted-foreground">{t("wallet.currentBalance")}</p>
               <h2 className="text-3xl font-bold text-foreground">
-                {loading ? "..." : balance} coins
+                {loading ? "..." : balance} {t("wallet.coins")}
               </h2>
             </div>
             <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
@@ -164,8 +166,8 @@ const Wallet = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-lg font-semibold">{pack.coins} coins</div>
-                  <div className="text-sm text-muted-foreground">Best for roses & boosts</div>
+                  <div className="text-lg font-semibold">{pack.coins} {t("wallet.coins")}</div>
+                  <div className="text-sm text-muted-foreground">{t("wallet.bestFor")}</div>
                 </div>
                 <Button disabled={purchasing} onClick={() => buyPack(pack.coins, pack.id)}>
                   {purchasing ? "..." : pack.price}
@@ -183,13 +185,13 @@ const Wallet = () => {
             onClick={() => setShowHistory(!showHistory)}
           >
             <Clock className="h-4 w-4 mr-2" />
-            {showHistory ? "Hide" : "Show"} Transaction History
+            {showHistory ? t("wallet.hideHistory") : t("wallet.showHistory")}
           </Button>
           {showHistory && (
             <div className="mt-3 space-y-2">
               {transactions.length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-4">
-                  No transactions yet
+                  {t("wallet.noTransactions")}
                 </p>
               ) : (
                 transactions.map((tx) => (

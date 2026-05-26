@@ -1,47 +1,49 @@
 import { Heart, Shield, Globe, Crown, MessageCircle, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
-
-const features = [
-  {
-    icon: Heart,
-    title: "Cultural Compatibility",
-    description: "Connect with people who share your Albanian heritage and values",
-  },
-  {
-    icon: Shield,
-    title: "Verified Profiles",
-    description: "All members are verified for authenticity and safety",
-  },
-  {
-    icon: Globe,
-    title: "Global Diaspora",
-    description: "Meet Albanian singles across 50+ countries worldwide",
-  },
-  {
-    icon: Crown,
-    title: "Premium Experience",
-    description: "Sophisticated matching algorithm for quality connections",
-  },
-  {
-    icon: MessageCircle,
-    title: "Smart Messaging",
-    description: "Ice breakers and conversation starters based on shared interests",
-  },
-  {
-    icon: Sparkles,
-    title: "Exclusive Events",
-    description: "Access to premium Albanian community events and gatherings",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const Features = () => {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: Heart,
+      title: t("featuresComponent.culturalCompatibility"),
+      description: t("featuresComponent.culturalCompatibilityDesc"),
+    },
+    {
+      icon: Shield,
+      title: t("featuresComponent.verifiedProfiles"),
+      description: t("featuresComponent.verifiedProfilesDesc"),
+    },
+    {
+      icon: Globe,
+      title: t("featuresComponent.globalDiaspora"),
+      description: t("featuresComponent.globalDiasporaDesc"),
+    },
+    {
+      icon: Crown,
+      title: t("featuresComponent.premiumExperience"),
+      description: t("featuresComponent.premiumExperienceDesc"),
+    },
+    {
+      icon: MessageCircle,
+      title: t("featuresComponent.smartMessaging"),
+      description: t("featuresComponent.smartMessagingDesc"),
+    },
+    {
+      icon: Sparkles,
+      title: t("featuresComponent.exclusiveEvents"),
+      description: t("featuresComponent.exclusiveEventsDesc"),
+    },
+  ];
   return (
     <section id="features" className="py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Premium Features</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">{t("featuresComponent.title")}</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to find meaningful connections within the Albanian community
+            {t("featuresComponent.tagline")}
           </p>
         </div>
 

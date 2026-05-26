@@ -85,7 +85,7 @@ const ProfileSetup = () => {
 
   const requestLocation = async () => {
     if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
+      toast.error(t("profileSetup.geolocationNotSupported"));
       return;
     }
 
@@ -103,7 +103,7 @@ const ProfileSetup = () => {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       });
-      toast.success("Location detected!");
+      toast.success(t("profileSetup.locationDetected"));
     } catch (error) {
       const geoError = error as GeolocationPositionError;
       if (geoError.code === 1) {
@@ -111,9 +111,9 @@ const ProfileSetup = () => {
           "Location permission denied. You can still use the app but distance won't be shown."
         );
       } else if (geoError.code === 2) {
-        toast.error("Location unavailable. Check your device settings.");
+        toast.error(t("profileSetup.locationUnavailable"));
       } else {
-        toast.error("Failed to get location. You can still use the app.");
+        toast.error(t("profileSetup.failedGetLocation"));
       }
     } finally {
       setGettingLocation(false);
@@ -186,13 +186,13 @@ const ProfileSetup = () => {
 
     if (file.size > 5 * 1024 * 1024) {
       logger.log("❌ File too large:", file.size);
-      toast.error("Image must be less than 5MB");
+      toast.error(t("profileSetup.imageTooLarge"));
       return;
     }
 
     if (authLoading) {
       logger.log("⏳ Authentication still loading...");
-      toast.error("Please wait for authentication to complete");
+      toast.error(t("profileSetup.waitForAuth"));
       return;
     }
 
@@ -207,7 +207,7 @@ const ProfileSetup = () => {
       // Wait for auth to load if it's still loading
       if (authLoading) {
         logger.log("⏳ Still loading, waiting...");
-        toast.error("Please wait for authentication to complete");
+        toast.error(t("profileSetup.waitForAuth"));
         return;
       }
 
@@ -227,7 +227,7 @@ const ProfileSetup = () => {
 
       if (!userId) {
         logger.log("❌ No user ID available");
-        toast.error("Authentication required. Please refresh and sign in again.");
+        toast.error(t("profileSetup.authRequired"));
         return;
       }
 
@@ -237,7 +237,7 @@ const ProfileSetup = () => {
       logger.log("👤 Using user ID for upload:", userId);
 
       if (!userId) {
-        toast.error("Cannot upload: User ID not available");
+        toast.error(t("profileSetup.cannotUpload"));
         return;
       }
 
@@ -245,7 +245,7 @@ const ProfileSetup = () => {
       logger.log("✅ Upload successful, URL:", publicUrl);
 
       setProfilePhoto(publicUrl);
-      toast.success("Profile photo uploaded! ✓");
+      toast.success(t("profileSetup.photoUploaded"));
     } catch (error) {
       logger.error("❌ Upload failed:", error);
       logger.error("❌ Error details:", {
@@ -257,13 +257,13 @@ const ProfileSetup = () => {
       const errorMessage = (error as Error).message || "Failed to upload photo";
 
       if (errorMessage.includes("bucket")) {
-        toast.error("Storage bucket not configured. Please run database fix first.");
+        toast.error(t("profileSetup.bucketNotConfigured"));
       } else if (errorMessage.includes("policy") || errorMessage.includes("permission")) {
-        toast.error("Storage permissions not configured. Please run database fix first.");
+        toast.error(t("profileSetup.storagePermissions"));
       } else if (errorMessage.includes("file")) {
-        toast.error("Invalid file format. Please select a valid image.");
+        toast.error(t("profileSetup.invalidFormat"));
       } else {
-        toast.error(`Upload failed: ${errorMessage}`);
+        toast.error(t("profileSetup.uploadFailed", { error: errorMessage }));
       }
     } finally {
       logger.log("🏁 Upload process finished");
@@ -276,7 +276,7 @@ const ProfileSetup = () => {
     if (!file || !user) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be less than 5MB");
+      toast.error(t("profileSetup.imageTooLarge"));
       return;
     }
 
@@ -285,7 +285,7 @@ const ProfileSetup = () => {
       const publicUrl = await uploadToStorage(file, "profile-photos", user.id);
       setSelfiePhoto(publicUrl);
       setVerified(true);
-      toast.success("Verification selfie uploaded! ✓");
+      toast.success(t("profileSetup.selfieUploaded"));
     } catch (error) {
       toast.error((error as Error).message || "Failed to upload selfie");
     } finally {
@@ -327,12 +327,12 @@ const ProfileSetup = () => {
     e.preventDefault();
 
     if (!user) {
-      toast.error("You must be logged in");
+      toast.error(t("profileSetup.mustBeLoggedIn"));
       return;
     }
 
     if (!profilePhoto) {
-      toast.error("Please upload a profile photo");
+      toast.error(t("profileSetup.uploadPhotoRequired"));
       return;
     }
 
@@ -341,7 +341,7 @@ const ProfileSetup = () => {
     try {
       // Check for profanity in bio
       if (formData.bio && containsProfanity(formData.bio)) {
-        toast.error("Your bio contains inappropriate language. Please revise it.");
+        toast.error(t("profileSetup.inappropriateBio"));
         setLoading(false);
         return;
       }
@@ -390,7 +390,7 @@ const ProfileSetup = () => {
 
       if (error) throw error;
 
-      toast.success("Profile created successfully!");
+      toast.success(t("profileSetup.profileCreated"));
       navigate("/discover");
     } catch (error) {
       toast.error((error as Error).message || "Failed to create profile");
@@ -446,7 +446,7 @@ const ProfileSetup = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleProfilePhotoUpload}
-                  aria-label="Upload profile photo"
+                  aria-label={t("profileSetup.uploadPhoto")}
                   className="hidden"
                 />
                 <Button
@@ -521,7 +521,7 @@ const ProfileSetup = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleSelfieUpload}
-                  aria-label="Upload verification selfie"
+                  aria-label={t("profileSetup.uploadSelfie")}
                   className="hidden"
                 />
                 <Button
@@ -578,7 +578,7 @@ const ProfileSetup = () => {
                 required
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
+                  <SelectValue placeholder={t("profileSetup.genderPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="male">{t("profileSetup.male")}</SelectItem>
@@ -596,7 +596,7 @@ const ProfileSetup = () => {
                 required
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select who you want to search" />
+                  <SelectValue placeholder={t("profileSetup.searchingForPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="male">{t("profileSetup.men")}</SelectItem>
@@ -613,7 +613,7 @@ const ProfileSetup = () => {
               <Label htmlFor="city">{t("profileSetup.cityLabel")}</Label>
               <Input
                 id="city"
-                placeholder="e.g., Pristina, Tirana"
+                placeholder={t("profileSetup.cityHint")}
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 required
@@ -623,7 +623,7 @@ const ProfileSetup = () => {
               <Label htmlFor="country">{t("profileSetup.countryLabel")}</Label>
               <Input
                 id="country"
-                placeholder="e.g., Kosovo, Albania"
+                placeholder={t("profileSetup.countryHint")}
                 value={formData.country}
                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 required
@@ -659,7 +659,7 @@ const ProfileSetup = () => {
                 onValueChange={(value) => setFormData({ ...formData, zodiac_sign: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select zodiac sign" />
+                  <SelectValue placeholder={t("profileSetup.zodiacPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {zodiacSigns.map((sign) => (
@@ -678,7 +678,7 @@ const ProfileSetup = () => {
                 onValueChange={(value) => setFormData({ ...formData, religion: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select religion" />
+                  <SelectValue placeholder={t("profileSetup.religionPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {religions.map((religion) => (
@@ -696,7 +696,7 @@ const ProfileSetup = () => {
             <Label htmlFor="bio">{t("profileSetup.bioLabel")}</Label>
             <Textarea
               id="bio"
-              placeholder="Tell us about yourself..."
+              placeholder={t("profileSetup.bioPlaceholder")}
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               rows={4}
@@ -708,7 +708,7 @@ const ProfileSetup = () => {
             <Label htmlFor="interests">{t("profileSetup.interestsLabel")}</Label>
             <Input
               id="interests"
-              placeholder="Travel, Cooking, Music, Valle, Reading..."
+              placeholder={t("profileSetup.interestsHint")}
               value={formData.interests}
               onChange={(e) => setFormData({ ...formData, interests: e.target.value })}
             />

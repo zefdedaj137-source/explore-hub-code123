@@ -417,7 +417,7 @@ const EditProfile = () => {
       if (error) {
         if (error.code === "PGRST116") {
           // Profile doesn't exist, show message and redirect to setup
-          toast.error("No profile found. Please complete your profile setup first.");
+          toast.error(t("editProfile.noProfile"));
           navigate("/profile-setup");
           return;
         }
@@ -501,7 +501,7 @@ const EditProfile = () => {
         }
       } else {
         // No profile data, redirect to setup
-        toast.error("Profile not found. Redirecting to setup...");
+        toast.error(t("editProfile.profileNotFound"));
         navigate("/profile-setup");
       }
     } catch (error) {
@@ -510,17 +510,17 @@ const EditProfile = () => {
 
       // More specific error messages
       if (errorMessage.includes("JWT")) {
-        toast.error("Session expired. Please log in again.");
+        toast.error(t("editProfile.sessionExpired"));
         navigate("/auth");
       } else if (errorMessage.includes("permission")) {
-        toast.error("Permission denied. Please check your account status.");
+        toast.error(t("editProfile.permissionDenied"));
       } else {
-        toast.error(`Failed to load profile: ${errorMessage}`);
+        toast.error(t("editProfile.failedToLoad", { error: errorMessage }));
       }
     } finally {
       setLoading(false);
     }
-  }, [user, navigate]);
+  }, [user, navigate, t]);
   useEffect(() => {
     if (!user) {
       navigate("/auth");
@@ -539,7 +539,7 @@ const EditProfile = () => {
         { onConflict: "user_id,prompt" }
       );
     if (error) {
-      toast.error("Failed to save prompt");
+      toast.error(t("editProfile.failedSavePrompt"));
       return;
     }
     const updated = [
@@ -550,7 +550,7 @@ const EditProfile = () => {
     setNewPromptQuestion("");
     setNewPromptAnswer("");
     setEditingPromptIdx(null);
-    toast.success("Prompt saved!");
+    toast.success(t("editProfile.promptSaved"));
   };
 
   const deletePrompt = async (prompt: string) => {
@@ -743,7 +743,7 @@ const EditProfile = () => {
       toast.success(`${uploadedUrls.length} photo(s) uploaded successfully!`);
     } catch (error) {
       logger.error("Error uploading file:", error);
-      toast.error("Failed to upload photo");
+      toast.error(t("editProfile.failedUploadPhoto"));
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -789,10 +789,10 @@ const EditProfile = () => {
           : null
       );
 
-      toast.success("Photo deleted successfully!");
+      toast.success(t("editProfile.photoDeleted"));
     } catch (error) {
       logger.error("Error deleting photo:", error);
-      toast.error("Failed to delete photo");
+      toast.error(t("editProfile.failedDeletePhoto"));
     } finally {
       setUploading(false);
     }
@@ -818,21 +818,21 @@ const EditProfile = () => {
 
       setProfileImages(newImages);
       setProfileImage(newImages[0]);
-      toast.success("Photos reordered!");
+      toast.success(t("editProfile.photosReordered"));
     } catch (error) {
       logger.error("Error reordering photos:", error);
-      toast.error("Failed to reorder photos");
+      toast.error(t("editProfile.failedReorder"));
     }
   };
 
   const handleAutoDetectLocation = async () => {
     if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
+      toast.error(t("editProfile.geolocationNotSupported"));
       return;
     }
 
     setLoading(true);
-    toast.info("Detecting your location...");
+    toast.info(t("editProfile.detectingLocation"));
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -890,13 +890,13 @@ const EditProfile = () => {
               }
             }
 
-            toast.success(`Location detected: ${city}, ${country}`);
+            toast.success(t("editProfile.locationDetected", { city, country }));
           } else {
-            toast.error("Could not determine city from your location");
+            toast.error(t("editProfile.cannotDetermineCity"));
           }
         } catch (error) {
           logger.error("Error fetching location:", error);
-          toast.error("Failed to detect city. Please enter manually.");
+          toast.error(t("editProfile.failedDetectCity"));
         } finally {
           setLoading(false);
         }
@@ -907,16 +907,16 @@ const EditProfile = () => {
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            toast.error("Location permission denied. Please enable location access.");
+            toast.error(t("editProfile.locationPermissionDenied"));
             break;
           case error.POSITION_UNAVAILABLE:
-            toast.error("Location information unavailable.");
+            toast.error(t("editProfile.locationUnavailable"));
             break;
           case error.TIMEOUT:
-            toast.error("Location request timed out.");
+            toast.error(t("editProfile.locationTimeout"));
             break;
           default:
-            toast.error("Failed to get your location.");
+            toast.error(t("editProfile.failedLocation"));
         }
       },
       {
@@ -937,20 +937,20 @@ const EditProfile = () => {
       // Use formData state directly instead of FormData API
       // Check required fields first
       if (!formData.full_name || formData.full_name.trim().length < 2) {
-        toast.error("Please enter your full name (at least 2 characters)");
+        toast.error(t("editProfile.enterFullName"));
         setLoading(false);
         return;
       }
 
       if (!formData.age || isNaN(parseInt(formData.age))) {
-        toast.error("Please enter a valid age");
+        toast.error(t("editProfile.enterValidAge"));
         setLoading(false);
         return;
       }
 
       // Check for profanity in bio
       if (formData.bio && containsProfanity(formData.bio)) {
-        toast.error("Your bio contains inappropriate language. Please revise it.");
+        toast.error(t("editProfile.inappropriateBio"));
         setLoading(false);
         return;
       }
@@ -1017,7 +1017,7 @@ const EditProfile = () => {
         calculateProfileCompletion(updatedProfile as Profile);
       }
 
-      toast.success("Profile updated successfully!");
+      toast.success(t("editProfile.profileUpdated"));
       navigate("/discover");
     } catch (error) {
       toast.error((error as Error).message || "Failed to update profile");
@@ -1234,7 +1234,7 @@ const EditProfile = () => {
                         onValueChange={(value) => setFormData({ ...formData, gender: value })}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select sex" />
+                          <SelectValue placeholder={t("editProfile.selectSexPlaceholder")} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="female">{t("common.female")}</SelectItem>
@@ -1263,7 +1263,7 @@ const EditProfile = () => {
                         <Input
                           id="city"
                           name="city"
-                          placeholder="e.g., Pristina, Tirana"
+                          placeholder={t("editProfile.cityHint")}
                           value={formData.city}
                           onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                           required
@@ -1275,7 +1275,7 @@ const EditProfile = () => {
                         <Input
                           id="country"
                           name="country"
-                          placeholder="e.g., Kosovo, Albania"
+                          placeholder={t("editProfile.countryHint")}
                           value={formData.country}
                           onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                           required
@@ -1289,7 +1289,7 @@ const EditProfile = () => {
                         <Input
                           id="education"
                           name="education"
-                          placeholder="e.g., Bachelor's in Computer Science"
+                          placeholder={t("editProfile.educationHint")}
                           value={formData.education}
                           onChange={(e) => setFormData({ ...formData, education: e.target.value })}
                         />
@@ -1300,7 +1300,7 @@ const EditProfile = () => {
                         <Input
                           id="work"
                           name="work"
-                          placeholder="e.g., Software Engineer"
+                          placeholder={t("editProfile.jobHint")}
                           value={formData.work}
                           onChange={(e) => setFormData({ ...formData, work: e.target.value })}
                         />
@@ -1313,7 +1313,7 @@ const EditProfile = () => {
                         <Input
                           id="hometown"
                           name="hometown"
-                          placeholder="e.g., Pristina"
+                          placeholder={t("editProfile.currentCityHint")}
                           value={formData.hometown}
                           onChange={(e) => setFormData({ ...formData, hometown: e.target.value })}
                         />
@@ -1323,7 +1323,7 @@ const EditProfile = () => {
                         <Input
                           id="home_country"
                           name="home_country"
-                          placeholder="e.g., Kosovo"
+                          placeholder={t("editProfile.currentCountryHint")}
                           value={formData.home_country}
                           onChange={(e) =>
                             setFormData({ ...formData, home_country: e.target.value })
@@ -1357,7 +1357,7 @@ const EditProfile = () => {
                               <Input
                                 value={newPromptAnswer}
                                 onChange={(e) => setNewPromptAnswer(e.target.value)}
-                                placeholder="Your answer..."
+                                placeholder={t("editProfile.yourAnswerPlaceholder")}
                                 maxLength={200}
                               />
                               <Button
@@ -1405,7 +1405,7 @@ const EditProfile = () => {
                         <div className="space-y-2 border border-dashed border-border rounded-lg p-3">
                           <Select value={newPromptQuestion} onValueChange={setNewPromptQuestion}>
                             <SelectTrigger>
-                              <SelectValue placeholder="Choose a prompt..." />
+                              <SelectValue placeholder={t("editProfile.choosePromptPlaceholder")} />
                             </SelectTrigger>
                             <SelectContent>
                               {PROMPT_OPTIONS.filter(
@@ -1422,7 +1422,7 @@ const EditProfile = () => {
                               <Input
                                 value={newPromptAnswer}
                                 onChange={(e) => setNewPromptAnswer(e.target.value)}
-                                placeholder="Your answer..."
+                                placeholder={t("editProfile.yourAnswerPlaceholder")}
                                 maxLength={200}
                               />
                               <Button
@@ -1453,7 +1453,7 @@ const EditProfile = () => {
                           }}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="What are you looking for?" />
+                            <SelectValue placeholder={t("editProfile.lookingForPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             {LOOKING_FOR.map((option) => (
@@ -1504,12 +1504,12 @@ const EditProfile = () => {
                                 interests: [...formData.interests, value],
                               });
                             } else if (formData.interests.length >= 5) {
-                              toast.error("You can only select up to 5 interests");
+                              toast.error(t("editProfile.maxInterests"));
                             }
                           }}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Add interests..." />
+                            <SelectValue placeholder={t("editProfile.interestsPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent className="max-h-[300px]">
                             {INTERESTS.map((interest) => (
@@ -1563,7 +1563,7 @@ const EditProfile = () => {
                           }}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Add languages..." />
+                            <SelectValue placeholder={t("editProfile.languagesPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent className="max-h-[300px]">
                             {LANGUAGES.map((language) => (
@@ -1607,7 +1607,7 @@ const EditProfile = () => {
                         <Input
                           id="height_cm"
                           type="number"
-                          placeholder="e.g., 175"
+                          placeholder={t("editProfile.heightHint")}
                           value={formData.height_cm}
                           onChange={(e) => setFormData({ ...formData, height_cm: e.target.value })}
                         />
@@ -1620,7 +1620,7 @@ const EditProfile = () => {
                           onValueChange={(value) => setFormData({ ...formData, smoking: value })}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select smoking status" />
+                            <SelectValue placeholder={t("editProfile.smokingPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="non-smoker">{t("discover.nonSmoker")}</SelectItem>
@@ -1641,16 +1641,16 @@ const EditProfile = () => {
                           onValueChange={(value) => setFormData({ ...formData, pets: value })}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Do you have pets?" />
+                            <SelectValue placeholder={t("editProfile.petsPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="no-pets">{t("editProfile.noPets")}</SelectItem>
-                            <SelectItem value="have-dog">Have dog(s)</SelectItem>
-                            <SelectItem value="have-cat">Have cat(s)</SelectItem>
+                            <SelectItem value="have-dog">{t("editProfile.haveDogs")}</SelectItem>
+                            <SelectItem value="have-cat">{t("editProfile.haveCats")}</SelectItem>
                             <SelectItem value="have-other">
                               {t("editProfile.haveOtherPets")}
                             </SelectItem>
-                            <SelectItem value="love-pets">Love pets but don't have</SelectItem>
+                            <SelectItem value="love-pets">{t("editProfile.lovePetsNoHave")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -1664,7 +1664,7 @@ const EditProfile = () => {
                           }
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select zodiac sign" />
+                            <SelectValue placeholder={t("editProfile.zodiacPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             {[
@@ -1698,7 +1698,7 @@ const EditProfile = () => {
                           onValueChange={(value) => setFormData({ ...formData, religion: value })}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select religion" />
+                            <SelectValue placeholder={t("editProfile.religionPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             {[
@@ -1730,13 +1730,13 @@ const EditProfile = () => {
                           onValueChange={(value) => setFormData({ ...formData, has_kids: value })}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Do you have kids?" />
+                            <SelectValue placeholder={t("editProfile.kidsPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="no">No</SelectItem>
-                            <SelectItem value="yes-living-with-me">Yes, living with me</SelectItem>
+                            <SelectItem value="yes-living-with-me">{t("editProfile.yesLivingWithMe")}</SelectItem>
                             <SelectItem value="yes-not-living-with-me">
-                              Yes, not living with me
+                              {t("editProfile.yesNotLivingWithMe")}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -1750,7 +1750,7 @@ const EditProfile = () => {
                         onValueChange={(value) => setFormData({ ...formData, wants_kids: value })}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Do you want kids?" />
+                          <SelectValue placeholder={t("editProfile.wantKidsPlaceholder")} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="yes">Yes</SelectItem>
@@ -1779,7 +1779,7 @@ const EditProfile = () => {
                         <Link2 className="h-3.5 w-3.5" /> {t("editProfile.pasteLink")}
                       </Label>
                       <Input
-                        placeholder="https://youtube.com/watch?v=... or https://open.spotify.com/track/..."
+                        placeholder={t("editProfile.musicUrlHint")}
                         value={soundtrackUrl}
                         onChange={(e) => {
                           const url = e.target.value;
@@ -1805,7 +1805,7 @@ const EditProfile = () => {
                       )}
                       {soundtrackSource === "spotify" && (
                         <p className="text-sm text-green-500 font-medium flex items-center gap-1">
-                          Spotify detected
+                          {t("editProfile.spotifyDetected")}
                         </p>
                       )}
                       {soundtrackUrl && !soundtrackSource && soundtrackUrl.length > 10 && (
@@ -1819,7 +1819,7 @@ const EditProfile = () => {
                       <div className="space-y-2">
                         <Label>{t("editProfile.songTitle")}</Label>
                         <Input
-                          placeholder="Song title"
+                          placeholder={t("editProfile.songTitlePlaceholder")}
                           value={soundtrackTitle}
                           onChange={(e) => setSoundtrackTitle(e.target.value)}
                         />
@@ -1827,7 +1827,7 @@ const EditProfile = () => {
                       <div className="space-y-2">
                         <Label>{t("editProfile.artist")}</Label>
                         <Input
-                          placeholder="Artist"
+                          placeholder={t("editProfile.artistPlaceholder")}
                           value={soundtrackArtist}
                           onChange={(e) => setSoundtrackArtist(e.target.value)}
                         />
@@ -1838,7 +1838,7 @@ const EditProfile = () => {
                     {soundtrackEmbedId && soundtrackSource && (
                       <div className="space-y-2 border border-primary/20 rounded-lg p-3">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold">Preview</p>
+                          <p className="text-sm font-semibold">{t("editProfile.preview")}</p>
                           <button
                             type="button"
                             onClick={() => {
@@ -1849,7 +1849,7 @@ const EditProfile = () => {
                               setSoundtrackEmbedId(null);
                             }}
                             className="text-muted-foreground hover:text-destructive transition-colors"
-                            aria-label="Remove soundtrack"
+                            aria-label={t("editProfile.removeSoundtrack")}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -1919,7 +1919,7 @@ const EditProfile = () => {
             </DialogTitle>
             <div className="flex flex-wrap gap-2">
               {profile?.verified && (
-                <Badge className="bg-primary text-white border-none">Verified</Badge>
+                <Badge className="bg-primary text-white border-none">{t("common.verified")}</Badge>
               )}
               {isPremium && (
                 <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
@@ -1927,7 +1927,7 @@ const EditProfile = () => {
                 </Badge>
               )}
               {profile?.video_intro_url && (
-                <Badge className="bg-background/80 text-white border-none">Video Intro</Badge>
+                <Badge className="bg-background/80 text-white border-none">{t("common.videoIntroLabel")}</Badge>
               )}
               {profile?.mood_emoji && (
                 <Badge
@@ -1999,7 +1999,7 @@ const EditProfile = () => {
             {/* Video Intro */}
             {profile?.video_intro_url && (
               <div className="space-y-2">
-                <h4 className="text-sm font-semibold text-foreground">Video intro</h4>
+                <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
                 <div className="rounded-lg overflow-hidden border border-primary/20">
                   <video
                     src={profile.video_intro_url}

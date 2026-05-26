@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, ArrowLeft, MapPin, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 function formatRelativeTime(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -35,6 +36,7 @@ interface ViewedProfile {
 const RecentlyViewed = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<ViewedProfile[]>([]);
 
@@ -51,7 +53,7 @@ const RecentlyViewed = () => {
 
     if (error) {
       logger.error("Failed to load recently viewed", error);
-      toast.error("Failed to load recently viewed profiles.");
+      toast.error(t("recentlyViewed.failedLoad"));
       return;
     }
 
@@ -63,7 +65,7 @@ const RecentlyViewed = () => {
       }));
 
     setProfiles(mapped);
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     if (!user) {
@@ -83,13 +85,13 @@ const RecentlyViewed = () => {
             <div className="flex items-center gap-3">
               <Eye className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Recently Viewed</h1>
-                <p className="text-sm text-muted-foreground">Profiles you checked out</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("recentlyViewed.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("recentlyViewed.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
@@ -111,12 +113,12 @@ const RecentlyViewed = () => {
         ) : profiles.length === 0 ? (
           <Card className="p-10 text-center rounded-2xl border-2 border-border">
             <Eye className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <p className="font-medium text-foreground">No recently viewed profiles yet.</p>
+            <p className="font-medium text-foreground">{t("recentlyViewed.noRecentlyViewed")}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Browse some profiles in Discover to see them here.
+              {t("recentlyViewed.browseProfiles")}
             </p>
             <Button className="mt-5 rounded-full" onClick={() => navigate("/discover")}>
-              Go to Discover
+              {t("recentlyViewed.goToDiscover")}
             </Button>
           </Card>
         ) : (

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface SavedMatch {
   bookmark_id: string;
@@ -25,6 +26,7 @@ interface SavedMatch {
 const SavedProfiles = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [savedMatches, setSavedMatches] = useState<SavedMatch[]>([]);
 
@@ -85,11 +87,11 @@ const SavedProfiles = () => {
       setSavedMatches(results);
     } catch (err) {
       logger.error("Failed to load saved profiles", err);
-      toast.error("Failed to load saved profiles.");
+      toast.error(t("savedProfiles.failedLoad"));
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, t]);
 
   useEffect(() => {
     if (!user) {
@@ -103,11 +105,11 @@ const SavedProfiles = () => {
     const { error } = await supabase.from("bookmarked_matches").delete().eq("id", bookmarkId);
 
     if (error) {
-      toast.error("Failed to remove bookmark");
+      toast.error(t("savedProfiles.failedRemoveBookmark"));
       return;
     }
     setSavedMatches((prev) => prev.filter((s) => s.bookmark_id !== bookmarkId));
-    toast.success("Bookmark removed");
+    toast.success(t("savedProfiles.bookmarkRemoved"));
   };
 
   return (
@@ -118,22 +120,22 @@ const SavedProfiles = () => {
             <div className="flex items-center gap-3">
               <Bookmark className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Saved Profiles</h1>
-                <p className="text-sm text-muted-foreground">Your bookmarked matches</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("savedProfiles.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("savedProfiles.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
         ) : savedMatches.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border-2 border-border">
-            No saved profiles yet.
+            {t("savedProfiles.noSaved")}
           </Card>
         ) : (
           <div className="space-y-4">
@@ -160,14 +162,14 @@ const SavedProfiles = () => {
                   </div>
                   <div className="flex flex-col gap-2">
                     <Button size="sm" onClick={() => navigate(`/chat/${item.match_id}`)}>
-                      Open Chat
+                      {t("savedProfiles.openChat")}
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => removeSaved(item.bookmark_id)}
                     >
-                      Remove
+                      {t("savedProfiles.remove")}
                     </Button>
                   </div>
                 </div>

@@ -131,12 +131,12 @@ const Auth = () => {
     e.preventDefault();
 
     if (!email || !password) {
-      toast.error("Please fill in all fields");
+      toast.error(t("auth.fillAllFields"));
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t("auth.passwordMin"));
       return;
     }
 
@@ -153,7 +153,7 @@ const Auth = () => {
 
         if (data.user) {
           analytics.login("email");
-          toast.success("Welcome back!");
+          toast.success(t("auth.welcomeBackMsg"));
           // Navigation will be handled by useEffect based on profile status
         }
       } else {
@@ -196,13 +196,13 @@ const Auth = () => {
               logger.log("📧 Email confirmation required. Waiting for user to confirm email...");
 
             // Add a note about checking email
-            toast.info("💡 Tip: Check your spam folder if you don't see the confirmation email.", {
+            toast.info(t("auth.emailTip"), {
               duration: 8000,
             });
             return;
           }
 
-          toast.success("Account created! Please complete your profile.");
+          toast.success(t("auth.accountCreated"));
 
           // Listen for session to be ready before navigating
           const {
@@ -222,7 +222,7 @@ const Auth = () => {
           }, 5000);
         } else {
           if (import.meta.env.DEV) logger.log("⚠️ Sign up returned no user");
-          toast.error("Sign up completed but no user returned. Please try signing in.");
+          toast.error(t("auth.signupNoUser"));
         }
       }
     } catch (error) {
@@ -230,13 +230,13 @@ const Auth = () => {
       const errorMessage = (error as Error).message || "An error occurred";
 
       if (errorMessage.includes("email") && errorMessage.includes("already")) {
-        toast.error("This email is already registered. Please try signing in instead.");
+        toast.error(t("auth.emailRegistered"));
       } else if (errorMessage.includes("rate limit")) {
-        toast.error("Too many attempts. Please wait a moment and try again.");
+        toast.error(t("auth.tooManyAttempts"));
       } else if (errorMessage.includes("invalid") && errorMessage.includes("email")) {
-        toast.error("Please enter a valid email address.");
+        toast.error(t("auth.invalidEmail"));
       } else {
-        toast.error(`Sign up failed: ${errorMessage}`);
+        toast.error(t("auth.signupFailed", { error: errorMessage }));
       }
     } finally {
       setLoading(false);
@@ -247,7 +247,7 @@ const Auth = () => {
     e.preventDefault();
 
     if (!email) {
-      toast.error("Please enter your email address");
+      toast.error(t("auth.enterEmail"));
       return;
     }
 
@@ -260,7 +260,7 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast.success("Password reset link sent! Check your email.");
+      toast.success(t("auth.resetLinkSent"));
       setIsForgotPassword(false);
     } catch (error) {
       logger.error("Forgot password error:", error);
@@ -275,7 +275,7 @@ const Auth = () => {
     e.preventDefault();
 
     if (!phoneNumber) {
-      toast.error("Please enter a phone number");
+      toast.error(t("auth.enterPhone"));
       return;
     }
 
@@ -296,14 +296,14 @@ const Auth = () => {
       }
 
       setOtpSent(true);
-      toast.success("OTP sent to your phone!");
+      toast.success(t("auth.otpSentPhone"));
     } catch (error) {
       const errorMsg = (error as Error).message || "Failed to send OTP";
       toast.error(errorMsg);
 
       // Show additional helpful message
       if (errorMsg.includes("SMS") || errorMsg.includes("phone")) {
-        toast.error("Please verify Twilio is configured correctly in backend settings");
+        toast.error(t("auth.twilioError"));
       }
     } finally {
       setLoading(false);
@@ -314,7 +314,7 @@ const Auth = () => {
     e.preventDefault();
 
     if (!otpCode || otpCode.length !== 6) {
-      toast.error("Please enter the 6-digit OTP code");
+      toast.error(t("auth.enterOtpCode"));
       return;
     }
 
@@ -338,7 +338,7 @@ const Auth = () => {
           .maybeSingle();
 
         if (!profile) {
-          toast.success("Account created! Please complete your profile.");
+          toast.success(t("auth.accountCreated"));
           // Send welcome SMS for new phone users (fire-and-forget)
           supabase.functions
             .invoke("send-welcome", {
@@ -346,7 +346,7 @@ const Auth = () => {
             })
             .catch((err) => logger.error("Welcome SMS failed:", err));
         } else {
-          toast.success("Welcome back!");
+          toast.success(t("auth.welcomeBackMsg"));
         }
         // Navigation will be handled by useEffect based on profile status
       }
@@ -430,7 +430,7 @@ const Auth = () => {
         }
       }
 
-      toast.error("Could not start Apple sign-in. Please verify Apple provider setup in Supabase.");
+      toast.error(t("auth.appleSignInError"));
     } catch (error) {
       toast.error((error as Error).message || "Failed to sign in with Apple");
     } finally {
@@ -504,7 +504,7 @@ const Auth = () => {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder={t("auth.emailPlaceholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       autoComplete="email"
@@ -512,7 +512,7 @@ const Auth = () => {
                       className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
                     />
                     <p className="text-xs dark:text-white/35 text-muted-foreground">
-                      Enter your email and we'll send you a reset link
+                      {t("auth.resetLinkDesc")}
                     </p>
                   </div>
                   <Button
@@ -544,7 +544,7 @@ const Auth = () => {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder={t("auth.emailPlaceholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       autoComplete="email"
@@ -611,7 +611,7 @@ const Auth = () => {
                       value={phoneNumber}
                       onChange={(value) => setPhoneNumber(value || "")}
                       className="phone-input"
-                      placeholder="Enter phone number"
+                      placeholder={t("auth.phonePlaceholder")}
                     />
                   </div>
                   <Button

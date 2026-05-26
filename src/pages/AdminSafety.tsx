@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
+import { useTranslation } from "react-i18next";
 
 interface ReportRow {
   id: string;
@@ -39,6 +40,7 @@ interface VerificationRequestRow {
 const AdminSafety = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isAdmin, setIsAdmin] = useState(false);
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [requests, setRequests] = useState<DataRequestRow[]>([]);
@@ -125,7 +127,7 @@ const AdminSafety = () => {
   if (!isAdmin) {
     return (
       <div className="min-h-dvh flex items-center justify-center">
-        <Card className="p-8 text-center">Access denied.</Card>
+        <Card className="p-8 text-center">{t("adminSafety.accessDenied")}</Card>
       </div>
     );
   }
@@ -138,12 +140,12 @@ const AdminSafety = () => {
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Admin Safety Console</h1>
-                <p className="text-sm text-muted-foreground">Review reports and data requests</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("adminSafety.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("adminSafety.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
-              Back
+              {t("adminSafety.back")}
             </Button>
           </div>
         </div>
@@ -151,7 +153,7 @@ const AdminSafety = () => {
         <div className="space-y-6">
           <Card className="p-4 rounded-2xl border-2 border-border bg-card/80">
             <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" /> Reports
+              <ShieldCheck className="h-5 w-5 text-primary" /> {t("adminSafety.reportsTitle")}
             </h2>
             <div className="space-y-3">
               {reports.map((r) => (
@@ -163,7 +165,7 @@ const AdminSafety = () => {
                     <div>
                       <div className="font-semibold">{r.reason}</div>
                       <div className="text-xs text-muted-foreground">
-                        Reporter: {r.reporter_id} · Reported: {r.reported_id}
+                        {t("adminSafety.reporter")}: {r.reporter_id} · {t("adminSafety.reported")}: {r.reported_id}
                       </div>
                     </div>
                     <Badge className="bg-primary text-white border-none">{r.status}</Badge>
@@ -175,10 +177,10 @@ const AdminSafety = () => {
                       variant="outline"
                       onClick={() => updateReportStatus(r.id, "reviewed")}
                     >
-                      Mark Reviewed
+                      {t("adminSafety.markReviewed")}
                     </Button>
                     <Button size="sm" onClick={() => updateReportStatus(r.id, "closed")}>
-                      Close
+                      {t("adminSafety.close")}
                     </Button>
                   </div>
                 </div>
@@ -188,7 +190,7 @@ const AdminSafety = () => {
 
           <Card className="p-4 rounded-2xl border-2 border-border bg-card/80">
             <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" /> Data Requests
+              <FileText className="h-5 w-5 text-primary" /> {t("adminSafety.dataRequestsTitle")}
             </h2>
             <div className="space-y-3">
               {requests.map((r) => (
@@ -199,7 +201,7 @@ const AdminSafety = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold">{r.request_type.toUpperCase()}</div>
-                      <div className="text-xs text-muted-foreground">User: {r.user_id}</div>
+                      <div className="text-xs text-muted-foreground">{t("adminSafety.user")}: {r.user_id}</div>
                     </div>
                     <Badge className="bg-primary text-white border-none">{r.status}</Badge>
                   </div>
@@ -209,10 +211,10 @@ const AdminSafety = () => {
                       variant="outline"
                       onClick={() => updateRequestStatus(r.id, "processing")}
                     >
-                      Processing
+                      {t("adminSafety.processing")}
                     </Button>
                     <Button size="sm" onClick={() => updateRequestStatus(r.id, "completed")}>
-                      Complete
+                      {t("adminSafety.complete")}
                     </Button>
                   </div>
                 </div>
@@ -222,7 +224,7 @@ const AdminSafety = () => {
 
           <Card className="p-4 rounded-2xl border-2 border-border bg-card/80">
             <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" /> Verification Requests
+              <ShieldCheck className="h-5 w-5 text-primary" /> {t("adminSafety.verificationTitle")}
             </h2>
             <div className="space-y-3">
               {verificationRequests.map((v) => (
@@ -232,9 +234,9 @@ const AdminSafety = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold">User: {v.user_id}</div>
+                      <div className="font-semibold">{t("adminSafety.user")}: {v.user_id}</div>
                       <div className="text-xs text-muted-foreground">
-                        Submitted: {new Date(v.created_at).toLocaleString()}
+                        {t("adminSafety.submitted")}: {new Date(v.created_at).toLocaleString()}
                       </div>
                     </div>
                     <Badge
@@ -257,7 +259,7 @@ const AdminSafety = () => {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        View Selfie
+                        {t("adminSafety.viewSelfie")}
                       </a>
                     )}
                     {v.id_url && (
@@ -267,7 +269,7 @@ const AdminSafety = () => {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        View ID
+                        {t("adminSafety.viewId")}
                       </a>
                     )}
                   </div>
@@ -279,14 +281,14 @@ const AdminSafety = () => {
                         className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={() => updateVerificationStatus(v.id, v.user_id, "approved")}
                       >
-                        Approve
+                        {t("adminSafety.approve")}
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
                         onClick={() => updateVerificationStatus(v.id, v.user_id, "rejected")}
                       >
-                        Reject
+                        {t("adminSafety.reject")}
                       </Button>
                     </div>
                   )}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const POSES = [
   { instruction: "Look straight at the camera and smile 😊", icon: "😊" },
@@ -17,6 +18,7 @@ const POSES = [
 const PhotoVerificationSelfie = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -36,7 +38,7 @@ const PhotoVerificationSelfie = () => {
       setStream(mediaStream);
       setCameraActive(true);
     } catch {
-      toast.error("Camera access denied");
+      toast.error(t("photoVerification.cameraAccessDenied"));
     }
   };
 
@@ -80,7 +82,7 @@ const PhotoVerificationSelfie = () => {
       })
     );
     setSubmitted(true);
-    toast.success("Verification submitted! ✅");
+    toast.success(t("photoVerification.verificationSubmitted"));
   };
 
   return (
@@ -90,25 +92,25 @@ const PhotoVerificationSelfie = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <ShieldCheck className="h-5 w-5 text-primary" />
-        <h1 className="text-lg font-bold">Photo Verification</h1>
+        <h1 className="text-lg font-bold">{t("photoVerification.title")}</h1>
       </div>
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
         {submitted ? (
           <Card className="p-8 text-center bg-gradient-to-br from-green-100 to-emerald-100">
             <CheckCircle className="h-20 w-20 mx-auto text-green-500 mb-4" />
-            <h2 className="text-xl font-bold">Verification Submitted!</h2>
+            <h2 className="text-xl font-bold">{t("photoVerification.submittedTitle")}</h2>
             <p className="text-muted-foreground mt-2">
-              We'll review your photos and update your badge within 24 hours.
+              {t("photoVerification.submittedDesc")}
             </p>
             <Button variant="outline" className="mt-4" onClick={reset}>
-              <RotateCcw className="h-4 w-4 mr-2" /> Retake
+              <RotateCcw className="h-4 w-4 mr-2" /> {t("photoVerification.retake")}
             </Button>
           </Card>
         ) : photos.length >= POSES.length ? (
           <div className="space-y-4">
             <Card className="p-4 text-center">
-              <h2 className="font-semibold text-lg mb-3">Review your photos</h2>
+              <h2 className="font-semibold text-lg mb-3">{t("photoVerification.reviewPhotos")}</h2>
               <div className="grid grid-cols-2 gap-3">
                 {photos.map((p, i) => (
                   <img
@@ -125,7 +127,7 @@ const PhotoVerificationSelfie = () => {
                 onClick={submit}
                 className="flex-1 bg-green-500 hover:bg-green-600 text-white"
               >
-                Submit for Verification ✅
+                {t("photoVerification.submitVerification")}
               </Button>
               <Button variant="outline" onClick={reset}>
                 <RotateCcw className="h-4 w-4" />
@@ -135,12 +137,12 @@ const PhotoVerificationSelfie = () => {
         ) : !cameraActive ? (
           <Card className="p-6 text-center">
             <Camera className="h-16 w-16 mx-auto text-primary/80 mb-4" />
-            <h2 className="text-xl font-bold mb-2">Selfie Pose Challenge</h2>
+            <h2 className="text-xl font-bold mb-2">{t("photoVerification.selfiePoseChallenge")}</h2>
             <p className="text-muted-foreground mb-4">
-              Take {POSES.length} selfies matching the poses to verify your identity.
+              {t("photoVerification.takeSelfiePoses", { count: POSES.length })}
             </p>
             <Button onClick={startCamera} className="bg-primary hover:bg-primary text-white">
-              <Camera className="h-4 w-4 mr-2" /> Start Camera
+              <Camera className="h-4 w-4 mr-2" /> {t("photoVerification.startCamera")}
             </Button>
           </Card>
         ) : (
@@ -149,7 +151,7 @@ const PhotoVerificationSelfie = () => {
               <p className="text-4xl mb-2">{POSES[currentPose].icon}</p>
               <p className="font-semibold">{POSES[currentPose].instruction}</p>
               <p className="text-sm text-muted-foreground">
-                Photo {currentPose + 1} of {POSES.length}
+                {t("photoVerification.photoOf", { current: currentPose + 1, total: POSES.length })}
               </p>
             </Card>
             <div className="relative rounded-xl overflow-hidden">
@@ -163,7 +165,7 @@ const PhotoVerificationSelfie = () => {
             </div>
             <canvas ref={canvasRef} className="hidden" />
             <Button onClick={takePhoto} className="w-full bg-primary hover:bg-primary text-white">
-              <Camera className="h-4 w-4 mr-2" /> Capture {POSES[currentPose].icon}
+              <Camera className="h-4 w-4 mr-2" /> {t("photoVerification.capture")} {POSES[currentPose].icon}
             </Button>
           </div>
         )}

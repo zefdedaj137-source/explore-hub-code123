@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 type SoundtrackSource = "youtube" | "spotify" | null;
 
@@ -41,6 +42,7 @@ const detectSource = (url: string): { source: SoundtrackSource; embedId: string 
 const ProfileSoundtrack = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [songTitle, setSongTitle] = useState("");
   const [songArtist, setSongArtist] = useState("");
   const [songUrl, setSongUrl] = useState("");
@@ -89,7 +91,7 @@ const ProfileSoundtrack = () => {
   const save = async () => {
     if (!user) return;
     if (songUrl && !source) {
-      toast.error("Please paste a valid YouTube or Spotify link");
+      toast.error(t("profileSoundtrack.invalidLink"));
       return;
     }
 
@@ -106,10 +108,10 @@ const ProfileSoundtrack = () => {
         .eq("id", user.id);
 
       if (error) throw error;
-      toast.success("Soundtrack saved!");
+      toast.success(t("profileSoundtrack.saved"));
     } catch (err) {
       logger.error("Error saving soundtrack:", err);
-      toast.error("Failed to save soundtrack");
+      toast.error(t("profileSoundtrack.failedSave"));
     } finally {
       setSaving(false);
     }
@@ -134,10 +136,10 @@ const ProfileSoundtrack = () => {
       setSongUrl("");
       setSource(null);
       setEmbedId(null);
-      toast.success("Soundtrack removed");
+      toast.success(t("profileSoundtrack.removed"));
     } catch (err) {
       logger.error(err);
-      toast.error("Failed to remove");
+      toast.error(t("profileSoundtrack.failedRemove"));
     } finally {
       setSaving(false);
     }
@@ -158,26 +160,26 @@ const ProfileSoundtrack = () => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Music2 className="h-5 w-5 text-primary" />
-        <h1 className="text-lg font-bold">Profile Soundtrack</h1>
+        <h1 className="text-lg font-bold">{t("profileSoundtrack.title")}</h1>
       </div>
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
         {/* Header card */}
         <Card className="p-5 bg-gradient-to-br from-primary/15 to-primary/5 text-center border-primary/20">
           <Music2 className="h-12 w-12 mx-auto text-primary mb-2" />
-          <h2 className="font-bold text-lg">Your Theme Song</h2>
+          <h2 className="font-bold text-lg">{t("profileSoundtrack.yourThemeSong")}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Add a YouTube or Spotify track to your profile
+            {t("profileSoundtrack.addTrackDesc")}
           </p>
         </Card>
 
         {/* Paste Link */}
         <Card className="p-4 space-y-4">
           <h2 className="font-semibold flex items-center gap-2">
-            <Link2 className="h-4 w-4 text-primary" /> Paste a Link
+            <Link2 className="h-4 w-4 text-primary" /> {t("profileSoundtrack.pasteLink")}
           </h2>
           <Input
-            placeholder="https://youtube.com/watch?v=... or https://open.spotify.com/track/..."
+            placeholder={t("profileSoundtrack.musicUrlHint")}
             value={songUrl}
             onChange={(e) => handleUrlChange(e.target.value)}
           />
@@ -212,14 +214,14 @@ const ProfileSoundtrack = () => {
 
         {/* Song Details */}
         <Card className="p-4 space-y-4">
-          <h2 className="font-semibold">Song Details (optional)</h2>
+          <h2 className="font-semibold">{t("profileSoundtrack.songDetails")}</h2>
           <Input
-            placeholder="Song title"
+            placeholder={t("profileSoundtrack.songTitle")}
             value={songTitle}
             onChange={(e) => setSongTitle(e.target.value)}
           />
           <Input
-            placeholder="Artist"
+            placeholder={t("profileSoundtrack.artist")}
             value={songArtist}
             onChange={(e) => setSongArtist(e.target.value)}
           />
@@ -257,13 +259,13 @@ const ProfileSoundtrack = () => {
             {(songTitle || songArtist) && (
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-sm">{songTitle || "Untitled"}</p>
+                  <p className="font-semibold text-sm">{songTitle || t("profileSoundtrack.untitled")}</p>
                   <p className="text-xs text-muted-foreground">{songArtist || ""}</p>
                 </div>
                 <button
                   onClick={removeSoundtrack}
                   className="text-muted-foreground hover:text-destructive transition-colors"
-                  aria-label="Remove soundtrack"
+                  aria-label={t("profileSoundtrack.removeSoundtrack")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -279,14 +281,14 @@ const ProfileSoundtrack = () => {
               <div className="flex items-center gap-3">
                 <Music2 className="h-8 w-8 text-primary" />
                 <div>
-                  <p className="font-semibold text-sm">{songTitle || "Untitled"}</p>
+                  <p className="font-semibold text-sm">{songTitle || t("profileSoundtrack.untitled")}</p>
                   <p className="text-xs text-muted-foreground">{songArtist || source}</p>
                 </div>
               </div>
               <button
                 onClick={removeSoundtrack}
                 className="text-muted-foreground hover:text-destructive transition-colors"
-                aria-label="Remove soundtrack"
+                aria-label={t("profileSoundtrack.removeSoundtrack")}
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -299,7 +301,7 @@ const ProfileSoundtrack = () => {
           disabled={saving}
           className="w-full bg-gradient-to-r from-primary to-[hsl(15,100%,60%)] hover:brightness-110 text-white rounded-full h-12 text-base font-semibold"
         >
-          {saving ? "Saving..." : "Save Soundtrack 🎶"}
+          {saving ? t("common.saving") : t("profileSoundtrack.save")}
         </Button>
       </div>
       <BottomNav />

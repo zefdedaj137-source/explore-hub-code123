@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface EventRow {
   id: string;
@@ -41,6 +42,7 @@ const hashToIndex = (value: string) => {
 const EventsMap = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [rsvpStatus, setRsvpStatus] = useState<Record<string, string>>({});
@@ -61,11 +63,10 @@ const EventsMap = () => {
     loadEvents()
       .catch((error) => {
         logger.error("Events map load error", error);
-        toast.error("Failed to load events.");
+        toast.error(t("eventsMap.failedLoadEvents"));
       })
       .finally(() => setLoading(false));
-  }, [loadEvents]);
-
+  }, [loadEvents, t]);
   useEffect(() => {
     if (!user || events.length === 0) return;
     const loadRsvps = async () => {
@@ -98,11 +99,11 @@ const EventsMap = () => {
       .upsert({ event_id: eventId, user_id: user.id, status });
     if (error) {
       logger.error("RSVP update error", error);
-      toast.error("Failed to update RSVP.");
+      toast.error(t("eventsMap.failedRsvp"));
       return;
     }
     setRsvpStatus((prev) => ({ ...prev, [eventId]: status }));
-    toast.success("RSVP updated.");
+    toast.success(t("eventsMap.rsvpUpdated"));
   };
 
   const handleCheckIn = async (eventId: string, file: File) => {
@@ -128,10 +129,10 @@ const EventsMap = () => {
       });
       if (insertError) throw insertError;
 
-      toast.success("Check-in posted.");
+      toast.success(t("eventsMap.checkInPosted"));
     } catch (error) {
       logger.error("Check-in failed", error);
-      toast.error("Failed to post check-in.");
+      toast.error(t("eventsMap.checkInFailed"));
     } finally {
       setCheckingInId(null);
     }
@@ -154,13 +155,13 @@ const EventsMap = () => {
             <div className="flex items-center gap-3">
               <MapPin className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Events Map</h1>
-                <p className="text-sm text-muted-foreground">See upcoming meetups at a glance</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("eventsMap.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("eventsMap.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("eventsMap.back")}
             </Button>
           </div>
         </div>
@@ -168,22 +169,22 @@ const EventsMap = () => {
         <Card className="p-6 rounded-2xl border-2 border-border bg-card/80">
           <div className="relative w-full aspect-square rounded-2xl bg-gradient-to-br from-muted to-muted border border-border overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-              Map preview (pin positions are illustrative)
+              {t("eventsMap.mapPreview")}
             </div>
             {mapPins.map((pin) => (
               <button
                 key={pin.id}
                 className={`absolute w-4 h-4 rounded-full bg-primary shadow-lg border-2 border-card ${pin.positionClass}`}
-                aria-label="Event pin"
+                aria-label={t("eventsMap.eventPin")}
               />
             ))}
           </div>
         </Card>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("eventsMap.loading")}</Card>
         ) : events.length === 0 ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">No events yet.</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("eventsMap.noEvents")}</Card>
         ) : (
           <div className="space-y-4">
             {events.map((event) => (
@@ -207,21 +208,21 @@ const EventsMap = () => {
                         variant={rsvpStatus[event.id] === "going" ? "default" : "outline"}
                         onClick={() => handleRsvp(event.id, "going")}
                       >
-                        Going
+                        {t("eventsMap.going")}
                       </Button>
                       <Button
                         size="sm"
                         variant={rsvpStatus[event.id] === "interested" ? "default" : "outline"}
                         onClick={() => handleRsvp(event.id, "interested")}
                       >
-                        Interested
+                        {t("eventsMap.interested")}
                       </Button>
                       <Button
                         size="sm"
                         variant={rsvpStatus[event.id] === "not_going" ? "default" : "outline"}
                         onClick={() => handleRsvp(event.id, "not_going")}
                       >
-                        Not going
+                        {t("eventsMap.notGoing")}
                       </Button>
                     </div>
                     <div className="mt-3">
@@ -237,14 +238,14 @@ const EventsMap = () => {
                       />
                       <p className="text-xs text-muted-foreground mt-1">
                         {checkingInId === event.id
-                          ? "Uploading check-in..."
-                          : "Upload a check-in photo"}
+                          ? t("eventsMap.uploadingCheckIn")
+                          : t("eventsMap.uploadCheckIn")}
                       </p>
                     </div>
                   </div>
                   {event.capacity && (
                     <span className="text-xs uppercase text-primary">
-                      Capacity {event.capacity}
+                    {t("eventsMap.capacity", { n: event.capacity })}
                     </span>
                   )}
                 </div>
@@ -255,7 +256,7 @@ const EventsMap = () => {
 
         <Button variant="outline" className="w-full" onClick={() => navigate("/events")}>
           <CalendarDays className="h-4 w-4 mr-2" />
-          Back to Events
+          {t("eventsMap.backToEvents")}
         </Button>
       </div>
       <BottomNav />

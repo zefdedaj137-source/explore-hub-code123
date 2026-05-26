@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import BottomNav from "@/components/BottomNav";
+import { useTranslation } from "react-i18next";
 
 interface SettingsSectionProps {
   icon: React.ElementType;
@@ -44,6 +45,7 @@ const SettingsSection = ({ icon: Icon, title, description, onClick }: SettingsSe
 
 const Features = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     dating: true,
     extras: true,
@@ -64,7 +66,7 @@ const Features = () => {
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-xl font-bold">Features</h1>
+          <h1 className="text-xl font-bold">{t("featuresPage.title")}</h1>
         </div>
 
         {/* Dating */}
@@ -75,7 +77,7 @@ const Features = () => {
           >
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Dating
+              {t("featuresPage.dating")}
               <ChevronDown
                 className={`h-4 w-4 ml-auto transition-transform ${expandedSections.dating ? "rotate-180" : ""}`}
               />
@@ -85,15 +87,15 @@ const Features = () => {
             <CardContent className="space-y-2">
               <SettingsSection
                 icon={Calendar}
-                title="Plan a Date"
-                description="Schedule meetups with matches"
+                title={t("featuresPage.planDate")}
+                description={t("featuresPage.planDateDesc")}
                 onClick={() => navigate("/date-planner")}
               />
 
               <SettingsSection
                 icon={Ghost}
-                title="Ghost Alerts"
-                description="Nudge matches who haven't replied"
+                title={t("featuresPage.ghostAlerts")}
+                description={t("featuresPage.ghostAlertsDesc")}
                 onClick={() => navigate("/ghost-alerts")}
               />
             </CardContent>
@@ -108,7 +110,7 @@ const Features = () => {
           >
             <CardTitle className="text-lg flex items-center gap-2">
               <Star className="h-5 w-5" />
-              Profile & Extras
+              {t("featuresPage.profileExtras")}
               <ChevronDown
                 className={`h-4 w-4 ml-auto transition-transform ${expandedSections.extras ? "rotate-180" : ""}`}
               />
@@ -118,32 +120,32 @@ const Features = () => {
             <CardContent className="space-y-2">
               <SettingsSection
                 icon={Video}
-                title="Video Intro"
-                description="Add a short intro video"
+                title={t("featuresPage.videoIntro")}
+                description={t("featuresPage.videoIntroDesc")}
                 onClick={() => navigate("/video-intro")}
               />
               <SettingsSection
                 icon={Camera}
-                title="Photo Verification Selfie"
-                description="Selfie pose challenge to verify"
+                title={t("featuresPage.photoVerification")}
+                description={t("featuresPage.photoVerificationDesc")}
                 onClick={() => navigate("/photo-verification")}
               />
               <SettingsSection
                 icon={Music2}
-                title="Profile Soundtrack"
-                description="Attach a song to your profile"
+                title={t("featuresPage.profileSoundtrack")}
+                description={t("featuresPage.profileSoundtrackDesc")}
                 onClick={() => navigate("/profile-soundtrack")}
               />
               <SettingsSection
                 icon={Smile}
-                title="Daily Mood"
-                description="Set your mood emoji & status"
+                title={t("featuresPage.dailyMood")}
+                description={t("featuresPage.dailyMoodDesc")}
                 onClick={() => navigate("/mood-status")}
               />
               <SettingsSection
                 icon={Music}
-                title="Music Taste"
-                description="Share your top artists & genres"
+                title={t("featuresPage.musicTaste")}
+                description={t("featuresPage.musicTasteDesc")}
                 onClick={() => navigate("/music-taste")}
               />
             </CardContent>
@@ -158,7 +160,7 @@ const Features = () => {
           >
             <CardTitle className="text-lg flex items-center gap-2">
               <Zap className="h-5 w-5" />
-              Rewards & Boosts
+              {t("featuresPage.rewardsBoosts")}
               <ChevronDown
                 className={`h-4 w-4 ml-auto transition-transform ${expandedSections.rewards ? "rotate-180" : ""}`}
               />
@@ -168,20 +170,20 @@ const Features = () => {
             <CardContent className="space-y-2">
               <SettingsSection
                 icon={CalendarCheck}
-                title="Daily Rewards"
-                description="Claim free coins every day"
+                title={t("featuresPage.dailyRewards")}
+                description={t("featuresPage.dailyRewardsDesc")}
                 onClick={() => navigate("/rewards")}
               />
               <SettingsSection
                 icon={Zap}
-                title="Limited-Time Boosts"
-                description="Discounted boost bundles"
+                title={t("featuresPage.limitedBoosts")}
+                description={t("featuresPage.limitedBoostsDesc")}
                 onClick={() => navigate("/boost-bundles")}
               />
               <SettingsSection
                 icon={Share2}
-                title="Invite Friends"
-                description="Share your invite code"
+                title={t("featuresPage.inviteFriends")}
+                description={t("featuresPage.inviteFriendsDesc")}
                 onClick={() => navigate("/invite")}
               />
             </CardContent>

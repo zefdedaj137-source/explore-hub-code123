@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Activity, ArrowLeft, Eye, Heart, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface ViewerProfile {
   id: string;
@@ -23,6 +24,7 @@ interface ViewerProfile {
 const ProfileInsights = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [totalViews, setTotalViews] = useState(0);
   const [views7d, setViews7d] = useState(0);
@@ -113,9 +115,9 @@ const ProfileInsights = () => {
       setRecentlyViewed(mappedViewed);
     } catch (error) {
       logger.error("Failed to load insights", error);
-      toast.error("Failed to load insights.");
+      toast.error(t("profileInsights.failedLoad"));
     }
-  }, [user, sinceDate]);
+  }, [user, sinceDate, t]);
 
   useEffect(() => {
     if (!user) {
@@ -135,56 +137,56 @@ const ProfileInsights = () => {
             <div className="flex items-center gap-3">
               <Activity className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Profile Insights</h1>
-                <p className="text-sm text-muted-foreground">Your activity snapshot</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("profileInsights.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("profileInsights.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4">
               <Card className="p-4 rounded-2xl border-2 border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Eye className="h-4 w-4" />
-                  Total views
+                  {t("profileInsights.totalViews")}
                 </div>
                 <div className="text-3xl font-bold mt-2 text-foreground">{totalViews}</div>
               </Card>
               <Card className="p-4 rounded-2xl border-2 border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Eye className="h-4 w-4" />
-                  Views (7d)
+                  {t("profileInsights.viewsSevenDays")}
                 </div>
                 <div className="text-3xl font-bold mt-2 text-foreground">{views7d}</div>
               </Card>
               <Card className="p-4 rounded-2xl border-2 border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Heart className="h-4 w-4" />
-                  Likes
+                  {t("profileInsights.likes")}
                 </div>
                 <div className="text-3xl font-bold mt-2 text-foreground">{totalLikes}</div>
               </Card>
               <Card className="p-4 rounded-2xl border-2 border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Users className="h-4 w-4" />
-                  Matches
+                  {t("profileInsights.matches")}
                 </div>
                 <div className="text-3xl font-bold mt-2 text-foreground">{totalMatches}</div>
               </Card>
             </div>
 
             <Card className="mt-6 p-4 rounded-2xl border-2 border-border">
-              <h2 className="text-lg font-semibold mb-3">Recently Viewed</h2>
+              <h2 className="text-lg font-semibold mb-3">{t("profileInsights.recentlyViewed")}</h2>
               {recentlyViewed.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No profiles viewed yet.</p>
+                <p className="text-sm text-muted-foreground">{t("profileInsights.noProfilesViewed")}</p>
               ) : (
                 <div className="space-y-3">
                   {recentlyViewed.map((profile) => (
@@ -214,9 +216,9 @@ const ProfileInsights = () => {
             </Card>
 
             <Card className="mt-6 p-4 rounded-2xl border-2 border-border">
-              <h2 className="text-lg font-semibold mb-3">Recent Viewers</h2>
+              <h2 className="text-lg font-semibold mb-3">{t("profileInsights.recentViewers")}</h2>
               {recentViewers.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No recent viewers yet.</p>
+                <p className="text-sm text-muted-foreground">{t("profileInsights.noRecentViewers")}</p>
               ) : (
                 <div className="space-y-3">
                   {recentViewers.map((viewer) => (

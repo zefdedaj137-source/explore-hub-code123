@@ -13,22 +13,21 @@ const PremiumSuccess = () => {
 
   useEffect(() => {
     // Check subscription status after payment
-    checkSubscription();
-  }, []);
+    const checkSubscription = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("check-subscription");
 
-  const checkSubscription = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke("check-subscription");
+        if (error) throw error;
 
-      if (error) throw error;
-
-      if (data.subscribed) {
-        toast.success("Welcome to Shqiponja Premium! 🎉");
+        if (data.subscribed) {
+          toast.success(t("premiumSuccess.welcomePremium"));
+        }
+      } catch (error) {
+        toast.error(t("premiumSuccess.errorVerifying"));
       }
-    } catch (error) {
-      toast.error("Error verifying subscription");
-    }
-  };
+    };
+    checkSubscription();
+  }, [t]);
 
   return (
     <div className="min-h-dvh flex items-center justify-center bg-gradient-hero p-4">

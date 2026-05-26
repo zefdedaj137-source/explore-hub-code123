@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Eye, Heart, X, MapPin, Briefcase, RotateCcw, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface PassedProfile {
   id: string;
@@ -27,6 +28,7 @@ interface PassedProfile {
 const SecondLook = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [passedProfiles, setPassedProfiles] = useState<PassedProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProfile, setSelectedProfile] = useState<PassedProfile | null>(null);
@@ -120,9 +122,9 @@ const SecondLook = () => {
       localStorage.setItem(storageKey, JSON.stringify(updated));
 
       if (data?.is_match) {
-        toast.success(`🎉 It's a match with ${profile.full_name}!`);
+        toast.success(`?? It's a match with ${profile.full_name}!`);
       } else {
-        toast.success(`💕 Liked ${profile.full_name}`);
+        toast.success(`?? Liked ${profile.full_name}`);
       }
 
       // Remove from local list
@@ -130,12 +132,12 @@ const SecondLook = () => {
       setSelectedProfile(null);
     } catch (error) {
       logger.error("Error liking profile:", error);
-      toast.error("Failed to like this profile");
+      toast.error(t("secondLook.failedLike"));
     }
   };
 
   const handleDismiss = (profileId: string) => {
-    // Permanently dismiss — remove from passed list
+    // Permanently dismiss � remove from passed list
     const stored = localStorage.getItem(storageKey);
     const passedData: { id: string; passedAt: string }[] = stored ? JSON.parse(stored) : [];
     const updated = passedData.filter((p) => p.id !== profileId);
@@ -165,8 +167,8 @@ const SecondLook = () => {
           </Button>
           <Eye className="h-5 w-5 text-primary" />
           <div>
-            <h1 className="text-lg font-bold">Second Look</h1>
-            <p className="text-xs text-muted-foreground">{passedProfiles.length} passed profiles</p>
+            <h1 className="text-lg font-bold">{t("secondLook.title")}</h1>
+            <p className="text-xs text-muted-foreground">{passedProfiles.length} {t("secondLook.passedProfiles")}</p>
           </div>
         </div>
       </div>
@@ -179,9 +181,9 @@ const SecondLook = () => {
               <RotateCcw className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-bold">Changed your mind?</h2>
+              <h2 className="font-bold">{t("secondLook.changedYourMind")}</h2>
               <p className="text-sm text-primary/20">
-                Browse profiles you passed on and give them a second chance
+                {t("secondLook.browseDesc")}
               </p>
             </div>
           </div>
@@ -204,12 +206,12 @@ const SecondLook = () => {
         ) : passedProfiles.length === 0 ? (
           <Card className="p-8 text-center">
             <Eye className="h-12 w-12 mx-auto text-primary/80 mb-3" />
-            <h3 className="font-bold text-lg">No passed profiles</h3>
+            <h3 className="font-bold text-lg">{t("secondLook.noPassedProfiles")}</h3>
             <p className="text-muted-foreground text-sm mt-1">
-              When you pass on someone in Discover, they'll show up here
+              {t("secondLook.whenYouPass")}
             </p>
             <Button variant="outline" className="mt-4" onClick={() => navigate("/discover")}>
-              <Sparkles className="h-4 w-4 mr-2" /> Go to Discover
+              <Sparkles className="h-4 w-4 mr-2" /> {t("secondLook.goToDiscover")}
             </Button>
           </Card>
         ) : (
@@ -239,13 +241,13 @@ const SecondLook = () => {
                   </div>
                   {profile.verified && (
                     <Badge className="absolute top-2 right-2 bg-primary text-[10px] px-1.5 py-0">
-                      ✓
+                      ?
                     </Badge>
                   )}
                 </div>
                 <div className="p-2 flex items-center justify-between">
                   <span className="text-[11px] text-muted-foreground">
-                    Passed {timeAgo(profile.passedAt)}
+                    {t("secondLook.passed")} {timeAgo(profile.passedAt)}
                   </span>
                   <div className="flex gap-1">
                     <button
@@ -254,7 +256,7 @@ const SecondLook = () => {
                         handleDismiss(profile.id);
                       }}
                       className="p-1 rounded-full hover:bg-muted"
-                      aria-label="Dismiss"
+                      aria-label={t("secondLook.dismiss")}
                     >
                       <X className="h-3.5 w-3.5 text-muted-foreground" />
                     </button>
@@ -264,7 +266,7 @@ const SecondLook = () => {
                         handleLike(profile);
                       }}
                       className="p-1 rounded-full hover:bg-pink-50"
-                      aria-label="Like"
+                      aria-label={t("secondLook.like")}
                     >
                       <Heart className="h-3.5 w-3.5 text-pink-500" />
                     </button>
@@ -338,13 +340,13 @@ const SecondLook = () => {
                   className="flex-1 gap-2"
                   onClick={() => handleDismiss(selectedProfile.id)}
                 >
-                  <X className="h-4 w-4" /> Pass Again
+                  <X className="h-4 w-4" /> {t("secondLook.passAgain")}
                 </Button>
                 <Button
                   className="flex-1 gap-2 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700"
                   onClick={() => handleLike(selectedProfile)}
                 >
-                  <Heart className="h-4 w-4" /> Like
+                  <Heart className="h-4 w-4" /> {t("secondLook.like")}
                 </Button>
               </div>
             </div>

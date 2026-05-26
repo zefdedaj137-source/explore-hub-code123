@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface LikeRow {
   id: string;
@@ -46,6 +47,7 @@ interface ProfileMap {
 const ActivityFeed = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -132,10 +134,10 @@ const ActivityFeed = () => {
         }
       } catch (error) {
         logger.error("Activity feed error", error);
-        toast.error("Failed to load activity feed.");
+        toast.error(t("activityFeed.failedLoad"));
       }
     },
-    [user]
+    [user, t]
   );
 
   useEffect(() => {
@@ -196,9 +198,9 @@ const ActivityFeed = () => {
     if (item.type === "like") {
       return {
         icon: <Heart className="h-5 w-5 text-rose-500" />,
-        title: `${name} liked you`,
+        title: t("activityFeed.likedYou", { name }),
         action: () => navigate("/notifications"),
-        actionLabel: "View",
+        actionLabel: t("activityFeed.view"),
         image,
       };
     }
@@ -206,19 +208,19 @@ const ActivityFeed = () => {
     if (item.type === "match") {
       return {
         icon: <Users className="h-5 w-5 text-primary" />,
-        title: `You matched with ${name}`,
+        title: t("activityFeed.matchedWith", { name }),
         action: () => navigate(`/chat/${item.matchId}`),
-        actionLabel: "Chat",
+        actionLabel: t("activityFeed.matchChat"),
         image,
       };
     }
 
     return {
       icon: <MessageSquare className="h-5 w-5 text-emerald-500" />,
-      title: `${name} sent a message`,
+      title: t("activityFeed.sentMessage", { name }),
       subtitle: item.content,
       action: () => navigate(`/chat/${item.matchId}`),
-      actionLabel: "Reply",
+      actionLabel: t("activityFeed.reply"),
       image,
     };
   };
@@ -231,29 +233,29 @@ const ActivityFeed = () => {
             <div className="flex items-center gap-3">
               <Activity className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Activity Feed</h1>
-                <p className="text-sm text-muted-foreground">Likes, matches, and messages</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("activityFeed.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("activityFeed.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
           <Card className="p-8 text-center rounded-2xl border border-white/6 shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
-            Loading...
+            {t("common.loading")}
           </Card>
         ) : combined.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border border-white/6 shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
             <Activity className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-            <h3 className="font-semibold text-lg mb-1">No activity yet</h3>
+            <h3 className="font-semibold text-lg mb-1">{t("activityFeed.noActivity")}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Start swiping to get likes and matches!
+              {t("activityFeed.noActivityDesc")}
             </p>
-            <Button onClick={() => navigate("/discover")}>Discover Profiles →</Button>
+            <Button onClick={() => navigate("/discover")}>{t("activityFeed.discoverProfiles")}</Button>
           </Card>
         ) : (
           <div className="space-y-3">
@@ -303,7 +305,7 @@ const ActivityFeed = () => {
                 onClick={handleLoadMore}
                 disabled={loadingMore}
               >
-                {loadingMore ? "Loading..." : "Load More"}
+                {loadingMore ? t("common.loading") : t("activityFeed.loadMore")}
               </Button>
             )}
           </div>

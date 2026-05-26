@@ -47,6 +47,7 @@ interface NearbyUser {
   smoking?: string;
   pets?: string;
   looking_for?: string[];
+  gender?: string | null;
 }
 
 export default function Radar() {
@@ -119,6 +120,15 @@ export default function Radar() {
     if (!user || !userLocation) return;
 
     try {
+      // Fetch current user's profile for gender preference filtering
+      const { data: myProfile } = await supabase
+        .from("profiles")
+        .select("gender_preference, gender")
+        .eq("id", user.id)
+        .single();
+
+      const myGenderPref = (myProfile?.gender_preference || "everyone").toLowerCase();
+
       // Get users who have liked each other (matches) - exclude them
       const { data: matchedUsers } = await supabase
         .from("matches")
@@ -140,13 +150,29 @@ export default function Radar() {
 
       if (error) {
         logger.error("Error fetching nearby users:", error);
-        toast.error("Failed to load nearby users");
+        toast.error(t("radar.failedLoad"));
         return;
       }
 
-      // Filter out matched users and current user
+      // Fetch gender for all nearby users so we can apply the gender preference filter
+      const nearbyIds = (data || []).map((u: { id: string }) => u.id).filter((id: string) => id !== user.id);
+      let genderMap: Record<string, string | null> = {};
+      if (nearbyIds.length > 0) {
+        const { data: genderRows } = await supabase
+          .from("profiles")
+          .select("id, gender")
+          .in("id", nearbyIds);
+        genderMap = Object.fromEntries((genderRows || []).map((r) => [r.id, r.gender]));
+      }
+
+      // Filter out matched users, current user, and those who don't match gender preference
       const filteredUsers = (data || [])
-        .filter((u: NearbyUser) => u.id !== user.id && !matchedUserIds.has(u.id))
+        .filter((u: NearbyUser) => {
+          if (u.id === user.id || matchedUserIds.has(u.id)) return false;
+          if (myGenderPref === "everyone") return true;
+          const theirGender = (genderMap[u.id] || "").toLowerCase();
+          return theirGender === myGenderPref;
+        })
         .map((u: NearbyUser) => ({
           id: u.id,
           full_name: u.full_name,
@@ -170,16 +196,17 @@ export default function Radar() {
           smoking: u.smoking,
           pets: u.pets,
           looking_for: u.looking_for,
+          gender: genderMap[u.id] ?? null,
         }));
 
       setNearbyUsers(filteredUsers);
     } catch (error) {
       logger.error("Error:", error);
-      toast.error("Failed to load nearby users");
+      toast.error(t("radar.failedLoad"));
     } finally {
       setLoading(false);
     }
-  }, [user, userLocation]);
+  }, [user, userLocation, t]);
 
   useEffect(() => {
     getUserLocation();
@@ -205,7 +232,7 @@ export default function Radar() {
         .maybeSingle();
 
       if (existingLike) {
-        toast.info("You've already liked this user!");
+        toast.info(t("radar.alreadyLiked"));
         return;
       }
 
@@ -235,17 +262,17 @@ export default function Radar() {
 
         if (matchError) throw matchError;
 
-        toast.success("🎉 It's a match! You can now chat with them!");
+        toast.success(t("radar.itsAMatch"));
         // Remove from nearby users
         setNearbyUsers((prev) => prev.filter((u) => u.id !== targetUserId));
         setSelectedUser(null);
       } else {
-        toast.success("⚡ Superlike sent!");
+        toast.success(t("radar.superlikeSent"));
         setSelectedUser(null);
       }
     } catch (error) {
       logger.error("Error sending superlike:", error);
-      toast.error("Failed to send superlike");
+      toast.error(t("radar.failedSuperlike"));
     }
   };
 
@@ -329,7 +356,7 @@ export default function Radar() {
               size="icon"
               onClick={() => navigate(-1)}
               className="hover:bg-muted rounded-full"
-              aria-label="Zurück"
+              aria-label={t("radar.back")}
             >
               <ChevronLeft className="h-5 w-5 text-primary/80" />
             </Button>

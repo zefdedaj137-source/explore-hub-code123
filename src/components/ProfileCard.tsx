@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ReportUserDialog from "@/components/ReportUserDialog";
+import { useTranslation } from "react-i18next";
 
 interface ProfileCardProps {
   name: string;
@@ -46,6 +47,7 @@ const ProfileCard = ({
 }: ProfileCardProps) => {
   const displayCity = travelModeActive && travelCity ? travelCity : city || location;
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="overflow-hidden transition-all duration-500 group rounded-3xl relative profile-card-bg">
@@ -67,7 +69,7 @@ const ProfileCard = ({
             variant="ghost"
             className="absolute top-4 right-4 bg-black/30 hover:bg-black/60 text-white/80 rounded-full backdrop-blur-sm"
             onClick={() => setShowReportDialog(true)}
-            aria-label="Report user"
+            aria-label={t("profileCard.reportUser")}
           >
             <MoreVertical className="h-4 w-4" />
           </Button>
@@ -88,12 +90,12 @@ const ProfileCard = ({
                   boxShadow: "0 2px 10px rgba(232,39,75,0.4)",
                 }}
               >
-                ✓ Verified
+                {t("profileCard.verified")}
               </Badge>
             )}
             {travelModeActive && travelCity && (
               <Badge className="bg-blue-500/90 text-white border-none backdrop-blur-sm text-[10px] px-1.5 py-0 h-4">
-                ✈️ Traveling
+                {t("profileCard.traveling")}
               </Badge>
             )}
           </div>
@@ -102,7 +104,7 @@ const ProfileCard = ({
             {travelModeActive && travelCity ? (
               <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                 <span>✈️</span>
-                <span>Traveling in {travelCity}</span>
+                <span>{t("profileCard.travelingIn", { city: travelCity })}</span>
               </div>
             ) : displayCity ? (
               <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -113,7 +115,7 @@ const ProfileCard = ({
             {distanceKm !== undefined && (
               <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                 <Navigation className="h-3.5 w-3.5" />
-                <span>{distanceKm.toFixed(1)} km away</span>
+                <span>{distanceKm.toFixed(1)} {t("profileCard.kmAway")}</span>
               </div>
             )}
           </div>
@@ -165,7 +167,7 @@ const ProfileCard = ({
           }}
         >
           <X className="h-4 w-4 mr-2" />
-          Pass
+          {t("discover.pass")}
         </Button>
         <Button
           size="lg"
@@ -176,7 +178,7 @@ const ProfileCard = ({
           }}
         >
           <Heart className="h-5 w-5 mr-2 fill-current" />
-          Like
+          {t("discover.like")}
         </Button>
       </div>
 

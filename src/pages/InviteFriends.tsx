@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
 
 const InviteFriends = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [invitesSent, setInvitesSent] = useState(0);
 
   const storageKey = useMemo(() => (user ? `invite_stats_${user.id}` : null), [user]);
@@ -71,26 +74,47 @@ const InviteFriends = () => {
         await navigator.share(payload);
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(inviteLink);
-        toast.success("Invite link copied.");
+        toast.success(t("inviteFriends.linkCopied"));
       } else {
-        toast.info("Copy the link manually.");
+        toast.info(t("inviteFriends.copyManually"));
       }
       const nextCount = invitesSent + 1;
       setInvitesSent(nextCount);
       saveStats(nextCount);
+
+      // Award 3 coins on the very first share
+      if (invitesSent === 0 && user) {
+        try {
+          const { data: wallet } = await supabase
+            .from("wallets")
+            .select("balance")
+            .eq("user_id", user.id)
+            .single();
+          const currentBalance = (wallet as { balance: number } | null)?.balance ?? 0;
+          await supabase
+            .from("wallets")
+            .upsert({ user_id: user.id, balance: currentBalance + 3, updated_at: new Date().toISOString() });
+          await supabase
+            .from("wallet_transactions")
+            .insert({ user_id: user.id, amount: 3, type: "earn", item: "invite_reward" });
+          toast.success(t("inviteFriends.rewardCoins", "🎁 You earned 3 coins for sharing!"));
+        } catch (e) {
+          logger.error("Failed to credit invite reward", e);
+        }
+      }
     } catch (error) {
       logger.error("Share failed", error);
-      toast.error("Unable to share invite.");
+      toast.error(t("inviteFriends.shareError"));
     }
   };
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
-      toast.success("Invite link copied.");
+      toast.success(t("inviteFriends.linkCopied"));
     } catch (error) {
       logger.error("Copy failed", error);
-      toast.error("Unable to copy link.");
+      toast.error(t("inviteFriends.copyError"));
     }
   };
 
@@ -102,13 +126,13 @@ const InviteFriends = () => {
             <div className="flex items-center gap-3">
               <Share2 className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Invite Friends</h1>
-                <p className="text-sm text-muted-foreground">Earn bonus coins together</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("inviteFriends.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("inviteFriends.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
@@ -119,33 +143,33 @@ const InviteFriends = () => {
               <Gift className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold">Your invite code</h2>
-              <p className="text-sm text-muted-foreground">Share this code for bonus coins</p>
+              <h2 className="text-lg font-semibold">{t("inviteFriends.yourCode")}</h2>
+              <p className="text-sm text-muted-foreground">{t("inviteFriends.shareCodeDesc")}</p>
             </div>
           </div>
 
           <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/10 border border-border">
             <div>
-              <p className="text-xs text-primary uppercase">Invite code</p>
+              <p className="text-xs text-primary uppercase">{t("inviteFriends.inviteCode")}</p>
               <p className="text-xl font-bold tracking-widest text-primary">{inviteCode}</p>
             </div>
             <Button variant="outline" size="sm" onClick={handleCopy}>
               <Copy className="h-4 w-4 mr-2" />
-              Copy
+              {t("inviteFriends.copy")}
             </Button>
           </div>
 
           <div className="text-sm text-muted-foreground">
-            Invites sent: <span className="font-semibold text-foreground">{invitesSent}</span>
+            {t("inviteFriends.invitesSent")}: <span className="font-semibold text-foreground">{invitesSent}</span>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3">
             <Button className="w-full" onClick={handleShare}>
               <Share2 className="h-4 w-4 mr-2" />
-              Share Invite
+              {t("inviteFriends.shareInvite")}
             </Button>
             <Button variant="outline" className="w-full" onClick={handleCopy}>
-              Copy Invite Link
+              {t("inviteFriends.copyInviteLink")}
             </Button>
           </div>
         </Card>

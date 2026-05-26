@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Lock, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -16,6 +17,7 @@ const ResetPassword = () => {
   const [sessionReady, setSessionReady] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Case 1: navigated here from AppContent's PASSWORD_RECOVERY handler
@@ -52,17 +54,17 @@ const ResetPassword = () => {
     e.preventDefault();
 
     if (!password || !confirmPassword) {
-      toast.error("Please fill in both fields");
+      toast.error(t("resetPassword.fillBothFields"));
       return;
     }
 
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t("resetPassword.passwordTooShort"));
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("resetPassword.passwordMismatch"));
       return;
     }
 
@@ -73,11 +75,11 @@ const ResetPassword = () => {
 
       if (error) throw error;
 
-      toast.success("Password updated successfully! Redirecting...");
+      toast.success(t("resetPassword.updatedSuccess"));
       setTimeout(() => navigate("/discover", { replace: true }), 1500);
     } catch (error) {
       logger.error("Password reset error:", error);
-      toast.error((error as Error).message || "Failed to update password");
+      toast.error((error as Error).message || t("resetPassword.updateFailed"));
     } finally {
       setLoading(false);
     }
@@ -90,9 +92,9 @@ const ResetPassword = () => {
           <div className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] rounded-full p-3 mb-4">
             <Heart className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Set New Password</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t("resetPassword.title")}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {sessionReady ? "Enter your new password below" : "Verifying your reset link..."}
+            {sessionReady ? t("resetPassword.enterPassword") : t("resetPassword.verifyingLink")}
           </p>
         </div>
 
@@ -100,7 +102,7 @@ const ResetPassword = () => {
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
               <Label htmlFor="password" className="text-muted-foreground">
-                New Password
+                {t("resetPassword.newPassword")}
               </Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -109,7 +111,7 @@ const ResetPassword = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter new password"
+                  placeholder={t("resetPassword.enterNewPassword")}
                   className="pl-10 bg-muted/50 border-border text-white"
                   minLength={6}
                   required
@@ -119,7 +121,7 @@ const ResetPassword = () => {
 
             <div>
               <Label htmlFor="confirm-password" className="text-muted-foreground">
-                Confirm Password
+                {t("resetPassword.confirmPassword")}
               </Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -128,7 +130,7 @@ const ResetPassword = () => {
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
+                  placeholder={t("resetPassword.confirmNewPassword")}
                   className="pl-10 bg-muted/50 border-border text-white"
                   minLength={6}
                   required
@@ -141,15 +143,15 @@ const ResetPassword = () => {
               disabled={loading}
               className="w-full bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white"
             >
-              {loading ? "Updating..." : "Update Password"}
+              {loading ? t("resetPassword.updating") : t("resetPassword.updatePassword")}
             </Button>
           </form>
         ) : (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
             <p className="text-muted-foreground text-sm">
-              If this takes too long, please request a new reset link from the login page.
-            </p>
+                {t("resetPassword.takingTooLong")}
+              </p>
           </div>
         )}
 
@@ -158,7 +160,7 @@ const ResetPassword = () => {
           onClick={() => navigate("/auth")}
           className="w-full mt-4 text-muted-foreground hover:text-white"
         >
-          Back to Sign In
+          {t("resetPassword.backToSignIn")}
         </Button>
       </Card>
     </div>

@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarCheck, ArrowLeft, Coins } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 const DAILY_REWARD = 5;
 
 const DailyRewards = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
@@ -42,7 +44,7 @@ const DailyRewards = () => {
   const handleClaim = async () => {
     if (!user) return;
     if (claimedToday) {
-      toast.info("You already claimed today.");
+      toast.info(t("dailyRewards.toastAlreadyClaimed"));
       return;
     }
 
@@ -81,10 +83,10 @@ const DailyRewards = () => {
         localStorage.setItem(claimKey, new Date().toDateString());
       }
       setClaimedToday(true);
-      toast.success(`Daily reward claimed! +${DAILY_REWARD} coins`);
+      toast.success(t("dailyRewards.claimed", { coins: DAILY_REWARD }));
     } catch (error) {
       logger.error("Daily reward claim failed", error);
-      toast.error("Failed to claim daily reward.");
+      toast.error(t("dailyRewards.toastFailed"));
     } finally {
       setClaiming(false);
     }
@@ -111,40 +113,40 @@ const DailyRewards = () => {
             <div className="flex items-center gap-3">
               <CalendarCheck className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Daily Rewards</h1>
-                <p className="text-sm text-muted-foreground">Claim free coins every day</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("dailyRewards.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("dailyRewards.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
         ) : (
           <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Wallet balance</p>
+                <p className="text-sm text-muted-foreground">{t("dailyRewards.walletBalance")}</p>
                 <div className="flex items-center gap-2 text-2xl font-bold text-foreground">
                   <Coins className="h-5 w-5 text-primary" />
-                  {walletBalance} coins
+                  {walletBalance} {t("dailyRewards.coins")}
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs uppercase text-primary">Reward</p>
+                <p className="text-xs uppercase text-primary">{t("dailyRewards.reward")}</p>
                 <p className="text-lg font-semibold text-primary">+{DAILY_REWARD} coins</p>
               </div>
             </div>
 
             <Button className="w-full" onClick={handleClaim} disabled={claimedToday || claiming}>
-              {claimedToday ? "Claimed today" : claiming ? "Claiming..." : "Claim daily reward"}
+              {claimedToday ? t("dailyRewards.claimedToday") : claiming ? t("dailyRewards.claiming") : t("dailyRewards.claimButton")}
             </Button>
             <p className="text-xs text-muted-foreground text-center">
-              Come back every day to earn more coins.
+              {t("dailyRewards.comeBack")}
             </p>
           </Card>
         )}

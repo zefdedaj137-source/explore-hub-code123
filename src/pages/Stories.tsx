@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface Story {
   id: string;
@@ -23,6 +24,7 @@ interface Story {
 const Stories = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
   const [myStories, setMyStories] = useState<Story[]>([]);
@@ -65,10 +67,10 @@ const Stories = () => {
       const { error } = await supabase.from("stories").delete().eq("id", story.id);
       if (error) throw error;
       setMyStories((prev) => prev.filter((s) => s.id !== story.id));
-      toast.success("Story deleted.");
+      toast.success(t("stories.storyDeleted"));
     } catch (err) {
       logger.error("Delete failed", err);
-      toast.error("Failed to delete story.");
+      toast.error(t("stories.deleteFailed"));
     } finally {
       setDeletingId(null);
     }
@@ -103,12 +105,12 @@ const Stories = () => {
       });
 
       if (insertError) throw insertError;
-      toast.success("Story posted! It will be visible on your profile for 24 hours.");
+      toast.success(t("stories.storyPosted"));
       setCaption("");
       fetchMyStories();
     } catch (error) {
       logger.error("Story upload failed", error);
-      toast.error("Failed to upload story.");
+      toast.error(t("stories.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -122,22 +124,22 @@ const Stories = () => {
             <div className="flex items-center gap-3">
               <Camera className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Post a Story</h1>
+                <h1 className="text-2xl font-bold text-foreground">{t("stories.title")}</h1>
                 <p className="text-sm text-muted-foreground">
-                  Share a moment — visible on your profile for 24h
+                  {t("stories.subtitle")}
                 </p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("stories.back")}
             </Button>
           </div>
         </div>
 
         <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
           <Textarea
-            placeholder="Add a caption"
+            placeholder={t("stories.caption")}
             value={caption}
             onChange={(event) => setCaption(event.target.value)}
             rows={2}
@@ -153,20 +155,20 @@ const Stories = () => {
           />
           <Button className="w-full" disabled={uploading}>
             <Upload className="h-4 w-4 mr-2" />
-            {uploading ? "Uploading..." : "Upload Story"}
+            {uploading ? t("stories.uploading") : t("stories.upload")}
           </Button>
           <p className="text-xs text-muted-foreground text-center">
-            Your story will appear on your profile card for others to view for 24 hours.
+            {t("stories.hint")}
           </p>
         </Card>
 
         {/* My active stories */}
         <div className="space-y-3">
-          <h2 className="text-lg font-bold text-foreground">My Active Stories</h2>
+          <h2 className="text-lg font-bold text-foreground">{t("stories.myActiveStories")}</h2>
           {loadingStories ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <p className="text-sm text-muted-foreground">{t("stories.loading")}</p>
           ) : myStories.length === 0 ? (
-            <p className="text-sm text-muted-foreground">You have no active stories right now.</p>
+            <p className="text-sm text-muted-foreground">{t("stories.noStories")}</p>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {myStories.map((story) => (
@@ -196,7 +198,7 @@ const Stories = () => {
                     </p>
                   )}
                   <p className="absolute bottom-2 left-2 text-white/60 text-[10px]">
-                    Expires{" "}
+                  {t("stories.expires")}{" "}
                     {new Date(story.expires_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",

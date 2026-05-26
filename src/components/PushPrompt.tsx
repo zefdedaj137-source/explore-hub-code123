@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { subscribeToPush } from "@/lib/push";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const DISMISSED_KEY = "push-prompt-dismissed";
 /** Re-show the prompt after 30 days if the user dismissed it */
@@ -24,6 +25,7 @@ function wasDismissedRecently(): boolean {
 export const PushPrompt = () => {
   const { user } = useAuth();
   const [visible, setVisible] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user) return;
@@ -41,10 +43,10 @@ export const PushPrompt = () => {
       const permission = await Notification.requestPermission();
       if (permission === "granted" && user) {
         await subscribeToPush(user.id);
-        toast.success("Push notifications enabled!");
+        toast.success(t("pushPrompt.enabled"));
       }
     } catch {
-      toast.error("Could not enable notifications.");
+      toast.error(t("pushPrompt.failed"));
     }
     setVisible(false);
   };
@@ -61,7 +63,7 @@ export const PushPrompt = () => {
       <button
         onClick={handleDismiss}
         className="absolute right-2 top-2 text-muted-foreground hover:text-foreground"
-        aria-label="Dismiss"
+        aria-label={t("pushPrompt.dismiss")}
       >
         <X className="h-4 w-4" />
       </button>
@@ -70,16 +72,16 @@ export const PushPrompt = () => {
           <Bell className="h-5 w-5 text-primary" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium">Stay in the loop</p>
+          <p className="text-sm font-medium">{t("pushPrompt.stayInLoop")}</p>
           <p className="text-xs text-muted-foreground">
-            Get notified when someone likes you or sends a message.
+            {t("pushPrompt.description")}
           </p>
           <div className="mt-2 flex gap-2">
             <Button size="sm" onClick={handleEnable}>
-              Enable
+              {t("pushPrompt.enable")}
             </Button>
             <Button size="sm" variant="ghost" onClick={handleDismiss}>
-              Not now
+              {t("pushPrompt.notNow")}
             </Button>
           </div>
         </div>

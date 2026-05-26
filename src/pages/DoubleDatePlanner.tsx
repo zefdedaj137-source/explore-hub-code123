@@ -17,6 +17,7 @@ import {
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface MatchRow {
   id: string;
@@ -43,6 +44,7 @@ interface DoubleDatePlan {
 const DoubleDatePlanner = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileItem>>({});
@@ -117,10 +119,10 @@ const DoubleDatePlanner = () => {
       .then(loadPlans)
       .catch((error) => {
         logger.error("Double date load error", error);
-        toast.error("Failed to load double date planner.");
+        toast.error(t("doubleDatePlanner.failedLoad"));
       })
       .finally(() => setLoading(false));
-  }, [user, navigate, loadMatches, loadPlans]);
+  }, [user, navigate, loadMatches, loadPlans, t]);
 
   useEffect(() => {
     loadProfiles().catch((error) => {
@@ -131,11 +133,11 @@ const DoubleDatePlanner = () => {
   const handleCreatePlan = async () => {
     if (!user) return;
     if (!partner1 || !partner2 || !dateTime || !location) {
-      toast.error("Please complete all required fields.");
+      toast.error(t("doubleDatePlanner.requiredFields"));
       return;
     }
     if (partner1 === partner2) {
-      toast.error("Choose two different matches.");
+      toast.error(t("doubleDatePlanner.differentMatches"));
       return;
     }
 
@@ -181,7 +183,7 @@ const DoubleDatePlanner = () => {
         }
       }
 
-      toast.success("Double date plan created & partners notified in chat!");
+      toast.success(t("doubleDatePlanner.successCreated"));
       setPartner1("");
       setPartner2("");
       setDateTime("");
@@ -190,7 +192,7 @@ const DoubleDatePlanner = () => {
       loadPlans();
     } catch (error) {
       logger.error("Create double date error", error);
-      toast.error("Failed to create double date plan.");
+      toast.error(t("doubleDatePlanner.failedCreate"));
     }
   };
 
@@ -202,43 +204,43 @@ const DoubleDatePlanner = () => {
             <div className="flex items-center gap-3">
               <Users className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Double Date Planner</h1>
-                <p className="text-sm text-muted-foreground">Plan a double date with two matches</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("doubleDatePlanner.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("doubleDatePlanner.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("doubleDatePlanner.back")}
             </Button>
           </div>
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">Loading...</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("doubleDatePlanner.loading")}</Card>
         ) : (
           <div className="space-y-6">
             <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
-              <h2 className="text-lg font-semibold">Create a double date</h2>
+              <h2 className="text-lg font-semibold">{t("doubleDatePlanner.createDoubleDateTitle")}</h2>
               <Select value={partner1} onValueChange={setPartner1}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select first match" />
+                  <SelectValue placeholder={t("doubleDatePlanner.selectFirstMatch")} />
                 </SelectTrigger>
                 <SelectContent>
                   {partnerIds.map((id) => (
                     <SelectItem key={id} value={id}>
-                      {profiles[id]?.full_name || "Match"}
+                      {profiles[id]?.full_name || t("doubleDatePlanner.match")}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={partner2} onValueChange={setPartner2}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select second match" />
+                  <SelectValue placeholder={t("doubleDatePlanner.selectSecondMatch")} />
                 </SelectTrigger>
                 <SelectContent>
                   {partnerIds.map((id) => (
                     <SelectItem key={id} value={id}>
-                      {profiles[id]?.full_name || "Match"}
+                      {profiles[id]?.full_name || t("doubleDatePlanner.match")}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -249,25 +251,25 @@ const DoubleDatePlanner = () => {
                 onChange={(e) => setDateTime(e.target.value)}
               />
               <Input
-                placeholder="Location"
+                placeholder={t("doubleDatePlanner.locationPlaceholder")}
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
               />
               <Textarea
-                placeholder="Notes (optional)"
+                placeholder={t("doubleDatePlanner.notesPlaceholder")}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
               />
               <Button className="w-full" onClick={handleCreatePlan}>
-                Create double date
+                {t("doubleDatePlanner.createBtn")}
               </Button>
             </Card>
 
             <Card className="p-6 rounded-2xl border-2 border-border bg-card/80">
-              <h2 className="text-lg font-semibold mb-3">Upcoming double dates</h2>
+              <h2 className="text-lg font-semibold mb-3">{t("doubleDatePlanner.upcomingTitle")}</h2>
               {plans.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No plans yet.</p>
+                <p className="text-sm text-muted-foreground">{t("doubleDatePlanner.noPlans")}</p>
               ) : (
                 <div className="space-y-3">
                   {plans.map((plan) => (
@@ -277,8 +279,8 @@ const DoubleDatePlanner = () => {
                     >
                       <div>
                         <p className="font-medium text-foreground">
-                          {profiles[plan.partner1_id]?.full_name || "Match"} &{" "}
-                          {profiles[plan.partner2_id]?.full_name || "Match"}
+                          {profiles[plan.partner1_id]?.full_name || t("doubleDatePlanner.match")} &{" "}
+                          {profiles[plan.partner2_id]?.full_name || t("doubleDatePlanner.match")}
                         </p>
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <MapPin className="h-3 w-3" />

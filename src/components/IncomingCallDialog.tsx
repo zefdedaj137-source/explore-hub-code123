@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Phone, PhoneOff, Video, Ban } from "lucide-react";
 import { blockUser as blockUserApi } from "@/lib/blocking";
 import { logger } from "@/lib/logger";
+import { useTranslation } from "react-i18next";
 
 interface IncomingCall {
   sessionId: string;
@@ -31,6 +32,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
   const [incomingCall, setIncomingCall] = useState<IncomingCall | null>(null);
   const ringtoneRef = useRef<HTMLAudioElement | null>(null);
   const rejectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { t } = useTranslation();
 
   // Listen for incoming calls
   useEffect(() => {
@@ -211,10 +213,10 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
       <DialogContent className="sm:max-w-[400px] bg-[hsl(345,25%,20%)] text-white border-[hsl(345,70%,55%)]">
         <DialogHeader>
           <DialogTitle className="text-[hsl(25,85%,70%)] text-center">
-            Incoming {incomingCall?.callType === "video" ? "Video" : "Voice"} Call
+            {t("incomingCall.incoming")} {incomingCall?.callType === "video" ? t("incomingCall.video") : t("incomingCall.voice")} {t("incomingCall.call")}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground text-center">
-            from {incomingCall?.callerName}
+            {t("incomingCall.from")} {incomingCall?.callerName}
           </DialogDescription>
         </DialogHeader>
 

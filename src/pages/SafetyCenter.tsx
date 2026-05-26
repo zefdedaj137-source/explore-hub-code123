@@ -3,9 +3,11 @@ import { Shield, AlertTriangle, PhoneCall, FileText, Users } from "lucide-react"
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
+import { useTranslation } from "react-i18next";
 
 const SafetyCenter = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-dvh bg-background pb-24">
@@ -15,12 +17,12 @@ const SafetyCenter = () => {
             <div className="flex items-center gap-3">
               <Shield className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Safety Center</h1>
-                <p className="text-sm text-muted-foreground">Your safety is our priority</p>
+                <h1 className="text-2xl font-bold text-foreground">{t("safetyCenter.title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("safetyCenter.subtitle")}</p>
               </div>
             </div>
             <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
@@ -29,18 +31,17 @@ const SafetyCenter = () => {
           <Card className="p-6 rounded-2xl border-2 border-border bg-gradient-to-br from-card to-background shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
             <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-primary" />
-              Report & Block
+              {t("safetyCenter.reportAndBlock")}
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              If someone makes you uncomfortable, you can report or block them from any profile or
-              chat.
+              {t("safetyCenter.reportBlockDesc")}
             </p>
             <div className="flex gap-3">
               <Button className="flex-1" onClick={() => navigate("/settings")}>
-                Open Safety Settings
+                {t("safetyCenter.openSafetySettings")}
               </Button>
               <Button variant="outline" className="flex-1" onClick={() => navigate("/discover")}>
-                Go to Discover
+                {t("nav.discover")}
               </Button>
             </div>
           </Card>
@@ -48,43 +49,43 @@ const SafetyCenter = () => {
           <Card className="p-6 rounded-2xl border-2 border-border bg-gradient-to-br from-card to-background shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
             <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              Meet Safely
+              {t("safetyCenter.meetSafely")}
             </h2>
             <ul className="text-sm text-muted-foreground space-y-2 list-disc ml-5">
-              <li>Meet in public places and tell a friend your plan.</li>
-              <li>Video chat before meeting in person.</li>
-              <li>Trust your instincts and end the date if you feel unsafe.</li>
+              <li>{t("safetyCenter.meetInPublic")}</li>
+              <li>{t("safetyCenter.videoBeforeMeeting")}</li>
+              <li>{t("safetyCenter.trustInstincts")}</li>
             </ul>
           </Card>
 
           <Card className="p-6 rounded-2xl border-2 border-border bg-gradient-to-br from-card to-background shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
             <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <PhoneCall className="h-5 w-5 text-primary" />
-              Emergency Help
+              {t("safetyCenter.emergencyHelp")}
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              If you are in immediate danger, contact your local emergency services.
+              {t("safetyCenter.emergencyMessage")}
             </p>
             <Button
               variant="outline"
               className="w-full"
               onClick={() => window.open("https://www.112.eu/", "_blank", "noopener,noreferrer")}
             >
-              Find Emergency Numbers
+              {t("safetyCenter.findEmergencyNumbers")}
             </Button>
           </Card>
 
           <Card className="p-6 rounded-2xl border-2 border-border bg-gradient-to-br from-card to-background shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
             <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              Policies
+              {t("safetyCenter.policies")}
             </h2>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => navigate("/terms")}>
-                Terms
+                {t("safetyCenter.terms")}
               </Button>
               <Button variant="outline" className="flex-1" onClick={() => navigate("/privacy")}>
-                Privacy
+                {t("safetyCenter.privacy")}
               </Button>
             </div>
           </Card>

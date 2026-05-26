@@ -12,13 +12,13 @@ i18n
       en: { translation: en },
       sq: { translation: sq },
     },
-    fallbackLng: "en",
+    fallbackLng: "sq",
     supportedLngs: ["en", "sq"],
     interpolation: {
       escapeValue: false, // React already escapes
     },
     detection: {
-      order: ["localStorage", "navigator"],
+      order: ["localStorage"],
       caches: ["localStorage"],
       lookupLocalStorage: "i18nextLng",
     },
