@@ -16,6 +16,7 @@ const envSchema = z.object({
     .or(z.literal("")),
   VITE_STRIPE_PORTAL_URL: z.string().url().optional().or(z.literal("")),
   VITE_TENOR_API_KEY: z.string().optional().or(z.literal("")),
+  VITE_VAPID_PUBLIC_KEY: z.string().optional().or(z.literal("")),
 });
 
 export function validateEnv() {
@@ -27,6 +28,7 @@ export function validateEnv() {
     VITE_STRIPE_PUBLISHABLE_KEY: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
     VITE_STRIPE_PORTAL_URL: import.meta.env.VITE_STRIPE_PORTAL_URL,
     VITE_TENOR_API_KEY: import.meta.env.VITE_TENOR_API_KEY,
+    VITE_VAPID_PUBLIC_KEY: import.meta.env.VITE_VAPID_PUBLIC_KEY,
   });
 
   if (!result.success) {

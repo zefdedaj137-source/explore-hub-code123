@@ -29,19 +29,53 @@ export const formatTimeAgo = (timestamp: string | undefined): string => {
   return `${Math.floor(diffInSeconds / 604800)}w ago`;
 };
 
-/** Compute a match score between two profiles based on shared interests, distance, and verification */
+/** Compute a compatibility percentage (0-100) between two profiles */
 export const computeMatchScore = (profile: Profile, myProfile: Profile | null): number => {
-  const myInterests = new Set((myProfile?.interests || []).map((i) => i.toLowerCase()));
+  if (!myProfile) return 0;
+
+  let score = 0;
+  let maxScore = 0;
+
+  // Shared interests (up to 40 pts)
+  const myInterests = new Set((myProfile.interests || []).map((i) => i.toLowerCase()));
   const profileInterests = (profile.interests || []).map((i) => i.toLowerCase());
-  const sharedInterests = profileInterests.reduce((count, interest) => {
-    return myInterests.has(interest) ? count + 1 : count;
-  }, 0);
+  const sharedCount = profileInterests.filter((i) => myInterests.has(i)).length;
+  const interestScore = Math.min(sharedCount * 10, 40);
+  score += interestScore;
+  maxScore += 40;
 
-  const distanceScore =
-    profile.distance_km !== undefined ? Math.max(0, 50 - Math.round(profile.distance_km)) : 0;
-  const verifiedBonus = profile.verified ? 5 : 0;
+  // Looking-for overlap (up to 20 pts)
+  const myGoals = new Set((myProfile.looking_for || []).map((g) => g.toLowerCase()));
+  const theirGoals = (profile.looking_for || []).map((g) => g.toLowerCase());
+  const sharedGoals = theirGoals.filter((g) => myGoals.has(g)).length;
+  score += Math.min(sharedGoals * 10, 20);
+  maxScore += 20;
 
-  return sharedInterests * 10 + distanceScore + verifiedBonus;
+  // Religion match (10 pts)
+  if (myProfile.religion && profile.religion && myProfile.religion === profile.religion) {
+    score += 10;
+  }
+  maxScore += 10;
+
+  // Lifestyle match (10 pts)
+  if (myProfile.lifestyle && profile.lifestyle && myProfile.lifestyle === profile.lifestyle) {
+    score += 10;
+  }
+  maxScore += 10;
+
+  // Distance (up to 15 pts — closer is better)
+  if (profile.distance_km !== undefined) {
+    const distPts = Math.max(0, 15 - Math.floor(profile.distance_km / 20));
+    score += distPts;
+  }
+  maxScore += 15;
+
+  // Verified bonus (5 pts)
+  if (profile.verified) score += 5;
+  maxScore += 5;
+
+  if (maxScore === 0) return 0;
+  return Math.round((score / maxScore) * 100);
 };
 
 /** Check if a user is currently online (active within last 5 minutes) */

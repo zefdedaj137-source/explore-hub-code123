@@ -25,6 +25,13 @@ interface OpponentProfile {
   city?: string;
 }
 
+interface GameInviteWithProfiles {
+  from_user_id: string;
+  to_user_id: string;
+  from_user: OpponentProfile | null;
+  to_user: OpponentProfile | null;
+}
+
 const ALL_TRIVIA_QUESTIONS: GameQuestion[] = [
   // Skanderbeg Era (15th Century)
   {
@@ -602,8 +609,7 @@ const GameSession = () => {
   const initializeGame = async () => {
     try {
       // Get invite details
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: invite, error } = await (supabase as any)
+      const { data: inviteData, error } = await supabase
         .from("game_invites")
         .select(
           `
@@ -615,6 +621,7 @@ const GameSession = () => {
         )
         .eq("id", sessionId)
         .single();
+      const invite = inviteData as unknown as GameInviteWithProfiles | null;
 
       if (error) throw error;
 
@@ -852,7 +859,9 @@ const GameSession = () => {
                   } animate-pulse`}
                 />
                 <p className="text-sm font-semibold">
-                  {currentTurn === user?.id ? t("gameSession.yourTurn") : t("gameSession.opponentTurn")}
+                  {currentTurn === user?.id
+                    ? t("gameSession.yourTurn")
+                    : t("gameSession.opponentTurn")}
                 </p>
                 <Badge variant="outline" className="mt-1">
                   {t("gameSession.question", { num: questionNumber + 1 })}
@@ -913,11 +922,15 @@ const GameSession = () => {
                 {showResult && selectedAnswer !== null && (
                   <div className="text-center py-4">
                     <p className="text-2xl font-bold">
-                      {selectedAnswer === currentQuestion.correct ? t("gameSession.correct") : t("gameSession.incorrect")}
+                      {selectedAnswer === currentQuestion.correct
+                        ? t("gameSession.correct")
+                        : t("gameSession.incorrect")}
                     </p>
                     {selectedAnswer !== currentQuestion.correct && (
                       <p className="text-sm text-muted-foreground mt-2">
-                        {t("gameSession.answer", { answer: currentQuestion.answers[currentQuestion.correct] })}
+                        {t("gameSession.answer", {
+                          answer: currentQuestion.answers[currentQuestion.correct],
+                        })}
                       </p>
                     )}
                   </div>
@@ -955,7 +968,8 @@ const GameSession = () => {
                 <Trophy className="h-20 w-20 text-primary mx-auto mb-4 animate-bounce" />
                 <h2 className="text-3xl font-bold mb-4">{t("gameSession.youFinished")}</h2>
                 <p className="text-xl text-foreground mb-2">
-                  {t("gameSession.yourScore")}: <span className="font-bold text-pink-500">{yourScore}/6</span>
+                  {t("gameSession.yourScore")}:{" "}
+                  <span className="font-bold text-pink-500">{yourScore}/6</span>
                 </p>
                 <div className="mt-8">
                   <p className="text-lg text-muted-foreground animate-pulse">
@@ -978,7 +992,9 @@ const GameSession = () => {
                         {t("gameSession.you")}
                       </AvatarFallback>
                     </Avatar>
-                    <p className="text-sm text-muted-foreground mb-1">{t("gameSession.yourScore")}</p>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      {t("gameSession.yourScore")}
+                    </p>
                     <p className="text-5xl font-bold text-pink-500">{yourScore}</p>
                   </div>
 
@@ -998,7 +1014,8 @@ const GameSession = () => {
                   <p className="text-2xl font-bold text-foreground mb-2">
                     {yourScore > opponentScore && t("gameSession.youWon")}
                     {yourScore === opponentScore && t("gameSession.tie")}
-                    {yourScore < opponentScore && t("gameSession.opponentWon", { name: opponent.full_name })}
+                    {yourScore < opponentScore &&
+                      t("gameSession.opponentWon", { name: opponent.full_name })}
                   </p>
                   <p className="text-muted-foreground">
                     {t("gameSession.enjoyedPlaying", { name: opponent.full_name })}

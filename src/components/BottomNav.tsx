@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Heart, MessageCircle, Users, Compass, User, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Heart, MessageCircle, Compass, User, Search } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,6 +12,7 @@ const BottomNav = () => {
   const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [dailyRewardPending, setDailyRewardPending] = useState(false);
+  const [pressedPath, setPressedPath] = useState<string | null>(null);
 
   // Check if daily reward has not been claimed today
   useEffect(() => {
@@ -77,11 +78,24 @@ const BottomNav = () => {
     { icon: User, label: t("nav.profile"), path: "/my-profile", badge: 0, dot: dailyRewardPending },
   ];
 
+  const handleNav = useCallback(
+    (path: string) => {
+      // Trigger haptic feedback on supported devices
+      if ("vibrate" in navigator) {
+        navigator.vibrate(8);
+      }
+      setPressedPath(path);
+      setTimeout(() => setPressedPath(null), 200);
+      navigate(path);
+    },
+    [navigate]
+  );
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
       <div className="mx-auto max-w-md px-4 pb-3">
         <div className="flex justify-around items-center h-16 rounded-2xl relative overflow-hidden bottom-nav-bar">
-          {/* Active glow background pill */}
+          {/* Active glow background pill — smoothly repositioned via CSS */}
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             if (!isActive) return null;
@@ -90,7 +104,7 @@ const BottomNav = () => {
             return (
               <div
                 key={`glow-${item.path}`}
-                className={`absolute inset-y-2 w-[18%] rounded-xl transition-all duration-300 nav-glow-pill ${pillLeft[idx]}`}
+                className={`absolute inset-y-2 w-[18%] rounded-xl transition-all duration-300 ease-out nav-glow-pill ${pillLeft[idx]}`}
               />
             );
           })}
@@ -98,33 +112,47 @@ const BottomNav = () => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
+            const isPressed = pressedPath === item.path;
 
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
-                className="flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-all duration-200 relative z-10"
+                onClick={() => handleNav(item.path)}
+                aria-label={item.label}
+                aria-current={isActive ? "page" : undefined}
+                className="flex flex-col items-center justify-center flex-1 h-full gap-0.5 relative z-10 select-none"
+                style={{
+                  transform: isPressed ? "scale(0.88)" : "scale(1)",
+                  transition: "transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}
               >
                 <div className="relative">
                   <Icon
-                    className="h-5 w-5 transition-all duration-200"
+                    className="h-[22px] w-[22px]"
                     style={{
                       color: isActive ? "#e8274b" : "var(--nav-icon-inactive)",
-                      filter: isActive ? "drop-shadow(0 0 8px rgba(232,39,75,0.8))" : "none",
-                      transform: isActive ? "scale(1.15)" : "scale(1)",
+                      filter: isActive ? "drop-shadow(0 0 6px rgba(232,39,75,0.7))" : "none",
+                      transform: isActive ? "scale(1.12)" : "scale(1)",
+                      transition:
+                        "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, filter 0.2s ease",
                     }}
                   />
                   {item.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-2 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 badge-rose">
+                    <span className="absolute -top-1.5 -right-2 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 badge-rose animate-bounce-in">
                       {item.badge > 99 ? "99+" : item.badge}
                     </span>
                   )}
                   {item.dot && item.badge === 0 && (
-                    <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-orange-500 border-2 border-background animate-pulse" />
+                    <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-orange-500 border-2 border-background dot-pulse" />
                   )}
                 </div>
                 <span
-                  className={`text-[9px] font-semibold tracking-widest uppercase transition-all duration-200 ${isActive ? "text-[#e8274b]" : "dark:text-white/30 text-muted-foreground"}`}
+                  className="text-[9px] font-semibold tracking-widest uppercase"
+                  style={{
+                    color: isActive ? "#e8274b" : undefined,
+                    opacity: isActive ? 1 : 0.45,
+                    transition: "color 0.2s ease, opacity 0.2s ease",
+                  }}
                 >
                   {item.label}
                 </span>

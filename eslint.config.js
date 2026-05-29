@@ -21,6 +21,15 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      // react-hooks v7 new rules — disabled for existing codebase compatibility.
+      // These are experimental rules that flag common valid patterns (e.g. reading
+      // localStorage → setState in an effect). Revisit when the codebase is refactored.
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/static-components": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/preserve-manual-memoization": "off",
+      "react-hooks/immutability": "warn",
+      "react-hooks/refs": "warn",
     },
   },
   {

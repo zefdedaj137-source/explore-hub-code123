@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useParams } from "react-router-dom";
@@ -12,8 +12,12 @@ import { usePageViewTracking } from "@/hooks/usePageViewTracking";
 import { ConnectionBanner } from "@/components/ConnectionBanner";
 import { logger } from "@/lib/logger";
 import { supabase } from "@/integrations/supabase/client";
+import { useGlobalMatchRealtime } from "@/hooks/useGlobalMatchRealtime";
 
 // Lazy load deferred (non-critical) UI overlays — keeps them out of the initial bundle
+const MatchAnimation = lazy(() =>
+  import("@/components/MatchAnimation").then((m) => ({ default: m.MatchAnimation }))
+);
 const IncomingCallDialog = lazy(() =>
   import("@/components/IncomingCallDialog").then((m) => ({ default: m.IncomingCallDialog }))
 );
@@ -83,14 +87,20 @@ const Features = lazy(() => import("./pages/Features"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AIMatchmaker = lazy(() => import("./pages/AIMatchmaker"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Spotted = lazy(() => import("./pages/Spotted"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60_000, // treat data fresh for 1 minute — avoids refetch on every navigation
-      gcTime: 5 * 60_000, // keep unused data in cache for 5 minutes
-      retry: 1, // only retry once on network errors
+      // Realtime-backed queries (matches, conversations) are invalidated
+      // manually on INSERT events — so a long staleTime avoids redundant
+      // network round-trips on every navigation.
+      staleTime: 5 * 60_000, // 5 min: data stays fresh between page visits
+      gcTime: 15 * 60_000, // 15 min: keep cache alive across tab switches
+      retry: 1,
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true, // re-sync after going back online
+      networkMode: "offlineFirst", // serve cache immediately, fetch in bg
     },
   },
 });
@@ -114,9 +124,21 @@ const AppContent = () => {
 
   const handleAcceptCall = (matchId: string, callType: "voice" | "video") => {
     logger.log("📞 Accepting call, navigating to chat:", { matchId, callType });
-    // Navigate to chat page which will handle the call
     navigate(`/chat/${matchId}?autoAnswer=${callType}`);
   };
+
+  // Global match listener — fires from any page
+  const { pendingMatch, dismissMatch } = useGlobalMatchRealtime();
+
+  const handleGlobalChatNow = useCallback(
+    (opener?: string) => {
+      if (!pendingMatch) return;
+      const matchId = pendingMatch.matchId;
+      dismissMatch();
+      navigate(`/chat/${matchId}`, opener ? { state: { opener } } : undefined);
+    },
+    [pendingMatch, dismissMatch, navigate]
+  );
 
   usePageViewTracking();
 
@@ -498,6 +520,14 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/spotted"
+            element={
+              <ProtectedRoute>
+                <Spotted />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Admin routes */}
           <Route
@@ -533,6 +563,19 @@ const AppContent = () => {
       <Suspense fallback={null}>
         <PushPrompt />
       </Suspense>
+
+      {/* Global match overlay — visible from any page, no navigation required */}
+      {pendingMatch && (
+        <Suspense fallback={null}>
+          <MatchAnimation
+            show={!!pendingMatch}
+            matchName={pendingMatch.matchName}
+            onComplete={dismissMatch}
+            onChatNow={handleGlobalChatNow}
+            sharedInterests={pendingMatch.sharedInterests}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

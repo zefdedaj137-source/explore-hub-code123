@@ -116,14 +116,36 @@ export default {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
-        "ping-once": {
-          "0%": { transform: "scale(1)", opacity: "1" },
-          "75%": { transform: "scale(2)", opacity: "0" },
-          "100%": { transform: "scale(2)", opacity: "0" },
+        "slide-down": {
+          "0%": { transform: "translateY(-16px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
         },
-        "border-glow": {
-          "0%, 100%": { borderColor: "rgba(232,39,75,0.3)" },
-          "50%": { borderColor: "rgba(232,39,75,0.8)" },
+        "bounce-in": {
+          "0%": { transform: "scale(0.3)", opacity: "0" },
+          "50%": { transform: "scale(1.08)", opacity: "1" },
+          "70%": { transform: "scale(0.95)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        heartbeat: {
+          "0%": { transform: "scale(1)" },
+          "14%": { transform: "scale(1.3)" },
+          "28%": { transform: "scale(1)" },
+          "42%": { transform: "scale(1.2)" },
+          "70%": { transform: "scale(1)" },
+        },
+        "match-pop": {
+          "0%": { transform: "scale(0.6) rotate(-5deg)", opacity: "0" },
+          "60%": { transform: "scale(1.06) rotate(2deg)", opacity: "1" },
+          "80%": { transform: "scale(0.97) rotate(-1deg)" },
+          "100%": { transform: "scale(1) rotate(0deg)", opacity: "1" },
+        },
+        "card-enter": {
+          "0%": { transform: "translateY(20px) scale(0.96)", opacity: "0" },
+          "100%": { transform: "translateY(0) scale(1)", opacity: "1" },
+        },
+        "modal-in": {
+          "0%": { transform: "scale(0.94)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
         },
       },
       animation: {
@@ -132,6 +154,7 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "slide-up": "slide-up 0.5s ease-out",
+        "slide-down": "slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         "slide-in-right": "slide-in-right 0.5s ease-out",
         float: "float 6s ease-in-out infinite",
         "float-slow": "float 9s ease-in-out infinite",
@@ -140,6 +163,11 @@ export default {
         "gradient-x": "gradient-x 4s ease infinite",
         "ping-once": "ping-once 1s ease-out forwards",
         "border-glow": "border-glow 2s ease-in-out infinite",
+        heartbeat: "heartbeat 0.8s ease-in-out",
+        "bounce-in": "bounce-in 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97)",
+        "match-pop": "match-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+        "card-enter": "card-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        "modal-in": "modal-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
     },
   },

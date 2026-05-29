@@ -11,7 +11,35 @@ interface MatchAnimationProps {
   matchName: string;
   onComplete: () => void;
   isPremiumRoses?: boolean;
-  onChatNow?: () => void;
+  onChatNow?: (opener?: string) => void;
+  sharedInterests?: string[];
+}
+
+// Generate culturally-relevant Albanian icebreakers, optionally personalised by shared interests
+function getIcebreakers(matchName: string, sharedInterests: string[]): string[] {
+  const name = matchName.split(" ")[0];
+  const starters: string[] = [];
+
+  // Interest-based openers (first priority)
+  if (sharedInterests.length > 0) {
+    const interest = sharedInterests[0];
+    starters.push(`You're into ${interest} too? What's your favourite?`);
+  }
+  if (sharedInterests.length > 1) {
+    starters.push(`We both like ${sharedInterests[1]}! Tell me more about that 😊`);
+  }
+
+  // Cultural Albanian openers
+  starters.push(
+    `Tungjatjeta ${name}! Nga je? 🇦🇱`,
+    `Okay, important question: byrek me mish or byrek me spinaq?`,
+    `If you could travel anywhere in Albania tomorrow, where would you go?`,
+    `${name}, what's your go-to song when you're in a good mood?`,
+    `Tea or coffee person? ☕`
+  );
+
+  // Return 3 unique starters
+  return starters.slice(0, 3);
 }
 
 export const MatchAnimation = ({
@@ -20,9 +48,12 @@ export const MatchAnimation = ({
   onComplete,
   isPremiumRoses = false,
   onChatNow,
+  sharedInterests = [],
 }: MatchAnimationProps) => {
   const [phase, setPhase] = useState<"eagle" | "transform" | "heart">("eagle");
   const { t } = useTranslation();
+
+  const icebreakers = getIcebreakers(matchName, sharedInterests);
 
   useEffect(() => {
     if (!show) {
@@ -377,11 +408,34 @@ export const MatchAnimation = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2 }}
-              className="flex flex-col gap-3 w-64"
+              className="flex flex-col gap-3 w-72"
             >
+              {/* InstantChat openers */}
+              {onChatNow && (
+                <div className="space-y-2">
+                  <p className="text-xs text-white/50 text-center font-medium uppercase tracking-wider">
+                    Break the ice ✨
+                  </p>
+                  {icebreakers.map((opener, i) => (
+                    <button
+                      key={i}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onChatNow(opener);
+                      }}
+                      className="w-full text-left text-sm px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 border border-white/10 hover:border-white/20 transition-all"
+                    >
+                      {opener}
+                    </button>
+                  ))}
+                </div>
+              )}
               {onChatNow && (
                 <Button
-                  onClick={(e) => { e.stopPropagation(); onChatNow(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onChatNow();
+                  }}
                   className="w-full bg-white text-primary font-bold text-base py-6 rounded-2xl shadow-lg hover:bg-white/90"
                 >
                   💬 {t("discover.startChatting")}
@@ -389,7 +443,10 @@ export const MatchAnimation = ({
               )}
               <Button
                 variant="ghost"
-                onClick={(e) => { e.stopPropagation(); onComplete(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onComplete();
+                }}
                 className="w-full text-white/70 hover:text-white hover:bg-white/10 rounded-2xl"
               >
                 {t("discover.keepSwiping")}

@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 import { MatchAnimation } from "@/components/MatchAnimation";
+import { markMatchHandled } from "@/hooks/useGlobalMatchRealtime";
 import ProfileCard from "@/components/ProfileCard";
 import BottomNav from "@/components/BottomNav";
 
@@ -345,6 +346,7 @@ const WhoLikedYou = () => {
       if (likeError) throw likeError;
 
       if (likeResult?.match_created) {
+        markMatchHandled(profileId); // prevent global overlay from double-firing
         // Show match animation
         const likedProfile = likes.find((like) => like.profile.id === profileId);
         if (likedProfile) {
@@ -696,7 +698,9 @@ const WhoLikedYou = () => {
                     </DialogTitle>
                     <div className="flex flex-wrap gap-2">
                       {p.verified && (
-                        <Badge className="bg-primary text-white border-none">{t("common.verified")}</Badge>
+                        <Badge className="bg-primary text-white border-none">
+                          {t("common.verified")}
+                        </Badge>
                       )}
                       {p.is_premium && (
                         <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">

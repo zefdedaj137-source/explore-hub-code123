@@ -93,15 +93,20 @@ type ProfileData = {
 };
 
 const LANGUAGES = [
-  { code: "en", label: "English" },
-  { code: "sq", label: "Shqip (Albanian)" },
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "sq", label: "Shqip (Albanian)", flag: "🇦🇱" },
+  { code: "it", label: "Italiano", flag: "🇮🇹" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "el", label: "Ελληνικά", flag: "🇬🇷" },
 ] as const;
 
 const LanguagePicker = () => {
   const { i18n } = useTranslation();
+  const current = i18n.language?.split("-")[0] ?? "en";
+  const isSupported = LANGUAGES.some((l) => l.code === current);
   return (
     <RadioGroup
-      value={i18n.language?.startsWith("sq") ? "sq" : "en"}
+      value={isSupported ? current : "en"}
       onValueChange={(v) => i18n.changeLanguage(v)}
       className="space-y-2"
     >
@@ -111,7 +116,11 @@ const LanguagePicker = () => {
           className="flex items-center space-x-3 p-2 rounded-lg border hover:bg-muted/50 transition-colors"
         >
           <RadioGroupItem value={lang.code} id={`lang-${lang.code}`} />
-          <Label htmlFor={`lang-${lang.code}`} className="cursor-pointer font-normal">
+          <Label
+            htmlFor={`lang-${lang.code}`}
+            className="cursor-pointer font-normal flex items-center gap-2"
+          >
+            <span>{lang.flag}</span>
             {lang.label}
           </Label>
         </div>
@@ -677,9 +686,7 @@ const Settings = () => {
                     </Badge>
                   )}
                 </CardTitle>
-                <CardDescription>
-                  {t("settings.boosterDesc")}
-                </CardDescription>
+                <CardDescription>{t("settings.boosterDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="bg-card/50 rounded-lg p-4 space-y-2">
@@ -688,7 +695,9 @@ const Settings = () => {
                     {t("settings.boosterActive")}
                   </div>
                   <p className="text-sm text-foreground">
-                    {t("settings.boosterExpires", { time: new Date(boosterExpiresAt).toLocaleString() })}
+                    {t("settings.boosterExpires", {
+                      time: new Date(boosterExpiresAt).toLocaleString(),
+                    })}
                   </p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -724,7 +733,9 @@ const Settings = () => {
                 <div className="bg-primary/10 rounded-lg p-4 space-y-3 border border-yellow-500/50">
                   <div className="flex items-start gap-3">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-primary mb-2">{t("settings.premiumBenefits")}</h4>
+                      <h4 className="font-semibold text-primary mb-2">
+                        {t("settings.premiumBenefits")}
+                      </h4>
                       <ul className="space-y-1.5 text-sm text-foreground">
                         <li className="flex items-center gap-2">
                           <div className="h-1.5 w-1.5 bg-yellow-500 rounded-full"></div>
@@ -1146,8 +1157,8 @@ const Settings = () => {
                     </div>
                     <p className="text-sm font-medium">{t("settings.premiumFeature")}</p>
                     <p className="text-xs text-muted-foreground max-w-xs">
-                      {t("settings.unlockActivityHistory")}� including call logs, recently viewed profiles,
-                      insights, and more � with a premium subscription.
+                      {t("settings.unlockActivityHistory")}� including call logs, recently viewed
+                      profiles, insights, and more � with a premium subscription.
                     </p>
                     <Button size="sm" onClick={() => navigate("/boost-bundles")}>
                       <Crown className="h-4 w-4 mr-1" />
@@ -1177,9 +1188,7 @@ const Settings = () => {
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.travel ? "rotate-180" : ""}`}
                 />
               </CardTitle>
-              <CardDescription>
-                {t("settings.travelModeDesc")}
-              </CardDescription>
+              <CardDescription>{t("settings.travelModeDesc")}</CardDescription>
             </CardHeader>
             {expandedSections.travel && (
               <CardContent>
@@ -1480,9 +1489,7 @@ const Settings = () => {
                     <Moon className="h-4 w-4" />
                     {t("settings.doNotDisturb")}
                   </Label>
-                  <p className="text-xs text-muted-foreground">
-                    {t("settings.dndDesc")}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t("settings.dndDesc")}</p>
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
                       <Label className="text-xs text-muted-foreground">{t("settings.from")}</Label>
@@ -1661,7 +1668,9 @@ const Settings = () => {
                 <Separator className="my-2" />
 
                 <div className="space-y-3 pt-2">
-                  <p className="text-sm font-medium text-muted-foreground">{t("settings.dataControls")}</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {t("settings.dataControls")}
+                  </p>
                   <Button
                     variant="outline"
                     className="w-full"
@@ -1702,9 +1711,7 @@ const Settings = () => {
                 {/* Data Export (GDPR) */}
                 <div className="space-y-2">
                   <p className="text-sm font-medium">{t("settings.exportData")}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("settings.downloadDataDesc")}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t("settings.downloadDataDesc")}</p>
                   <Button
                     variant="outline"
                     className="w-full"
@@ -1750,10 +1757,10 @@ const Settings = () => {
 
                 {/* Permanent Delete */}
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-destructive">{t("settings.permanentDeletion")}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("settings.deleteAccountDesc")}
+                  <p className="text-sm font-medium text-destructive">
+                    {t("settings.permanentDeletion")}
                   </p>
+                  <p className="text-xs text-muted-foreground">{t("settings.deleteAccountDesc")}</p>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive" className="w-full">
@@ -1807,7 +1814,9 @@ const Settings = () => {
                 <LogOut className="h-4 w-4 mr-2" />
                 {t("auth.signOut")}
               </Button>
-              <p className="text-center text-sm text-muted-foreground mt-4">{t("settings.versionLabel")}</p>
+              <p className="text-center text-sm text-muted-foreground mt-4">
+                {t("settings.versionLabel")}
+              </p>
             </CardContent>
           </Card>
 
@@ -1856,9 +1865,7 @@ const Settings = () => {
               <EyeOff className="h-5 w-5" />
               {t("settings.deactivateAccount")}
             </DialogTitle>
-            <DialogDescription>
-              {t("settings.deactivateDesc")}
-            </DialogDescription>
+            <DialogDescription>{t("settings.deactivateDesc")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">

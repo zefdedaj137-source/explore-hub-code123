@@ -136,11 +136,12 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
 
     let flashInterval: ReturnType<typeof setInterval> | null = null;
     let vibrateInterval: ReturnType<typeof setInterval> | null = null;
+    // Capture title before any async work so cleanup can always restore it
+    const originalTitle = document.title;
 
     ringtone.play().catch(() => {
       logger.log("Autoplay blocked, using fallback");
       // Flash title as fallback
-      const originalTitle = document.title;
       flashInterval = setInterval(() => {
         document.title = document.title === originalTitle ? "🔔 INCOMING CALL!" : originalTitle;
       }, 500);
@@ -151,12 +152,6 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
           navigator.vibrate(500);
         }, 1000);
       }
-
-      setTimeout(() => {
-        if (flashInterval) clearInterval(flashInterval);
-        if (vibrateInterval) clearInterval(vibrateInterval);
-        document.title = originalTitle;
-      }, 30000);
     });
 
     ringtoneRef.current = ringtone;
@@ -169,6 +164,8 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
     return () => {
       ringtone.pause();
       ringtone.currentTime = 0;
+      // Always restore title on cleanup (accept, decline, or unmount)
+      document.title = originalTitle;
       if (flashInterval) clearInterval(flashInterval);
       if (vibrateInterval) clearInterval(vibrateInterval);
       if (rejectTimeoutRef.current) {
@@ -213,7 +210,9 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
       <DialogContent className="sm:max-w-[400px] bg-[hsl(345,25%,20%)] text-white border-[hsl(345,70%,55%)]">
         <DialogHeader>
           <DialogTitle className="text-[hsl(25,85%,70%)] text-center">
-            {t("incomingCall.incoming")} {incomingCall?.callType === "video" ? t("incomingCall.video") : t("incomingCall.voice")} {t("incomingCall.call")}
+            {t("incomingCall.incoming")}{" "}
+            {incomingCall?.callType === "video" ? t("incomingCall.video") : t("incomingCall.voice")}{" "}
+            {t("incomingCall.call")}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground text-center">
             {t("incomingCall.from")} {incomingCall?.callerName}

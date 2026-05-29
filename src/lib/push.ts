@@ -1,8 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const DEFAULT_VAPID_PUBLIC_KEY =
-  "BHDWwZ0l2c6wM_pfRvBs1j6NDBjm4y3GMwP5A_hNT1KQIEKO5T8ypukMI7NrPEI5jusWN9DZHBoLW8heqawyNRE";
-
 const urlBase64ToUint8Array = (base64String: string) => {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -18,7 +15,8 @@ export const subscribeToPush = async (userId: string) => {
   if (!("serviceWorker" in navigator)) throw new Error("Service Worker not supported");
 
   const registration = await navigator.serviceWorker.register("/sw.js");
-  const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || DEFAULT_VAPID_PUBLIC_KEY;
+  const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
+  if (!vapidKey) throw new Error("VITE_VAPID_PUBLIC_KEY is not configured");
 
   const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,

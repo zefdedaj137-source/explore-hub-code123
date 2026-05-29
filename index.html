@@ -2,16 +2,14 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://fonts.googleapis.com https://fonts.gstatic.com https://nominatim.openstreetmap.org https://tenor.googleapis.com; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://youtube.com;" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://fonts.googleapis.com https://fonts.gstatic.com https://nominatim.openstreetmap.org https://tenor.googleapis.com; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://youtube.com;" />
     <title>Shqiponja - Premium Dating for Albanian Diaspora</title>
     <meta name="description" content="Connect with Albanian singles worldwide. Premium dating platform for the Albanian diaspora. Find meaningful relationships with verified profiles." />
     <meta name="author" content="Shqiponja" />
     <meta name="keywords" content="Albanian dating, diaspora dating, premium dating, Albanian singles, Shqiptar" />
     <link rel="canonical" href="https://shqiponja.app" />
 
-    
-    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://shqiponja.app" />
@@ -28,7 +26,9 @@
     <meta name="twitter:site" content="@shqiponja" />
 
     <!-- PWA theming -->
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f0a1a" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -36,36 +36,63 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="apple-touch-icon" href="/eagle-logo.png" />
     <link rel="apple-touch-startup-image" href="/eagle-logo-512.png" />
-    
-    <!-- Fonts with display=swap for Inter (UI text), optional for Playfair (decorative headings — skip if slow) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=optional&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Preconnect to Supabase to eliminate DNS+TLS setup on first API call -->
-    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin>
-    <link rel="dns-prefetch" href="%VITE_SUPABASE_URL%">
+    <!-- Resource hints: preconnect to eliminate DNS + TLS latency for critical origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin />
+    <link rel="dns-prefetch" href="%VITE_SUPABASE_URL%" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
 
-    <!-- Inline critical CSS: prevent white flash and reserve space while JS loads -->
+    <!-- Fonts: Inter (UI text, critical) + Playfair Display (decorative, optional) -->
+    <!-- Use display=swap so text renders in fallback font while the web font loads -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Inline critical CSS: prevent white flash, show branded loader while JS hydrates -->
     <style>
-      html, body { margin: 0; padding: 0; background: #0f0f0f; }
+      /* ── Base reset to match the app shell ── */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body {
+        background: #0b0810;
+        color: #ebebeb;
+        font-family: Inter, system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overscroll-behavior: none;
+        height: 100%;
+      }
+
+      /* ── Root placeholder spinner (shows before React mounts) ── */
       #root:empty {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         min-height: 100dvh;
-        background: #0f0f0f;
+        gap: 16px;
+        background: radial-gradient(ellipse at 60% 0%, rgba(200,30,60,0.12) 0%, transparent 60%),
+                    #0b0810;
+      }
+      #root:empty::before {
+        content: '';
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 3px solid rgba(232, 39, 75, 0.18);
+        border-top-color: #e8274b;
+        animation: _cspin 0.65s linear infinite;
       }
       #root:empty::after {
-        content: '';
-        width: 40px;
-        height: 40px;
-        border: 3px solid rgba(196,48,60,0.25);
-        border-top-color: #c4303c;
-        border-radius: 50%;
-        animation: _spin 0.75s linear infinite;
+        content: 'Shqiponja';
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.35);
       }
-      @keyframes _spin { to { transform: rotate(360deg); } }
+      @keyframes _cspin { to { transform: rotate(360deg); } }
     </style>
   </head>
 

@@ -74,7 +74,11 @@ export function ChatHeader({
             >
               <ArrowLeft className="h-5 w-5 text-primary/80" />
             </Button>
-            <div className="flex items-center gap-3 cursor-pointer" onClick={onProfileClick}>
+            <button
+              type="button"
+              className="flex items-center gap-3 cursor-pointer bg-transparent border-0 p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+              onClick={onProfileClick}
+            >
               <div className="relative h-10 w-10">
                 {matchProfile?.profile_image_url ? (
                   <img
@@ -116,7 +120,7 @@ export function ChatHeader({
                   </p>
                 ) : null}
               </div>
-            </div>
+            </button>
           </div>
 
           {/* Call Actions */}

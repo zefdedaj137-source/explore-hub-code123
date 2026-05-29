@@ -86,7 +86,10 @@ const extractSpotifyTrackId = (url: string): string | null => {
   return m ? m[1] : null;
 };
 
-const formatTimeAgo = (timestamp: string, t: (key: string, opts?: Record<string, unknown>) => string): string => {
+const formatTimeAgo = (
+  timestamp: string,
+  t: (key: string, opts?: Record<string, unknown>) => string
+): string => {
   const now = new Date();
   const past = new Date(timestamp);
   const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
@@ -532,7 +535,11 @@ const MyProfile = () => {
           {earnedBadges.length > 0 && (
             <div className="mt-6">
               <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-1">
-                <Sparkles className="h-4 w-4" /> {t("profile.achievements", { earned: earnedBadges.length, total: ACHIEVEMENTS.length })}
+                <Sparkles className="h-4 w-4" />{" "}
+                {t("profile.achievements", {
+                  earned: earnedBadges.length,
+                  total: ACHIEVEMENTS.length,
+                })}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {ACHIEVEMENTS.map((a) => {
@@ -653,9 +660,7 @@ const MyProfile = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground">{t("profile.seeWhoLiked")}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.noMoreGuessing")}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t("profile.noMoreGuessing")}</p>
                   </div>
                 </div>
 
@@ -664,10 +669,10 @@ const MyProfile = () => {
                     <Zap className="h-5 w-5 text-white" fill="currentColor" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">{t("profile.freeBoostsMonthly")}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.get10xViews")}
-                    </p>
+                    <h4 className="font-semibold text-foreground">
+                      {t("profile.freeBoostsMonthly")}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">{t("profile.get10xViews")}</p>
                   </div>
                 </div>
 
@@ -676,10 +681,10 @@ const MyProfile = () => {
                     <Phone className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">{t("profile.unlimitedCallsVideo")}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.connectDeeper")}
-                    </p>
+                    <h4 className="font-semibold text-foreground">
+                      {t("profile.unlimitedCallsVideo")}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">{t("profile.connectDeeper")}</p>
                   </div>
                 </div>
 
@@ -688,10 +693,10 @@ const MyProfile = () => {
                     <Eye className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">{t("profile.advancedFilters")}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.filterAdvanced")}
-                    </p>
+                    <h4 className="font-semibold text-foreground">
+                      {t("profile.advancedFilters")}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">{t("profile.filterAdvanced")}</p>
                   </div>
                 </div>
 
@@ -700,10 +705,10 @@ const MyProfile = () => {
                     <Users className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-foreground">{t("profile.unlimitedSwipes")}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.neverRunOut")}
-                    </p>
+                    <h4 className="font-semibold text-foreground">
+                      {t("profile.unlimitedSwipes")}
+                    </h4>
+                    <p className="text-sm text-muted-foreground">{t("profile.neverRunOut")}</p>
                   </div>
                 </div>
               </div>
@@ -728,9 +733,7 @@ const MyProfile = () => {
                 <Crown className="h-5 w-5 mr-2" fill="currentColor" />
                 {t("profile.premiumMember")}
               </Badge>
-              <p className="text-sm text-muted-foreground mt-3">
-                {t("profile.premiumEnjoy")}
-              </p>
+              <p className="text-sm text-muted-foreground mt-3">{t("profile.premiumEnjoy")}</p>
             </div>
           </Card>
         )}
@@ -756,7 +759,9 @@ const MyProfile = () => {
                 </Badge>
               )}
               {profile.video_intro_url && (
-                <Badge className="bg-background/80 text-white border-none">{t("common.videoIntroLabel")}</Badge>
+                <Badge className="bg-background/80 text-white border-none">
+                  {t("common.videoIntroLabel")}
+                </Badge>
               )}
               {profile.mood_emoji && (
                 <Badge
@@ -952,9 +957,9 @@ const MyProfile = () => {
                   <span className="text-2xl">✨</span> Interests
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {(profile.interests || []).map((interest, i) => (
+                  {(profile.interests || []).map((interest) => (
                     <Badge
-                      key={i}
+                      key={interest}
                       variant="secondary"
                       className="text-sm py-1.5 px-4 rounded-full bg-primary/10 text-primary border-border"
                     >

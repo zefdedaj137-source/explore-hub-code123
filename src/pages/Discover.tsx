@@ -89,6 +89,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { calculateDistance, formatDistance } from "@/lib/distance";
 import { MatchAnimation } from "@/components/MatchAnimation";
+import { markMatchHandled } from "@/hooks/useGlobalMatchRealtime";
 import { ProfileCardSkeleton } from "@/components/LoadingSkeleton";
 import BottomNav from "@/components/BottomNav";
 import type { Profile, StoryItem } from "@/types/profile";
@@ -977,6 +978,10 @@ const Discover = () => {
     ]);
     analytics.like(profileId);
 
+    // Optimistically advance to the next card immediately — reverted on failure
+    const preSwipeIndex = currentProfileIndex;
+    setCurrentProfileIndex((prev) => prev + 1);
+
     try {
       // Use the like_user RPC function which handles swipe limits
       const { data, error } = (await supabase.rpc("like_user", {
@@ -1006,6 +1011,8 @@ const Discover = () => {
       logger.log("Like user response:", data);
 
       if (!data.success) {
+        // Revert optimistic advance — user hasn't actually consumed a swipe
+        setCurrentProfileIndex(preSwipeIndex);
         // Show upgrade dialog if out of swipes
         setShowUpgradeDialog(true);
         toast.info(data.error || "Out of swipes!");
@@ -1042,6 +1049,7 @@ const Discover = () => {
 
       // Handle match if it occurred
       if (data.is_match) {
+        markMatchHandled(profileId); // prevent global overlay from double-firing
         const matchedUserProfile = profiles.find((p) => p.id === profileId);
         if (matchedUserProfile) {
           setMatchedProfile(matchedUserProfile);
@@ -1087,10 +1095,9 @@ const Discover = () => {
           })
           .catch((err) => logger.error("send-push (like) failed:", err));
       }
-
-      // Move to next profile
-      setCurrentProfileIndex((prev) => prev + 1);
     } catch (error) {
+      // Revert optimistic advance on network / server error
+      setCurrentProfileIndex(preSwipeIndex);
       logger.error("Error liking profile:", error);
       const errorMessage = (error as { message?: string } | null)?.message ?? "Unknown error";
       toast.error(t("discover.failedToLike", { error: errorMessage }));
@@ -1172,6 +1179,7 @@ const Discover = () => {
       });
 
       if (likeData.is_match) {
+        markMatchHandled(profileId); // prevent global overlay from double-firing
         const matchedUserProfile = profiles.find((p) => p.id === profileId);
         if (matchedUserProfile) {
           setMatchedProfile(matchedUserProfile);
@@ -1313,6 +1321,7 @@ const Discover = () => {
       }
 
       // Show match animation with Premium Roses theme
+      markMatchHandled(profileId); // prevent global overlay from double-firing
       setMatchedProfile(rosesTargetProfile);
       setIsPremiumRosesMatch(true);
       setShowMatchAnimation(true);
@@ -1575,7 +1584,12 @@ const Discover = () => {
         receiver_user_id: instantMessageTargetProfile.id,
         message_text: instantMessageText.trim(),
       })) as {
-        data: { success: boolean; error?: string; credits_remaining?: number; match_id?: string } | null;
+        data: {
+          success: boolean;
+          error?: string;
+          credits_remaining?: number;
+          match_id?: string;
+        } | null;
         error: unknown;
       };
 
@@ -2873,7 +2887,9 @@ const Discover = () => {
                       <Card className="p-4 bg-background border-primary/30">
                         <div className="text-center space-y-2">
                           <Crown className="h-8 w-8 text-primary mx-auto" />
-                          <p className="text-sm font-semibold">{t("discover.unlockPremiumFilters")}</p>
+                          <p className="text-sm font-semibold">
+                            {t("discover.unlockPremiumFilters")}
+                          </p>
                           <p className="text-xs text-muted-foreground">
                             Get verified, height, lifestyle & more filters
                           </p>
@@ -2933,6 +2949,41 @@ const Discover = () => {
       </div>
 
       {/* Main Content - For You Tab */}
+
+      {/* Verification nudge banner — shown to unverified users */}
+      {myProfile && !myProfile.verified && (
+        <div className="container mx-auto max-w-2xl px-4 mb-4">
+          <div
+            className="flex items-center gap-3 p-3 rounded-2xl border border-blue-500/30 bg-blue-500/10 cursor-pointer hover:bg-blue-500/15 transition-colors"
+            onClick={() => navigate("/verification")}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && navigate("/verification")}
+          >
+            <div className="shrink-0 h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+              <svg className="h-4 w-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-blue-300">Get your Blue Tick ✓</p>
+              <p className="text-xs text-blue-400/70">
+                Verified profiles get 3× more matches. Tap to verify now.
+              </p>
+            </div>
+            <svg
+              className="h-4 w-4 text-blue-400/60 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </div>
+        </div>
+      )}
+
       {activeTab === "for-you" && (
         <>
           {loading ? (
@@ -2970,7 +3021,9 @@ const Discover = () => {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                           <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
                         </span>
-                        <span className="text-xs font-semibold text-white">{t("discover.viewStory")}</span>
+                        <span className="text-xs font-semibold text-white">
+                          {t("discover.viewStory")}
+                        </span>
                       </button>
                     )}
                     <div className="relative aspect-[3/4] bg-gradient-to-br from-background via-muted to-primary/20">
@@ -3039,10 +3092,10 @@ const Discover = () => {
                                   )}
                                   {(() => {
                                     const score = computeMatchScore(currentProfile, myProfile);
-                                    if (score > 0)
+                                    if (score >= 30)
                                       return (
-                                        <Badge className="bg-pink-500/80 text-white border-none backdrop-blur-sm text-[10px] px-1.5 py-0 h-4">
-                                          {Math.min(score, 100)}% Match
+                                        <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white border-none text-[10px] px-2 py-0 h-4 font-bold shadow-sm">
+                                          ❤️ {score}% Match
                                         </Badge>
                                       );
                                     return null;
@@ -3073,7 +3126,9 @@ const Discover = () => {
                                   currentProfile.travel_city ? (
                                     <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                                       <span className="text-base">✈️</span>
-                                      <span>{t("common.travelingIn")} {currentProfile.travel_city}</span>
+                                      <span>
+                                        {t("common.travelingIn")} {currentProfile.travel_city}
+                                      </span>
                                     </div>
                                   ) : currentProfile.city ? (
                                     <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -3118,9 +3173,9 @@ const Discover = () => {
 
                       {currentProfile.interests.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                          {swipeCardInterests.map((interest, i) => (
+                          {swipeCardInterests.map((interest) => (
                             <Badge
-                              key={i}
+                              key={interest}
                               variant="secondary"
                               className="rounded-full px-3 py-1.5 bg-primary/10 text-primary border-primary/20 text-xs font-semibold"
                             >
@@ -3344,10 +3399,10 @@ const Discover = () => {
           ) : (
             <div className="flex flex-col items-center justify-center h-96 text-center">
               <Sparkles className="h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">{t("discover.noActiveBoosters")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("discover.noBoosterDesc")}
-              </p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {t("discover.noActiveBoosters")}
+              </h3>
+              <p className="text-sm text-muted-foreground">{t("discover.noBoosterDesc")}</p>
             </div>
           )}
         </div>
@@ -3492,7 +3547,9 @@ const Discover = () => {
                       <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">{t("discover.orBuyMore")}</span>
+                      <span className="bg-background px-2 text-muted-foreground">
+                        {t("discover.orBuyMore")}
+                      </span>
                     </div>
                   </div>
                 </>
@@ -3672,7 +3729,9 @@ const Discover = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">10 Hours</div>
-                    <div className="text-sm text-muted-foreground">{t("discover.bestValueBadge")}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {t("discover.bestValueBadge")}
+                    </div>
                   </div>
                   <div className="text-2xl font-bold text-primary">100 coins</div>
                 </div>
@@ -3733,19 +3792,22 @@ const Discover = () => {
                       <li className="flex items-center gap-2">
                         <span className="text-primary">✓</span>
                         <span>
-                          <strong>{t("discover.instantMatch")}</strong> {t("discover.instantMatchDesc")}
+                          <strong>{t("discover.instantMatch")}</strong>{" "}
+                          {t("discover.instantMatchDesc")}
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-primary">✓</span>
                         <span>
-                          <strong>{t("discover.automaticLikeBack")}</strong> {t("discover.automaticLikeBackDesc")}
+                          <strong>{t("discover.automaticLikeBack")}</strong>{" "}
+                          {t("discover.automaticLikeBackDesc")}
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="text-primary">✓</span>
                         <span>
-                          <strong>{t("discover.exclusiveRoseTheme")}</strong> {t("discover.exclusiveRoseThemeDesc")}
+                          <strong>{t("discover.exclusiveRoseTheme")}</strong>{" "}
+                          {t("discover.exclusiveRoseThemeDesc")}
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
@@ -3827,9 +3889,7 @@ const Discover = () => {
                 />
                 <div>
                   <div className="font-semibold">{instantMessageTargetProfile.full_name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {t("discover.sendMsgFirst")}
-                  </div>
+                  <div className="text-sm text-muted-foreground">{t("discover.sendMsgFirst")}</div>
                 </div>
               </div>
             )}
@@ -3964,7 +4024,9 @@ const Discover = () => {
                 </DialogTitle>
                 <div className="flex flex-wrap gap-2">
                   {currentProfile.verified && (
-                    <Badge className="bg-primary text-white border-none">{t("common.verified")}</Badge>
+                    <Badge className="bg-primary text-white border-none">
+                      {t("common.verified")}
+                    </Badge>
                   )}
                   {currentProfile.is_premium && (
                     <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
@@ -3972,7 +4034,9 @@ const Discover = () => {
                     </Badge>
                   )}
                   {currentProfile.video_intro_url && (
-                    <Badge className="bg-background/80 text-white border-none">{t("common.videoIntroLabel")}</Badge>
+                    <Badge className="bg-background/80 text-white border-none">
+                      {t("common.videoIntroLabel")}
+                    </Badge>
                   )}
                 </div>
               </DialogHeader>
@@ -4041,7 +4105,9 @@ const Discover = () => {
 
                 {currentProfile.video_intro_url && (
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
+                    <h4 className="text-sm font-semibold text-foreground">
+                      {t("common.videoIntro")}
+                    </h4>
                     <div className="rounded-lg overflow-hidden border border-primary/20">
                       <video
                         src={currentProfile.video_intro_url}
@@ -4056,7 +4122,9 @@ const Discover = () => {
                 {currentProfile.travel_mode_active && currentProfile.travel_city ? (
                   <div className="flex items-center gap-3 text-muted-foreground">
                     <span className="text-lg">✈️</span>
-                    <span className="font-medium">{t("common.travelingIn")} {currentProfile.travel_city}</span>
+                    <span className="font-medium">
+                      {t("common.travelingIn")} {currentProfile.travel_city}
+                    </span>
                     {currentProfile.distance_km && (
                       <span className="text-muted-foreground">
                         • {formatDistance(currentProfile.distance_km)} away
@@ -4470,7 +4538,9 @@ const Discover = () => {
                 disabled={superlikeCheckoutLoading !== null}
                 onClick={() => handlePurchaseSuperlikes(5)}
               >
-                <Badge className="absolute -top-2 -right-2 bg-primary">{t("discover.save20")}</Badge>
+                <Badge className="absolute -top-2 -right-2 bg-primary">
+                  {t("discover.save20")}
+                </Badge>
                 <div className="flex items-center gap-2">
                   {superlikeCheckoutLoading === 5 ? (
                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -4493,7 +4563,9 @@ const Discover = () => {
                 disabled={superlikeCheckoutLoading !== null}
                 onClick={() => handlePurchaseSuperlikes(10)}
               >
-                <Badge className="absolute -top-2 -right-2 bg-primary">{t("discover.bestValueLabel")}</Badge>
+                <Badge className="absolute -top-2 -right-2 bg-primary">
+                  {t("discover.bestValueLabel")}
+                </Badge>
                 <div className="flex items-center gap-2">
                   {superlikeCheckoutLoading === 10 ? (
                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -4524,13 +4596,24 @@ const Discover = () => {
             setIsPremiumRosesMatch(false);
             setMatchedMatchId(null);
           }}
-          onChatNow={matchedMatchId ? () => {
-            setShowMatchAnimation(false);
-            setIsPremiumRosesMatch(false);
-            navigate(`/chat/${matchedMatchId}`);
-            setMatchedMatchId(null);
-          } : undefined}
+          onChatNow={
+            matchedMatchId
+              ? (opener?: string) => {
+                  setShowMatchAnimation(false);
+                  setIsPremiumRosesMatch(false);
+                  navigate(`/chat/${matchedMatchId}`, { state: { opener } });
+                  setMatchedMatchId(null);
+                }
+              : undefined
+          }
           isPremiumRoses={isPremiumRosesMatch}
+          sharedInterests={
+            matchedProfile && myProfile
+              ? (matchedProfile.interests || []).filter((i) =>
+                  (myProfile.interests || []).map((x) => x.toLowerCase()).includes(i.toLowerCase())
+                )
+              : []
+          }
         />
       )}
 
@@ -4554,7 +4637,9 @@ const Discover = () => {
             >
               <div className="flex items-center justify-center gap-2">
                 <Eye className="h-4 w-4" />
-                <span>{t("discover.profileViews")} ({profileViews.length})</span>
+                <span>
+                  {t("discover.profileViews")} ({profileViews.length})
+                </span>
               </div>
             </button>
             <button
@@ -4567,7 +4652,9 @@ const Discover = () => {
             >
               <div className="flex items-center justify-center gap-2">
                 <Heart className="h-4 w-4" />
-                <span>{t("discover.likes")} ({profileLikes.length})</span>
+                <span>
+                  {t("discover.likes")} ({profileLikes.length})
+                </span>
               </div>
             </button>
           </div>
@@ -4616,7 +4703,9 @@ const Discover = () => {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Eye className="h-12 w-12 text-muted-foreground mb-3" />
-                  <p className="text-muted-foreground font-medium">{t("discover.noProfileViews")}</p>
+                  <p className="text-muted-foreground font-medium">
+                    {t("discover.noProfileViews")}
+                  </p>
                   <p className="text-sm text-muted-foreground mt-1">
                     People who view your profile will appear here
                   </p>
@@ -4697,7 +4786,9 @@ const Discover = () => {
                     </DialogTitle>
                     <div className="flex flex-wrap gap-2">
                       {p.verified && (
-                        <Badge className="bg-primary text-white border-none">{t("common.verified")}</Badge>
+                        <Badge className="bg-primary text-white border-none">
+                          {t("common.verified")}
+                        </Badge>
                       )}
                       {p.is_premium && (
                         <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
@@ -4769,7 +4860,9 @@ const Discover = () => {
                     {/* Video Intro */}
                     {p.video_intro_url && (
                       <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
+                        <h4 className="text-sm font-semibold text-foreground">
+                          {t("common.videoIntro")}
+                        </h4>
                         <div className="rounded-lg overflow-hidden border border-primary/20">
                           <video
                             src={p.video_intro_url}
@@ -4784,7 +4877,9 @@ const Discover = () => {
                     {p.travel_mode_active && p.travel_city ? (
                       <div className="flex items-center gap-3 text-muted-foreground">
                         <span className="text-lg">✈️</span>
-                        <span className="font-medium">{t("common.travelingIn")} {p.travel_city}</span>
+                        <span className="font-medium">
+                          {t("common.travelingIn")} {p.travel_city}
+                        </span>
                         {p.distance_km && (
                           <span className="text-muted-foreground">
                             • {formatDistance(p.distance_km)} away
@@ -5139,7 +5234,9 @@ const Discover = () => {
                               {p.travel_mode_active && p.travel_city ? (
                                 <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                                   <span>✈️</span>
-                                  <span>{t("common.travelingIn")} {p.travel_city}</span>
+                                  <span>
+                                    {t("common.travelingIn")} {p.travel_city}
+                                  </span>
                                 </div>
                               ) : p.city ? (
                                 <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -5165,7 +5262,9 @@ const Discover = () => {
                     {/* Video Intro */}
                     {p.video_intro_url && (
                       <div className="space-y-2">
-                        <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
+                        <h4 className="text-sm font-semibold text-foreground">
+                          {t("common.videoIntro")}
+                        </h4>
                         <div className="rounded-lg overflow-hidden border border-primary/20">
                           <video
                             src={p.video_intro_url}

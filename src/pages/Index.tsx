@@ -5,6 +5,7 @@ import RadarNearby from "@/components/RadarNearby";
 import BrowseProfiles from "@/components/BrowseProfiles";
 import DatingGames from "@/components/DatingGames";
 import DatingIdeas from "@/components/DatingIdeas";
+import LoveStories from "@/components/LoveStories";
 import Premium from "@/components/Premium";
 import Footer from "@/components/Footer";
 
@@ -16,6 +17,7 @@ const Index = () => {
       <RadarNearby />
       <Features />
       <BrowseProfiles />
+      <LoveStories />
       <DatingGames />
       <DatingIdeas />
       <Premium />

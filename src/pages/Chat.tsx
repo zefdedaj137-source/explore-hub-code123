@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeText } from "@/lib/sanitize";
 import { analytics } from "@/lib/analytics";
@@ -59,6 +59,12 @@ import {
 import type { Database } from "@/integrations/supabase/types";
 
 import { MessageSkeleton } from "@/components/LoadingSkeleton";
+
+// Cached audio elements — created once at module load to avoid GC pressure
+const sentSound = new Audio("/message-sent.mp3");
+sentSound.volume = 0.5;
+const receivedSound = new Audio("/message-received.mp3");
+receivedSound.volume = 0.6;
 
 const messageSchema = z.object({
   content: z
@@ -138,6 +144,7 @@ const Chat = () => {
   const { t } = useTranslation();
   const { matchId } = useParams();
   const [searchParams] = useSearchParams();
+  const { state: navState } = useLocation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -168,6 +175,15 @@ const Chat = () => {
   const [showIcebreakers, setShowIcebreakers] = useState(true);
   const typingTimeoutRef = useRef<number | null>(null);
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+  // Pre-populate message from match animation opener (InstantChat)
+  useEffect(() => {
+    const opener = (navState as { opener?: string } | null)?.opener;
+    if (opener) {
+      setNewMessage(opener);
+      setShowIcebreakers(false);
+    }
+  }, [navState]);
 
   // Date plan states
   const [showDatePlanDialog, setShowDatePlanDialog] = useState(false);
@@ -217,6 +233,7 @@ const Chat = () => {
     })()
   );
   const lastSendTime = useRef(0);
+  const prevReactionIdsRef = useRef("");
 
   // Message reactions
   const REACTION_EMOJIS = ["❤️", "😂", "😮", "😢", "🔥", "👍"];
@@ -475,8 +492,6 @@ const Chat = () => {
         updateMessageStreak();
       }
 
-      const sentSound = new Audio("/message-sent.mp3");
-      sentSound.volume = 0.5;
       sentSound.play().catch(() => {});
 
       toast.success(t("chat.photoSent"));
@@ -552,63 +567,61 @@ const Chat = () => {
     setMatchProfile(null);
 
     try {
-      // Get match details
-      const { data: matchData } = await supabase
-        .from("matches")
-        .select("user1_id, user2_id, special_match_type")
-        .eq("id", matchId)
-        .maybeSingle();
+      // Round 1: fetch match info and current-user profile in parallel
+      const [matchResult, currentUserResult] = await Promise.all([
+        supabase
+          .from("matches")
+          .select("user1_id, user2_id, special_match_type")
+          .eq("id", matchId)
+          .maybeSingle(),
+        supabase.from("profiles").select("is_premium, interests").eq("id", user.id).single(),
+      ]);
 
+      const matchData = matchResult.data;
       if (!matchData) throw new Error("Match not found");
 
       const otherId = matchData.user1_id === user.id ? matchData.user2_id : matchData.user1_id;
       setOtherUserId(otherId);
 
-      // Get other user's profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select(
-          "full_name, profile_image_url, profile_images, age, bio, city, country, location, interests, work, education, height, height_cm, zodiac_sign, religion, verified, is_premium, video_intro_url, mood_emoji, mood_text, soundtrack_url, soundtrack_source, soundtrack_title, soundtrack_artist, looking_for, lifestyle, drinking, smoking, pets, last_active"
-        )
-        .eq("id", otherId)
-        .single();
+      const currentUserProfile = currentUserResult.data;
+      setIsPremium(currentUserProfile?.is_premium || false);
+      setMyInterests((currentUserProfile?.interests || []) as string[]);
 
+      // Round 2: fetch other-user profile, date plans and blocking check in parallel
+      const [profileResult, datePlanResult, blockResult] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select(
+            "full_name, profile_image_url, profile_images, age, bio, city, country, location, interests, work, education, height, height_cm, zodiac_sign, religion, verified, is_premium, video_intro_url, mood_emoji, mood_text, soundtrack_url, soundtrack_source, soundtrack_title, soundtrack_artist, looking_for, lifestyle, drinking, smoking, pets, last_active"
+          )
+          .eq("id", otherId)
+          .single(),
+        supabase
+          .from("date_plans")
+          .select("id, location, scheduled_for, notes, status, planner_id")
+          .eq("match_id", matchId)
+          .or(`planner_id.eq.${user.id},partner_id.eq.${user.id}`)
+          .in("status", ["confirmed", "proposed"])
+          .order("scheduled_for", { ascending: true })
+          .limit(1),
+        isBlockedBetween(user.id, otherId),
+      ]);
+
+      const profileData = profileResult.data;
       setMatchProfile(profileData as unknown as MatchProfile | null);
       if ((profileData as unknown as MatchProfile | null)?.last_active) {
         setOtherUserLastActive((profileData as unknown as MatchProfile).last_active!);
       }
 
-      // Check if current user is premium
-      const { data: currentUserProfile } = await supabase
-        .from("profiles")
-        .select("is_premium, interests")
-        .eq("id", user.id)
-        .single();
-
-      setIsPremium(currentUserProfile?.is_premium || false);
-      setMyInterests((currentUserProfile?.interests || []) as string[]);
-
-      // Fetch confirmed/proposed date plans for this specific match
-      // Double-filter: must belong to this match AND involve the current user
-      const { data: datePlanData } = await supabase
-        .from("date_plans")
-        .select("id, location, scheduled_for, notes, status, planner_id")
-        .eq("match_id", matchId)
-        .or(`planner_id.eq.${user.id},partner_id.eq.${user.id}`)
-        .in("status", ["confirmed", "proposed"])
-        .order("scheduled_for", { ascending: true })
-        .limit(1);
-
+      const datePlanData = datePlanResult.data;
       if (datePlanData && datePlanData.length > 0) {
         setConfirmedDatePlan(datePlanData[0]);
       } else {
         setConfirmedDatePlan(null);
       }
 
-      // Check blocking state
-      const blockState = await isBlockedBetween(user.id, otherId);
-      setBlockedByYou(blockState.blockedByYou);
-      setBlockedYou(blockState.blockedYou);
+      setBlockedByYou(blockResult.blockedByYou);
+      setBlockedYou(blockResult.blockedYou);
     } catch (error) {
       toast.error((error as Error).message || "Failed to load profile");
     }
@@ -874,7 +887,10 @@ const Chat = () => {
       // Send cancel message in chat
       if (matchId) {
         const formattedDate = new Date(confirmedDatePlan.scheduled_for).toLocaleString();
-        const chatMessage = t("chat.dateCanceledMsg", { location: confirmedDatePlan.location, date: formattedDate });
+        const chatMessage = t("chat.dateCanceledMsg", {
+          location: confirmedDatePlan.location,
+          date: formattedDate,
+        });
         const { error: msgError } = await supabase.from("messages").insert({
           match_id: matchId,
           sender_id: user.id,
@@ -914,7 +930,10 @@ const Chat = () => {
         const formattedDate = new Date(confirmedDatePlan.scheduled_for).toLocaleString();
         const chatMessage = accept
           ? t("chat.dateAcceptedMsg", { location: confirmedDatePlan.location, date: formattedDate })
-          : t("chat.dateDeclinedMsg", { location: confirmedDatePlan.location, date: formattedDate });
+          : t("chat.dateDeclinedMsg", {
+              location: confirmedDatePlan.location,
+              date: formattedDate,
+            });
         const { error: msgError } = await supabase.from("messages").insert({
           match_id: matchId,
           sender_id: user.id,
@@ -989,7 +1008,11 @@ const Chat = () => {
 
       // Send chat message
       const formattedDate = new Date(datePlanDateTime).toLocaleString();
-      const chatMessage = t("chat.datePlannedMsg", { location: datePlanLocation, date: formattedDate, notes: datePlanNotes ? `\n📝 ${datePlanNotes}` : "" });
+      const chatMessage = t("chat.datePlannedMsg", {
+        location: datePlanLocation,
+        date: formattedDate,
+        notes: datePlanNotes ? `\n📝 ${datePlanNotes}` : "",
+      });
 
       const { error: msgError } = await supabase.from("messages").insert({
         match_id: matchId,
@@ -1075,8 +1098,6 @@ const Chat = () => {
       setReplyingTo(null);
 
       // Play sent message sound
-      const sentSound = new Audio("/message-sent.mp3");
-      sentSound.volume = 0.5;
       sentSound.play().catch(() => {
         // Ignore if audio fails to play (user interaction required)
       });
@@ -1148,8 +1169,7 @@ const Chat = () => {
   // --- Message Reactions ---
   const fetchReactions = useCallback(async (messageIds: string[]) => {
     if (messageIds.length === 0 || reactionsTableMissing.current) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from("message_reactions")
       .select("message_id, emoji, user_id")
       .in("message_id", messageIds);
@@ -1177,29 +1197,33 @@ const Chat = () => {
       if (reactionsTableMissing.current) toast.error(t("chat.reactionsUnavailable"));
       return;
     }
+    const existing = reactions[messageId]?.find((r) => r.emoji === emoji && r.user_id === user.id);
+    // Optimistic update — no round-trip delay for the user
+    setReactions((prev) => {
+      const current = prev[messageId] || [];
+      const next = existing
+        ? current.filter((r) => !(r.emoji === emoji && r.user_id === user.id))
+        : [...current, { emoji, user_id: user.id }];
+      return { ...prev, [messageId]: next };
+    });
+    setReactionPickerMsgId(null);
     try {
-      const existing = reactions[messageId]?.find(
-        (r) => r.emoji === emoji && r.user_id === user.id
-      );
       if (existing) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any)
+        await supabase
           .from("message_reactions")
           .delete()
           .eq("message_id", messageId)
           .eq("user_id", user.id)
           .eq("emoji", emoji);
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any)
+        await supabase
           .from("message_reactions")
           .insert({ message_id: messageId, user_id: user.id, emoji });
       }
-      setReactionPickerMsgId(null);
-      fetchReactions(messages.map((m) => m.id).filter((id) => !id.startsWith("temp-")));
     } catch {
+      // Revert optimistic update on failure
+      fetchReactions(messages.map((m) => m.id).filter((id) => !id.startsWith("temp-")));
       toast.error(t("chat.reactionsUnavailable"));
-      setReactionPickerMsgId(null);
     }
   };
 
@@ -1253,9 +1277,15 @@ const Chat = () => {
   );
 
   // Load reactions when messages change
+  // Only re-fetch reactions when the set of real (non-optimistic) message IDs changes.
+  // Using a ref to track the previous key avoids firing on every optimistic insert.
   useEffect(() => {
     const ids = messages.map((m) => m.id).filter((id) => !id.startsWith("temp-"));
-    if (ids.length > 0) fetchReactions(ids);
+    const key = ids.join(",");
+    if (ids.length > 0 && key !== prevReactionIdsRef.current) {
+      prevReactionIdsRef.current = key;
+      fetchReactions(ids);
+    }
   }, [messages, fetchReactions]);
 
   // --- GIF search via Tenor ---
@@ -1478,9 +1508,7 @@ const Chat = () => {
 
             // Play incoming message sound if it's from the other person
             if (newMessage.sender_id !== user?.id) {
-              const incomingSound = new Audio("/message-received.mp3");
-              incomingSound.volume = 0.6;
-              incomingSound.play().catch(() => {
+              receivedSound.play().catch(() => {
                 // Ignore if audio fails to play
               });
               markMessagesRead();
@@ -1665,7 +1693,9 @@ const Chat = () => {
             </div>
           )}
           {!hasOlderMessages && messages.length > 0 && (
-            <p className="text-center text-xs text-muted-foreground py-2">{t("chat.startConversation")}</p>
+            <p className="text-center text-xs text-muted-foreground py-2">
+              {t("chat.startConversation")}
+            </p>
           )}
 
           {/* Pinned Date Plan */}
@@ -1708,7 +1738,9 @@ const Chat = () => {
                           : "border-yellow-400 text-yellow-700 dark:text-yellow-400"
                       }`}
                     >
-                      {confirmedDatePlan.status === "confirmed" ? t("chat.confirmed") : t("chat.pending")}
+                      {confirmedDatePlan.status === "confirmed"
+                        ? t("chat.confirmed")
+                        : t("chat.pending")}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -1776,17 +1808,9 @@ const Chat = () => {
 
           {(blockedByYou || blockedYou) && (
             <div className="mb-4 p-3 rounded border border-primary text-sm bg-primary/10 text-primary">
-              {blockedByYou && !blockedYou && (
-                <span>
-                  {t("chat.youBlockedUser")}
-                </span>
-              )}
-              {blockedYou && !blockedByYou && (
-                <span>{t("chat.blockedByUser")}</span>
-              )}
-              {blockedYou && blockedByYou && (
-                <span>{t("chat.mutualBlock")}</span>
-              )}
+              {blockedByYou && !blockedYou && <span>{t("chat.youBlockedUser")}</span>}
+              {blockedYou && !blockedByYou && <span>{t("chat.blockedByUser")}</span>}
+              {blockedYou && blockedByYou && <span>{t("chat.mutualBlock")}</span>}
             </div>
           )}
           {messages.length === 0 ? (
@@ -2041,7 +2065,9 @@ const Chat = () => {
                           {matchProfile.travel_mode_active && matchProfile.travel_city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                               <span>✈️</span>
-                              <span>{t("common.travelingIn")} {matchProfile.travel_city}</span>
+                              <span>
+                                {t("common.travelingIn")} {matchProfile.travel_city}
+                              </span>
                             </div>
                           ) : matchProfile.city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -2094,7 +2120,9 @@ const Chat = () => {
                           {matchProfile.travel_mode_active && matchProfile.travel_city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                               <span>✈️</span>
-                              <span>{t("common.travelingIn")} {matchProfile.travel_city}</span>
+                              <span>
+                                {t("common.travelingIn")} {matchProfile.travel_city}
+                              </span>
                             </div>
                           ) : matchProfile.city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -2111,7 +2139,9 @@ const Chat = () => {
                 {/* Video Intro */}
                 {matchProfile.video_intro_url && (
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
+                    <h4 className="text-sm font-semibold text-foreground">
+                      {t("common.videoIntro")}
+                    </h4>
                     <div className="rounded-lg overflow-hidden border border-primary/20">
                       <video
                         src={matchProfile.video_intro_url}
@@ -2582,10 +2612,14 @@ const Chat = () => {
             </div>
             <div className="overflow-y-auto flex-1 grid grid-cols-2 gap-2">
               {searchingGifs && (
-                <p className="col-span-2 text-center text-muted-foreground py-4">{t("common.searching")}</p>
+                <p className="col-span-2 text-center text-muted-foreground py-4">
+                  {t("common.searching")}
+                </p>
               )}
               {!searchingGifs && gifResults.length === 0 && gifSearchQuery && (
-                <p className="col-span-2 text-center text-muted-foreground py-4">{t("chat.noGifsFound")}</p>
+                <p className="col-span-2 text-center text-muted-foreground py-4">
+                  {t("chat.noGifsFound")}
+                </p>
               )}
               {gifResults.map((gif) => (
                 <button
@@ -2602,7 +2636,9 @@ const Chat = () => {
                 </button>
               ))}
             </div>
-            <p className="text-[10px] text-muted-foreground text-center mt-2">{t("chat.poweredByTenor")}</p>
+            <p className="text-[10px] text-muted-foreground text-center mt-2">
+              {t("chat.poweredByTenor")}
+            </p>
           </div>
         </div>
       )}

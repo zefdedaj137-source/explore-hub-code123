@@ -165,7 +165,10 @@ interface InstantMessageConversation {
 }
 
 // Helper function to format message timestamp
-const formatMessageTime = (timestamp: string | null | undefined, t: (key: string, opts?: Record<string, unknown>) => string) => {
+const formatMessageTime = (
+  timestamp: string | null | undefined,
+  t: (key: string, opts?: Record<string, unknown>) => string
+) => {
   if (!timestamp) {
     logger.warn("⚠️ Empty timestamp received");
     return t("common.justNow");
@@ -185,7 +188,8 @@ const formatMessageTime = (timestamp: string | null | undefined, t: (key: string
   if (diffInSeconds < 60) return t("common.justNow");
   if (diffInSeconds < 3600) return t("common.minutesAgo", { min: Math.floor(diffInSeconds / 60) });
   if (diffInSeconds < 86400) return t("common.hoursAgo", { hr: Math.floor(diffInSeconds / 3600) });
-  if (diffInSeconds < 604800) return t("common.daysAgo", { day: Math.floor(diffInSeconds / 86400) });
+  if (diffInSeconds < 604800)
+    return t("common.daysAgo", { day: Math.floor(diffInSeconds / 86400) });
 
   return date.toLocaleDateString("sq", { month: "short", day: "numeric" });
 };
@@ -204,7 +208,11 @@ const getMatchExpiryInfo = (
   if (msLeft <= 0) return { isExpired: true, countdown: null };
   const hoursLeft = Math.floor(msLeft / 3600000);
   if (hoursLeft < 48) {
-    return { isExpired: false, countdown: hoursLeft < 1 ? t("common.lessThanHourLeft") : t("common.hoursLeft", { hours: hoursLeft }) };
+    return {
+      isExpired: false,
+      countdown:
+        hoursLeft < 1 ? t("common.lessThanHourLeft") : t("common.hoursLeft", { hours: hoursLeft }),
+    };
   }
   return { isExpired: false, countdown: null };
 };
@@ -392,13 +400,30 @@ const Matches = () => {
         matchMap.set(match.id, match);
       }
 
-      // Batch-fetch all profiles in one query
-      const { data: profilesData, error: profilesError } = (await supabase
-        .from("profiles")
-        .select(
-          "id, full_name, age, profile_image_url, profile_images, video_intro_url, verified, is_premium, last_active, bio, city, country, location, interests, zodiac_sign, religion, work, education, height, height_cm, mood_emoji, mood_text, soundtrack_url, soundtrack_source, soundtrack_title, soundtrack_artist, looking_for, lifestyle, drinking, smoking, pets"
-        )
-        .in("id", otherUserIds)) as { data: Match["profile"][] | null; error: unknown };
+      // Fetch profiles and last messages in parallel — saves one full round-trip
+      const [profilesResult, messagesResult] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select(
+            "id, full_name, age, profile_image_url, profile_images, video_intro_url, verified, is_premium, last_active, bio, city, country, location, interests, zodiac_sign, religion, work, education, height, height_cm, mood_emoji, mood_text, soundtrack_url, soundtrack_source, soundtrack_title, soundtrack_artist, looking_for, lifestyle, drinking, smoking, pets"
+          )
+          .in("id", otherUserIds),
+        // Fetch enough rows so every match gets at least one entry even if a few
+        // matches are very active.  DISTINCT ON isn't available via PostgREST, so
+        // we over-fetch slightly and deduplicate client-side.
+        supabase
+          .from("messages")
+          .select("match_id, content, created_at, sender_id, voice_url")
+          .in("match_id", matchIds)
+          .order("created_at", { ascending: false })
+          .limit(Math.min(matchIds.length * 5, 500)),
+      ]);
+
+      const { data: profilesData, error: profilesError } = profilesResult as {
+        data: Match["profile"][] | null;
+        error: unknown;
+      };
+      const { data: messagesData } = messagesResult;
 
       if (profilesError) {
         logger.error("Failed to fetch match profiles:", profilesError);
@@ -408,15 +433,6 @@ const Matches = () => {
       for (const p of profilesData || []) {
         profileMap.set(p.id, p);
       }
-
-      // Batch-fetch last message per match — limit to 1 per match to avoid loading
-      // full message history (could be thousands of rows) just to show a preview.
-      const { data: messagesData } = await supabase
-        .from("messages")
-        .select("match_id, content, created_at, sender_id, voice_url")
-        .in("match_id", matchIds)
-        .order("created_at", { ascending: false })
-        .limit(matchIds.length * 2); // At most 2 rows per match is enough to find the latest
 
       const lastMessageMap = new Map<
         string,
@@ -817,8 +833,52 @@ const Matches = () => {
       )
       .subscribe();
 
+    // Live update the lastMessage preview when any message in our matches arrives
+    type MsgPayload = {
+      match_id: string;
+      content: string;
+      created_at: string;
+      sender_id: string;
+      voice_url: string | null;
+    };
+    const messagesChannel = supabase
+      .channel(`matches-msgs:${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const msg = payload.new as MsgPayload;
+          setMatches((prev) => {
+            const idx = prev.findIndex((m) => m.id === msg.match_id);
+            if (idx === -1) return prev;
+            const updated = [...prev];
+            updated[idx] = {
+              ...updated[idx],
+              lastMessage: {
+                content: msg.content,
+                created_at: msg.created_at,
+                sender_id: msg.sender_id,
+                voice_url: msg.voice_url ?? null,
+              },
+            };
+            // Re-sort so the active conversation floats to the top
+            return updated.sort((a, b) => {
+              if (!a.lastMessage && !b.lastMessage) return 0;
+              if (!a.lastMessage) return 1;
+              if (!b.lastMessage) return -1;
+              return (
+                new Date(b.lastMessage.created_at).getTime() -
+                new Date(a.lastMessage.created_at).getTime()
+              );
+            });
+          });
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(matchesChannel);
+      supabase.removeChannel(messagesChannel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate, activeTab]);
@@ -864,7 +924,11 @@ const Matches = () => {
       {pullDistance > 0 && (
         <div ref={pullDivRef} className="flex justify-center py-2">
           <div className={`text-sm text-muted-foreground ${refreshing ? "animate-spin" : ""}`}>
-            {refreshing ? "↻" : pullDistance > 60 ? t("common.releaseToRefresh") : t("common.pullToRefresh")}
+            {refreshing
+              ? "↻"
+              : pullDistance > 60
+                ? t("common.releaseToRefresh")
+                : t("common.pullToRefresh")}
           </div>
         </div>
       )}
@@ -901,7 +965,9 @@ const Matches = () => {
               <TabsTrigger
                 value="matches"
                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 ${
-                  activeTab === "matches" ? "text-foreground" : "text-muted-foreground hover:text-foreground/70"
+                  activeTab === "matches"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground/70"
                 }`}
                 style={
                   activeTab === "matches"
@@ -920,7 +986,9 @@ const Matches = () => {
               <TabsTrigger
                 value="instant"
                 className={`flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 ${
-                  activeTab === "instant" ? "text-foreground" : "text-muted-foreground hover:text-foreground/70"
+                  activeTab === "instant"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground/70"
                 }`}
                 style={
                   activeTab === "instant"
@@ -1086,7 +1154,9 @@ const Matches = () => {
                                 </div>
                                 {match.lastMessage && (
                                   <p className="text-xs text-muted-foreground/75 truncate">
-                                    {match.lastMessage.sender_id === user?.id ? t("common.youPrefix") : ""}
+                                    {match.lastMessage.sender_id === user?.id
+                                      ? t("common.youPrefix")
+                                      : ""}
                                     {match.lastMessage.voice_url
                                       ? t("common.voiceMessage")
                                       : match.lastMessage.content}
@@ -1246,7 +1316,11 @@ const Matches = () => {
                                     {t("matches.newMatch")}
                                   </Badge>
                                   {(() => {
-                                    const expiry = getMatchExpiryInfo(match, currentUserIsPremium, t);
+                                    const expiry = getMatchExpiryInfo(
+                                      match,
+                                      currentUserIsPremium,
+                                      t
+                                    );
                                     if (expiry.isExpired)
                                       return (
                                         <Badge className="bg-red-500/20 text-red-500 border border-red-500/30 text-[10px] font-bold px-2 ml-1">
@@ -1263,10 +1337,14 @@ const Matches = () => {
                                   })()}
                                 </div>
                                 {blockedByYouSet.has(match.profile.id) ? (
-                                  <p className="text-sm text-red-600">{t("matches.youBlockedUser")}</p>
+                                  <p className="text-sm text-red-600">
+                                    {t("matches.youBlockedUser")}
+                                  </p>
                                 ) : (
                                   <p className="text-sm text-muted-foreground">
-                                    {t("matches.sayHi", { name: match.profile.full_name.split(" ")[0] })}
+                                    {t("matches.sayHi", {
+                                      name: match.profile.full_name.split(" ")[0],
+                                    })}
                                   </p>
                                 )}
                                 {!blockedByYouSet.has(match.profile.id) && (
@@ -1547,7 +1625,9 @@ const Matches = () => {
                                 className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white hover:opacity-90"
                               >
                                 <MessageCircle className="h-4 w-4 mr-1" />
-                                {message.message_count > 1 ? t("matches.viewChat") : t("matches.reply")}
+                                {message.message_count > 1
+                                  ? t("matches.viewChat")
+                                  : t("matches.reply")}
                               </Button>
                             </div>
                           </div>
@@ -1559,7 +1639,8 @@ const Matches = () => {
 
                 <div className="mt-6 p-4 bg-gradient-to-br from-primary/10 to-primary/10 rounded-lg border border-primary/30">
                   <p className="text-sm text-center text-muted-foreground">
-                    <MessageSquare className="inline h-4 w-4 mb-1" /> {t("matches.instantMessageInfo")}
+                    <MessageSquare className="inline h-4 w-4 mb-1" />{" "}
+                    {t("matches.instantMessageInfo")}
                   </p>
                 </div>
               </div>
@@ -1568,9 +1649,7 @@ const Matches = () => {
                 <Card className="p-12 text-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-2 border-border rounded-2xl backdrop-blur-sm bg-gradient-to-br from-card to-primary/10/30">
                   <MessageSquare className="h-16 w-16 mx-auto mb-4 text-primary" />
                   <h3 className="text-2xl font-bold mb-2">{t("matches.noInstantMessages")}</h3>
-                  <p className="text-muted-foreground mb-6">
-                    {t("matches.useCreditsPrompt")}
-                  </p>
+                  <p className="text-muted-foreground mb-6">{t("matches.useCreditsPrompt")}</p>
                   <Button
                     className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white hover:opacity-90"
                     onClick={() => navigate("/discover")}
@@ -1726,7 +1805,9 @@ const Matches = () => {
                           viewingProfile.profile.travel_city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                               <span>✈️</span>
-                              <span>{t("common.travelingIn")} {viewingProfile.profile.travel_city}</span>
+                              <span>
+                                {t("common.travelingIn")} {viewingProfile.profile.travel_city}
+                              </span>
                             </div>
                           ) : viewingProfile.profile.city ? (
                             <div className="flex items-center gap-1 backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
@@ -1736,7 +1817,9 @@ const Matches = () => {
                           ) : null}
                           {viewingProfile.profile.distance_km && (
                             <div className="backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
-                              {t("chat.kmAway", { km: Math.round(viewingProfile.profile.distance_km) })}
+                              {t("chat.kmAway", {
+                                km: Math.round(viewingProfile.profile.distance_km),
+                              })}
                             </div>
                           )}
                         </div>
@@ -1781,7 +1864,9 @@ const Matches = () => {
                 {/* Video Intro */}
                 {viewingProfile.profile.video_intro_url && (
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-foreground">{t("common.videoIntro")}</h4>
+                    <h4 className="text-sm font-semibold text-foreground">
+                      {t("common.videoIntro")}
+                    </h4>
                     <div className="rounded-lg overflow-hidden border border-primary/20">
                       <video
                         src={viewingProfile.profile.video_intro_url}
@@ -2209,7 +2294,9 @@ const Matches = () => {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center text-muted-foreground py-8">{t("matches.noMessagesYet")}</div>
+                  <div className="text-center text-muted-foreground py-8">
+                    {t("matches.noMessagesYet")}
+                  </div>
                 )}
               </div>
 
@@ -2256,7 +2343,11 @@ const Matches = () => {
                   disabled={!replyMessage.trim() || sendingReply}
                   className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white hover:opacity-90 self-end"
                 >
-                  {sendingReply ? <>{t("common.sending")}</> : <MessageCircle className="h-4 w-4" />}
+                  {sendingReply ? (
+                    <>{t("common.sending")}</>
+                  ) : (
+                    <MessageCircle className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground text-right mt-1">
@@ -2285,7 +2376,7 @@ const Matches = () => {
               <div className="absolute top-5 left-3 z-10 flex items-center gap-2">
                 <img
                   src={viewingProfile.profile.profile_image_url || "/placeholder.svg"}
-                  alt=""
+                  alt={viewingProfile.profile.full_name}
                   className="h-8 w-8 rounded-full object-cover border-2 border-white"
                 />
                 <p className="text-sm font-semibold text-white drop-shadow">

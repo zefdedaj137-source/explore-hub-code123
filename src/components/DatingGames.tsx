@@ -126,12 +126,18 @@ const DatingGames = () => {
     <section className="min-h-dvh bg-background p-4 pb-24 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-20 left-20 w-40 h-40 opacity-5">
-        <img src={albanianEagle} alt="" className="w-full h-full object-contain animate-pulse" />
+        <img
+          src={albanianEagle}
+          alt=""
+          role="presentation"
+          className="w-full h-full object-contain animate-pulse"
+        />
       </div>
       <div className="absolute bottom-20 right-20 w-40 h-40 opacity-5">
         <img
           src={albanianEagle}
           alt=""
+          role="presentation"
           className="w-full h-full object-contain animate-pulse [animation-delay:1s]"
         />
       </div>
@@ -140,7 +146,8 @@ const DatingGames = () => {
         {/* Header Card */}
         <div className="bg-card rounded-2xl p-5 shadow-card mb-6">
           <h2 className="text-3xl md:text-4xl font-bold text-center">
-            <span className="text-primary">{t("datingGamesComponent.title")}</span> <span className="text-white">{t("datingGamesComponent.gamesWord")}</span>
+            <span className="text-primary">{t("datingGamesComponent.title")}</span>{" "}
+            <span className="text-white">{t("datingGamesComponent.gamesWord")}</span>
           </h2>
           <p className="text-center text-muted-foreground mt-2">
             {t("datingGamesComponent.tagline")}
@@ -153,7 +160,9 @@ const DatingGames = () => {
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-yellow-600/20 border-2 border-yellow-600/50 shadow-lg shadow-yellow-600/20">
               <Sparkles className="h-6 w-6 text-yellow-500" />
-              <span className="text-lg font-bold text-yellow-500">{t("datingGamesComponent.albanianTrivia")}</span>
+              <span className="text-lg font-bold text-yellow-500">
+                {t("datingGamesComponent.albanianTrivia")}
+              </span>
             </div>
 
             <h3 className="text-3xl font-bold text-foreground">{iceBreaker.name}</h3>
@@ -228,11 +237,14 @@ const DatingGames = () => {
                       <div className="text-center">
                         <div className="text-6xl mb-4">{isCorrect ? "🎉" : "😅"}</div>
                         <div className="text-2xl font-bold text-white">
-                          {isCorrect ? t("datingGamesComponent.correct") : t("datingGamesComponent.notQuite")}
+                          {isCorrect
+                            ? t("datingGamesComponent.correct")
+                            : t("datingGamesComponent.notQuite")}
                         </div>
                         {!isCorrect && (
                           <div className="text-sm text-muted-foreground mt-2">
-                            {t("datingGamesComponent.answer")}{currentQuestion.answers[currentQuestion.correct]}
+                            {t("datingGamesComponent.answer")}
+                            {currentQuestion.answers[currentQuestion.correct]}
                           </div>
                         )}
                       </div>

@@ -11,12 +11,12 @@ export function useRateLimit<T extends (...args: unknown[]) => unknown>(
   const lastCall = useRef(0);
 
   return useCallback(
-    ((...args: unknown[]) => {
+    (...args: unknown[]) => {
       const now = Date.now();
       if (now - lastCall.current < intervalMs) return;
       lastCall.current = now;
       return fn(...args);
-    }) as unknown as T,
+    },
     [fn, intervalMs]
-  );
+  ) as unknown as T;
 }

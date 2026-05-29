@@ -168,7 +168,9 @@ const SecondLook = () => {
           <Eye className="h-5 w-5 text-primary" />
           <div>
             <h1 className="text-lg font-bold">{t("secondLook.title")}</h1>
-            <p className="text-xs text-muted-foreground">{passedProfiles.length} {t("secondLook.passedProfiles")}</p>
+            <p className="text-xs text-muted-foreground">
+              {passedProfiles.length} {t("secondLook.passedProfiles")}
+            </p>
           </div>
         </div>
       </div>
@@ -182,9 +184,7 @@ const SecondLook = () => {
             </div>
             <div>
               <h2 className="font-bold">{t("secondLook.changedYourMind")}</h2>
-              <p className="text-sm text-primary/20">
-                {t("secondLook.browseDesc")}
-              </p>
+              <p className="text-sm text-primary/20">{t("secondLook.browseDesc")}</p>
             </div>
           </div>
         </Card>
@@ -207,9 +207,7 @@ const SecondLook = () => {
           <Card className="p-8 text-center">
             <Eye className="h-12 w-12 mx-auto text-primary/80 mb-3" />
             <h3 className="font-bold text-lg">{t("secondLook.noPassedProfiles")}</h3>
-            <p className="text-muted-foreground text-sm mt-1">
-              {t("secondLook.whenYouPass")}
-            </p>
+            <p className="text-muted-foreground text-sm mt-1">{t("secondLook.whenYouPass")}</p>
             <Button variant="outline" className="mt-4" onClick={() => navigate("/discover")}>
               <Sparkles className="h-4 w-4 mr-2" /> {t("secondLook.goToDiscover")}
             </Button>
@@ -329,7 +327,13 @@ const SecondLook = () => {
               {selectedProfile.profile_images && selectedProfile.profile_images.length > 1 && (
                 <div className="grid grid-cols-3 gap-2">
                   {selectedProfile.profile_images.slice(0, 6).map((img, i) => (
-                    <img key={i} src={img} alt="" className="w-full h-24 object-cover rounded-lg" />
+                    <img
+                      key={img}
+                      src={img}
+                      alt={`Photo ${i + 1} of ${selectedProfile.full_name}`}
+                      loading="lazy"
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
                   ))}
                 </div>
               )}

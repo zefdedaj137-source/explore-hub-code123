@@ -483,8 +483,7 @@ const EditProfile = () => {
           }
         })();
         if (!promptsTableMissing) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: promptsData, error: promptsErr } = await (supabase as any)
+          const { data: promptsData, error: promptsErr } = await supabase
             .from("profile_prompts")
             .select("prompt, answer")
             .eq("user_id", user.id)
@@ -531,8 +530,7 @@ const EditProfile = () => {
 
   const savePrompt = async (prompt: string, answer: string) => {
     if (!user || !answer.trim()) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from("profile_prompts")
       .upsert(
         { user_id: user.id, prompt, answer: answer.trim(), display_order: prompts.length },
@@ -555,12 +553,7 @@ const EditProfile = () => {
 
   const deletePrompt = async (prompt: string) => {
     if (!user) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
-      .from("profile_prompts")
-      .delete()
-      .eq("user_id", user.id)
-      .eq("prompt", prompt);
+    await supabase.from("profile_prompts").delete().eq("user_id", user.id).eq("prompt", prompt);
     setPrompts(prompts.filter((p) => p.prompt !== prompt));
   };
 
@@ -1650,7 +1643,9 @@ const EditProfile = () => {
                             <SelectItem value="have-other">
                               {t("editProfile.haveOtherPets")}
                             </SelectItem>
-                            <SelectItem value="love-pets">{t("editProfile.lovePetsNoHave")}</SelectItem>
+                            <SelectItem value="love-pets">
+                              {t("editProfile.lovePetsNoHave")}
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -1734,7 +1729,9 @@ const EditProfile = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="no">No</SelectItem>
-                            <SelectItem value="yes-living-with-me">{t("editProfile.yesLivingWithMe")}</SelectItem>
+                            <SelectItem value="yes-living-with-me">
+                              {t("editProfile.yesLivingWithMe")}
+                            </SelectItem>
                             <SelectItem value="yes-not-living-with-me">
                               {t("editProfile.yesNotLivingWithMe")}
                             </SelectItem>
@@ -1927,7 +1924,9 @@ const EditProfile = () => {
                 </Badge>
               )}
               {profile?.video_intro_url && (
-                <Badge className="bg-background/80 text-white border-none">{t("common.videoIntroLabel")}</Badge>
+                <Badge className="bg-background/80 text-white border-none">
+                  {t("common.videoIntroLabel")}
+                </Badge>
               )}
               {profile?.mood_emoji && (
                 <Badge

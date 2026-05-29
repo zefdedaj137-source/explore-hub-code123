@@ -303,10 +303,85 @@ All colors MUST be HSL.
 @layer base {
   * {
     border-color: hsl(var(--border));
+    /* Eliminate tap flash on mobile for a native app feel */
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent callout menu on long-press (iOS) */
+    -webkit-touch-callout: none;
+  }
+
+  html {
+    /* Smooth scrolling across the entire app */
+    scroll-behavior: smooth;
+    /* Improve text clarity on retina screens */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background text-foreground;
+    /* Sub-pixel anti-aliasing for crisp text */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1,
+      "calt" 1;
+    /* Prevent overscroll bounce bleed on iOS */
+    overscroll-behavior: none;
+  }
+
+  /* Modern, branded focus ring that works on all themes */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Remove default outline but keep :focus-visible */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Branded text selection */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.25);
+    color: hsl(var(--foreground));
+  }
+
+  /* Styled scrollbar — Chrome/Edge (desktop only, fine to skip on mobile) */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  /* Smooth input/textarea transitions */
+  input,
+  textarea,
+  select {
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  /* Prevent layout thrash from image loading */
+  img {
+    image-rendering: -webkit-optimize-contrast;
   }
 }
 
@@ -832,4 +907,484 @@ All colors MUST be HSL.
   .text-shadow-dark {
     text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
   }
+}
+
+/* -------------------------------------------------------------------------------
+   HIGH-QUALITY PRODUCT UPGRADES
+   Performance, micro-interactions, animations, and polish
+   ------------------------------------------------------------------------------- */
+
+/* -- Heartbeat animation for like/heart interactions --- */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.2);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+.animate-heartbeat {
+  animation: heartbeat 0.8s ease-in-out;
+}
+
+/* -- Bounce-in entrance --- */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.animate-bounce-in {
+  animation: bounce-in 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+/* -- Slide down from top --- */
+@keyframes slide-down {
+  0% {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-slide-down {
+  animation: slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* -- Ripple effect for buttons --- */
+@keyframes ripple-out {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+.animate-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.animate-ripple::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  width: 100%;
+  aspect-ratio: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+}
+.animate-ripple:active::after {
+  animation: ripple-out 0.45s ease-out forwards;
+}
+
+/* -- Pop-up swipe action indicator (like/nope) --- */
+@keyframes swipe-badge {
+  0% {
+    transform: scale(0.5) rotate(-12deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1) rotate(-8deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-10deg);
+    opacity: 1;
+  }
+}
+.animate-swipe-badge {
+  animation: swipe-badge 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* -- Card tilt on hover (profile cards in grid) --- */
+.card-tilt {
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.card-tilt:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(232, 39, 75, 0.08);
+}
+.dark .card-tilt:hover {
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(232, 39, 75, 0.12);
+}
+
+/* -- Button press feedback --- */
+.btn-press {
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+  will-change: transform;
+}
+.btn-press:active {
+  transform: scale(0.96);
+}
+
+/* -- Branded rose button (hero / primary CTA) --- */
+.btn-rose-hero {
+  background: linear-gradient(135deg, #e8274b 0%, #ff6b35 100%);
+  box-shadow:
+    0 4px 24px rgba(232, 39, 75, 0.38),
+    0 1px 0 rgba(255, 255, 255, 0.12) inset;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+.btn-rose-hero:hover {
+  box-shadow:
+    0 8px 36px rgba(232, 39, 75, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.18) inset;
+}
+.btn-rose-hero:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 12px rgba(232, 39, 75, 0.35);
+}
+
+/* -- Bottom nav bar (glass pill) --- */
+.bottom-nav-bar {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(180%) blur(28px);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.dark .bottom-nav-bar {
+  background: rgba(12, 9, 20, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 -8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* -- Nav glow pill (active indicator behind icon) --- */
+.nav-glow-pill {
+  background: rgba(232, 39, 75, 0.1);
+  backdrop-filter: blur(8px);
+}
+.dark .nav-glow-pill {
+  background: rgba(232, 39, 75, 0.15);
+}
+
+/* -- Badge (unread count) --- */
+.badge-rose {
+  background: linear-gradient(135deg, #e8274b, #ff5f40);
+  box-shadow: 0 2px 8px rgba(232, 39, 75, 0.5);
+}
+
+/* -- Skeleton shimmer with branded color --- */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--muted-foreground) / 0.08) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/* -- Improved Skeleton base --- */
+[data-slot="skeleton"] {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--muted-foreground) / 0.07) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/* -- Loading spinner � branded --- */
+@keyframes spin-pulse {
+  0% {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 1;
+  }
+}
+.spinner-brand {
+  border: 3px solid rgba(232, 39, 75, 0.2);
+  border-top-color: #e8274b;
+  border-radius: 50%;
+  animation: spin-pulse 0.7s linear infinite;
+}
+
+/* -- GPU-accelerated compositing layer hints --- */
+.gpu-layer {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* -- Content visibility for off-screen sections (improves initial render speed) --- */
+.offscreen-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 400px;
+}
+
+/* -- Performance: isolate expensive paint operations --- */
+.paint-isolated {
+  contain: layout style paint;
+}
+
+/* -- Smooth image lazy-load reveal --- */
+@keyframes img-reveal {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1);
+  }
+}
+.img-reveal {
+  animation: img-reveal 0.4s ease-out forwards;
+}
+
+/* -- View Transition API support --- */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.22s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  ::view-transition-old(root) {
+    animation-name: fade-out-transition;
+  }
+  ::view-transition-new(root) {
+    animation-name: fade-in-transition;
+  }
+  @keyframes fade-out-transition {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+  @keyframes fade-in-transition {
+    from {
+      opacity: 0;
+      transform: scale(1.02);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* -- Match animation overlay --- */
+@keyframes match-pop {
+  0% {
+    transform: scale(0.6) rotate(-5deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.06) rotate(2deg);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(0.97) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+.animate-match-pop {
+  animation: match-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* -- Parallax-ready layers --- */
+.parallax-layer {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* -- High-contrast mode support --- */
+@media (forced-colors: active) {
+  .glass,
+  .glass-card,
+  .glass-dark,
+  .glass-strong,
+  .glass-luxury {
+    background: ButtonFace;
+    border: 1px solid ButtonText;
+  }
+  .text-gradient-fire,
+  .text-gradient-gold {
+    -webkit-text-fill-color: ButtonText;
+    color: ButtonText;
+  }
+}
+
+/* -- Fancy input focus glow --- */
+.input-glow:focus-within {
+  box-shadow:
+    0 0 0 3px hsl(var(--ring) / 0.2),
+    0 0 0 1px hsl(var(--ring) / 0.5);
+}
+
+/* -- Status dot (online indicator) --- */
+@keyframes status-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+}
+.status-online {
+  background: #22c55e;
+  animation: status-pulse 2s ease-in-out infinite;
+}
+.status-away {
+  background: #f59e0b;
+}
+
+/* -- Premium badge shine --- */
+@keyframes badge-shine {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+.badge-premium {
+  background: linear-gradient(
+    105deg,
+    hsl(38, 100%, 55%) 0%,
+    hsl(45, 100%, 70%) 40%,
+    hsl(38, 100%, 55%) 60%,
+    hsl(28, 100%, 48%) 100%
+  );
+  background-size: 300% 100%;
+  animation: badge-shine 3s linear infinite;
+}
+
+/* -- Modal/sheet enter animations --- */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes sheet-down {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes modal-in {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.animate-sheet-up {
+  animation: sheet-up 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.animate-modal-in {
+  animation: modal-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* -- Unread notification dot pulse --- */
+@keyframes dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+}
+.dot-pulse {
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+
+/* -- Page transition wrapper --- */
+.page-enter {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+/* -- Frosted glass card (elevated) --- */
+.glass-elevated {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: saturate(200%) blur(32px);
+  -webkit-backdrop-filter: saturate(200%) blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.06) inset,
+    0 16px 48px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
 }

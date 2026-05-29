@@ -26,6 +26,13 @@ interface OpponentProfile {
   city?: string;
 }
 
+interface GameInviteWithProfiles {
+  from_user_id: string;
+  to_user_id: string;
+  from_user: OpponentProfile | null;
+  to_user: OpponentProfile | null;
+}
+
 // Albanian music trivia questions - Over 100 questions
 const ALL_MUSIC_QUESTIONS: GameQuestion[] = [
   // Classic Albanian Music (5)
@@ -650,8 +657,7 @@ const GameSessionMusic = () => {
 
   const initializeGame = async () => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: invite, error } = await (supabase as any)
+      const { data: inviteData, error } = await supabase
         .from("game_invites")
         .select(
           `
@@ -663,11 +669,7 @@ const GameSessionMusic = () => {
         )
         .eq("id", sessionId)
         .single();
-
-      if (error) throw error;
-
-      const opponentData = invite.from_user_id === user?.id ? invite.to_user : invite.from_user;
-
+      const invite = inviteData as unknown as GameInviteWithProfiles | null;
       setOpponent(opponentData);
       setCurrentTurn(invite.from_user_id);
 
@@ -869,7 +871,9 @@ const GameSessionMusic = () => {
             <div className="text-center mb-4">
               <Music className="h-10 w-10 text-primary mx-auto mb-2" />
               <h2 className="text-2xl font-bold text-primary">Music Lovers 🎵</h2>
-              <p className="text-sm text-muted-foreground">{t("gameSession.albanianMusicTrivia")}</p>
+              <p className="text-sm text-muted-foreground">
+                {t("gameSession.albanianMusicTrivia")}
+              </p>
             </div>
 
             {/* Players */}
@@ -894,7 +898,9 @@ const GameSessionMusic = () => {
                   } animate-pulse`}
                 />
                 <p className="text-sm font-semibold">
-                  {currentTurn === user?.id ? t("gameSession.yourTurn") : t("gameSession.opponentTurn")}
+                  {currentTurn === user?.id
+                    ? t("gameSession.yourTurn")
+                    : t("gameSession.opponentTurn")}
                 </p>
                 <Badge variant="outline" className="mt-1">
                   Question {questionNumber + 1}/6
@@ -958,11 +964,15 @@ const GameSessionMusic = () => {
                 {showResult && selectedAnswer !== null && (
                   <div className="text-center py-4">
                     <p className="text-2xl font-bold">
-                      {selectedAnswer === currentQuestion.correct ? t("gameSession.correct") : t("gameSession.incorrect")}
+                      {selectedAnswer === currentQuestion.correct
+                        ? t("gameSession.correct")
+                        : t("gameSession.incorrect")}
                     </p>
                     {selectedAnswer !== currentQuestion.correct && (
                       <p className="text-sm text-muted-foreground mt-2">
-                        {t("gameSession.answer", { answer: currentQuestion.answers[currentQuestion.correct] })}
+                        {t("gameSession.answer", {
+                          answer: currentQuestion.answers[currentQuestion.correct],
+                        })}
                       </p>
                     )}
                   </div>
@@ -997,7 +1007,8 @@ const GameSessionMusic = () => {
                 <Music className="h-20 w-20 text-primary mx-auto mb-4 animate-bounce" />
                 <h2 className="text-3xl font-bold mb-4">{t("gameSession.youFinished")}</h2>
                 <p className="text-xl text-foreground mb-2">
-                  {t("gameSession.yourScore")}: <span className="font-bold text-primary">{yourScore}/6</span>
+                  {t("gameSession.yourScore")}:{" "}
+                  <span className="font-bold text-primary">{yourScore}/6</span>
                 </p>
                 <div className="mt-8">
                   <p className="text-lg text-muted-foreground animate-pulse">
@@ -1018,7 +1029,9 @@ const GameSessionMusic = () => {
                         You
                       </AvatarFallback>
                     </Avatar>
-                    <p className="text-sm text-muted-foreground mb-1">{t("gameSession.yourScore")}</p>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      {t("gameSession.yourScore")}
+                    </p>
                     <p className="text-5xl font-bold text-primary">{yourScore}</p>
                   </div>
 
@@ -1038,7 +1051,8 @@ const GameSessionMusic = () => {
                   <p className="text-2xl font-bold text-foreground mb-2">
                     {yourScore > opponentScore && t("gameSession.youWon")}
                     {yourScore === opponentScore && t("gameSession.tie")}
-                    {yourScore < opponentScore && t("gameSession.opponentWon", { name: opponent.full_name })}
+                    {yourScore < opponentScore &&
+                      t("gameSession.opponentWon", { name: opponent.full_name })}
                   </p>
                   <p className="text-muted-foreground">
                     {t("gameSession.enjoyedPlaying", { name: opponent.full_name })}

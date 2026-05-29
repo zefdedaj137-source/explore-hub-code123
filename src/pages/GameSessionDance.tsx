@@ -20,6 +20,13 @@ interface OpponentProfile {
   city?: string;
 }
 
+interface GameInviteWithProfiles {
+  from_user_id: string;
+  to_user_id: string;
+  from_user: OpponentProfile | null;
+  to_user: OpponentProfile | null;
+}
+
 const VALLE_SONGS: { name: string; emoji: string; audioUrl: string | null }[] = [
   { name: "Valle Laborë (Lab polyphonic)", emoji: "🎭", audioUrl: "/valle-music.mp3" },
   { name: "Valle Pogradecit", emoji: "🏔️", audioUrl: "/valle-music.mp3" },
@@ -112,8 +119,12 @@ const GameSessionDance = () => {
         .single();
 
       if (!data) return;
-      const videoData = data as unknown as { round1_video_url: string | null; round2_video_url: string | null };
-      const url = currentRoundRef.current === 1 ? videoData.round1_video_url : videoData.round2_video_url;
+      const videoData = data as unknown as {
+        round1_video_url: string | null;
+        round2_video_url: string | null;
+      };
+      const url =
+        currentRoundRef.current === 1 ? videoData.round1_video_url : videoData.round2_video_url;
       if (url) {
         opponentVideoUrlRef.current = url;
         setOpponentVideoUrl(url);
@@ -171,8 +182,7 @@ const GameSessionDance = () => {
 
   const initializeGame = async () => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: invite, error } = await (supabase as any)
+      const { data: inviteData, error } = await supabase
         .from("game_invites")
         .select(
           `
@@ -184,6 +194,7 @@ const GameSessionDance = () => {
         )
         .eq("id", sessionId)
         .single();
+      const invite = inviteData as unknown as GameInviteWithProfiles | null;
 
       if (error) throw error;
 
@@ -433,9 +444,7 @@ const GameSessionDance = () => {
     // Validate size before uploading (50 MB hard cap)
     const MAX_SIZE_MB = 50;
     if (recordedVideo.size > MAX_SIZE_MB * 1024 * 1024) {
-      toast.error(
-        t("gameSession.fileTooLarge", { max: MAX_SIZE_MB })
-      );
+      toast.error(t("gameSession.fileTooLarge", { max: MAX_SIZE_MB }));
       setRecordedVideo(null);
       return;
     }
@@ -546,17 +555,20 @@ const GameSessionDance = () => {
               onClick={handleCancelGame}
               className="text-muted-foreground hover:text-destructive"
             >
-                <X className="h-4 w-4 mr-1" /> {t("gameSession.exitGame")}
+              <X className="h-4 w-4 mr-1" /> {t("gameSession.exitGame")}
             </Button>
           </div>
 
           {/* Header */}
           <div className="text-center mb-4">
             <Music className="h-10 w-10 text-orange-500 mx-auto mb-2" />
-            <h2 className="text-2xl font-bold text-orange-600">{t("gameSession.danceChallenge")}</h2>
+            <h2 className="text-2xl font-bold text-orange-600">
+              {t("gameSession.danceChallenge")}
+            </h2>
             <p className="text-sm text-muted-foreground">{t("gameSession.danceToValley")}</p>
             <Badge variant="outline" className="mt-2">
-              {currentSong.emoji} {currentSong.name} - {t("gameSession.round", { num: currentRound })}
+              {currentSong.emoji} {currentSong.name} -{" "}
+              {t("gameSession.round", { num: currentRound })}
             </Badge>
           </div>
 
@@ -608,12 +620,16 @@ const GameSessionDance = () => {
                     {isRecording && (
                       <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 text-white rounded-full px-3 py-1">
                         <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                        <span className="text-sm font-semibold">{t("gameSession.recTime", { time: recordingTime })}</span>
+                        <span className="text-sm font-semibold">
+                          {t("gameSession.recTime", { time: recordingTime })}
+                        </span>
                       </div>
                     )}
                   </div>
                   {countdown !== null && (
-                    <p className="text-center text-sm text-muted-foreground">{t("gameSession.getReadyDance")}</p>
+                    <p className="text-center text-sm text-muted-foreground">
+                      {t("gameSession.getReadyDance")}
+                    </p>
                   )}
                 </div>
               )}
@@ -652,7 +668,9 @@ const GameSessionDance = () => {
             <div className="text-center py-12">
               <Music className="h-16 w-16 text-orange-500 animate-pulse mx-auto mb-4" />
               <p className="text-lg font-semibold">{t("gameSession.opponentDancing")}</p>
-              <p className="text-sm text-muted-foreground mt-2">{t("gameSession.getReadyReview")}</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                {t("gameSession.getReadyReview")}
+              </p>
             </div>
           )}
 
@@ -711,12 +729,8 @@ const GameSessionDance = () => {
                 <>
                   <Trophy className="h-20 w-20 text-primary mx-auto animate-bounce" />
                   <h2 className="text-3xl font-bold text-primary">{t("gameSession.itsAMatch")}</h2>
-                  <p className="text-xl text-foreground">
-                    {t("gameSession.bothLiked")}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {t("gameSession.bothLikedDesc")}
-                  </p>
+                  <p className="text-xl text-foreground">{t("gameSession.bothLiked")}</p>
+                  <p className="text-muted-foreground">{t("gameSession.bothLikedDesc")}</p>
                 </>
               ) : (
                 <>
