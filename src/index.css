@@ -377,11 +377,41 @@ All colors MUST be HSL.
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
+    /* Prevent iOS from zooming in on focus (requires ≥16px font-size) */
+    font-size: max(16px, 1em);
   }
 
   /* Prevent layout thrash from image loading */
   img {
     image-rendering: -webkit-optimize-contrast;
+    /* Prevent iOS long-press save/copy on images */
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+
+  /* Restore pointer events on interactive images (e.g. profile photos) */
+  a img,
+  button img,
+  [role="button"] img {
+    pointer-events: auto;
+  }
+
+  /* Remove 300ms tap delay and double-tap zoom on all interactive elements */
+  button,
+  a,
+  [role="button"],
+  label,
+  summary {
+    touch-action: manipulation;
+  }
+
+  /* Prevent text selection on nav / button elements for native app feel */
+  button,
+  nav,
+  [role="button"],
+  [role="tab"] {
+    user-select: none;
+    -webkit-user-select: none;
   }
 }
 
@@ -707,10 +737,32 @@ All colors MUST be HSL.
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
+  /* iOS safe-area top padding — used by full-screen pages in standalone PWA mode */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Combined safe-area padding for pages that fill the entire screen */
+  .px-safe {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
   /* Bottom offset for fixed elements that sit just above the bottom nav.
      The nav is h-16 (4rem) + pb-3 (0.75rem) plus safe-area. */
   .bottom-nav-offset {
     bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Momentum (inertial) scrolling on iOS for all overflow containers */
+  .scroll-momentum {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+
+  /* Swipeable card area — allow horizontal drag without triggering scroll */
+  .swipe-area {
+    touch-action: pan-y pinch-zoom;
   }
 
   /* ── Page background — light by default, dark when .dark class active ─── */
