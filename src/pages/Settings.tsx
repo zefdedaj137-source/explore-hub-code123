@@ -769,12 +769,9 @@ const Settings = () => {
                     variant="outline"
                     className="w-full bg-yellow-600/10 border-yellow-600/50 text-yellow-100 hover:bg-yellow-600/20 hover:text-yellow-50"
                     onClick={() => {
-                      toast.info(t("settings.openingSubscription"));
-                      // This would typically open Stripe customer portal
-                      window.open(
-                        import.meta.env.VITE_STRIPE_PORTAL_URL || "https://billing.stripe.com",
-                        "_blank",
-                        "noopener,noreferrer"
+                      toast.info(
+                        t("settings.manageSubscriptionGooglePlay") ||
+                          "Open Google Play → Subscriptions to manage your plan"
                       );
                     }}
                   >

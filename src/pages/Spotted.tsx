@@ -176,7 +176,12 @@ const Spotted = () => {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b border-border/50">
         <div className="container max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            className="shrink-0"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1 min-w-0">

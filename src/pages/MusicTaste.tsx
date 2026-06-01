@@ -95,7 +95,11 @@ const MusicTaste = () => {
   return (
     <div className="min-h-dvh bg-gradient-to-br from-green-50 to-emerald-50 pb-24">
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-lg border-b px-4 py-3 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Music className="h-5 w-5 text-green-500" />

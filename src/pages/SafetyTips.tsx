@@ -21,7 +21,11 @@ const SafetyTips = () => {
                 <p className="text-sm text-muted-foreground">{t("safetyTips.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -64,7 +68,9 @@ const SafetyTips = () => {
               <ShieldCheck className="h-6 w-6 text-primary mt-1" />
               <div>
                 <h2 className="text-lg font-semibold">{t("safetyTips.reportSuspicious")}</h2>
-                <p className="text-sm text-muted-foreground">{t("safetyTips.reportSuspiciousDesc")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("safetyTips.reportSuspiciousDesc")}
+                </p>
               </div>
             </div>
           </Card>

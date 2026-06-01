@@ -124,7 +124,11 @@ const GhostModeAlert = () => {
   return (
     <div className="min-h-dvh bg-gradient-to-br from-background to-slate-50 pb-24">
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-lg border-b px-4 py-3 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Ghost className="h-5 w-5 text-muted-foreground" />
@@ -150,7 +154,9 @@ const GhostModeAlert = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            <h2 className="font-semibold text-lg">{t("ghostAlerts.waitingReplies", { count: alerts.length })}</h2>
+            <h2 className="font-semibold text-lg">
+              {t("ghostAlerts.waitingReplies", { count: alerts.length })}
+            </h2>
             {alerts.map((a) => (
               <Card key={a.matchId} className="p-4">
                 <div className="flex items-center gap-3">
@@ -169,7 +175,9 @@ const GhostModeAlert = () => {
                   </div>
                   <div className="flex flex-col gap-2">
                     {a.nudgeSent ? (
-                      <Badge className="bg-green-100 text-green-700">{t("ghostAlerts.nudged")}</Badge>
+                      <Badge className="bg-green-100 text-green-700">
+                        {t("ghostAlerts.nudged")}
+                      </Badge>
                     ) : (
                       <Button
                         size="sm"

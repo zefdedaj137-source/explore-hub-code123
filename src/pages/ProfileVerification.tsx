@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, ArrowLeft, Camera, CheckCircle, Clock, XCircle, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -187,7 +187,9 @@ const ProfileVerification = () => {
       return (
         <Card className="p-6 rounded-2xl border-2 border-green-500/30 bg-green-500/10 text-center">
           <CheckCircle className="h-14 w-14 text-green-500 mx-auto mb-3" />
-          <h2 className="text-xl font-bold text-foreground mb-1">{t("profileVerification.alreadyVerified")}</h2>
+          <h2 className="text-xl font-bold text-foreground mb-1">
+            {t("profileVerification.alreadyVerified")}
+          </h2>
           <p className="text-sm text-muted-foreground">
             {t("profileVerification.verifiedBadgeActive")}
           </p>
@@ -197,7 +199,9 @@ const ProfileVerification = () => {
       return (
         <Card className="p-6 rounded-2xl border-2 border-yellow-500/30 bg-yellow-500/10 text-center">
           <Clock className="h-14 w-14 text-yellow-500 mx-auto mb-3 animate-pulse" />
-          <h2 className="text-xl font-bold text-foreground mb-1">{t("profileVerification.underReview")}</h2>
+          <h2 className="text-xl font-bold text-foreground mb-1">
+            {t("profileVerification.underReview")}
+          </h2>
           <p className="text-sm text-muted-foreground">
             {t("profileVerification.underReviewMessage")}
           </p>
@@ -207,7 +211,9 @@ const ProfileVerification = () => {
       return (
         <Card className="p-6 rounded-2xl border-2 border-red-500/30 bg-red-500/10 text-center">
           <XCircle className="h-14 w-14 text-red-500 mx-auto mb-3" />
-          <h2 className="text-xl font-bold text-foreground mb-1">{t("profileVerification.requestDeclined")}</h2>
+          <h2 className="text-xl font-bold text-foreground mb-1">
+            {t("profileVerification.requestDeclined")}
+          </h2>
           <p className="text-sm text-muted-foreground mb-4">
             {t("profileVerification.tryAgainClearer")}
           </p>
@@ -230,11 +236,17 @@ const ProfileVerification = () => {
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{t("profileVerification.title")}</h1>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {t("profileVerification.title")}
+                </h1>
                 <p className="text-sm text-muted-foreground">{t("profileVerification.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -251,16 +263,18 @@ const ProfileVerification = () => {
           <div className="space-y-4">
             {/* Why verify */}
             <Card className="p-5 rounded-2xl border border-primary/20 bg-primary/5">
-              <h3 className="font-semibold text-foreground mb-2">{t("profileVerification.whyVerify")}</h3>
+              <h3 className="font-semibold text-foreground mb-2">
+                {t("profileVerification.whyVerify")}
+              </h3>
               <ul className="space-y-1.5 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> {t("profileVerification.benefit1")}
+                  <span className="text-green-400">?</span> {t("profileVerification.benefit1")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> {t("profileVerification.benefit2")}
+                  <span className="text-green-400">?</span> {t("profileVerification.benefit2")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> {t("profileVerification.benefit3")}
+                  <span className="text-green-400">?</span> {t("profileVerification.benefit3")}
                 </li>
               </ul>
             </Card>
@@ -272,7 +286,9 @@ const ProfileVerification = () => {
                   1
                 </span>
                 Take a Selfie
-                <span className="text-red-500 text-xs font-normal ml-1">{t("profileVerification.required")}</span>
+                <span className="text-red-500 text-xs font-normal ml-1">
+                  {t("profileVerification.required")}
+                </span>
               </h3>
 
               {selfiePreview ? (
@@ -348,7 +364,9 @@ const ProfileVerification = () => {
                   2
                 </span>
                 Upload ID
-                <span className="text-muted-foreground text-xs font-normal ml-1">{t("profileVerification.optional")}</span>
+                <span className="text-muted-foreground text-xs font-normal ml-1">
+                  {t("profileVerification.optional")}
+                </span>
               </h3>
               {idPreview ? (
                 <div className="relative">
@@ -376,7 +394,9 @@ const ProfileVerification = () => {
                     <p className="text-sm text-muted-foreground">
                       {t("profileVerification.uploadPassportId")}
                     </p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">{t("profileVerification.speedsUpReview")}</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">
+                      {t("profileVerification.speedsUpReview")}
+                    </p>
                   </div>
                   <input
                     type="file"

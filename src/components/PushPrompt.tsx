@@ -33,8 +33,8 @@ export const PushPrompt = () => {
     if (Notification.permission !== "default") return;
     if (wasDismissedRecently()) return;
 
-    // Show after a short delay so it doesn't compete with page load
-    const timer = setTimeout(() => setVisible(true), 3000);
+    // Show after a longer delay so the user has had time to engage with the app
+    const timer = setTimeout(() => setVisible(true), 15000);
     return () => clearTimeout(timer);
   }, [user]);
 
@@ -73,9 +73,7 @@ export const PushPrompt = () => {
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium">{t("pushPrompt.stayInLoop")}</p>
-          <p className="text-xs text-muted-foreground">
-            {t("pushPrompt.description")}
-          </p>
+          <p className="text-xs text-muted-foreground">{t("pushPrompt.description")}</p>
           <div className="mt-2 flex gap-2">
             <Button size="sm" onClick={handleEnable}>
               {t("pushPrompt.enable")}

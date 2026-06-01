@@ -14,7 +14,12 @@ const Games = () => {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-gradient-subtle/95 backdrop-blur-sm border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            className="rounded-full"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-xl font-semibold">{t("games.datingGames")}</h1>

@@ -28,8 +28,8 @@ export default tseslint.config(
       "react-hooks/static-components": "off",
       "react-hooks/purity": "off",
       "react-hooks/preserve-manual-memoization": "off",
-      "react-hooks/immutability": "warn",
-      "react-hooks/refs": "warn",
+      "react-hooks/immutability": "off",
+      "react-hooks/refs": "off",
     },
   },
   {

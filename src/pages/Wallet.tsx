@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { analytics } from "@/lib/analytics";
@@ -137,7 +138,11 @@ const Wallet = () => {
                 <p className="text-sm text-muted-foreground">{t("wallet.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               {t("common.back")}
             </Button>
           </div>
@@ -147,9 +152,13 @@ const Wallet = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{t("wallet.currentBalance")}</p>
-              <h2 className="text-3xl font-bold text-foreground">
-                {loading ? "..." : balance} {t("wallet.coins")}
-              </h2>
+              {loading ? (
+                <Skeleton className="h-9 w-32 mt-1" />
+              ) : (
+                <h2 className="text-3xl font-bold text-foreground">
+                  {balance} {t("wallet.coins")}
+                </h2>
+              )}
             </div>
             <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
               <Coins className="h-4 w-4 mr-1" />
@@ -166,7 +175,9 @@ const Wallet = () => {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-lg font-semibold">{pack.coins} {t("wallet.coins")}</div>
+                  <div className="text-lg font-semibold">
+                    {pack.coins} {t("wallet.coins")}
+                  </div>
                   <div className="text-sm text-muted-foreground">{t("wallet.bestFor")}</div>
                 </div>
                 <Button disabled={purchasing} onClick={() => buyPack(pack.coins, pack.id)}>

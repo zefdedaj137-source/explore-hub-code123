@@ -141,7 +141,11 @@ const ProfileInsights = () => {
                 <p className="text-sm text-muted-foreground">{t("profileInsights.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -149,7 +153,9 @@ const ProfileInsights = () => {
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("common.loading")}
+          </Card>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4">
@@ -186,7 +192,9 @@ const ProfileInsights = () => {
             <Card className="mt-6 p-4 rounded-2xl border-2 border-border">
               <h2 className="text-lg font-semibold mb-3">{t("profileInsights.recentlyViewed")}</h2>
               {recentlyViewed.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t("profileInsights.noProfilesViewed")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("profileInsights.noProfilesViewed")}
+                </p>
               ) : (
                 <div className="space-y-3">
                   {recentlyViewed.map((profile) => (
@@ -218,7 +226,9 @@ const ProfileInsights = () => {
             <Card className="mt-6 p-4 rounded-2xl border-2 border-border">
               <h2 className="text-lg font-semibold mb-3">{t("profileInsights.recentViewers")}</h2>
               {recentViewers.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t("profileInsights.noRecentViewers")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("profileInsights.noRecentViewers")}
+                </p>
               ) : (
                 <div className="space-y-3">
                   {recentViewers.map((viewer) => (

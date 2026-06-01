@@ -144,7 +144,11 @@ const AdminSafety = () => {
                 <p className="text-sm text-muted-foreground">{t("adminSafety.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               {t("adminSafety.back")}
             </Button>
           </div>
@@ -165,7 +169,8 @@ const AdminSafety = () => {
                     <div>
                       <div className="font-semibold">{r.reason}</div>
                       <div className="text-xs text-muted-foreground">
-                        {t("adminSafety.reporter")}: {r.reporter_id} · {t("adminSafety.reported")}: {r.reported_id}
+                        {t("adminSafety.reporter")}: {r.reporter_id} · {t("adminSafety.reported")}:{" "}
+                        {r.reported_id}
                       </div>
                     </div>
                     <Badge className="bg-primary text-white border-none">{r.status}</Badge>
@@ -201,7 +206,9 @@ const AdminSafety = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold">{r.request_type.toUpperCase()}</div>
-                      <div className="text-xs text-muted-foreground">{t("adminSafety.user")}: {r.user_id}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {t("adminSafety.user")}: {r.user_id}
+                      </div>
                     </div>
                     <Badge className="bg-primary text-white border-none">{r.status}</Badge>
                   </div>
@@ -234,7 +241,9 @@ const AdminSafety = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold">{t("adminSafety.user")}: {v.user_id}</div>
+                      <div className="font-semibold">
+                        {t("adminSafety.user")}: {v.user_id}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         {t("adminSafety.submitted")}: {new Date(v.created_at).toLocaleString()}
                       </div>

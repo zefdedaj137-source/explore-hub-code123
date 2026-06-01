@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Calendar, ArrowLeft, MapPin } from "lucide-react";
@@ -264,7 +264,7 @@ const DatePlanner = () => {
 
       // Send chat message to notify the partner
       const formattedDate = new Date(dateTime).toLocaleString();
-      const chatMessage = `📅 I planned a date!\n📍 ${location}\n🕐 ${formattedDate}${notes ? `\n📝 ${notes}` : ""}\n\nCheck your Date Planner to accept!`;
+      const chatMessage = `?? I planned a date!\n?? ${location}\n?? ${formattedDate}${notes ? `\n?? ${notes}` : ""}\n\nCheck your Date Planner to accept!`;
 
       if (match?.id) {
         const { error: msgError } = await supabase.from("messages").insert({
@@ -338,12 +338,12 @@ const DatePlanner = () => {
       const formattedDate = new Date(plan.scheduled_for).toLocaleString();
       let chatMessage = "";
       if (status === "confirmed") {
-        chatMessage = `✅ Date accepted!\n📍 ${plan.location}\n🕐 ${formattedDate}\n\nIt's a date! 🎉`;
+        chatMessage = `? Date accepted!\n?? ${plan.location}\n?? ${formattedDate}\n\nIt's a date! ??`;
       } else if (status === "canceled") {
         const wasConfirmed = plan.status === "confirmed";
         chatMessage = wasConfirmed
-          ? `❌ Date canceled.\n📍 ${plan.location}\n🕐 ${formattedDate}`
-          : `❌ Date declined.\n📍 ${plan.location}\n🕐 ${formattedDate}`;
+          ? `? Date canceled.\n?? ${plan.location}\n?? ${formattedDate}`
+          : `? Date declined.\n?? ${plan.location}\n?? ${formattedDate}`;
       }
       if (chatMessage) {
         const { error: msgError } = await supabase.from("messages").insert({
@@ -377,7 +377,11 @@ const DatePlanner = () => {
                 <p className="text-sm text-muted-foreground">{t("datePlanner.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>

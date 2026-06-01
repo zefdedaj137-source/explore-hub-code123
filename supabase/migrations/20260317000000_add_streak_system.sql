@@ -37,8 +37,8 @@ BEGIN
     v_streak := 1;
   END IF;
 
-  -- Every 7 days of streak, grant 2 free likes credits and reset streak
-  IF v_streak >= 7 THEN
+  -- Every 3 days of streak, grant 2 free likes credits and reset streak
+  IF v_streak >= 3 THEN
     v_credits := COALESCE(v_credits, 0) + 2;
     v_reward_earned := TRUE;
     v_streak := 0;

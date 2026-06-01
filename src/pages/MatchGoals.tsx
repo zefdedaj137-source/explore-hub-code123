@@ -100,7 +100,11 @@ const MatchGoals = () => {
                 <p className="text-sm text-muted-foreground">{t("matchGoals.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -108,7 +112,9 @@ const MatchGoals = () => {
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("common.loading")}
+          </Card>
         ) : (
           <>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -117,7 +123,9 @@ const MatchGoals = () => {
                   <Flame className="h-4 w-4" />
                   {t("matchGoals.streak")}
                 </div>
-                <div className="text-3xl font-bold mt-2 text-foreground">{streak} {t("matchGoals.days")}</div>
+                <div className="text-3xl font-bold mt-2 text-foreground">
+                  {streak} {t("matchGoals.days")}
+                </div>
               </Card>
               <Card className="p-4 rounded-2xl border-2 border-border">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -138,7 +146,9 @@ const MatchGoals = () => {
             <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
               <h2 className="text-lg font-semibold">{t("matchGoals.weeklyGoals")}</h2>
               <div>
-                <p className="text-sm text-muted-foreground">{t("matchGoals.send")} {messageGoal} {t("matchGoals.messages")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("matchGoals.send")} {messageGoal} {t("matchGoals.messages")}
+                </p>
                 <progress
                   className="mt-2 w-full h-2 rounded-full overflow-hidden"
                   value={Math.min(messageGoal, weeklyMessages)}
@@ -146,7 +156,9 @@ const MatchGoals = () => {
                 />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">{t("matchGoals.get")} {matchGoal} {t("matchGoals.newMatches")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("matchGoals.get")} {matchGoal} {t("matchGoals.newMatches")}
+                </p>
                 <progress
                   className="mt-2 w-full h-2 rounded-full overflow-hidden"
                   value={Math.min(matchGoal, weeklyMatches)}

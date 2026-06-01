@@ -74,7 +74,7 @@
     "releaseToRefresh": "↓ Lësho për të rifreskuar",
     "share": "Ndaj",
     "disable": "Çaktivizo",
-    "online": "Online"
+    "online": "On-line"
   },
   "auth": {
     "signIn": "Hyr",
@@ -103,6 +103,10 @@
     "backToHome": "← Kthehu në faqe kryesore",
     "fillAllFields": "Ju lutemi plotësoni të gjitha fushat",
     "passwordMin": "Fjalëkalimi duhet të ketë të paktën 6 karaktere",
+    "dateOfBirth": "Data e lindjes",
+    "birthdateRequired": "Ju lutemi vendosni datën tuaj të lindjes",
+    "mustBe18": "Duhet të jeni 18 vjeç ose më i madh për të përdorur Shqiponjën",
+    "mustBe18Hint": "Duhet të jeni 18 vjeç ose më i madh për të përdorur Shqiponjën",
     "emailTip": "💡 Këshillë: Kontrolloni dosjen e spam-it nëse nuk shihni emailin e konfirmimit.",
     "accountCreated": "Llogaria u krijua! Ju lutemi plotësoni profilin tuaj.",
     "signupNoUser": "Regjistrimi u kompletua por nuk u kthye asnjë përdorues. Ju lutemi provoni të kyçeni.",
@@ -123,7 +127,7 @@
   "nav": {
     "discover": "Zbulo",
     "likes": "Pëlqime",
-    "radar": "Radar",
+    "radar": "Radar.",
     "chat": "Biseda",
     "profile": "Profili",
     "features": "Veçoritë",
@@ -157,7 +161,7 @@
     "navOptions": "Opsionet e navigimit dhe llogarisë",
     "menu": "Meny",
     "dailyPicks": "Zgjedhjet e Ditës",
-    "aiMatchmaker": "AI Matchmaker",
+    "aiMatchmaker": "Zgjedhje të Zgjuara",
     "datingGames": "Lojëra Takimesh",
     "moodStatus": "Gjendja e Humorit",
     "ghostAlerts": "Alarmet Ghost",
@@ -257,11 +261,12 @@
     "likes": "Pelqimet",
     "writeSomethingPlaceholder": "Shkruani diçka interesante... 💬",
     "minPlaceholder": "Min",
-    "maxPlaceholder": "Max",
+    "maxPlaceholder": "Maks",
     "everyonePlaceholder": "Të gjithë",
     "anyPlaceholder": "Çdo",
     "failedToLike": "Dështoi pelqimi i profilit: {{error}}",
     "checkoutFailed": "Pagesa dështoi: {{msg}}",
+    "superlikePurchaseRedirect": "Përdorni monedhat nga Portofoli juaj për të dërguar Superpëlqime",
     "failedToPass": "Dështoi kalimi i profilit: {{error}}",
     "messageSent": "Mesazh u dërgua tek {{name}}! 💬",
     "boostAria": "Stimuluesi",
@@ -673,6 +678,7 @@
     "spotlightAccess": "Qasje në Spotlight Booster",
     "noAds": "Pa reklama",
     "manageSubscription": "Menaxho Abonimin",
+    "manageSubscriptionGooglePlay": "Për të menaxhuar abonimin tuaj, hapni Google Play → Abonimet",
     "cancelMembership": "Anulo Anëtarësimin",
     "subscriptionRemainActive": "Abonimi juaj do të mbetet aktiv deri në fund të periudhës aktuale të faturimit.",
     "premiumCancelledSuccess": "Anëtarësia premium u anulua. Do të keni qasje deri në fund të periudhës tënde të faturimit.",
@@ -696,7 +702,7 @@
     "deleteAccountDesc": "Fshi menjëherë dhe përgjithmonë llogarinë tënde, ndeshjet, mesazhet dhe të gjitha të dhënat. Kjo nuk mund të zhbëhet.",
     "deleteDialogDesc": "Kjo do të fshijë përgjithmonë llogarinë tënde dhe do të heqë të gjitha të dhënat tua nga serverët tanë — duke përfshirë ndeshjet, mesazhet, pëlqimet dhe profilin tënd. Ky veprim nuk mund të zhbëhet.",
     "deleteEverything": "Fshi Gjithçka",
-    "adminSection": "Admin",
+    "adminSection": "Administratorët",
     "safetyConsole": "Konsola e Sigurisë",
     "safetyConsoleDesc": "Rishikoni raportet & kërkesat e të dhënave",
     "analyticsDashboard": "Paneli Analitik",
@@ -920,7 +926,7 @@
     "upgradeToSee": "Përmirëso llogarinë për të parë profilin e tyre të plotë"
   },
   "radar": {
-    "tabLabel": "Radar",
+    "tabLabel": "Radar.",
     "nearbyCount": "persona afër (brenda 100m)",
     "nearbyCountSingular": "person afër (brenda 100m)",
     "scanningUsers": "Duke skanuar përdoruesit afër...",
@@ -1122,15 +1128,25 @@
     "walletBalance": "Bilanci i portofolit",
     "coins": "monedha",
     "reward": "Shpërblim",
-    "claimedToday": "Marrë sot",
+    "claimedToday": "Marrë sot ✓",
     "claiming": "Duke marrë...",
-    "claimButton": "Merrni shpërblimin ditor",
-    "comeBack": "Kthehuni çdo ditë për të fituar më shumë monedha.",
+    "claimButton": "Merr +{{coins}} monedha",
+    "comeBack": "Kthehu nesër për të vazhduar serialin!",
     "alreadyClaimed": "Tashmë e keni marrë sot.",
     "failed": "Dështoi marrja e shpërblimit ditor",
     "toastAlreadyClaimed": "E keni marrë tashmë shpërblimin e sotëm.",
     "toastFailed": "Dështoi marrja e shpërblimit ditor.",
-    "claimed": "Shpërblimi ditor u mor! +{{coins}} monedha"
+    "claimed": "+{{coins}} monedha u morën!",
+    "streakDay": "Ditë {{day}} serial 🔥",
+    "streakProgress": "Dita {{current}} nga 3",
+    "day7Reward": "Bonus Dita 3",
+    "day7Desc": "2 zbulime profili falas",
+    "streakBonus": "🎉 Serial 7-dитësh! Fituat 2 zbulime falas në Kush Ju Pëlqeu!",
+    "streakBroken": "Seriali u rivendos — filloni përsëri nga dita 1!",
+    "freeReveals": "{{count}} zbulim falas",
+    "freeRevealsPlural": "{{count}} zbulime falas",
+    "revealCredits": "Zbulime falas në dispozicion",
+    "useReveal": "Përdor zbulim në Kush Ju Pëllqeu →"
   },
   "dateSpots": {
     "title": "Vendet e Takimeve",
@@ -1235,7 +1251,7 @@
   "matchGoals": {
     "title": "Qëllimet e Përputhjes",
     "subtitle": "Gjurmoni streaks dhe progresin javor",
-    "streak": "Streak",
+    "streak": "dell",
     "days": "ditë",
     "messagesThisWeek": "Mesazhe këtë javë",
     "matchesThisWeek": "Përputhje këtë javë",
@@ -1363,6 +1379,8 @@
     "myActiveStories": "Historitë e Mia Aktive",
     "loading": "Duke ngarkuar…",
     "noStories": "Nuk keni histori aktive tani.",
+    "othersStories": "Historitë e të tjerëve",
+    "noOthersStories": "Askush nuk ka postuar histori akoma.",
     "expires": "Skadon",
     "storyDeleted": "Historia u fshi.",
     "deleteFailed": "Dështoi fshirja e historisë.",
@@ -1392,7 +1410,7 @@
     "cameraError": "Nuk mund të aksesohet kamera",
     "danceUploaded": "Videoja e vallëzimit u ngarkua! 🎉",
     "failedUploadVideo": "Dështoi ngarkimi i videos",
-    "urlPlaceholder": "https://..."
+    "urlPlaceholder": "https://"
   },
   "profileSoundtrack": {
     "title": "Sfondi Muzikor i Profilit",
@@ -1516,8 +1534,8 @@
     "reportSuspiciousDesc": "Përdorni opsionin e raportimit për të njoftuar ekipin tonë për sjellje të papërshtatshme."
   },
   "aiMatchmaker": {
-    "title": "Përputhësi AI",
-    "subtitle": "Zgjedhjet tuaja të kuratoruara ditore",
+    "title": "Zgjedhje të Zgjuara",
+    "subtitle": "Profilet e përputhura sipas interesave & përputhshmërisë",
     "refresh": "Rifresko",
     "todaysPicks": "Zgjedhjet e Sotme",
     "profilesCurated": "{{count}} profile të kuratoruara vetëm për ju bazuar në përputhshmëri",
@@ -1553,7 +1571,7 @@
     "couples": "Çifte",
     "countries": "Vende",
     "testimonialQuote": "Gjeta ndeshjen time të përsosur këtu. Mirënjohës përgjithmonë! 🇦🇱",
-    "testimonialAuthor": "— Lora & Ardit, New York",
+    "testimonialAuthor": "— Lora & Ardit, Nju Jork",
     "verifiedProfiles": "Profile të Verifikuara",
     "nearYou": "Pranë Jush",
     "premiumMatches": "Përputhje Premium"
@@ -1569,7 +1587,7 @@
     "helpCenter": "Qendra e Ndihmës",
     "safetyTips": "Këshilla Sigurie",
     "contactUs": "Na Kontaktoni",
-    "faq": "FAQ",
+    "faq": "Pyetjet më të shpeshta",
     "legal": "Ligjore",
     "privacyPolicy": "Politika e Privatësisë",
     "termsOfService": "Kushtet e Shërbimit",
@@ -1588,7 +1606,7 @@
     "priorityVisibility": "Dukshmëri prioritare e profilit",
     "datingGamesAccess": "Akses në Lojërat e Takimeve",
     "noAds": "Pa reklama & mbështetje VIP",
-    "price": "€29.99",
+    "price": "€ 29.99",
     "priceInterval": "/muaj",
     "upgrade": "Kaloni në Premium",
     "cancelAnytime": "Anuloni kurdo. Pa detyrime."
@@ -1713,7 +1731,7 @@
   "chatHeader": {
     "backToMatches": "Kthehu tek Përputhjet",
     "streakDays": "-ditë streak",
-    "online": "🟢 Online",
+    "online": "On-line",
     "lastSeen": "Parë herën e fundit",
     "blockUser": "Bloko përdoruesin",
     "unblockUser": "Zhbloko përdoruesin",
@@ -1735,7 +1753,7 @@
     "recordVoice": "Regjistro mesazh zanor",
     "stopRecording": "Ndale regjistrimin",
     "sending": "Duke dërguar...",
-    "gif": "GIF",
+    "gif": "Gif",
     "voiceMessageRecorded": "Mesazhi zanor u regjistrua",
     "removeImage": "Hiq foton",
     "planADate": "Planifikoni një takim",
@@ -1755,7 +1773,7 @@
     "exit": "Dil"
   },
   "radarNearby": {
-    "title": "Radar",
+    "title": "Radar.",
     "nearby": "Afërsisht",
     "tagline": "Zbuloni beqarët shqiptarë në zonën tuaj. Përputhje me vendndodhje në kohë reale.",
     "scanNearby": "Skanoni Afërsisht",
@@ -1973,11 +1991,13 @@
     "albanianTrivia": "Trivia e Këngëve Shqiptare!",
     "listeningTo": "Përgatituni! Duke dëgjuar:",
     "opponentAnsweringMusic": "Kundërshtari juaj po përgjigjet...",
-    "albanianMusicTrivia": "Pyetje Muzike Shqiptare"
+    "albanianMusicTrivia": "Pyetje Muzike Shqiptare",
+    "loadingDance": "Sfida e kërcimit po ngarkohet...",
+    "loadingMusic": "Duke ngarkuar lojën muzikore..."
   },
   "gameLobby": {
     "title": "Salla e Lojës",
-    "online": "Online",
+    "online": "On-line",
     "loadingLobby": "Duke ngarkuar sallën e lojës...",
     "pendingChallenges": "Sfidat në Pritje",
     "anonymousChallenge": "Lojtari Anonim ju sfidon!",

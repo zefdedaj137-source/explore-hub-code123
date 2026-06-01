@@ -94,7 +94,7 @@ const BottomNav = () => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
       <div className="mx-auto max-w-md px-4 pb-3">
-        <div className="flex justify-around items-center h-16 rounded-2xl relative overflow-hidden bottom-nav-bar">
+        <div className="flex justify-around items-center h-[72px] rounded-2xl relative overflow-hidden bottom-nav-bar">
           {/* Active glow background pill — smoothly repositioned via CSS */}
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -128,7 +128,7 @@ const BottomNav = () => {
               >
                 <div className="relative">
                   <Icon
-                    className="h-[22px] w-[22px]"
+                    className="h-[26px] w-[26px]"
                     style={{
                       color: isActive ? "#e8274b" : "var(--nav-icon-inactive)",
                       filter: isActive ? "drop-shadow(0 0 6px rgba(232,39,75,0.7))" : "none",

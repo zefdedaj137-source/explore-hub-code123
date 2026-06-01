@@ -80,7 +80,7 @@ export const CallDialog = ({
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
   ];
-  const turnUrl = import.meta.env.VITE_TURN_URL as string | undefined;
+  const turnUrl = import.meta.env.VITE_TURN_SERVER_URL as string | undefined;
   const turnUsername = import.meta.env.VITE_TURN_USERNAME as string | undefined;
   const turnCredential = import.meta.env.VITE_TURN_CREDENTIAL as string | undefined;
   if (turnUrl && turnUsername && turnCredential) {
@@ -119,7 +119,7 @@ export const CallDialog = ({
     };
   }, [isOpen, isAnswering, callStatus, callType]);
 
-  const initializeCall = async () => {
+  async function initializeCall() {
     try {
       // Reset state for new call
       setCallStatus("connecting");
@@ -141,9 +141,7 @@ export const CallDialog = ({
         const isHttps =
           window.location.protocol === "https:" || window.location.hostname === "localhost";
         throw new Error(
-          isHttps
-            ? t("callDialog.browserNotSupported")
-            : t("callDialog.httpsRequired")
+          isHttps ? t("callDialog.browserNotSupported") : t("callDialog.httpsRequired")
         );
       }
 
@@ -353,7 +351,7 @@ export const CallDialog = ({
       });
       onClose();
     }
-  };
+  }
 
   const initiateCall = async (pc: RTCPeerConnection) => {
     try {
@@ -667,7 +665,7 @@ export const CallDialog = ({
     }
   };
 
-  const cleanup = () => {
+  function cleanup() {
     // Stop local tracks
     localStreamRef.current?.getTracks().forEach((track) => track.stop());
     localStreamRef.current = null;
@@ -703,7 +701,7 @@ export const CallDialog = ({
     setSessionId(null);
     sessionIdRef.current = null;
     activeSinceRef.current = null;
-  };
+  }
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

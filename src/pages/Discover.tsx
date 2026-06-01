@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, memo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeText } from "@/lib/sanitize";
@@ -159,6 +159,13 @@ const Discover = () => {
   const [swipeStartX, setSwipeStartX] = useState<number | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
   const [swipeExiting, setSwipeExiting] = useState<"left" | "right" | null>(null);
+  const [showSwipeHint, setShowSwipeHint] = useState(() => {
+    try {
+      return !localStorage.getItem("discover_hint_shown");
+    } catch {
+      return false;
+    }
+  });
   const cardRef = useRef<HTMLDivElement>(null);
   const likeOverlayRef = useRef<HTMLDivElement>(null);
   const nopeOverlayRef = useRef<HTMLDivElement>(null);
@@ -169,7 +176,7 @@ const Discover = () => {
   const handleLikeRef = useRef<((profileId: string) => Promise<void>) | null>(null);
   const handlePassRef = useRef<((profileId: string) => Promise<void>) | null>(null);
 
-  const SWIPE_THRESHOLD = 100;
+  const SWIPE_THRESHOLD = 72;
 
   const handleSwipeStart = useCallback((clientX: number) => {
     setSwipeStartX(clientX);
@@ -217,6 +224,19 @@ const Discover = () => {
   const swipeOpacity = swipeExiting ? 0 : 1;
   const likeOpacity = Math.min(Math.max(swipeOffset / SWIPE_THRESHOLD, 0), 1);
   const nopeOpacity = Math.min(Math.max(-swipeOffset / SWIPE_THRESHOLD, 0), 1);
+
+  useEffect(() => {
+    if (!showSwipeHint) return;
+    const hintTimer = setTimeout(() => {
+      setShowSwipeHint(false);
+      try {
+        localStorage.setItem("discover_hint_shown", "1");
+      } catch {
+        /* */
+      }
+    }, 4000);
+    return () => clearTimeout(hintTimer);
+  }, [showSwipeHint]);
 
   useEffect(() => {
     if (cardRef.current) {
@@ -1104,7 +1124,9 @@ const Discover = () => {
     }
   };
   // Keep ref in sync so handleSwipeEnd always calls the latest version
-  handleLikeRef.current = handleLike;
+  useLayoutEffect(() => {
+    handleLikeRef.current = handleLike;
+  });
 
   // Handle superlike action
   const handleSuperlike = async () => {
@@ -1352,30 +1374,13 @@ const Discover = () => {
     }
   };
 
-  // Purchase superlikes via Stripe
-  const handlePurchaseSuperlikes = async (amount: number) => {
-    if (!user) return;
-    setSuperlikeCheckoutLoading(amount);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-superlike-checkout", {
-        body: { amount, origin: window.location.origin },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        setShowSuperlikeDialog(false);
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
-    } catch (error) {
-      logger.error("Error starting superlike checkout:", error);
-      const msg = error instanceof Error ? error.message : String(error);
-      toast.error(t("discover.checkoutFailed", { msg }));
-    } finally {
-      setSuperlikeCheckoutLoading(null);
-    }
+  // Purchase superlikes via Wallet (Google Play Billing coming soon)
+  const handlePurchaseSuperlikes = (_amount: number) => {
+    setShowSuperlikeDialog(false);
+    toast.info(
+      t("discover.superlikePurchaseRedirect") || "Purchase superlikes with coins in your Wallet"
+    );
+    navigate("/wallet");
   };
 
   // Handle pass action
@@ -1472,7 +1477,9 @@ const Discover = () => {
     }
   };
   // Keep ref in sync so handleSwipeEnd always calls the latest version
-  handlePassRef.current = handlePass;
+  useLayoutEffect(() => {
+    handlePassRef.current = handlePass;
+  });
 
   // Handle rewind (undo last action)
   const handleRewind = async () => {
@@ -2923,10 +2930,10 @@ const Discover = () => {
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-3 mt-4">
             <button
               onClick={() => setActiveTab("for-you")}
-              className={`flex-1 px-6 py-3 rounded-2xl font-semibold text-base transition-all duration-300 border-2 ${
+              className={`flex-1 px-6 py-4 min-h-[56px] rounded-2xl font-bold text-base transition-all duration-300 border-2 active:scale-95 ${
                 activeTab === "for-you"
                   ? "bg-primary/20 text-primary border-primary/50 shadow-lg shadow-primary/20"
                   : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-primary"
@@ -2936,7 +2943,7 @@ const Discover = () => {
             </button>
             <button
               onClick={() => setActiveTab("last-active")}
-              className={`flex-1 px-6 py-3 rounded-2xl font-semibold text-base transition-all duration-300 flex items-center justify-center gap-2 border-2 ${
+              className={`flex-1 px-6 py-4 min-h-[56px] rounded-2xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 border-2 active:scale-95 ${
                 activeTab === "last-active"
                   ? "bg-primary/20 text-primary border-primary/50 shadow-lg shadow-primary/20"
                   : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-primary"
@@ -2995,7 +3002,7 @@ const Discover = () => {
               {currentProfile ? (
                 <div
                   ref={cardRef}
-                  className="relative select-none touch-pan-y cursor-grab"
+                  className="relative select-none touch-none cursor-grab"
                   onPointerDown={(e) => {
                     if ((e.target as HTMLElement).closest("button, a, video, input")) return;
                     e.currentTarget.setPointerCapture(e.pointerId);
@@ -3349,20 +3356,37 @@ const Discover = () => {
                     <Button
                       size="icon"
                       variant="outline"
-                      className="rounded-full w-14 h-14 border-2 border-muted-foreground/30 hover:border-muted-foreground/60 hover:bg-muted/40 shadow-md transition-all duration-200 hover:scale-110"
+                      className="rounded-full w-16 h-16 border-2 border-muted-foreground/30 hover:border-muted-foreground/60 hover:bg-muted/40 shadow-md transition-all duration-200 active:scale-90 hover:scale-110"
                       onClick={() => handlePass(currentProfile.id)}
                     >
-                      <X className="h-6 w-6 text-muted-foreground" />
+                      <X className="h-7 w-7 text-muted-foreground" />
                     </Button>
 
                     {/* Like */}
                     <Button
                       size="icon"
-                      className="rounded-full w-14 h-14 bg-gradient-to-br from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 shadow-md transition-all duration-200 hover:scale-110"
+                      className="rounded-full w-16 h-16 bg-gradient-to-br from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 shadow-md transition-all duration-200 active:scale-90 hover:scale-110"
                       onClick={() => handleLike(currentProfile.id)}
                     >
-                      <Heart className="h-6 w-6 text-white" />
+                      <Heart className="h-7 w-7 text-white" />
                     </Button>
+                  </div>
+                </div>
+              )}
+              {currentProfile && showSwipeHint && (
+                <div className="absolute inset-x-0 top-0 bottom-28 z-50 flex items-center justify-center pointer-events-none">
+                  <div className="flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/70 backdrop-blur-sm animate-in fade-in duration-500">
+                    <div className="flex items-center gap-1.5 text-red-400">
+                      <X className="h-4 w-4" />
+                      <span className="text-sm font-semibold text-white">Pass</span>
+                    </div>
+                    <div className="w-px h-6 bg-white/30" />
+                    <span className="text-xs text-white/60">swipe to discover</span>
+                    <div className="w-px h-6 bg-white/30" />
+                    <div className="flex items-center gap-1.5 text-green-400">
+                      <span className="text-sm font-semibold text-white">Like</span>
+                      <Heart className="h-4 w-4" />
+                    </div>
                   </div>
                 </div>
               )}

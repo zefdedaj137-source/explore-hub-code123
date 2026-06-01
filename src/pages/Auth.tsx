@@ -62,7 +62,21 @@ const Auth = () => {
   const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
+  // Age verification
+  const [birthDate, setBirthDate] = useState("");
+
   const [loading, setLoading] = useState(false);
+
+  const maxBirthDate = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 18);
+    return d.toISOString().split("T")[0];
+  })();
+
+  const isAgeValid = (dateStr: string) => {
+    if (!dateStr) return false;
+    return dateStr <= maxBirthDate;
+  };
   const navigate = useNavigate();
   const hasRedirected = useRef(false);
 
@@ -167,6 +181,17 @@ const Auth = () => {
     if (password.length < 6) {
       toast.error(t("auth.passwordMin"));
       return;
+    }
+
+    if (!isLogin) {
+      if (!birthDate) {
+        toast.error(t("auth.birthdateRequired") || "Please enter your date of birth");
+        return;
+      }
+      if (!isAgeValid(birthDate)) {
+        toast.error(t("auth.mustBe18") || "You must be 18 or older to use Shqiponja");
+        return;
+      }
     }
 
     setLoading(true);
@@ -305,6 +330,15 @@ const Auth = () => {
 
     if (!phoneNumber) {
       toast.error(t("auth.enterPhone"));
+      return;
+    }
+
+    if (!birthDate) {
+      toast.error(t("auth.birthdateRequired") || "Please enter your date of birth");
+      return;
+    }
+    if (!isAgeValid(birthDate)) {
+      toast.error(t("auth.mustBe18") || "You must be 18 or older to use Shqiponja");
       return;
     }
 
@@ -612,6 +646,28 @@ const Auth = () => {
                       </div>
                     )}
                   </div>
+                  {!isLogin && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="birthDate"
+                        className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                      >
+                        {t("auth.dateOfBirth") || "Date of Birth"}
+                      </Label>
+                      <Input
+                        id="birthDate"
+                        type="date"
+                        value={birthDate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                        max={maxBirthDate}
+                        required
+                        className="rounded-xl dark:border-0 dark:text-white focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground"
+                      />
+                      <p className="text-xs dark:text-white/35 text-muted-foreground">
+                        {t("auth.mustBe18Hint") || "You must be 18 or older to use Shqiponja"}
+                      </p>
+                    </div>
+                  )}
                   <Button
                     type="submit"
                     className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
@@ -652,6 +708,26 @@ const Auth = () => {
                         inputMode="tel"
                       />
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="birthDatePhone"
+                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                    >
+                      {t("auth.dateOfBirth") || "Date of Birth"}
+                    </Label>
+                    <Input
+                      id="birthDatePhone"
+                      type="date"
+                      value={birthDate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      max={maxBirthDate}
+                      required
+                      className="rounded-xl dark:border-0 dark:text-white focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground"
+                    />
+                    <p className="text-xs dark:text-white/35 text-muted-foreground">
+                      {t("auth.mustBe18Hint") || "You must be 18 or older to use Shqiponja"}
+                    </p>
                   </div>
                   <Button
                     type="submit"

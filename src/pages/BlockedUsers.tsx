@@ -121,7 +121,11 @@ const BlockedUsers = () => {
                 <p className="text-sm text-muted-foreground">{t("blockedUsers.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -129,7 +133,9 @@ const BlockedUsers = () => {
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("common.loading")}
+          </Card>
         ) : blocks.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border-2 border-border">
             {t("blockedUsers.noBlocked")}

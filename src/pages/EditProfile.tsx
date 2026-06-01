@@ -624,7 +624,7 @@ const EditProfile = () => {
     return () => clearTimeout(timer);
   }, [user]);
 
-  const calculateProfileCompletion = (profile: Profile) => {
+  function calculateProfileCompletion(profile: Profile) {
     const fields = [
       profile.full_name,
       profile.age, // Age is always set (minimum 18)
@@ -665,7 +665,7 @@ const EditProfile = () => {
       "fields filled)"
     );
     setProfileCompletion(percentage);
-  };
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

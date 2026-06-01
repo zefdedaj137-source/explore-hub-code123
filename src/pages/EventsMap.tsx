@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, ArrowLeft, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -159,7 +159,11 @@ const EventsMap = () => {
                 <p className="text-sm text-muted-foreground">{t("eventsMap.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("eventsMap.back")}
             </Button>
@@ -182,9 +186,13 @@ const EventsMap = () => {
         </Card>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("eventsMap.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("eventsMap.loading")}
+          </Card>
         ) : events.length === 0 ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("eventsMap.noEvents")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("eventsMap.noEvents")}
+          </Card>
         ) : (
           <div className="space-y-4">
             {events.map((event) => (
@@ -245,7 +253,7 @@ const EventsMap = () => {
                   </div>
                   {event.capacity && (
                     <span className="text-xs uppercase text-primary">
-                    {t("eventsMap.capacity", { n: event.capacity })}
+                      {t("eventsMap.capacity", { n: event.capacity })}
                     </span>
                   )}
                 </div>

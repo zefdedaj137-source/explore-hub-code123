@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Share2, ArrowLeft, Gift, Copy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,10 +23,16 @@ const InviteFriends = () => {
     if (!codeKey) return "";
     const existing = localStorage.getItem(codeKey);
     if (existing) return existing;
-    const generated = user?.id ? user.id.replace(/-/g, "").slice(0, 8).toUpperCase() : "WELCOME";
+    // Generate a random 8-char alphanumeric code
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const arr = new Uint8Array(8);
+    crypto.getRandomValues(arr);
+    const generated = Array.from(arr)
+      .map((b) => chars[b % chars.length])
+      .join("");
     localStorage.setItem(codeKey, generated);
     return generated;
-  }, [codeKey, user]);
+  }, [codeKey]);
 
   const inviteLink = useMemo(() => {
     const origin = window.location.origin;
@@ -65,7 +71,7 @@ const InviteFriends = () => {
   const handleShare = async () => {
     const payload = {
       title: "Join me on Explore Hub",
-      text: "Let’s match on Explore Hub! Use my invite code for bonus coins.",
+      text: "Let�s match on Explore Hub! Use my invite code for bonus coins.",
       url: inviteLink,
     };
 
@@ -93,11 +99,15 @@ const InviteFriends = () => {
           const currentBalance = (wallet as { balance: number } | null)?.balance ?? 0;
           await supabase
             .from("wallets")
-            .upsert({ user_id: user.id, balance: currentBalance + 3, updated_at: new Date().toISOString() });
+            .upsert({
+              user_id: user.id,
+              balance: currentBalance + 3,
+              updated_at: new Date().toISOString(),
+            });
           await supabase
             .from("wallet_transactions")
             .insert({ user_id: user.id, amount: 3, type: "earn", item: "invite_reward" });
-          toast.success(t("inviteFriends.rewardCoins", "🎁 You earned 3 coins for sharing!"));
+          toast.success(t("inviteFriends.rewardCoins", "?? You earned 3 coins for sharing!"));
         } catch (e) {
           logger.error("Failed to credit invite reward", e);
         }
@@ -130,7 +140,11 @@ const InviteFriends = () => {
                 <p className="text-sm text-muted-foreground">{t("inviteFriends.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -160,7 +174,8 @@ const InviteFriends = () => {
           </div>
 
           <div className="text-sm text-muted-foreground">
-            {t("inviteFriends.invitesSent")}: <span className="font-semibold text-foreground">{invitesSent}</span>
+            {t("inviteFriends.invitesSent")}:{" "}
+            <span className="font-semibold text-foreground">{invitesSent}</span>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3">

@@ -237,7 +237,11 @@ const ActivityFeed = () => {
                 <p className="text-sm text-muted-foreground">{t("activityFeed.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -252,10 +256,10 @@ const ActivityFeed = () => {
           <Card className="p-8 text-center rounded-2xl border border-white/6 shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
             <Activity className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
             <h3 className="font-semibold text-lg mb-1">{t("activityFeed.noActivity")}</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t("activityFeed.noActivityDesc")}
-            </p>
-            <Button onClick={() => navigate("/discover")}>{t("activityFeed.discoverProfiles")}</Button>
+            <p className="text-sm text-muted-foreground mb-4">{t("activityFeed.noActivityDesc")}</p>
+            <Button onClick={() => navigate("/discover")}>
+              {t("activityFeed.discoverProfiles")}
+            </Button>
           </Card>
         ) : (
           <div className="space-y-3">

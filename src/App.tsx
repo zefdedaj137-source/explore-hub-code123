@@ -88,6 +88,13 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AIMatchmaker = lazy(() => import("./pages/AIMatchmaker"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Spotted = lazy(() => import("./pages/Spotted"));
+const Events = lazy(() => import("./pages/Events"));
+const SecondLook = lazy(() => import("./pages/SecondLook"));
+const WeeklySpotlight = lazy(() => import("./pages/WeeklySpotlight"));
+const DateSpotSuggestions = lazy(() => import("./pages/DateSpotSuggestions"));
+const DoubleDatePlanner = lazy(() => import("./pages/DoubleDatePlanner"));
+const EventsMap = lazy(() => import("./pages/EventsMap"));
+const IcebreakerGames = lazy(() => import("./pages/IcebreakerGames"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -525,6 +532,62 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <Spotted />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events"
+            element={
+              <ProtectedRoute>
+                <Events />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/second-look"
+            element={
+              <ProtectedRoute>
+                <SecondLook />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/weekly-spotlight"
+            element={
+              <ProtectedRoute>
+                <WeeklySpotlight />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/date-spot-suggestions"
+            element={
+              <ProtectedRoute>
+                <DateSpotSuggestions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/double-date-planner"
+            element={
+              <ProtectedRoute>
+                <DoubleDatePlanner />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events-map"
+            element={
+              <ProtectedRoute>
+                <EventsMap />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/icebreaker-games"
+            element={
+              <ProtectedRoute>
+                <IcebreakerGames />
               </ProtectedRoute>
             }
           />

@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, ArrowLeft, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -154,7 +154,7 @@ const DoubleDatePlanner = () => {
 
       // Send chat messages to notify both partners
       const formattedDate = new Date(dateTime).toLocaleString();
-      const chatMessage = `📅 Double date planned!\n📍 ${location}\n🕐 ${formattedDate}${notes ? `\n📝 ${notes}` : ""}\n\nCheck your Double Date Planner for details!`;
+      const chatMessage = `?? Double date planned!\n?? ${location}\n?? ${formattedDate}${notes ? `\n?? ${notes}` : ""}\n\nCheck your Double Date Planner for details!`;
 
       for (const partnerId of [partner1, partner2]) {
         const match = matches.find(
@@ -204,11 +204,17 @@ const DoubleDatePlanner = () => {
             <div className="flex items-center gap-3">
               <Users className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{t("doubleDatePlanner.title")}</h1>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {t("doubleDatePlanner.title")}
+                </h1>
                 <p className="text-sm text-muted-foreground">{t("doubleDatePlanner.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("doubleDatePlanner.back")}
             </Button>
@@ -216,11 +222,15 @@ const DoubleDatePlanner = () => {
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("doubleDatePlanner.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("doubleDatePlanner.loading")}
+          </Card>
         ) : (
           <div className="space-y-6">
             <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4">
-              <h2 className="text-lg font-semibold">{t("doubleDatePlanner.createDoubleDateTitle")}</h2>
+              <h2 className="text-lg font-semibold">
+                {t("doubleDatePlanner.createDoubleDateTitle")}
+              </h2>
               <Select value={partner1} onValueChange={setPartner1}>
                 <SelectTrigger>
                   <SelectValue placeholder={t("doubleDatePlanner.selectFirstMatch")} />

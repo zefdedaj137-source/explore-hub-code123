@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarDays, ArrowLeft, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -184,7 +184,11 @@ const Events = () => {
                 <MapPin className="h-4 w-4 mr-2" />
                 {t("events.map")}
               </Button>
-              <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+              <Button
+                variant="outline"
+                className="rounded-full"
+                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 {t("events.back")}
               </Button>
@@ -194,7 +198,11 @@ const Events = () => {
 
         <Card className="p-6 rounded-2xl border-2 border-border bg-card/80 space-y-4 mb-6">
           <h2 className="text-lg font-semibold">{t("events.createEvent")}</h2>
-          <Input placeholder={t("events.titlePlaceholder")} value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input
+            placeholder={t("events.titlePlaceholder")}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
           <Textarea
             placeholder={t("events.descriptionPlaceholder")}
             value={description}
@@ -222,9 +230,13 @@ const Events = () => {
         </Card>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("events.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("events.loading")}
+          </Card>
         ) : events.length === 0 ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("events.noEvents")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("events.noEvents")}
+          </Card>
         ) : (
           <div className="space-y-4">
             {events.map((event) => (
@@ -285,7 +297,7 @@ const Events = () => {
                   </div>
                   {event.capacity && (
                     <span className="text-xs uppercase text-primary">
-                    {t("events.capacity", { n: event.capacity })}
+                      {t("events.capacity", { n: event.capacity })}
                     </span>
                   )}
                 </div>

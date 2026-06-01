@@ -155,7 +155,9 @@ const DateSpotSuggestions = () => {
       : [...favorites, name];
     setFavorites(updated);
     localStorage.setItem(`date_spots_fav_${user.id}`, JSON.stringify(updated));
-    toast.success(updated.includes(name) ? t("dateSpots.addedFavorite") : t("dateSpots.removedFavorite"));
+    toast.success(
+      updated.includes(name) ? t("dateSpots.addedFavorite") : t("dateSpots.removedFavorite")
+    );
   };
 
   const pickRandom = () => {
@@ -178,7 +180,11 @@ const DateSpotSuggestions = () => {
   return (
     <div className="min-h-dvh bg-gradient-to-br from-rose-50 to-pink-50 pb-24">
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-lg border-b px-4 py-3 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <MapPin className="h-5 w-5 text-rose-500" />
@@ -219,7 +225,9 @@ const DateSpotSuggestions = () => {
                   : "bg-muted text-muted-foreground hover:bg-muted"
               }`}
             >
-              {type === "all" ? t("dateSpots.filterAll") : `${typeIcons[type]} ${type.charAt(0).toUpperCase() + type.slice(1)}`}
+              {type === "all"
+                ? t("dateSpots.filterAll")
+                : `${typeIcons[type]} ${type.charAt(0).toUpperCase() + type.slice(1)}`}
             </button>
           ))}
         </div>
@@ -235,7 +243,9 @@ const DateSpotSuggestions = () => {
                     <button
                       onClick={() => toggleFav(spot.name)}
                       aria-label={
-                        favorites.includes(spot.name) ? t("dateSpots.removeFromFav") : t("dateSpots.addToFav")
+                        favorites.includes(spot.name)
+                          ? t("dateSpots.removeFromFav")
+                          : t("dateSpots.addToFav")
                       }
                     >
                       <Star

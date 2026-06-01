@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -137,7 +137,7 @@ const MyProfile = () => {
     }
     fetchProfile();
 
-    // Defer achievements check until browser is idle — avoids blocking initial paint
+    // Defer achievements check until browser is idle � avoids blocking initial paint
     const runAchievements = () => {
       checkAndGrantAchievements(user.id).then((newBadges) => {
         if (newBadges.length > 0) {
@@ -341,7 +341,7 @@ const MyProfile = () => {
               <span className="text-2xl font-bold text-primary">Shqiponja</span>
             </div>
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
               className="p-2 hover:bg-muted rounded-full transition-colors"
               aria-label={t("profile.goBack")}
             >
@@ -863,19 +863,19 @@ const MyProfile = () => {
             <div className="grid grid-cols-2 gap-4">
               {profile.work && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">?? Work</p>
                   <p className="font-semibold text-sm text-foreground">{profile.work}</p>
                 </Card>
               )}
               {profile.education && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">?? Education</p>
                   <p className="font-semibold text-sm text-foreground">{profile.education}</p>
                 </Card>
               )}
               {(profile.height_cm || profile.height) && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">?? Height</p>
                   <p className="font-semibold text-sm text-foreground">
                     {profile.height_cm ? `${profile.height_cm} cm` : profile.height}
                   </p>
@@ -883,37 +883,37 @@ const MyProfile = () => {
               )}
               {profile.zodiac_sign && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">? Zodiac</p>
                   <p className="font-semibold text-sm text-foreground">{profile.zodiac_sign}</p>
                 </Card>
               )}
               {profile.religion && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">?? Religion</p>
                   <p className="font-semibold text-sm text-foreground">{profile.religion}</p>
                 </Card>
               )}
               {profile.lifestyle && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">?? Lifestyle</p>
                   <p className="font-semibold text-sm text-foreground">{profile.lifestyle}</p>
                 </Card>
               )}
               {profile.drinking && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">?? Drinking</p>
                   <p className="font-semibold text-sm text-foreground">{profile.drinking}</p>
                 </Card>
               )}
               {profile.smoking && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">?? Smoking</p>
                   <p className="font-semibold text-sm text-foreground">{profile.smoking}</p>
                 </Card>
               )}
               {profile.pets && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">?? Pets</p>
                   <p className="font-semibold text-sm text-foreground">{profile.pets}</p>
                 </Card>
               )}
@@ -923,7 +923,7 @@ const MyProfile = () => {
             {profile.bio && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">💬</span> About
+                  <span className="text-2xl">??</span> About
                 </h3>
                 <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                   {profile.bio}
@@ -935,7 +935,7 @@ const MyProfile = () => {
             {(profile.looking_for || []).length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">💕</span> Looking For
+                  <span className="text-2xl">??</span> Looking For
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {(profile.looking_for || []).map((item, idx) => (
@@ -954,7 +954,7 @@ const MyProfile = () => {
             {(profile.interests || []).length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">✨</span> Interests
+                  <span className="text-2xl">?</span> Interests
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {(profile.interests || []).map((interest) => (
@@ -986,12 +986,12 @@ const MyProfile = () => {
                 return (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">🎵</span> Soundtrack
+                      <span className="text-2xl">??</span> Soundtrack
                     </h3>
                     {(profile.soundtrack_title || profile.soundtrack_artist) && (
                       <p className="text-sm text-muted-foreground">
                         {profile.soundtrack_title}
-                        {profile.soundtrack_artist ? ` — ${profile.soundtrack_artist}` : ""}
+                        {profile.soundtrack_artist ? ` � ${profile.soundtrack_artist}` : ""}
                       </p>
                     )}
                     {ytId && (

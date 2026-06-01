@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,7 +81,7 @@ const GameLobby = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const updateUserStatus = async (status: string) => {
+  async function updateUserStatus(status: string) {
     if (!user) return;
 
     try {
@@ -95,9 +95,9 @@ const GameLobby = () => {
     } catch (error) {
       logger.error("Error updating status:", error);
     }
-  };
+  }
 
-  const fetchOnlinePlayers = async () => {
+  async function fetchOnlinePlayers() {
     if (!user) return;
 
     try {
@@ -138,9 +138,9 @@ const GameLobby = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const listenForInvites = () => {
+  function listenForInvites() {
     if (!user) return;
 
     // Listen for incoming invites (when someone invites you)
@@ -155,7 +155,7 @@ const GameLobby = () => {
           filter: `to_user_id=eq.${user.id}`,
         },
         async (payload) => {
-          logger.log("📨 Invite received:", payload);
+          logger.log("?? Invite received:", payload);
 
           if (payload.eventType === "INSERT" && payload.new.status === "pending") {
             // Fetch full invite details
@@ -198,14 +198,14 @@ const GameLobby = () => {
           filter: `from_user_id=eq.${user.id}`,
         },
         async (payload) => {
-          logger.log("✅ Invite status updated:", payload);
+          logger.log("? Invite status updated:", payload);
 
           if (payload.new.status === "accepted") {
             const gameMode = payload.new.game_mode || "history";
             const sessionId = payload.new.id;
-            const modeEmoji = gameMode === "history" ? "🏛️" : gameMode === "music" ? "🎵" : "💃";
+            const modeEmoji = gameMode === "history" ? "???" : gameMode === "music" ? "??" : "??";
 
-            logger.log(`🎮 SENDER: Navigating to ${gameMode} session:`, sessionId);
+            logger.log(`?? SENDER: Navigating to ${gameMode} session:`, sessionId);
             toast.success(`${modeEmoji} ${t("gameLobby.challengeAccepted")}`);
 
             // Update status before navigating
@@ -227,7 +227,7 @@ const GameLobby = () => {
       incomingChannel.unsubscribe();
       outgoingChannel.unsubscribe();
     };
-  };
+  }
 
   const openGameModeDialog = (toUserId: string, playerName: string) => {
     setSelectedPlayer({ id: toUserId, name: playerName });
@@ -275,7 +275,8 @@ const GameLobby = () => {
       if (error) throw error;
 
       setSentInvites((prev) => new Set([...prev, selectedPlayer.id]));
-      const modeName = gameMode === "history" ? "🏛️ History" : gameMode === "music" ? "🎵 Music" : "💃 Dance";
+      const modeName =
+        gameMode === "history" ? "??? History" : gameMode === "music" ? "?? Music" : "?? Dance";
       toast.success(t("gameLobby.inviteSent", { mode: modeName, name: selectedPlayer.name }));
       setShowGameModeDialog(false);
       setSelectedPlayer(null);
@@ -287,7 +288,7 @@ const GameLobby = () => {
 
   const handleAcceptInvite = async (invite: GameInvite) => {
     try {
-      logger.log(`🎮 RECEIVER: Accepting invite ${invite.id} for ${invite.game_mode} game`);
+      logger.log(`?? RECEIVER: Accepting invite ${invite.id} for ${invite.game_mode} game`);
 
       // Update invite status
       const { error } = await supabase
@@ -301,9 +302,9 @@ const GameLobby = () => {
       await updateUserStatus("in-game");
 
       const gameMode = invite.game_mode || "history";
-      const modeEmoji = gameMode === "history" ? "🏛️" : gameMode === "music" ? "🎵" : "💃";
+      const modeEmoji = gameMode === "history" ? "???" : gameMode === "music" ? "??" : "??";
 
-      logger.log(`🎮 RECEIVER: Navigating to ${gameMode} session:`, invite.id);
+      logger.log(`?? RECEIVER: Navigating to ${gameMode} session:`, invite.id);
       toast.success(`${modeEmoji} ${t("gameLobby.challengeAccepted")}`);
 
       // Navigate to correct game session based on mode
@@ -347,7 +348,11 @@ const GameLobby = () => {
       <div className="sticky top-0 z-10 bg-gradient-subtle/95 backdrop-blur-sm border-b border-border shadow-sm">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex items-center gap-2">
@@ -368,20 +373,26 @@ const GameLobby = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Trophy className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold text-foreground">{t("gameLobby.pendingChallenges")}</h2>
+              <h2 className="text-lg font-bold text-foreground">
+                {t("gameLobby.pendingChallenges")}
+              </h2>
             </div>
 
             {pendingInvites.map((invite) => {
               const gameMode = invite.game_mode || "history";
               const modeInfo = {
-                history: { emoji: "🏛️", name: "History Lovers", color: "from-background to-muted" },
+                history: {
+                  emoji: "???",
+                  name: "History Lovers",
+                  color: "from-background to-muted",
+                },
                 music: {
-                  emoji: "🎵",
+                  emoji: "??",
                   name: "Music Lovers",
                   color: "from-primary/10 to-primary/10",
                 },
                 dance: {
-                  emoji: "💃",
+                  emoji: "??",
                   name: "Dance Challenge",
                   color: "from-orange-50 to-yellow-50",
                 },
@@ -447,13 +458,11 @@ const GameLobby = () => {
           {onlinePlayers.length === 0 ? (
             <Card className="p-12 text-center">
               <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2 text-foreground">{t("gameLobby.noPlayersTitle")}</h3>
-              <p className="text-muted-foreground mb-4">
-                {t("gameLobby.noPlayersDesc")}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {t("gameLobby.autoUpdates")}
-              </p>
+              <h3 className="text-xl font-bold mb-2 text-foreground">
+                {t("gameLobby.noPlayersTitle")}
+              </h3>
+              <p className="text-muted-foreground mb-4">{t("gameLobby.noPlayersDesc")}</p>
+              <p className="text-sm text-muted-foreground">{t("gameLobby.autoUpdates")}</p>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -469,7 +478,9 @@ const GameLobby = () => {
 
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-foreground">{t("gameLobby.anonymousPlayer")}</h3>
+                          <h3 className="font-semibold text-foreground">
+                            {t("gameLobby.anonymousPlayer")}
+                          </h3>
                           {player.status === "available" ? (
                             <Badge className="bg-green-100 text-green-700 border-green-300 text-xs">
                               {t("gameLobby.available")}
@@ -481,7 +492,7 @@ const GameLobby = () => {
                           )}
                         </div>
                         {player.city && (
-                          <p className="text-sm text-muted-foreground">📍 {player.city}</p>
+                          <p className="text-sm text-muted-foreground">?? {player.city}</p>
                         )}
                       </div>
                     </div>
@@ -517,10 +528,10 @@ const GameLobby = () => {
             <div>
               <h3 className="font-semibold text-foreground mb-2">{t("gameLobby.howItWorks")}</h3>
               <ul className="text-sm text-foreground space-y-1">
-                <li>• {t("gameLobby.tip1")}</li>
-                <li>• {t("gameLobby.tip2")}</li>
-                <li>• {t("gameLobby.tip3")}</li>
-                <li>• {t("gameLobby.tip4")}</li>
+                <li>� {t("gameLobby.tip1")}</li>
+                <li>� {t("gameLobby.tip2")}</li>
+                <li>� {t("gameLobby.tip3")}</li>
+                <li>� {t("gameLobby.tip4")}</li>
               </ul>
             </div>
           </div>

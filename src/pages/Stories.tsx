@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, ArrowLeft, Upload, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -125,12 +125,14 @@ const Stories = () => {
               <Camera className="h-10 w-10 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">{t("stories.title")}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {t("stories.subtitle")}
-                </p>
+                <p className="text-sm text-muted-foreground">{t("stories.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("stories.back")}
             </Button>
@@ -157,9 +159,7 @@ const Stories = () => {
             <Upload className="h-4 w-4 mr-2" />
             {uploading ? t("stories.uploading") : t("stories.upload")}
           </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            {t("stories.hint")}
-          </p>
+          <p className="text-xs text-muted-foreground text-center">{t("stories.hint")}</p>
         </Card>
 
         {/* My active stories */}
@@ -198,7 +198,7 @@ const Stories = () => {
                     </p>
                   )}
                   <p className="absolute bottom-2 left-2 text-white/60 text-[10px]">
-                  {t("stories.expires")}{" "}
+                    {t("stories.expires")}{" "}
                     {new Date(story.expires_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",

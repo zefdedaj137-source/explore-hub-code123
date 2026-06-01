@@ -84,7 +84,7 @@ const MoodStatus = () => {
     setSavedMood(mood);
 
     // Save to DB so other users can see it
-    await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({
         mood_emoji: selectedEmoji,
@@ -93,13 +93,26 @@ const MoodStatus = () => {
       } as never)
       .eq("id", user.id);
 
+    if (error) {
+      // Revert optimistic local update on failure
+      const stored = localStorage.getItem(`mood_${user.id}`);
+      if (stored) localStorage.removeItem(`mood_${user.id}`);
+      setSavedMood(null);
+      toast.error(t("common.error"));
+      return;
+    }
+
     toast.success(t("moodStatus.moodSet", { emoji: selectedEmoji }));
   };
 
   return (
     <div className="min-h-dvh bg-gradient-to-br from-yellow-50 to-orange-50 pb-24">
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-lg border-b px-4 py-3 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Smile className="h-5 w-5 text-primary" />

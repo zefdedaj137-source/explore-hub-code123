@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bookmark, ArrowLeft, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -124,7 +124,11 @@ const SavedProfiles = () => {
                 <p className="text-sm text-muted-foreground">{t("savedProfiles.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -132,7 +136,9 @@ const SavedProfiles = () => {
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("common.loading")}
+          </Card>
         ) : savedMatches.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border-2 border-border">
             {t("savedProfiles.noSaved")}

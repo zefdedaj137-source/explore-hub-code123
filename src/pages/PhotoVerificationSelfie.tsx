@@ -88,7 +88,11 @@ const PhotoVerificationSelfie = () => {
   return (
     <div className="min-h-dvh bg-background pb-24">
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-lg border-b px-4 py-3 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <ShieldCheck className="h-5 w-5 text-primary" />
@@ -100,9 +104,7 @@ const PhotoVerificationSelfie = () => {
           <Card className="p-8 text-center bg-gradient-to-br from-green-100 to-emerald-100">
             <CheckCircle className="h-20 w-20 mx-auto text-green-500 mb-4" />
             <h2 className="text-xl font-bold">{t("photoVerification.submittedTitle")}</h2>
-            <p className="text-muted-foreground mt-2">
-              {t("photoVerification.submittedDesc")}
-            </p>
+            <p className="text-muted-foreground mt-2">{t("photoVerification.submittedDesc")}</p>
             <Button variant="outline" className="mt-4" onClick={reset}>
               <RotateCcw className="h-4 w-4 mr-2" /> {t("photoVerification.retake")}
             </Button>
@@ -165,7 +167,8 @@ const PhotoVerificationSelfie = () => {
             </div>
             <canvas ref={canvasRef} className="hidden" />
             <Button onClick={takePhoto} className="w-full bg-primary hover:bg-primary text-white">
-              <Camera className="h-4 w-4 mr-2" /> {t("photoVerification.capture")} {POSES[currentPose].icon}
+              <Camera className="h-4 w-4 mr-2" /> {t("photoVerification.capture")}{" "}
+              {POSES[currentPose].icon}
             </Button>
           </div>
         )}

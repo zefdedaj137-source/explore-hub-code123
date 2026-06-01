@@ -60,7 +60,7 @@ const Features = () => {
         {/* Header */}
         <div className="flex items-center gap-3 py-2">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
             className="p-2 hover:bg-muted rounded-full transition-colors"
             title="Go back"
           >

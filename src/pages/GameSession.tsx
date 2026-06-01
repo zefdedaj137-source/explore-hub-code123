@@ -606,7 +606,7 @@ const GameSession = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, sessionId]);
 
-  const initializeGame = async () => {
+  async function initializeGame() {
     try {
       // Get invite details
       const { data: inviteData, error } = await supabase
@@ -644,9 +644,9 @@ const GameSession = () => {
       toast.error(t("gameSession.failedLoad"));
       navigate("/game-lobby");
     }
-  };
+  }
 
-  const subscribeToGameUpdates = () => {
+  function subscribeToGameUpdates() {
     if (!sessionId) return;
 
     const channel = supabase
@@ -684,7 +684,7 @@ const GameSession = () => {
     return () => {
       channel.unsubscribe();
     };
-  };
+  }
 
   const handleCancelGame = async () => {
     await supabase.channel(`game-session-${sessionId}`).send({

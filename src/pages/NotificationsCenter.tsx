@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, Eye, Heart, MapPin } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -116,11 +116,17 @@ const NotificationsCenter = () => {
             <div className="flex items-center gap-3">
               <Bell className="h-10 w-10 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">{t("notificationsCenter.title")}</h1>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {t("notificationsCenter.title")}
+                </h1>
                 <p className="text-sm text-muted-foreground">{t("notificationsCenter.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               {t("common.back")}
             </Button>
           </div>
@@ -148,8 +154,12 @@ const NotificationsCenter = () => {
         <Card className="p-4 mb-6 rounded-2xl border-2 border-border bg-card/80">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold">{t("notificationsCenter.pushNotifications")}</h2>
-              <p className="text-xs text-muted-foreground">{t("notificationsCenter.sendTestDesc")}</p>
+              <h2 className="text-sm font-semibold">
+                {t("notificationsCenter.pushNotifications")}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {t("notificationsCenter.sendTestDesc")}
+              </p>
             </div>
             <Button size="sm" onClick={handleTestPush} disabled={sending}>
               {sending ? t("notificationsCenter.sending") : t("notificationsCenter.sendTest")}
@@ -158,7 +168,9 @@ const NotificationsCenter = () => {
         </Card>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("common.loading")}
+          </Card>
         ) : items.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border-2 border-border bg-gradient-to-br from-card to-background">
             <p className="text-muted-foreground">{t("notificationsCenter.noNotifications")}</p>
@@ -169,6 +181,7 @@ const NotificationsCenter = () => {
               <Card
                 key={item.id + (item.timestamp || "")}
                 className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] border-0 rounded-3xl cursor-pointer hover:shadow-[0_25px_70px_rgba(0,0,0,0.3)] transition-all duration-300"
+                onClick={() => navigate(tab === "likes" ? "/who-liked-you" : "/discover")}
               >
                 <div className="relative aspect-[3/4] bg-gradient-to-br from-background via-muted to-primary/20">
                   <img
@@ -188,7 +201,9 @@ const NotificationsCenter = () => {
                           : "bg-blue-500/90 backdrop-blur-sm"
                       }`}
                     >
-                      {tab === "views" ? t("notificationsCenter.viewedYou") : t("notificationsCenter.likedYou")}
+                      {tab === "views"
+                        ? t("notificationsCenter.viewedYou")
+                        : t("notificationsCenter.likedYou")}
                     </Badge>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-4 text-white">

@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, ArrowLeft, Timer, Phone, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -120,7 +120,11 @@ const SafetyCheckIn = () => {
                 <p className="text-sm text-muted-foreground">{t("safetyCheckIn.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("safetyCheckIn.back")}
             </Button>
@@ -183,7 +187,9 @@ const SafetyCheckIn = () => {
               </div>
             </div>
 
-            <p className="text-sm text-muted-foreground">{t("safetyCheckIn.status")}: {activeCheckIn.status}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("safetyCheckIn.status")}: {activeCheckIn.status}
+            </p>
 
             <div className="flex flex-wrap gap-3">
               <Button className="flex-1" onClick={markSafe}>

@@ -180,7 +180,7 @@ const GameSessionDance = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gamePhase, iLikedThem]);
 
-  const initializeGame = async () => {
+  async function initializeGame() {
     try {
       const { data: inviteData, error } = await supabase
         .from("game_invites")
@@ -217,9 +217,9 @@ const GameSessionDance = () => {
       toast.error(t("gameSession.failedDanceLoad"));
       navigate("/game-lobby");
     }
-  };
+  }
 
-  const subscribeToGameUpdates = () => {
+  function subscribeToGameUpdates() {
     if (!sessionId) return;
 
     logger.log("🎮 Subscribing to game updates for session:", sessionId);
@@ -340,7 +340,7 @@ const GameSessionDance = () => {
         channelRef.current = null;
       }
     };
-  };
+  }
 
   const handleCancelGame = async () => {
     if (channelRef.current) {
@@ -371,7 +371,7 @@ const GameSessionDance = () => {
     }
   };
 
-  const startRecording = () => {
+  function startRecording() {
     if (!streamRef.current) return;
 
     chunksRef.current = [];
@@ -396,7 +396,7 @@ const GameSessionDance = () => {
     setRecordingTime(10);
     setCountdown(null);
     playMusic();
-  };
+  }
 
   const playMusic = () => {
     const currentSong = VALLE_SONGS[(currentRoundRef.current - 1) % VALLE_SONGS.length];

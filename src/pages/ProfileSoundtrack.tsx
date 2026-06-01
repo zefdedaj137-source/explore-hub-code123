@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Music2, Trash2, Link2, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -156,7 +156,11 @@ const ProfileSoundtrack = () => {
   return (
     <div className="min-h-dvh bg-gradient-to-br from-card to-background pb-24">
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-lg border-b px-4 py-3 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <Music2 className="h-5 w-5 text-primary" />
@@ -259,7 +263,9 @@ const ProfileSoundtrack = () => {
             {(songTitle || songArtist) && (
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-sm">{songTitle || t("profileSoundtrack.untitled")}</p>
+                  <p className="font-semibold text-sm">
+                    {songTitle || t("profileSoundtrack.untitled")}
+                  </p>
                   <p className="text-xs text-muted-foreground">{songArtist || ""}</p>
                 </div>
                 <button
@@ -281,7 +287,9 @@ const ProfileSoundtrack = () => {
               <div className="flex items-center gap-3">
                 <Music2 className="h-8 w-8 text-primary" />
                 <div>
-                  <p className="font-semibold text-sm">{songTitle || t("profileSoundtrack.untitled")}</p>
+                  <p className="font-semibold text-sm">
+                    {songTitle || t("profileSoundtrack.untitled")}
+                  </p>
                   <p className="text-xs text-muted-foreground">{songArtist || source}</p>
                 </div>
               </div>

@@ -217,7 +217,11 @@ const AdminAnalytics = () => {
                 <p className="text-sm text-muted-foreground">{t("adminAnalytics.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               {t("adminAnalytics.back")}
             </Button>
           </div>

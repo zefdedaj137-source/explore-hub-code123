@@ -309,7 +309,11 @@ const AIMatchmaker = () => {
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-lg border-b px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="bg-gradient-to-r from-primary to-primary rounded-full p-1.5">
@@ -327,7 +331,11 @@ const AIMatchmaker = () => {
             disabled={refreshing}
             className="gap-1"
           >
-            {refreshing ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {refreshing ? (
+              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
             {t("aiMatchmaker.refresh")}
           </Button>
         </div>
@@ -368,9 +376,7 @@ const AIMatchmaker = () => {
           <Card className="p-8 text-center">
             <Sparkles className="h-12 w-12 mx-auto text-primary/80 mb-3" />
             <h3 className="font-bold text-lg">{t("aiMatchmaker.caughtUp")}</h3>
-            <p className="text-muted-foreground text-sm mt-1">
-              {t("aiMatchmaker.caughtUpDesc")}
-            </p>
+            <p className="text-muted-foreground text-sm mt-1">{t("aiMatchmaker.caughtUpDesc")}</p>
             <Button onClick={handleRefresh} className="mt-4 gap-2">
               <RefreshCw className="h-4 w-4" /> {t("aiMatchmaker.generateNew")}
             </Button>
@@ -438,7 +444,10 @@ const AIMatchmaker = () => {
                       <div
                         className={`bg-gradient-to-r ${getCompatibilityColor(pick.compatibility)} text-white text-xs font-bold px-2.5 py-1 rounded-full`}
                       >
-                        {t("aiMatchmaker.compatibilityLabel", { score: pick.compatibility, label: getCompatibilityLabel(pick.compatibility) })}
+                        {t("aiMatchmaker.compatibilityLabel", {
+                          score: pick.compatibility,
+                          label: getCompatibilityLabel(pick.compatibility),
+                        })}
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>

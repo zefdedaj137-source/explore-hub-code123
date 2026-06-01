@@ -99,7 +99,11 @@ const BoostBundles = () => {
                 <p className="text-sm text-muted-foreground">{t("boostBundles.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("common.back")}
             </Button>
@@ -107,7 +111,9 @@ const BoostBundles = () => {
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("common.loading")}
+          </Card>
         ) : (
           <div className="space-y-4">
             <Card className="p-4 rounded-2xl border-2 border-border bg-card/80 flex items-center justify-between">
@@ -115,7 +121,9 @@ const BoostBundles = () => {
                 <Coins className="h-4 w-4" />
                 {t("boostBundles.walletBalance")}
               </div>
-              <div className="text-xl font-bold text-foreground">{walletBalance} {t("boostBundles.coins")}</div>
+              <div className="text-xl font-bold text-foreground">
+                {walletBalance} {t("boostBundles.coins")}
+              </div>
             </Card>
 
             <Card className="p-4 rounded-2xl border-2 border-border bg-card/80 flex items-center justify-between">
@@ -136,18 +144,24 @@ const BoostBundles = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-lg font-semibold text-foreground">{bundle.label}</p>
-                    <p className="text-sm text-muted-foreground">{bundle.hours} {t("boostBundles.hoursBoost")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {bundle.hours} {t("boostBundles.hoursBoost")}
+                    </p>
                     <p className="text-xs text-primary mt-1">{bundle.savings}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold text-primary">{bundle.cost} {t("boostBundles.coins")}</p>
+                    <p className="text-xl font-bold text-primary">
+                      {bundle.cost} {t("boostBundles.coins")}
+                    </p>
                     <Button
                       size="sm"
                       className="mt-2"
                       onClick={() => handlePurchase(bundle.hours, bundle.cost)}
                       disabled={processing === bundle.hours}
                     >
-                      {processing === bundle.hours ? t("boostBundles.processing") : t("boostBundles.activate")}
+                      {processing === bundle.hours
+                        ? t("boostBundles.processing")
+                        : t("boostBundles.activate")}
                     </Button>
                   </div>
                 </div>

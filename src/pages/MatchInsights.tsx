@@ -173,7 +173,11 @@ const MatchInsights = () => {
                 <p className="text-sm text-muted-foreground">{t("matchInsights.subtitle")}</p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
@@ -181,7 +185,9 @@ const MatchInsights = () => {
         </div>
 
         {loading ? (
-          <Card className="p-8 text-center rounded-2xl border-2 border-border">{t("common.loading")}</Card>
+          <Card className="p-8 text-center rounded-2xl border-2 border-border">
+            {t("common.loading")}
+          </Card>
         ) : matches.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border-2 border-border">
             No matches yet.
@@ -233,7 +239,9 @@ const MatchInsights = () => {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Card className="p-4 rounded-2xl border border-primary/20">
-                    <p className="text-xs uppercase text-muted-foreground">{t("matchInsights.sharedInterests")}</p>
+                    <p className="text-xs uppercase text-muted-foreground">
+                      {t("matchInsights.sharedInterests")}
+                    </p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {sharedInterests.length === 0 ? (
                         <span className="text-sm text-muted-foreground">
@@ -249,9 +257,13 @@ const MatchInsights = () => {
                     </div>
                   </Card>
                   <Card className="p-4 rounded-2xl border border-primary/20">
-                    <p className="text-xs uppercase text-muted-foreground">{t("matchInsights.distance")}</p>
+                    <p className="text-xs uppercase text-muted-foreground">
+                      {t("matchInsights.distance")}
+                    </p>
                     <p className="mt-2 text-lg font-semibold text-foreground">{distanceLabel}</p>
-                    <p className="text-xs text-muted-foreground">{t("matchInsights.basedOnLocation")}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("matchInsights.basedOnLocation")}
+                    </p>
                   </Card>
                 </div>
 
@@ -275,12 +287,19 @@ const MatchInsights = () => {
                   </div>
                   <p className="text-sm text-primary mt-2">
                     {compatibilityScore >= 80
-                      ? "High compatibility � plan a date or video chat soon."
+                      ? "High compatibility — plan a date or video chat soon."
                       : compatibilityScore >= 65
-                        ? "Great potential � focus on shared interests and a light icebreaker."
-                        : "New connection � explore interests and values to learn more."}
+                        ? "Great potential — focus on shared interests and a light icebreaker."
+                        : "New connection — explore interests and values to learn more."}
                   </p>
                 </Card>
+
+                <Button
+                  className="w-full rounded-2xl"
+                  onClick={() => navigate(`/chat/${selectedMatchId}`)}
+                >
+                  Message
+                </Button>
               </Card>
             )}
           </>
