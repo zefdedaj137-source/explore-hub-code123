@@ -134,7 +134,7 @@ const WhoLikedYou = () => {
         setStreakCount(streakData.streak_count);
         setStreakCredits(streakData.streak_free_likes_credits);
         if (streakData.reward_earned) {
-          toast.success(`🔥 7-day streak! You earned 2 free like reveals!`);
+          toast.success(t("dailyRewards.streakBonus"));
         }
       }
 
@@ -453,11 +453,11 @@ const WhoLikedYou = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-foreground flex items-center gap-1">
-                    {streakCount} day streak {streakCount >= 6 ? "🔥" : ""}
+                    {streakCount} day streak {streakCount >= 2 ? "🔥" : ""}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {streakCount < 7
-                      ? `${7 - streakCount} more day${7 - streakCount !== 1 ? "s" : ""} for 2 free reveals`
+                    {streakCount < 3
+                      ? `${3 - streakCount} more day${3 - streakCount !== 1 ? "s" : ""} for 2 free reveals`
                       : streakCredits > 0
                         ? `${streakCredits} free reveal${streakCredits !== 1 ? "s" : ""} available!`
                         : t("whoLikedYou.streakKeepGoing")}
@@ -465,7 +465,7 @@ const WhoLikedYou = () => {
                 </div>
               </div>
               <div className="flex gap-1">
-                {Array.from({ length: 7 }, (_, i) => (
+                {Array.from({ length: 3 }, (_, i) => (
                   <div
                     key={i}
                     className={`h-2 w-2 rounded-full ${
@@ -794,7 +794,7 @@ const WhoLikedYou = () => {
                         </span>
                         {p.distance_km && (
                           <span className="text-muted-foreground">
-                            • {Math.round(p.distance_km)} km away
+                            • {t("common.kmAway", { km: Math.round(p.distance_km) })}
                           </span>
                         )}
                       </div>
@@ -804,7 +804,7 @@ const WhoLikedYou = () => {
                         <span className="font-medium">{p.city || p.location}</span>
                         {p.distance_km && (
                           <span className="text-muted-foreground">
-                            • {Math.round(p.distance_km)} km away
+                            • {t("common.kmAway", { km: Math.round(p.distance_km) })}
                           </span>
                         )}
                       </div>
@@ -814,19 +814,25 @@ const WhoLikedYou = () => {
                     <div className="grid grid-cols-2 gap-4">
                       {p.work && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            💼 {t("editProfile.work")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.work}</p>
                         </Card>
                       )}
                       {p.education && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            🎓 {t("editProfile.education")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.education}</p>
                         </Card>
                       )}
                       {(p.height_cm || p.height) && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            📏 {t("whoLikedYou.height")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">
                             {p.height_cm ? `${p.height_cm} cm` : p.height}
                           </p>
@@ -834,37 +840,49 @@ const WhoLikedYou = () => {
                       )}
                       {p.zodiac_sign && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            ♈ {t("whoLikedYou.zodiac")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.zodiac_sign}</p>
                         </Card>
                       )}
                       {p.religion && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            🙏 {t("discover.religion")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.religion}</p>
                         </Card>
                       )}
                       {p.lifestyle && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            🌟 {t("whoLikedYou.lifestyle")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.lifestyle}</p>
                         </Card>
                       )}
                       {p.drinking && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            🍷 {t("discover.drinking")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.drinking}</p>
                         </Card>
                       )}
                       {p.smoking && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            🚬 {t("discover.smoking")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.smoking}</p>
                         </Card>
                       )}
                       {p.pets && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            🐾 {t("whoLikedYou.pets")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.pets}</p>
                         </Card>
                       )}
