@@ -56,40 +56,14 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash][extname]",
         manualChunks: {
-          "react-vendor": ["react", "react-dom", "react-router-dom", "react-i18next"],
-          "ui-vendor": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-alert-dialog",
-            "@radix-ui/react-avatar",
-            "@radix-ui/react-select",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-tooltip",
-            "@radix-ui/react-slider",
-            "@radix-ui/react-switch",
-            "@radix-ui/react-scroll-area",
-            "@radix-ui/react-separator",
-            "@radix-ui/react-progress",
-            // @radix-ui/react-slot is a shared primitive used by all ui-vendor packages;
-            // keeping it here avoids a circular chunk reference with ui-vendor-2
-            "@radix-ui/react-slot",
-          ],
-          "ui-vendor-2": [
-            "@radix-ui/react-checkbox",
-            "@radix-ui/react-radio-group",
-            "@radix-ui/react-toggle",
-            "@radix-ui/react-toggle-group",
-            "@radix-ui/react-label",
-            "@radix-ui/react-toast",
-            "@radix-ui/react-accordion",
-            "@radix-ui/react-collapsible",
-          ],
+          // NOTE: react, react-dom, react-router-dom, radix-ui, react-i18next, i18next
+          // are intentionally NOT manually chunked — their interdependencies create
+          // circular chunk references that cause React.createContext to be undefined
+          // on full-page reloads (e.g. OAuth redirects). Rollup auto-chunks them safely.
           icons: ["lucide-react"],
           motion: ["framer-motion"],
           supabase: ["@supabase/supabase-js"],
           query: ["@tanstack/react-query"],
-          i18n: ["i18next", "i18next-browser-languagedetector"],
           utils: ["date-fns", "clsx", "class-variance-authority", "tailwind-merge"],
           forms: ["react-hook-form", "@hookform/resolvers", "zod"],
           charts: ["recharts"],
