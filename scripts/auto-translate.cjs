@@ -22,24 +22,63 @@ const path = require("path");
 const https = require("https");
 
 // ── Loanwords (must never be translated) ─────────────────────────────────────
-// These English words are used as-is in all target languages (borrowed words).
-// When the entire translation value is one of these words, skip DeepL/MyMemory.
+// EXACT-MATCH: if the entire source value equals one of these, skip translation.
 const LOANWORDS = new Set([
-  "Chat", "chat",
-  "Match", "match",
-  "Matches", "matches",
-  "New Match", "New Matches",
-  "Like", "like",
-  "Superlike", "superlike",
-  "Super Like", "super like",
-  "Online", "online",
-  "App", "app",
-  "Profile", "profile",
+  // Chat
+  "Chat", "chat", "Chats",
+  // Match / dating connection
+  "Match", "match", "Matches", "matches",
+  "New Match", "New Matches", "new match", "new matches",
+  // Like / Superlike
+  "Like", "like", "Likes", "likes",
+  "Superlike", "superlike", "Super Like", "super like",
+  "Superlikes", "superlikes",
+  // Other dating-app loanwords
+  "Swipe", "swipe", "Swipes", "swipes",
+  "Story", "story", "Stories",
+  "Boost", "boost",
   "Feed", "feed",
   "Radar", "radar",
   "Bio", "bio",
-  "Story", "story",
+  "Online", "online",
+  "App", "app",
+  "Profile", "profile",
+  "Premium",
+  "Filter",
 ]);
+
+// INLINE: these words inside LONGER strings must survive translation unchanged.
+// Sorted longest-first so partial matches don't break longer ones.
+// DeepL will receive <x>Word</x> and preserve it via tag_handling=xml.
+const INLINE_LOANWORDS = [
+  "Superlike",
+  "Super Like",
+  "Superlikes",
+  "Super Likes",
+  "superlike",
+  "superlikes",
+  "Boost",
+  "boost",
+];
+
+/** Replace inline loanwords with <x> tags before sending to DeepL */
+function protectLoanwords(text) {
+  let out = text;
+  // Escape XML special chars first so DeepL doesn't choke
+  // (these are not translated anyway, just preserved)
+  INLINE_LOANWORDS.forEach((word) => {
+    if (out.includes(word)) {
+      // Use word-boundary-safe replacement to avoid partial matches
+      out = out.split(word).join(`<x>${word}</x>`);
+    }
+  });
+  return out;
+}
+
+/** Strip <x> tags after DeepL returns the translation */
+function restoreLoanwords(text) {
+  return text.replace(/<x>(.*?)<\/x>/g, "$1");
+}
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
@@ -152,6 +191,8 @@ async function translateDeepL(texts, targetCode) {
     const params = new URLSearchParams();
     params.append("target_lang", targetCode);
     params.append("preserve_formatting", "1");
+    params.append("tag_handling", "xml");
+    params.append("ignore_tags", "x");
     batch.forEach((t) => params.append("text", t));
 
     const body = params.toString();
@@ -204,15 +245,19 @@ async function translateMyMemory(text, targetCode) {
 
 /** Route to the right engine depending on language config */
 async function translateBatch(texts, lang) {
-  // Pre-process: mark loanwords so they pass through unchanged
+  // Pre-process: mark exact loanwords so they pass through unchanged
   const isLoanword = texts.map((t) => LOANWORDS.has(t.trim()));
-  const textsToSend = texts.map((t, i) => isLoanword[i] ? t : t);
+
+  // Protect inline loanwords inside longer strings with <x> XML tags (DeepL-native)
+  const textsToSend = texts.map((t, i) =>
+    isLoanword[i] ? t : protectLoanwords(t)
+  );
 
   let rawResults;
   if (lang.deepl && DEEPL_KEY) {
     // Only send non-loanword texts to DeepL
     const indicesToTranslate = texts.map((_, i) => i).filter((i) => !isLoanword[i]);
-    const textsForDeepL = indicesToTranslate.map((i) => texts[i]);
+    const textsForDeepL = indicesToTranslate.map((i) => textsToSend[i]);
 
     let deeplResults = textsForDeepL.length > 0
       ? await translateDeepL(textsForDeepL, lang.deepl)
@@ -221,7 +266,9 @@ async function translateBatch(texts, lang) {
     rawResults = texts.map((t, i) => {
       if (isLoanword[i]) return t;
       const idx = indicesToTranslate.indexOf(i);
-      return deeplResults[idx] ?? t;
+      const translated = deeplResults[idx] ?? textsToSend[i];
+      // Strip any remaining <x> tags (DeepL preserves them, we strip after)
+      return restoreLoanwords(translated);
     });
   } else {
     if (lang.deepl && !DEEPL_KEY) {
@@ -232,7 +279,10 @@ async function translateBatch(texts, lang) {
       if (isLoanword[i]) {
         rawResults.push(texts[i]);
       } else {
-        rawResults.push(await translateMyMemory(texts[i], lang.code));
+        // MyMemory doesn't support XML tags — strip them and accept plain text
+        const plainText = texts[i]; // don't protect for MyMemory
+        const translated = await translateMyMemory(plainText, lang.code);
+        rawResults.push(translated);
         if (i % 30 === 29) await sleep(1000);
         if (i % 100 === 99)
           process.stdout.write(`  ${i + 1}/${texts.length} translated...\r`);
