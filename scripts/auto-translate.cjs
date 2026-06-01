@@ -80,6 +80,22 @@ function restoreLoanwords(text) {
   return text.replace(/<x>(.*?)<\/x>/g, "$1");
 }
 
+/** Escape characters that are invalid in XML so DeepL's tag_handling=xml doesn't choke */
+function xmlEscape(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/** Undo xmlEscape after DeepL returns the translation */
+function xmlUnescape(text) {
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
 // ── Config ────────────────────────────────────────────────────────────────────
 
 // Load .env manually (no dotenv dependency needed)
@@ -248,9 +264,10 @@ async function translateBatch(texts, lang) {
   // Pre-process: mark exact loanwords so they pass through unchanged
   const isLoanword = texts.map((t) => LOANWORDS.has(t.trim()));
 
-  // Protect inline loanwords inside longer strings with <x> XML tags (DeepL-native)
+  // Protect inline loanwords inside longer strings with <x> XML tags (DeepL-native).
+  // Also XML-escape & < > so DeepL's tag_handling=xml parser doesn't choke on them.
   const textsToSend = texts.map((t, i) =>
-    isLoanword[i] ? t : protectLoanwords(t)
+    isLoanword[i] ? t : protectLoanwords(xmlEscape(t))
   );
 
   let rawResults;
@@ -267,8 +284,8 @@ async function translateBatch(texts, lang) {
       if (isLoanword[i]) return t;
       const idx = indicesToTranslate.indexOf(i);
       const translated = deeplResults[idx] ?? textsToSend[i];
-      // Strip any remaining <x> tags (DeepL preserves them, we strip after)
-      return restoreLoanwords(translated);
+      // Strip <x> tags then unescape XML entities (e.g. &amp; → &)
+      return xmlUnescape(restoreLoanwords(translated));
     });
   } else {
     if (lang.deepl && !DEEPL_KEY) {
