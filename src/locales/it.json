@@ -74,7 +74,8 @@
     "releaseToRefresh": "↓ Rilasciare per aggiornare",
     "share": "Condividi",
     "disable": "Disattiva",
-    "online": "Online"
+    "online": "Online",
+    "mAway": "a {{m}} metri di distanza"
   },
   "auth": {
     "signIn": "Accedi",
@@ -128,7 +129,7 @@
     "discover": "Scopri",
     "likes": "Mi piace",
     "radar": "Radar",
-    "chat": "Gatto",
+    "chat": "Chat",
     "profile": "Profilo",
     "features": "Caratteristiche",
     "howItWorks": "Come funziona",
@@ -335,7 +336,7 @@
     "nextStory": "Articolo successivo",
     "yourMatches": "I tuoi abbinamenti",
     "messages": "Messaggi",
-    "chat": "Gatto",
+    "chat": "Chat",
     "removeBookmark": "Rimuovi dai preferiti",
     "bookmark": "Aggiungi ai preferiti",
     "sayHi": "Saluta {{name}}! 👋",
@@ -358,7 +359,7 @@
     "instantMessageCountPlural": "{{count}} messaggi istantanei"
   },
   "chat": {
-    "title": "Gatto",
+    "title": "Chat",
     "typeMessage": "Scrivi un messaggio...",
     "send": "Invia",
     "voiceCall": "Chiamata vocale",
@@ -923,7 +924,11 @@
     "failedStreakCredit": "Impossibile utilizzare il credito Streak",
     "likeSent": "Anche a me! ❤️",
     "failedLike": "Impossibile mettere \"Mi piace\" al profilo",
-    "upgradeToSee": "Effettua l'upgrade per visualizzare il loro profilo completo"
+    "upgradeToSee": "Effettua l'upgrade per visualizzare il loro profilo completo",
+    "height": "Altezza",
+    "lifestyle": "Stile di vita",
+    "zodiac": "Zodiaco",
+    "pets": "Animali domestici"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -1082,7 +1087,7 @@
     "matchedWith": "Hai trovato una corrispondenza con {{name}}",
     "sentMessage": "{{name}} ha inviato un messaggio",
     "view": "Visualizza",
-    "matchChat": "Gatto",
+    "matchChat": "Chat",
     "reply": "Rispondi",
     "failedLoad": "Impossibile caricare il feed delle attività."
   },
@@ -1196,7 +1201,7 @@
     "waitingReplies": "In attesa di risposte",
     "nudged": "Segnalato ✓",
     "nudge": "Dai una spintarella",
-    "chat": "Gatto",
+    "chat": "Chat",
     "alertsOn": "Avvisi fantasma attivi 👻",
     "alertsOff": "Avvisi fantasma DISATTIVATI",
     "nudgeSent": "Hai ricevuto una notifica, {{name}}! 👻",
@@ -2036,5 +2041,13 @@
   },
   "browseProfiles": {
     "title": "Scopri i tuoi abbinamenti"
+  },
+  "spotted": {
+    "locationRequired": "È richiesta l'indicazione della località",
+    "enableLocation": "Attiva la localizzazione",
+    "noOneSpottedYet": "Non è stato avvistato nessuno",
+    "noOneSpottedDesc": "Man mano che la giornata procede, qui compariranno le persone che negli ultimi {{days}} giorni si sono trovate nel raggio di {{radius}} m da te.",
+    "goToRadar": "Vai a Radar",
+    "showingPeople": "Mostra le persone nel raggio di {{radius}} m negli ultimi {{days}} giorni"
   }
 }

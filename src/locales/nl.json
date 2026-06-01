@@ -74,7 +74,8 @@
     "releaseToRefresh": "↓ Loslaten om te vernieuwen",
     "share": "Delen",
     "disable": "Uitschakelen",
-    "online": "Online"
+    "online": "Online",
+    "mAway": "{{m}} meter verderop"
   },
   "auth": {
     "signIn": "Inloggen",
@@ -128,7 +129,7 @@
     "discover": "Ontdek",
     "likes": "Vind ik leuk",
     "radar": "Radar",
-    "chat": "Kat",
+    "chat": "Chat",
     "profile": "Profiel",
     "features": "Kenmerken",
     "howItWorks": "Hoe het werkt",
@@ -335,7 +336,7 @@
     "nextStory": "Volgend verhaal",
     "yourMatches": "Je matches",
     "messages": "Berichten",
-    "chat": "Kat",
+    "chat": "Chat",
     "removeBookmark": "Bladwijzer verwijderen",
     "bookmark": "Bladwijzer",
     "sayHi": "Zeg eens hallo tegen {{name}}! 👋",
@@ -358,7 +359,7 @@
     "instantMessageCountPlural": "{{count}} chatberichten"
   },
   "chat": {
-    "title": "Kat",
+    "title": "Chat",
     "typeMessage": "Typ een bericht...",
     "send": "Verzenden",
     "voiceCall": "Spraakgesprek",
@@ -923,7 +924,11 @@
     "failedStreakCredit": "Het is niet gelukt om streak-tegoed te gebruiken",
     "likeSent": "Ook al is het laat! ❤️",
     "failedLike": "Het is niet gelukt om het profiel te liken",
-    "upgradeToSee": "Upgrade om hun volledige profiel te bekijken"
+    "upgradeToSee": "Upgrade om hun volledige profiel te bekijken",
+    "height": "Hoogte",
+    "lifestyle": "Levensstijl",
+    "zodiac": "Zodiac",
+    "pets": "Huisdieren"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -1082,7 +1087,7 @@
     "matchedWith": "Je hebt een match met {{name}}",
     "sentMessage": "{{name}} heeft een bericht gestuurd",
     "view": "Bekijken",
-    "matchChat": "Kat",
+    "matchChat": "Chat",
     "reply": "Reageren",
     "failedLoad": "Het laden van de activiteitenfeed is mislukt."
   },
@@ -1196,7 +1201,7 @@
     "waitingReplies": "In afwachting van reacties",
     "nudged": "Aangepast ✓",
     "nudge": "Een duwtje",
-    "chat": "Kat",
+    "chat": "Chat",
     "alertsOn": "Spookwaarschuwingen AAN 👻",
     "alertsOff": "Spookmeldingen UIT",
     "nudgeSent": "Er is een duwtje gestuurd naar {{name}}! 👻",
@@ -2036,5 +2041,13 @@
   },
   "browseProfiles": {
     "title": "Maak kennis met je matches"
+  },
+  "spotted": {
+    "locationRequired": "Locatie vereist",
+    "enableLocation": "Locatie inschakelen",
+    "noOneSpottedYet": "Er is nog niemand gezien",
+    "noOneSpottedDesc": "Naarmate je dag vordert, verschijnen hier mensen die zich de afgelopen {{days}} dagen binnen {{radius}} meter van je bevonden.",
+    "goToRadar": "Ga naar Radar",
+    "showingPeople": "Mensen binnen {{radius}} m in de afgelopen {{days}} dagen weergeven"
   }
 }

@@ -21,6 +21,24 @@ const fs   = require("fs");
 const path = require("path");
 const https = require("https");
 
+// ── Loanwords (must never be translated) ─────────────────────────────────────
+// These English words are used as-is in all target languages (borrowed words).
+// When the entire translation value is one of these words, skip DeepL/MyMemory.
+const LOANWORDS = new Set([
+  "Chat", "chat",
+  "Like", "like",
+  "Match", "match",
+  "Superlike", "superlike",
+  "Super Like", "super like",
+  "Online", "online",
+  "App", "app",
+  "Profile", "profile",
+  "Feed", "feed",
+  "Radar", "radar",
+  "Bio", "bio",
+  "Story", "story",
+]);
+
 // ── Config ────────────────────────────────────────────────────────────────────
 
 // Load .env manually (no dotenv dependency needed)
@@ -184,23 +202,43 @@ async function translateMyMemory(text, targetCode) {
 
 /** Route to the right engine depending on language config */
 async function translateBatch(texts, lang) {
+  // Pre-process: mark loanwords so they pass through unchanged
+  const isLoanword = texts.map((t) => LOANWORDS.has(t.trim()));
+  const textsToSend = texts.map((t, i) => isLoanword[i] ? t : t);
+
+  let rawResults;
   if (lang.deepl && DEEPL_KEY) {
-    return translateDeepL(texts, lang.deepl);
+    // Only send non-loanword texts to DeepL
+    const indicesToTranslate = texts.map((_, i) => i).filter((i) => !isLoanword[i]);
+    const textsForDeepL = indicesToTranslate.map((i) => texts[i]);
+
+    let deeplResults = textsForDeepL.length > 0
+      ? await translateDeepL(textsForDeepL, lang.deepl)
+      : [];
+
+    rawResults = texts.map((t, i) => {
+      if (isLoanword[i]) return t;
+      const idx = indicesToTranslate.indexOf(i);
+      return deeplResults[idx] ?? t;
+    });
+  } else {
+    if (lang.deepl && !DEEPL_KEY) {
+      console.warn(`  ⚠ No DEEPL_API_KEY — falling back to MyMemory for ${lang.label}`);
+    }
+    rawResults = [];
+    for (let i = 0; i < texts.length; i++) {
+      if (isLoanword[i]) {
+        rawResults.push(texts[i]);
+      } else {
+        rawResults.push(await translateMyMemory(texts[i], lang.code));
+        if (i % 30 === 29) await sleep(1000);
+        if (i % 100 === 99)
+          process.stdout.write(`  ${i + 1}/${texts.length} translated...\r`);
+      }
+    }
   }
 
-  if (lang.deepl && !DEEPL_KEY) {
-    console.warn(`  ⚠ No DEEPL_API_KEY — falling back to MyMemory for ${lang.label}`);
-  }
-
-  // MyMemory: one request at a time with light throttle
-  const results = [];
-  for (let i = 0; i < texts.length; i++) {
-    results.push(await translateMyMemory(texts[i], lang.code));
-    if (i % 30 === 29) await sleep(1000); // stay within rate limits
-    if (i % 100 === 99)
-      process.stdout.write(`  ${i + 1}/${texts.length} translated...\r`);
-  }
-  return results;
+  return rawResults;
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────

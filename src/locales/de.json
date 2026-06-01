@@ -74,7 +74,8 @@
     "releaseToRefresh": "↓ Loslassen, um die Seite zu aktualisieren",
     "share": "Teilen",
     "disable": "Deaktivieren",
-    "online": "Online"
+    "online": "Online",
+    "mAway": "{{m}} m entfernt"
   },
   "auth": {
     "signIn": "Anmelden",
@@ -128,7 +129,7 @@
     "discover": "Entdecken",
     "likes": "Likes",
     "radar": "Radar",
-    "chat": "Katze",
+    "chat": "Chat",
     "profile": "Profil",
     "features": "Funktionen",
     "howItWorks": "So funktioniert es",
@@ -335,7 +336,7 @@
     "nextStory": "Nächste Geschichte",
     "yourMatches": "Deine Treffer",
     "messages": "Beiträge",
-    "chat": "Katze",
+    "chat": "Chat",
     "removeBookmark": "Lesezeichen entfernen",
     "bookmark": "Lesezeichen",
     "sayHi": "Sag mal Hallo zu {{name}}! 👋",
@@ -358,7 +359,7 @@
     "instantMessageCountPlural": "{{count}} Sofortnachrichten"
   },
   "chat": {
-    "title": "Katze",
+    "title": "Chat",
     "typeMessage": "Gib eine Nachricht ein...",
     "send": "Senden",
     "voiceCall": "Sprachanruf",
@@ -923,7 +924,11 @@
     "failedStreakCredit": "Streak-Guthaben konnte nicht verwendet werden",
     "likeSent": "Genauso spät! ❤️",
     "failedLike": "Das Liken des Profils ist fehlgeschlagen",
-    "upgradeToSee": "Upgrade durchführen, um das vollständige Profil anzuzeigen"
+    "upgradeToSee": "Upgrade durchführen, um das vollständige Profil anzuzeigen",
+    "height": "Höhe",
+    "lifestyle": "Lebensstil",
+    "zodiac": "Zodiac",
+    "pets": "Haustiere"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -1082,7 +1087,7 @@
     "matchedWith": "Du hast ein Match mit {{name}}",
     "sentMessage": "{{name}} hat eine Nachricht gesendet",
     "view": "Anzeigen",
-    "matchChat": "Katze",
+    "matchChat": "Chat",
     "reply": "Antworten",
     "failedLoad": "Der Aktivitäts-Feed konnte nicht geladen werden."
   },
@@ -1196,7 +1201,7 @@
     "waitingReplies": "Ich warte auf Antworten",
     "nudged": "Angestupst ✓",
     "nudge": "Anstupsen",
-    "chat": "Katze",
+    "chat": "Chat",
     "alertsOn": "Geisterwarnungen EIN 👻",
     "alertsOff": "Geisterwarnungen AUS",
     "nudgeSent": "{{name}} hat eine Erinnerung erhalten! 👻",
@@ -2036,5 +2041,13 @@
   },
   "browseProfiles": {
     "title": "Lerne deine Matches kennen"
+  },
+  "spotted": {
+    "locationRequired": "Standort erforderlich",
+    "enableLocation": "Standort aktivieren",
+    "noOneSpottedYet": "Bisher wurde noch niemand gesichtet",
+    "noOneSpottedDesc": "Im Laufe des Tages werden hier Personen angezeigt, die sich in den letzten {{days}} Tagen in einem Umkreis von {{radius}} m um dich herum aufgehalten haben.",
+    "goToRadar": "Zum Radar",
+    "showingPeople": "Personen im Umkreis von {{radius}} m in den letzten {{days}} Tagen anzeigen"
   }
 }

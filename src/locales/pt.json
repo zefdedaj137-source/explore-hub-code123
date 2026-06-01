@@ -74,7 +74,8 @@
     "releaseToRefresh": "↓ Solte para atualizar",
     "share": "Compartilhar",
     "disable": "Desativar",
-    "online": "Online"
+    "online": "Online",
+    "mAway": "a {{m}} m de distância"
   },
   "auth": {
     "signIn": "Entrar",
@@ -128,7 +129,7 @@
     "discover": "Descubra",
     "likes": "Curtidas",
     "radar": "Radar",
-    "chat": "Gato",
+    "chat": "Chat",
     "profile": "Perfil",
     "features": "Recursos",
     "howItWorks": "Como funciona",
@@ -335,7 +336,7 @@
     "nextStory": "Próxima história",
     "yourMatches": "Suas correspondências",
     "messages": "Mensagens",
-    "chat": "Gato",
+    "chat": "Chat",
     "removeBookmark": "Remover dos favoritos",
     "bookmark": "Favorito",
     "sayHi": "Diga oi para o(a) {{name}}! 👋",
@@ -358,7 +359,7 @@
     "instantMessageCountPlural": "{{count}} mensagens instantâneas"
   },
   "chat": {
-    "title": "Gato",
+    "title": "Chat",
     "typeMessage": "Digite uma mensagem...",
     "send": "Enviar",
     "voiceCall": "Chamada de voz",
@@ -923,7 +924,11 @@
     "failedStreakCredit": "Não foi possível usar o crédito da sequência",
     "likeSent": "Tarde demais! ❤️",
     "failedLike": "Não foi possível curtir o perfil",
-    "upgradeToSee": "Faça o upgrade para ver o perfil completo"
+    "upgradeToSee": "Faça o upgrade para ver o perfil completo",
+    "height": "Altura",
+    "lifestyle": "Estilo de vida",
+    "zodiac": "Zodíaco",
+    "pets": "Animais de estimação"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -1082,7 +1087,7 @@
     "matchedWith": "Você teve uma combinação com {{name}}",
     "sentMessage": "{{name}} enviou uma mensagem",
     "view": "Ver",
-    "matchChat": "Gato",
+    "matchChat": "Chat",
     "reply": "Responder",
     "failedLoad": "Não foi possível carregar o feed de atividades."
   },
@@ -1196,7 +1201,7 @@
     "waitingReplies": "À espera de respostas",
     "nudged": "Marcado ✓",
     "nudge": "Dá um empurrãozinho",
-    "chat": "Gato",
+    "chat": "Chat",
     "alertsOn": "Alertas de fantasmas ativados 👻",
     "alertsOff": "Alertas de fantasmas DESLIGADOS",
     "nudgeSent": "Enviei uma mensagem para {{name}}! 👻",
@@ -2036,5 +2041,13 @@
   },
   "browseProfiles": {
     "title": "Conheça suas combinações"
+  },
+  "spotted": {
+    "locationRequired": "Localização obrigatória",
+    "enableLocation": "Ativar localização",
+    "noOneSpottedYet": "Ainda ninguém foi visto",
+    "noOneSpottedDesc": "À medida que você passa o dia, as pessoas que estiveram a uma distância de {{radius}} m de você nos últimos {{days}} dias aparecerão aqui.",
+    "goToRadar": "Ir para o Radar",
+    "showingPeople": "Mostrando pessoas num raio de {{radius}} m nos últimos {{days}} dias"
   }
 }

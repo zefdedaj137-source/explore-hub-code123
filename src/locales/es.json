@@ -74,7 +74,8 @@
     "releaseToRefresh": "↓ Suelta para actualizar",
     "share": "Compartir",
     "disable": "Desactivar",
-    "online": "En línea"
+    "online": "En línea",
+    "mAway": "a {{m}} metros"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -128,7 +129,7 @@
     "discover": "Descubre",
     "likes": "Me gusta",
     "radar": "Radar",
-    "chat": "Gato",
+    "chat": "Chat",
     "profile": "Perfil",
     "features": "Características",
     "howItWorks": "Cómo funciona",
@@ -335,7 +336,7 @@
     "nextStory": "Siguiente historia",
     "yourMatches": "Tus coincidencias",
     "messages": "Mensajes",
-    "chat": "Gato",
+    "chat": "Chat",
     "removeBookmark": "Eliminar marcador",
     "bookmark": "Añadir a favoritos",
     "sayHi": "¡Saluda a {{name}}! 👋",
@@ -358,7 +359,7 @@
     "instantMessageCountPlural": "{{count}} mensajes instantáneos"
   },
   "chat": {
-    "title": "Gato",
+    "title": "Chat",
     "typeMessage": "Escribe un mensaje...",
     "send": "Enviar",
     "voiceCall": "Llamada de voz",
@@ -923,7 +924,11 @@
     "failedStreakCredit": "No se ha podido utilizar el crédito de racha",
     "likeSent": "¡Ya era hora! ❤️",
     "failedLike": "No se ha podido dar a «Me gusta» al perfil",
-    "upgradeToSee": "Actualiza tu cuenta para ver su perfil completo"
+    "upgradeToSee": "Actualiza tu cuenta para ver su perfil completo",
+    "height": "Altura",
+    "lifestyle": "Estilo de vida",
+    "zodiac": "Zodíaco",
+    "pets": "Mascotas"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -1082,7 +1087,7 @@
     "matchedWith": "Has tenido un emparejamiento con {{name}}",
     "sentMessage": "{{name}} ha enviado un mensaje",
     "view": "Ver",
-    "matchChat": "Gato",
+    "matchChat": "Chat",
     "reply": "Responder",
     "failedLoad": "No se ha podido cargar el feed de actividades."
   },
@@ -1196,7 +1201,7 @@
     "waitingReplies": "A la espera de respuestas",
     "nudged": "Marcado como leído ✓",
     "nudge": "Empujoncito",
-    "chat": "Gato",
+    "chat": "Chat",
     "alertsOn": "Alertas fantasma activadas 👻",
     "alertsOff": "Alertas fantasma desactivadas",
     "nudgeSent": "¡Se ha enviado un aviso a {{name}}! 👻",
@@ -2036,5 +2041,13 @@
   },
   "browseProfiles": {
     "title": "Conoce a tus parejas"
+  },
+  "spotted": {
+    "locationRequired": "Se requiere indicar la ubicación",
+    "enableLocation": "Activar ubicación",
+    "noOneSpottedYet": "Todavía no se ha visto a nadie",
+    "noOneSpottedDesc": "A lo largo del día, aquí aparecerán las personas que se hayan encontrado a una distancia de {{radius}} m de ti en los últimos {{days}} días.",
+    "goToRadar": "Ir a Radar",
+    "showingPeople": "Mostrando personas en un radio de {{radius}} m durante los últimos {{days}} días"
   }
 }

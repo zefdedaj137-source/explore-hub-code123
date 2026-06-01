@@ -74,7 +74,8 @@
     "releaseToRefresh": "↓ Zwolnij, aby odświeżyć",
     "share": "Udostępnij",
     "disable": "Wyłącz",
-    "online": "Online"
+    "online": "Online",
+    "mAway": "{{m}} m dalej"
   },
   "auth": {
     "signIn": "Zaloguj się",
@@ -128,7 +129,7 @@
     "discover": "Odkryj",
     "likes": "Polubienia",
     "radar": "Radar",
-    "chat": "Kot",
+    "chat": "Chat",
     "profile": "Profil",
     "features": "Funkcje",
     "howItWorks": "Jak to działa",
@@ -335,7 +336,7 @@
     "nextStory": "Następna historia",
     "yourMatches": "Twoje dopasowania",
     "messages": "Wiadomości",
-    "chat": "Kot",
+    "chat": "Chat",
     "removeBookmark": "Usuń zakładkę",
     "bookmark": "Dodaj do zakładek",
     "sayHi": "Przywitaj się z {{name}}! 👋",
@@ -358,7 +359,7 @@
     "instantMessageCountPlural": "{{count}} wiadomości błyskawicznych"
   },
   "chat": {
-    "title": "Kot",
+    "title": "Chat",
     "typeMessage": "Wpisz wiadomość...",
     "send": "Wyślij",
     "voiceCall": "Połączenie głosowe",
@@ -923,7 +924,11 @@
     "failedStreakCredit": "Nie udało się wykorzystać punktów za serię",
     "likeSent": "Równie późno! ❤️",
     "failedLike": "Nie udało się polubić profilu",
-    "upgradeToSee": "Przejdź na wyższy poziom, aby zobaczyć ich pełny profil"
+    "upgradeToSee": "Przejdź na wyższy poziom, aby zobaczyć ich pełny profil",
+    "height": "Wysokość",
+    "lifestyle": "Styl życia",
+    "zodiac": "Zodiak",
+    "pets": "Zwierzęta domowe"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -1082,7 +1087,7 @@
     "matchedWith": "Zostałeś dopasowany z {{name}}",
     "sentMessage": "{{name}} wysłał wiadomość",
     "view": "Wyświetl",
-    "matchChat": "Kot",
+    "matchChat": "Chat",
     "reply": "Odpowiedz",
     "failedLoad": "Nie udało się załadować aktualności."
   },
@@ -1196,7 +1201,7 @@
     "waitingReplies": "Czekam na odpowiedzi",
     "nudged": "Oznaczono ✓",
     "nudge": "Delikatne popchnięcie",
-    "chat": "Kot",
+    "chat": "Chat",
     "alertsOn": "Powiadomienia o duchach włączone 👻",
     "alertsOff": "Powiadomienia o duchach WYŁĄCZONE",
     "nudgeSent": "Wysłano powiadomienie do {{name}}! 👻",
@@ -2036,5 +2041,13 @@
   },
   "browseProfiles": {
     "title": "Poznaj swoje dopasowania"
+  },
+  "spotted": {
+    "locationRequired": "Wymagana lokalizacja",
+    "enableLocation": "Włącz lokalizację",
+    "noOneSpottedYet": "Na razie nikt tego nie zauważył",
+    "noOneSpottedDesc": "W miarę upływu dnia będą tu wyświetlane osoby, które w ciągu ostatnich {{days}} dni znajdowały się w promieniu {{radius}} m od Ciebie.",
+    "goToRadar": "Przejdź do Radaru",
+    "showingPeople": "Wyświetlanie osób znajdujących się w promieniu {{radius}} m w ciągu ostatnich {{days}} dni"
   }
 }
