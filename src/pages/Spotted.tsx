@@ -206,7 +206,7 @@ const Spotted = () => {
               <MapPin className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-lg">Location Required</h2>
+              <h2 className="font-semibold text-lg">{t("spotted.locationRequired")}</h2>
               <p className="text-sm text-muted-foreground mt-1">{locationError}</p>
             </div>
             <Button
@@ -214,7 +214,7 @@ const Spotted = () => {
               className="w-full bg-primary hover:bg-primary/90"
             >
               <Navigation className="h-4 w-4 mr-2" />
-              Enable Location
+              {t("spotted.enableLocation")}
             </Button>
           </Card>
         ) : loading ? (
@@ -231,23 +231,24 @@ const Spotted = () => {
               <Eye className="h-10 w-10 text-primary/60" />
             </div>
             <div>
-              <h2 className="font-semibold text-xl">No one spotted yet</h2>
+              <h2 className="font-semibold text-xl">{t("spotted.noOneSpottedYet")}</h2>
               <p className="text-sm text-muted-foreground mt-2 max-w-xs mx-auto">
-                As you move through your day, people who were within {SPOTTED_RADIUS_M}m of you in
-                the last {SPOTTED_WINDOW_DAYS} days will appear here.
+                {t("spotted.noOneSpottedDesc", {
+                  radius: SPOTTED_RADIUS_M,
+                  days: SPOTTED_WINDOW_DAYS,
+                })}
               </p>
             </div>
             <Button variant="outline" onClick={() => navigate("/radar")} className="w-full">
               <Navigation className="h-4 w-4 mr-2" />
-              Go to Radar
+              {t("spotted.goToRadar")}
             </Button>
           </Card>
         ) : (
           /* Spotted list */
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground px-1">
-              Showing people within {SPOTTED_RADIUS_M}m of your location in the last{" "}
-              {SPOTTED_WINDOW_DAYS} days
+              {t("spotted.showingPeople", { radius: SPOTTED_RADIUS_M, days: SPOTTED_WINDOW_DAYS })}
             </p>
             {spotted.map((person) => (
               <Card
@@ -283,7 +284,9 @@ const Spotted = () => {
                   <div className="flex items-center gap-3 mt-0.5">
                     <span className="text-xs text-primary flex items-center gap-0.5">
                       <Zap className="h-3 w-3" />
-                      {formatMetres(person.distance_m)}
+                      {person.distance_m < 1000
+                        ? t("common.mAway", { m: Math.round(person.distance_m) })
+                        : t("common.kmAway", { km: (person.distance_m / 1000).toFixed(1) })}
                     </span>
                     <span className="text-xs text-muted-foreground flex items-center gap-0.5">
                       <Clock className="h-3 w-3" />

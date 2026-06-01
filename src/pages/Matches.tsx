@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -2022,7 +2023,7 @@ const Matches = () => {
                           .slice(0, 3)
                           .map((interest) => (
                             <Badge key={interest} variant="secondary" className="rounded-full">
-                              {interest}
+                              {translateInterest(interest, t)}
                             </Badge>
                           ))}
                       </div>
@@ -2063,7 +2064,7 @@ const Matches = () => {
                             variant="secondary"
                             className="text-sm py-1.5 px-4 rounded-full bg-primary/10 text-primary border-border"
                           >
-                            {interest}
+                            {translateInterest(interest, t)}
                           </Badge>
                         ))}
                       </div>

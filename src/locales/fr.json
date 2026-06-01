@@ -74,7 +74,8 @@
     "releaseToRefresh": "↓ Relâchez pour actualiser",
     "share": "Partager",
     "disable": "Désactiver",
-    "online": "En ligne"
+    "online": "En ligne",
+    "mAway": "à {{m}} m"
   },
   "auth": {
     "signIn": "Se connecter",
@@ -923,7 +924,11 @@
     "failedStreakCredit": "Impossible d'utiliser les crédits Streak",
     "likeSent": "Tout aussi tard ! ❤️",
     "failedLike": "Impossible d'aimer le profil",
-    "upgradeToSee": "Passez à un abonnement supérieur pour consulter leur profil complet"
+    "upgradeToSee": "Passez à un abonnement supérieur pour consulter leur profil complet",
+    "height": "Hauteur",
+    "lifestyle": "Mode de vie",
+    "zodiac": "Zodiaque",
+    "pets": "Animaux de compagnie"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -2036,5 +2041,13 @@
   },
   "browseProfiles": {
     "title": "Découvrez vos correspondances"
+  },
+  "spotted": {
+    "locationRequired": "Lieu obligatoire",
+    "enableLocation": "Activer la localisation",
+    "noOneSpottedYet": "Personne n'a encore été repéré",
+    "noOneSpottedDesc": "Au fil de la journée, les personnes qui se sont trouvées à moins de {{radius}} m de vous au cours des {{days}} derniers jours s'afficheront ici.",
+    "goToRadar": "Aller à Radar",
+    "showingPeople": "Affichage des personnes situées dans un rayon de {{radius}} m au cours des {{days}} derniers jours"
   }
 }

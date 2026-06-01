@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -963,7 +964,7 @@ const MyProfile = () => {
                       variant="secondary"
                       className="text-sm py-1.5 px-4 rounded-full bg-primary/10 text-primary border-border"
                     >
-                      {interest}
+                      {translateInterest(interest, t)}
                     </Badge>
                   ))}
                 </div>

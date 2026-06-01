@@ -7,12 +7,20 @@ import sq from "@/locales/sq.json";
 // Lazy-loaded locale imports — add new languages here as they are created
 const loadLocale = async (lang: string) => {
   switch (lang) {
-    case "it":
-      return (await import("@/locales/it.json")).default;
     case "de":
       return (await import("@/locales/de.json")).default;
-    case "el":
-      return (await import("@/locales/el.json")).default;
+    case "fr":
+      return (await import("@/locales/fr.json")).default;
+    case "it":
+      return (await import("@/locales/it.json")).default;
+    case "es":
+      return (await import("@/locales/es.json")).default;
+    case "pt":
+      return (await import("@/locales/pt.json")).default;
+    case "nl":
+      return (await import("@/locales/nl.json")).default;
+    case "pl":
+      return (await import("@/locales/pl.json")).default;
     default:
       return null;
   }
@@ -27,7 +35,7 @@ i18n
       sq: { translation: sq },
     },
     fallbackLng: "en",
-    supportedLngs: ["en", "sq", "it", "de", "el"],
+    supportedLngs: ["en", "sq", "de", "fr", "it", "es", "pt", "nl", "pl"],
     interpolation: {
       escapeValue: false, // React already escapes
     },

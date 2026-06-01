@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ReportUserDialog from "@/components/ReportUserDialog";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 
 interface ProfileCardProps {
   name: string;
@@ -158,7 +159,7 @@ const ProfileCard = ({
                 key={interest}
                 className="rounded-full px-3 py-1 bg-primary/25 text-white border-primary/30 text-[11px] font-semibold backdrop-blur-sm"
               >
-                {interest}
+                {translateInterest(interest, t)}
               </Badge>
             ))}
           </div>

@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 import { sanitizeText } from "@/lib/sanitize";
 
 import { useNavigate } from "react-router-dom";
@@ -599,7 +600,7 @@ const WhoLikedYou = () => {
                               variant="secondary"
                               className="rounded-full px-3 py-1.5 bg-primary/10 text-primary border-primary/20 text-xs font-semibold"
                             >
-                              {interest}
+                              {translateInterest(interest, t)}
                             </Badge>
                           ))}
                         </div>

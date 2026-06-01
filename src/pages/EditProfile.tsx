@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -1511,7 +1512,7 @@ const EditProfile = () => {
                                 value={interest}
                                 disabled={formData.interests.includes(interest)}
                               >
-                                {interest}
+                                {translateInterest(interest, t)}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -1521,7 +1522,7 @@ const EditProfile = () => {
                           <div className="flex flex-wrap gap-2">
                             {formData.interests.map((interest) => (
                               <Badge key={interest} variant="secondary" className="gap-1">
-                                {interest}
+                                {translateInterest(interest, t)}
                                 <X
                                   className="h-3 w-3 cursor-pointer"
                                   onClick={() =>
@@ -2134,7 +2135,7 @@ const EditProfile = () => {
                       variant="secondary"
                       className="text-sm py-1.5 px-4 rounded-full bg-primary/10 text-primary border-border"
                     >
-                      {interest}
+                      {translateInterest(interest, t)}
                     </Badge>
                   ))}
                 </div>

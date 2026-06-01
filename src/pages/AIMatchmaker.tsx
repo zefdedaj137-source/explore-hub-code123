@@ -21,6 +21,7 @@ import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 
 interface PickProfile {
   id: string;
@@ -541,7 +542,7 @@ const AIMatchmaker = () => {
                   <div className="flex flex-wrap gap-1.5">
                     {selectedPick.interests.map((interest) => (
                       <Badge key={interest} variant="outline" className="text-xs">
-                        {interest}
+                        {translateInterest(interest, t)}
                       </Badge>
                     ))}
                   </div>

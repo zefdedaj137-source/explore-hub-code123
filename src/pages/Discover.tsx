@@ -87,6 +87,7 @@ import ReportUserDialog from "@/components/ReportUserDialog";
 import { TravelMode } from "@/components/TravelMode";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 import { calculateDistance, formatDistance } from "@/lib/distance";
 import { MatchAnimation } from "@/components/MatchAnimation";
 import { markMatchHandled } from "@/hooks/useGlobalMatchRealtime";
@@ -3186,7 +3187,7 @@ const Discover = () => {
                               variant="secondary"
                               className="rounded-full px-3 py-1.5 bg-primary/10 text-primary border-primary/20 text-xs font-semibold"
                             >
-                              {interest}
+                              {translateInterest(interest, t)}
                             </Badge>
                           ))}
                           {currentProfile.interests.length > 5 && (
@@ -4323,7 +4324,7 @@ const Discover = () => {
                               key={interest}
                               className="inline-flex items-center gap-1 text-xs font-medium bg-primary/15 text-primary border border-primary/25 rounded-full px-2.5 py-1"
                             >
-                              {interest}
+                              {translateInterest(interest, t)}
                             </span>
                           ))}
                       </div>
@@ -4361,7 +4362,7 @@ const Discover = () => {
                           key={idx}
                           className="inline-flex items-center gap-1 text-xs font-medium bg-muted/60 text-foreground border border-border/50 rounded-full px-2.5 py-1 hover:bg-muted transition-colors"
                         >
-                          {interest}
+                          {translateInterest(interest, t)}
                         </span>
                       ))}
                     </div>
@@ -5052,7 +5053,7 @@ const Discover = () => {
                               variant="secondary"
                               className="text-sm py-1.5 px-4 rounded-full bg-primary/10 text-primary border-border"
                             >
-                              {interest}
+                              {translateInterest(interest, t)}
                             </Badge>
                           ))}
                         </div>
@@ -5429,7 +5430,7 @@ const Discover = () => {
                               variant="secondary"
                               className="text-sm py-1.5 px-4 rounded-full bg-primary/10 text-primary border-border"
                             >
-                              {interest}
+                              {translateInterest(interest, t)}
                             </Badge>
                           ))}
                         </div>

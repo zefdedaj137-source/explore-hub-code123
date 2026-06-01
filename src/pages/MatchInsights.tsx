@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 import { Sparkles, ArrowLeft, MapPin, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -250,7 +251,7 @@ const MatchInsights = () => {
                       ) : (
                         sharedInterests.map((interest) => (
                           <Badge key={interest} variant="secondary">
-                            {interest}
+                            {translateInterest(interest, t)}
                           </Badge>
                         ))
                       )}

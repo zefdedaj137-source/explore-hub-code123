@@ -10,6 +10,7 @@ import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 import { useTranslation } from "react-i18next";
+import { translateInterest } from "@/utils/translateInterest";
 
 interface PassedProfile {
   id: string;
@@ -322,7 +323,7 @@ const SecondLook = () => {
                 <div className="flex flex-wrap gap-1.5">
                   {selectedProfile.interests.map((i) => (
                     <Badge key={i} variant="outline" className="text-xs">
-                      {i}
+                      {translateInterest(i, t)}
                     </Badge>
                   ))}
                 </div>
