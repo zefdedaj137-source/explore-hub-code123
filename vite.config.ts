@@ -56,7 +56,7 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash][extname]",
         manualChunks: {
-          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "react-vendor": ["react", "react-dom", "react-router-dom", "react-i18next"],
           "ui-vendor": [
             "@radix-ui/react-dialog",
             "@radix-ui/react-dropdown-menu",
@@ -89,7 +89,7 @@ export default defineConfig(({ mode }) => ({
           motion: ["framer-motion"],
           supabase: ["@supabase/supabase-js"],
           query: ["@tanstack/react-query"],
-          i18n: ["i18next", "react-i18next", "i18next-browser-languagedetector"],
+          i18n: ["i18next", "i18next-browser-languagedetector"],
           utils: ["date-fns", "clsx", "class-variance-authority", "tailwind-merge"],
           forms: ["react-hook-form", "@hookform/resolvers", "zod"],
           charts: ["recharts"],
