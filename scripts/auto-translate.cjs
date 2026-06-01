@@ -26,8 +26,10 @@ const https = require("https");
 // When the entire translation value is one of these words, skip DeepL/MyMemory.
 const LOANWORDS = new Set([
   "Chat", "chat",
-  "Like", "like",
   "Match", "match",
+  "Matches", "matches",
+  "New Match", "New Matches",
+  "Like", "like",
   "Superlike", "superlike",
   "Super Like", "super like",
   "Online", "online",
