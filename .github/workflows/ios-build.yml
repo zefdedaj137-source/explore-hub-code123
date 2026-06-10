@@ -46,44 +46,16 @@ jobs:
 
       # ── 6. Import Apple code-signing certificate ──────────────────────────
       - name: Import code-signing certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          p12-password: ${{ secrets.P12_PASSWORD }}
+
+      # ── 6b. Install provisioning profile ─────────────────────────────────
+      - name: Install provisioning profile
         env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          # Create a temporary keychain
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-          # Decode p12
-          python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/build_certificate.p12','wb').write(base64.b64decode(os.environ['BUILD_CERTIFICATE_BASE64']))"
-
-          # Use Homebrew OpenSSL (system LibreSSL lacks -legacy support)
-          BREW_SSL=/opt/homebrew/opt/openssl@3/bin/openssl
-
-          # Step 1: Read the AES-256-CBC p12 → PEM
-          # NOTE: do NOT use -legacy here — the p12 uses AES-256 (modern), not RC2/DES (legacy)
-          $BREW_SSL pkcs12 \
-            -in $RUNNER_TEMP/build_certificate.p12 \
-            -passin pass:"$P12_PASSWORD" \
-            -out $RUNNER_TEMP/cert.pem \
-            -passout pass:"$P12_PASSWORD"
-
-          # Step 2: Re-export as SHA1-3DES p12 (macOS security import requires legacy encryption)
-          $BREW_SSL pkcs12 -export \
-            -in $RUNNER_TEMP/cert.pem \
-            -passin pass:"$P12_PASSWORD" \
-            -passout pass:"$P12_PASSWORD" \
-            -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -nomac \
-            -out $RUNNER_TEMP/build_certificate_legacy.p12
-
-          security import $RUNNER_TEMP/build_certificate_legacy.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-
-          # Install provisioning profile
           python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/build_pp.mobileprovision','wb').write(base64.b64decode(os.environ['BUILD_PROVISION_PROFILE_BASE64']))"
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $RUNNER_TEMP/build_pp.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
@@ -151,4 +123,4 @@ jobs:
       - name: Clean up keychain
         if: always()
         run: |
-          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
+          security delete-keychain ~/Library/Keychains/signing_temp.keychain-db 2>/dev/null || true
