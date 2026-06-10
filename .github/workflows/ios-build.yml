@@ -59,17 +59,12 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
           # Import certificate
-          # Use Python to decode base64 — avoids shell escaping issues with long secrets
-          python3 -c "
-import base64, os
-data = base64.b64decode(os.environ['BUILD_CERTIFICATE_BASE64'])
-open(os.environ['RUNNER_TEMP'] + '/build_certificate.p12', 'wb').write(data)
-"
+          python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/build_certificate.p12','wb').write(base64.b64decode(os.environ['BUILD_CERTIFICATE_BASE64']))"
 
           # Homebrew OpenSSL supports -legacy; system LibreSSL does not
           BREW_SSL=/opt/homebrew/opt/openssl@3/bin/openssl
 
-          # Convert modern OpenSSL 3.x p12 → PEM
+          # Convert modern OpenSSL 3.x p12 to PEM
           $BREW_SSL pkcs12 -legacy \
             -in $RUNNER_TEMP/build_certificate.p12 \
             -passin pass:"$P12_PASSWORD" \
@@ -88,11 +83,7 @@ open(os.environ['RUNNER_TEMP'] + '/build_certificate.p12', 'wb').write(data)
           security list-keychain -d user -s $KEYCHAIN_PATH
 
           # Install provisioning profile
-          python3 -c "
-import base64, os
-data = base64.b64decode(os.environ['BUILD_PROVISION_PROFILE_BASE64'])
-open(os.environ['RUNNER_TEMP'] + '/build_pp.mobileprovision', 'wb').write(data)
-"
+          python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/build_pp.mobileprovision','wb').write(base64.b64decode(os.environ['BUILD_PROVISION_PROFILE_BASE64']))"
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $RUNNER_TEMP/build_pp.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
@@ -146,11 +137,7 @@ open(os.environ['RUNNER_TEMP'] + '/build_pp.mobileprovision', 'wb').write(data)
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
         run: |
-          python3 -c "
-import base64, os
-data = base64.b64decode(os.environ['APP_STORE_CONNECT_KEY_BASE64'])
-open(os.environ['RUNNER_TEMP'] + '/AuthKey.p8', 'wb').write(data)
-"
+          python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/AuthKey.p8','wb').write(base64.b64decode(os.environ['APP_STORE_CONNECT_KEY_BASE64']))"
 
           xcrun altool --upload-app \
             --type ios \
