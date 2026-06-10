@@ -64,7 +64,7 @@ jobs:
           # Homebrew OpenSSL supports -legacy; system LibreSSL does not
           BREW_SSL=/opt/homebrew/opt/openssl@3/bin/openssl
 
-          # Convert modern OpenSSL 3.x p12 to PEM (no -legacy: p12 uses AES-256)
+          # Convert modern OpenSSL 3.x p12 to PEM (no -legacy: p12 uses AES-256-CBC not RC2/DES)
           $BREW_SSL pkcs12 \
             -in $RUNNER_TEMP/build_certificate.p12 \
             -passin pass:"$P12_PASSWORD" \
