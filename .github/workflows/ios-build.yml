@@ -60,7 +60,25 @@ jobs:
 
           # Import certificate
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $RUNNER_TEMP/build_certificate.p12
-          security import $RUNNER_TEMP/build_certificate.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+
+          # Re-export with legacy SHA1-3DES encryption so macOS security can import it
+          openssl pkcs12 -in $RUNNER_TEMP/build_certificate.p12 \
+            -passin pass:"$P12_PASSWORD" \
+            -out $RUNNER_TEMP/cert.pem \
+            -passout pass:"$P12_PASSWORD" 2>/dev/null || \
+          openssl pkcs12 -legacy -in $RUNNER_TEMP/build_certificate.p12 \
+            -passin pass:"$P12_PASSWORD" \
+            -out $RUNNER_TEMP/cert.pem \
+            -passout pass:"$P12_PASSWORD"
+
+          openssl pkcs12 -export \
+            -in $RUNNER_TEMP/cert.pem \
+            -passin pass:"$P12_PASSWORD" \
+            -passout pass:"$P12_PASSWORD" \
+            -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -nomac \
+            -out $RUNNER_TEMP/build_certificate_legacy.p12
+
+          security import $RUNNER_TEMP/build_certificate_legacy.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
           # Install provisioning profile
