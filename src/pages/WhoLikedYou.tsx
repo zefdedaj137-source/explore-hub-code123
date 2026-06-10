@@ -1,5 +1,7 @@
 ﻿import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { usePurchases } from "@/hooks/usePurchases";
+import { PRODUCT_IDS } from "@/lib/iap-products";
 import { translateInterest } from "@/utils/translateInterest";
 import { sanitizeText } from "@/lib/sanitize";
 
@@ -384,17 +386,9 @@ const WhoLikedYou = () => {
     }
   };
 
-  const handleUpgradeToPremium = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout");
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank", "noopener,noreferrer");
-      }
-    } catch (error) {
-      toast.error((error as Error).message || "Failed to start checkout");
-    }
-  };
+  const { buyProduct } = usePurchases();
+
+  const handleUpgradeToPremium = () => buyProduct(PRODUCT_IDS.PREMIUM_MONTHLY);
 
   if (loading) {
     return (

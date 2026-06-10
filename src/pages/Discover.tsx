@@ -87,6 +87,8 @@ import ReportUserDialog from "@/components/ReportUserDialog";
 import { TravelMode } from "@/components/TravelMode";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { usePurchases } from "@/hooks/usePurchases";
+import { PRODUCT_IDS } from "@/lib/iap-products";
 import { translateInterest } from "@/utils/translateInterest";
 import { calculateDistance, formatDistance } from "@/lib/distance";
 import { MatchAnimation } from "@/components/MatchAnimation";
@@ -965,23 +967,10 @@ const Discover = () => {
     }
   }, [user, filters.maxDistance, filters.gender, fetchMyProfile, likedProfiles, passedProfiles]);
 
+  const { buyProduct } = usePurchases();
+
   // Handle premium upgrade
-  const handleUpgrade = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { origin: window.location.origin },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      logger.error("Error creating checkout:", error);
-      toast.error(t("discover.failedUpgrade"));
-    }
-  };
+  const handleUpgrade = () => buyProduct(PRODUCT_IDS.PREMIUM_MONTHLY);
 
   // Handle like action
   const handleLike = async (profileId: string) => {

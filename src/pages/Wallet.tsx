@@ -8,24 +8,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import BottomNav from "@/components/BottomNav";
-import { toast } from "sonner";
-import { analytics } from "@/lib/analytics";
 import { logger } from "@/lib/logger";
 import { useTranslation } from "react-i18next";
+import { usePurchases } from "@/hooks/usePurchases";
+import { PRODUCT_IDS } from "@/lib/iap-products";
 
 const PACKS = [
-  { id: "pack_5", coins: 5, price: "€2.99" },
-  { id: "pack_20", coins: 20, price: "€8.99" },
-  { id: "pack_50", coins: 50, price: "€19.99" },
+  { id: "pack_5", productId: PRODUCT_IDS.COINS_5, coins: 5, price: "€2.99" },
+  { id: "pack_20", productId: PRODUCT_IDS.COINS_20, coins: 20, price: "€8.99" },
+  { id: "pack_50", productId: PRODUCT_IDS.COINS_50, coins: 50, price: "€19.99" },
 ];
 
 const Wallet = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { buyProduct, loading: purchasing } = usePurchases();
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [purchasing, setPurchasing] = useState(false);
   const [transactions, setTransactions] = useState<
     { id: string; amount: number; type: string; item: string | null; created_at: string }[]
   >([]);
@@ -69,61 +69,10 @@ const Wallet = () => {
     fetchTransactions();
   }, [user, navigate, fetchWallet, fetchTransactions]);
 
-  const buyPack = async (coins: number, packId: string) => {
-    if (!user || purchasing) return;
-    if (coins <= 0) {
-      toast.error(t("wallet.invalidAmount"));
-      return;
-    }
-    setPurchasing(true);
-    try {
-      // Try atomic server-side RPC first (run supabase_purchase_coins_rpc.sql to enable)
-      const { data: rpcResult, error: rpcError } = (await supabase.rpc("purchase_coins", {
-        p_user_id: user.id,
-        p_pack_id: packId,
-        p_coins: coins,
-      })) as { data: { success: boolean; balance: number; error?: string } | null; error: unknown };
-
-      if (!rpcError && rpcResult?.success) {
-        analytics.purchase(packId, coins);
-        setBalance(rpcResult.balance);
-        toast.success(t("wallet.coinsAdded", { coins }));
-        return;
-      }
-
-      // Fallback: client-side if RPC doesn't exist yet
-      if (rpcError && !rpcError.message?.includes("purchase_coins")) throw rpcError;
-
-      const { data: wallet, error: fetchError } = await supabase
-        .from("wallets")
-        .select("balance")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (fetchError || !wallet) throw fetchError || new Error("Wallet not found");
-
-      const newBalance = wallet.balance + coins;
-      const { error: updateError } = await supabase
-        .from("wallets")
-        .update({ balance: newBalance, updated_at: new Date().toISOString() })
-        .eq("user_id", user.id);
-      if (updateError) throw updateError;
-
-      const { error: txError } = await supabase
-        .from("wallet_transactions")
-        .insert({ user_id: user.id, amount: coins, type: "purchase", item: packId });
-      if (txError) {
-        await supabase.from("wallets").update({ balance: wallet.balance }).eq("user_id", user.id);
-        throw txError;
-      }
-
-      setBalance(newBalance);
-      toast.success(t("wallet.coinsAdded", { coins }));
-    } catch (error) {
-      logger.error("Wallet purchase error", error);
-      toast.error(t("wallet.failedUpdate"));
-    } finally {
-      setPurchasing(false);
-    }
+  const handleBuyPack = async (productId: (typeof PRODUCT_IDS)[keyof typeof PRODUCT_IDS]) => {
+    await buyProduct(productId);
+    // Refresh balance after successful native purchase
+    await fetchWallet();
   };
 
   return (
@@ -180,7 +129,7 @@ const Wallet = () => {
                   </div>
                   <div className="text-sm text-muted-foreground">{t("wallet.bestFor")}</div>
                 </div>
-                <Button disabled={purchasing} onClick={() => buyPack(pack.coins, pack.id)}>
+                <Button disabled={purchasing} onClick={() => handleBuyPack(pack.productId)}>
                   {purchasing ? "..." : pack.price}
                 </Button>
               </div>

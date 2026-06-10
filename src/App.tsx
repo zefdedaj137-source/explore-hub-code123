@@ -45,6 +45,7 @@ const EditProfile = lazy(() => import("./pages/EditProfile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const PremiumSuccess = lazy(() => import("./pages/PremiumSuccess"));
 const SuperlikeSuccess = lazy(() => import("./pages/SuperlikeSuccess"));
+const CoinsSuccess = lazy(() => import("./pages/CoinsSuccess"));
 const WhoLikedYou = lazy(() => import("./pages/WhoLikedYou"));
 const Radar = lazy(() => import("./pages/Radar"));
 const Games = lazy(() => import("./pages/Games"));
@@ -242,6 +243,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <SuperlikeSuccess />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/coins-success"
+            element={
+              <ProtectedRoute>
+                <CoinsSuccess />
               </ProtectedRoute>
             }
           />
