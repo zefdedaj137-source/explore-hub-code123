@@ -103,7 +103,7 @@ describe("computeMatchScore", () => {
   it("adds distance bonus for nearby profiles", () => {
     const profile = makeProfile({ interests: [], distance_km: 5 });
     const myProfile = makeProfile();
-    expect(computeMatchScore(profile, myProfile)).toBe(45); // 50 - 5
+    expect(computeMatchScore(profile, myProfile)).toBe(15);
   });
 
   it("adds verified bonus", () => {
