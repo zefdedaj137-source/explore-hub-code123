@@ -46,10 +46,34 @@ jobs:
 
       # ── 6. Import Apple code-signing certificate ──────────────────────────
       - name: Import code-signing certificate
-        uses: apple-actions/import-codesign-certs@v3
-        with:
-          p12-file-base64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-          p12-password: ${{ secrets.P12_PASSWORD }}
+        env:
+          DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
+          DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # Create keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Decode PEM cert and key
+          python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/cert.pem','wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64']))"
+          python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/cert.key','wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))"
+
+          # Build a SHA1-3DES p12 on macOS — compatible with security import
+          # (The original p12 uses AES-256-CBC which macOS Security framework cannot import)
+          BREW_SSL=/opt/homebrew/opt/openssl@3/bin/openssl
+          $BREW_SSL pkcs12 -export \
+            -inkey $RUNNER_TEMP/cert.key \
+            -in $RUNNER_TEMP/cert.pem \
+            -passout pass:"$P12_PASSWORD" \
+            -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -nomac \
+            -out $RUNNER_TEMP/cert_legacy.p12
+
+          security import $RUNNER_TEMP/cert_legacy.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
 
       # ── 6b. Install provisioning profile ─────────────────────────────────
       - name: Install provisioning profile
@@ -123,4 +147,4 @@ jobs:
       - name: Clean up keychain
         if: always()
         run: |
-          security delete-keychain ~/Library/Keychains/signing_temp.keychain-db 2>/dev/null || true
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db 2>/dev/null || true
