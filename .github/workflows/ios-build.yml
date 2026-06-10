@@ -49,7 +49,6 @@ jobs:
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
-          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           # Create keychain
@@ -58,22 +57,16 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-          # Decode PEM cert and key
+          # Decode PEM cert and private key
           python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/cert.pem','wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64']))"
           python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/cert.key','wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))"
 
-          # Build a SHA1-3DES p12 on macOS — compatible with security import
-          # (The original p12 uses AES-256-CBC which macOS Security framework cannot import)
-          BREW_SSL=/opt/homebrew/opt/openssl@3/bin/openssl
-          $BREW_SSL pkcs12 -export \
-            -inkey $RUNNER_TEMP/cert.key \
-            -in $RUNNER_TEMP/cert.pem \
-            -passout pass:"$P12_PASSWORD" \
-            -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -nomac \
-            -out $RUNNER_TEMP/cert_legacy.p12
-
-          security import $RUNNER_TEMP/cert_legacy.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          # Import certificate and private key directly — no p12 or OpenSSL conversion needed
+          security import $RUNNER_TEMP/cert.pem -k $KEYCHAIN_PATH -t cert -f pemseq -A
+          security import $RUNNER_TEMP/cert.key -k $KEYCHAIN_PATH -t priv -f pemseq -A \
+            -T /usr/bin/codesign -T /usr/bin/security
           security list-keychain -d user -s $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
       # ── 6b. Install provisioning profile ─────────────────────────────────
       - name: Install provisioning profile
