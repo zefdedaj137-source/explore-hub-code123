@@ -58,28 +58,10 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-          # Import certificate
+          # Decode and import certificate
+          # macOS 15 security framework handles AES-256-CBC p12 natively — no OpenSSL conversion needed
           python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/build_certificate.p12','wb').write(base64.b64decode(os.environ['BUILD_CERTIFICATE_BASE64']))"
-
-          # Homebrew OpenSSL supports -legacy; system LibreSSL does not
-          BREW_SSL=/opt/homebrew/opt/openssl@3/bin/openssl
-
-          # Convert modern OpenSSL 3.x p12 to PEM (no -legacy: p12 uses AES-256-CBC not RC2/DES)
-          $BREW_SSL pkcs12 \
-            -in $RUNNER_TEMP/build_certificate.p12 \
-            -passin pass:"$P12_PASSWORD" \
-            -out $RUNNER_TEMP/cert.pem \
-            -passout pass:"$P12_PASSWORD"
-
-          # Re-export with SHA1-3DES so macOS security can import it
-          $BREW_SSL pkcs12 -export \
-            -in $RUNNER_TEMP/cert.pem \
-            -passin pass:"$P12_PASSWORD" \
-            -passout pass:"$P12_PASSWORD" \
-            -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -nomac \
-            -out $RUNNER_TEMP/build_certificate_legacy.p12
-
-          security import $RUNNER_TEMP/build_certificate_legacy.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security import $RUNNER_TEMP/build_certificate.p12 -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
           # Install provisioning profile
