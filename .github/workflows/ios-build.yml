@@ -54,61 +54,39 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-      - name: Extract cert and key — build PKCS#12
-        # Uses Python cryptography library to load cert+key (handles PEM and DER),
-        # then serialises a PKCS#12 in pure Python — no dependency on the runner's
-        # OpenSSL version, avoiding macOS 15 strict-DER / sequence-length errors.
+      - name: Extract cert and key to files
+        # Decode the base64 secrets directly to PEM files — no parsing or
+        # re-encoding, so Apple cert quirks (non-standard UTCTime, etc.) are
+        # preserved exactly as issued and passed unchanged to LibreSSL.
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, os, subprocess, sys
-
-          t         = os.environ['RUNNER_TEMP']
-          cert_data = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-          key_data  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
-
-          try:
-              from cryptography import x509
-              from cryptography.hazmat.primitives import serialization
-              from cryptography.hazmat.primitives.serialization import pkcs12
-          except ImportError:
-              subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--quiet', 'cryptography'])
-              from cryptography import x509
-              from cryptography.hazmat.primitives import serialization
-              from cryptography.hazmat.primitives.serialization import pkcs12
-
-          if cert_data.lstrip()[:5] == b'-----':
-              cert = x509.load_pem_x509_certificate(cert_data)
-              print('cert: loaded as PEM')
-          else:
-              cert = x509.load_der_x509_certificate(cert_data)
-              print('cert: loaded as DER')
-
-          if key_data.lstrip()[:5] == b'-----':
-              key = serialization.load_pem_private_key(key_data, password=None)
-              print('key: loaded as PEM')
-          else:
-              key = serialization.load_der_private_key(key_data, password=None)
-              print('key: loaded as DER')
-
-          p12_pass = b'tempcipass'
-          p12_data = pkcs12.serialize_key_and_certificates(
-              name=b'codesign',
-              key=key,
-              cert=cert,
-              cas=None,
-              encryption_algorithm=serialization.BestAvailableEncryption(p12_pass),
-          )
-          open(t + '/codesign.p12', 'wb').write(p12_data)
-          print(f'codesign.p12 written: {len(p12_data)}b')
+          import base64, os
+          t = os.environ['RUNNER_TEMP']
+          open(t + '/cert.pem', 'wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64']))
+          open(t + '/key.pem',  'wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))
+          print('cert.pem and key.pem written')
 
       - name: Import certificate to keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # Use /usr/bin/openssl (Apple's LibreSSL) — lenient about Apple cert
+          # encoding quirks that strict parsers (cryptography lib, brew OpenSSL 3)
+          # reject with UTCTime / sequence-length errors.
+          echo "=== Building PKCS#12 ==="
+          /usr/bin/openssl pkcs12 -export \
+            -in    $RUNNER_TEMP/cert.pem \
+            -inkey $RUNNER_TEMP/key.pem \
+            -out   $RUNNER_TEMP/codesign.p12 \
+            -passout pass:tempcipass \
+            && echo "p12 created OK" \
+            || { echo "p12 creation FAILED"; exit 1; }
+
           echo "=== Importing PKCS#12 to keychain ==="
           security import $RUNNER_TEMP/codesign.p12 \
             -k $KEYCHAIN_PATH \
