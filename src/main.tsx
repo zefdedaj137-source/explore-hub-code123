@@ -36,13 +36,6 @@ initOfflineQueue(async (action: QueuedAction) => {
     const root = document.documentElement;
     root.classList.remove("light", "white", "dark", "blue");
     root.classList.add(saved);
-  } else {
-    // No saved preference — mirror the OS/browser color scheme
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const autoTheme = prefersDark ? "dark" : "light";
-    document.documentElement.classList.remove("light", "white", "dark", "blue");
-    document.documentElement.classList.add(autoTheme);
-    localStorage.setItem("app-theme", autoTheme);
   }
 })();
 

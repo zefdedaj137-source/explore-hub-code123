@@ -45,41 +45,48 @@ jobs:
         run: npx cap sync ios
 
       # ── 6. Import Apple code-signing certificate ──────────────────────────
-      - name: Import code-signing certificate
+      - name: Set up signing keychain
         env:
-          DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
-          DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          # Create keychain
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-          # Use Python to decode PEM files and bundle into an unencrypted p12
-          # (unencrypted = no cipher algorithm = no macOS import compatibility issues)
-          python3 << 'PYEOF'
-import base64, os
-from cryptography.hazmat.primitives.serialization import pkcs12, load_pem_private_key, NoEncryption
-from cryptography import x509
+      - name: Create unencrypted P12 from PEM files
+        # Use shell: python3 to avoid heredoc/YAML indentation conflicts.
+        # Writes an unencrypted p12 (NoEncryption) so macOS security import
+        # never hits cipher-algorithm compatibility issues.
+        shell: python3 {0}
+        env:
+          DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
+          DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
+        run: |
+          import base64, os
+          from cryptography.hazmat.primitives.serialization import pkcs12, load_pem_private_key, NoEncryption
+          from cryptography import x509
 
-tmp = os.environ['RUNNER_TEMP']
-cert_pem = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-key_pem  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
+          tmp = os.environ['RUNNER_TEMP']
+          cert_pem = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
+          key_pem  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
 
-cert = x509.load_pem_x509_certificate(cert_pem)
-key  = load_pem_private_key(key_pem, password=None)
+          cert = x509.load_pem_x509_certificate(cert_pem)
+          key  = load_pem_private_key(key_pem, password=None)
 
-p12_data = pkcs12.serialize_key_and_certificates(
-    name=b'', key=key, cert=cert, cas=None,
-    encryption_algorithm=NoEncryption()
-)
-with open(tmp + '/cert_noenc.p12', 'wb') as f:
-    f.write(p12_data)
-print('p12 created successfully')
-PYEOF
+          p12_data = pkcs12.serialize_key_and_certificates(
+              name=b'', key=key, cert=cert, cas=None,
+              encryption_algorithm=NoEncryption()
+          )
+          with open(tmp + '/cert_noenc.p12', 'wb') as f:
+              f.write(p12_data)
+          print('p12 created successfully')
 
+      - name: Import certificate to keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           # Import the unencrypted p12 — empty password, no cipher incompatibility
           security import $RUNNER_TEMP/cert_noenc.p12 -P "" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
