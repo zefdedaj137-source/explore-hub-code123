@@ -54,52 +54,58 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-      - name: Build PKCS#12 from PEM secrets
-        # Uses a fixed non-empty p12 password so OpenSSL and macOS agree on encoding.
-        # For empty passwords OpenSSL and macOS use different KDF byte representations,
-        # but for non-empty passwords both follow RFC 7292 exactly:
-        # "notapassword" → UTF-16BE + null terminator = \x00n\x00o\x00t...\x00d\x00\x00
+      - name: Extract cert and key to files
+        # Bypasses PKCS#12 entirely — import cert and key separately.
+        # This avoids all KDF/MAC encoding issues since security import
+        # accepts raw DER certs and PEM private keys directly.
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, hashlib, hmac as _hmac, os, re, sys
+          import base64, os, re, sys
 
-          def _l(n):
-              if n < 0x80: return bytes([n])
-              elif n < 0x100: return bytes([0x81, n])
-              else: return bytes([0x82, n >> 8, n & 0xff])
-          def seq(b):  return b'\x30' + _l(len(b)) + b
-          def ostr(b): return b'\x04' + _l(len(b)) + b
-          def t0(b):   return b'\xa0' + _l(len(b)) + b
-          def oid(h):  v = bytes.fromhex(h); return b'\x06' + _l(len(v)) + v
+          def raw_to_der(data, name):
+              if data.lstrip()[:5] == b'-----':
+                  m = re.search(rb'-----BEGIN [^-]+-----([^-]+)-----END', data, re.DOTALL)
+                  b64 = re.sub(rb'\s', b'', m.group(1)) if m else \
+                        b''.join(l for l in data.splitlines() if not l.startswith(b'-----'))
+                  der = base64.b64decode(b64)
+                  print(f'{name}: PEM->DER {len(der)}b first4={der[:4].hex()}')
+                  return der
+              elif data[:1] == b'\x30':
+                  print(f'{name}: raw DER {len(data)}b first4={data[:4].hex()}')
+                  return data
+              else:
+                  print(f'{name}: UNKNOWN first4={data[:4].hex()}', file=sys.stderr)
+                  sys.exit(1)
 
-          OID_DATA    = '2a864886f70d010701'
-          OID_CERTBAG = '2a864886f70d010c0a0103'
-          OID_X509    = '2a864886f70d01091601'
-          OID_KEYBAG  = '2a864886f70d010c0a0101'
-          OID_RSA     = '2a864886f70d010101'
-          OID_SHA1    = '2b0e03021a'
+          def to_pem(der, label):
+              b64 = base64.b64encode(der).decode()
+              lines = '\n'.join(b64[i:i+64] for i in range(0, len(b64), 64))
+              return f'-----BEGIN {label}-----\n{lines}\n-----END {label}-----\n'
 
-          def pkcs12_kdf(pwd, salt, iters, klen, id_b):
-              v, u = 64, 20
-              D = bytes([id_b] * v)
-              pad = lambda d: (d*(v//len(d)+1))[:v*((len(d)+v-1)//v)] if d else b''
-              I = bytearray(pad(salt) + pad(pwd))
-              out = b''
-              for _ in range((klen+u-1)//u):
-                  H = hashlib.sha1(D+bytes(I)).digest()
-                  for _ in range(iters-1): H = hashlib.sha1(H).digest()
-                  out += H
-                  B = (H*(v//u+1))[:v]
-                  nI = bytearray()
-                  for j in range(0, len(I), v):
-                      c = bytes(I[j:j+v])
-                      nI += ((int.from_bytes(c,'big')+int.from_bytes(B[:len(c)],'big')+1)
-                             %(2**(8*len(c)))).to_bytes(len(c),'big')
-                  I = nI
-              return out[:klen]
+          t = os.environ['RUNNER_TEMP']
+          cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
+          key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
+
+          cert_der = raw_to_der(cert_raw, 'cert')
+          key_der  = raw_to_der(key_raw, 'key')
+
+          open(t + '/cert.der', 'wb').write(cert_der)
+          print(f'cert.der written: {len(cert_der)}b')
+
+          if key_raw.lstrip()[:5] == b'-----':
+              open(t + '/key.pem', 'wb').write(key_raw)
+              label = re.search(rb'-----BEGIN ([^-]+)-----', key_raw).group(1).decode()
+              print(f'key.pem: kept original PEM ({label})')
+          else:
+              # Assume PKCS#8 DER; wrap as PEM so security import auto-detects
+              pem = to_pem(key_der, 'PRIVATE KEY').encode()
+              open(t + '/key.pem', 'wb').write(pem)
+              print(f'key.pem: wrote DER as PEM (PRIVATE KEY)')
+
+          sys.exit(0)  # cert.der + key.pem written — ignore legacy dead code below
 
           t = os.environ['RUNNER_TEMP']
           cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
@@ -411,29 +417,23 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          openssl3="/opt/homebrew/opt/openssl@3/bin/openssl"
-          # Create a standard test p12 with the SAME non-empty password to verify
-          # that -P "notapassword" + keychain works for normal PKCS#12 first
-          $openssl3 genrsa -out $RUNNER_TEMP/tk.pem 2048 2>/dev/null
-          $openssl3 req -new -x509 -key $RUNNER_TEMP/tk.pem -out $RUNNER_TEMP/tc.pem \
-            -days 1 -subj "/CN=test" 2>/dev/null
-          $openssl3 pkcs12 -export -legacy \
-            -in $RUNNER_TEMP/tc.pem -inkey $RUNNER_TEMP/tk.pem \
-            -out $RUNNER_TEMP/test.p12 -passout pass:notapassword 2>/dev/null || \
-          $openssl3 pkcs12 -export \
-            -in $RUNNER_TEMP/tc.pem -inkey $RUNNER_TEMP/tk.pem \
-            -out $RUNNER_TEMP/test.p12 -passout pass:notapassword 2>/dev/null
-          security import $RUNNER_TEMP/test.p12 -P "notapassword" -A -t agg -f pkcs12 \
-            -k $KEYCHAIN_PATH \
-            && echo "test.p12 imported OK" \
-            || echo "test.p12 import FAILED"
-          # Import real cert p12
-          security import $RUNNER_TEMP/cert.p12 -P "notapassword" -A -t agg -f pkcs12 \
-            -k $KEYCHAIN_PATH
+          # Import certificate directly (DER) — no PKCS#12, no password, no KDF
+          echo "=== Importing certificate (DER) ==="
+          security import $RUNNER_TEMP/cert.der -t cert -k $KEYCHAIN_PATH \
+            && echo "cert.der imported OK" \
+            || { echo "cert.der import FAILED"; exit 1; }
+          # Import private key (PEM)
+          echo "=== Importing private key (PEM) ==="
+          security import $RUNNER_TEMP/key.pem -t priv -k $KEYCHAIN_PATH \
+            -T /usr/bin/codesign -T /usr/bin/security \
+            && echo "key.pem imported OK" \
+            || { echo "key.pem import FAILED"; exit 1; }
           security list-keychain -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple:,codesign: \
             -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          echo "Certificate imported successfully"
+          echo "=== Code-signing identities ==="
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+          echo "Certificate and key setup complete"
 
       # ── 6b. Install provisioning profile ─────────────────────────────────
       - name: Install provisioning profile
