@@ -55,33 +55,64 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
       - name: Create unencrypted P12 from PEM secrets
+        # Build the PKCS#12 container manually — treats cert DER as opaque bytes
+        # so it never needs to be parsed by any strict ASN.1 library.
+        # security import then uses Apple's Security.framework to load the cert.
+        shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          # Decode with Python — avoids BSD base64 --decode empty-file issue.
-          python3 -c "import base64,os; t=os.environ['RUNNER_TEMP']; open(t+'/cert.pem','wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])); open(t+'/key.pem','wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))"
+          import base64, os
 
-          OPENSSL3=/opt/homebrew/opt/openssl@3/bin/openssl
+          # ── DER helpers ──────────────────────────────────────────────────
+          def _l(n):
+              if n < 0x80: return bytes([n])
+              elif n < 0x100: return bytes([0x81, n])
+              else: return bytes([0x82, n >> 8, n & 0xff])
+          def seq(b):   return b'\x30' + _l(len(b)) + b
+          def sset(b):  return b'\x31' + _l(len(b)) + b
+          def ostr(b):  return b'\x04' + _l(len(b)) + b
+          def t0(b):    return b'\xa0' + _l(len(b)) + b
+          def oid(h):   v = bytes.fromhex(h); return b'\x06' + _l(len(v)) + v
 
-          # Re-encode the cert via `openssl x509` which uses OpenSSL 3's raw
-          # PEM_read_bio_X509 reader, NOT the STORE API that previously failed
-          # (STORE failure was also masking an empty-file bug).  The raw reader
-          # is more lenient about non-standard extension DER encoding than
-          # LibreSSL 3.3, and the re-encoded output is clean for pkcs12.
-          $OPENSSL3 x509 -in $RUNNER_TEMP/cert.pem -out $RUNNER_TEMP/cert_re.pem
+          OID_DATA    = '2a8648 86f70d 010701'.replace(' ', '')
+          OID_CERTBAG = '2a8648 86f70d 010c0a 0103'.replace(' ', '')
+          OID_X509    = '2a8648 86f70d 010916 01'.replace(' ', '')
+          OID_KEYBAG  = '2a8648 86f70d 010c0a 0101'.replace(' ', '')
+          OID_RSA     = '2a8648 86f70d 010101'.replace(' ', '')
 
-          # Build unencrypted p12 — -keypbe NONE -certpbe NONE -nomac means no
-          # cipher algorithm, so security import has no compatibility issues.
-          $OPENSSL3 pkcs12 -export \
-            -in    $RUNNER_TEMP/cert_re.pem \
-            -inkey $RUNNER_TEMP/key.pem \
-            -out   $RUNNER_TEMP/cert.p12 \
-            -passout pass: \
-            -keypbe NONE \
-            -certpbe NONE \
-            -nomac
-          echo "p12 created successfully"
+          t        = os.environ['RUNNER_TEMP']
+          cert_pem = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
+          key_pem  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
+
+          # Strip PEM headers → raw DER (no ASN.1 parsing of the cert)
+          def pem_to_der(p):
+              lines = p.decode('ascii', errors='replace').splitlines()
+              return base64.b64decode(''.join(l for l in lines if not l.startswith('-----')))
+
+          cert_der = pem_to_der(cert_pem)
+          key_der  = pem_to_der(key_pem)
+
+          # Wrap PKCS#1 RSA key in PKCS#8 PrivateKeyInfo if needed
+          if b'BEGIN PRIVATE KEY' not in key_pem:
+              alg_id  = seq(oid(OID_RSA) + b'\x05\x00')
+              key_der = seq(b'\x02\x01\x00' + alg_id + ostr(key_der))
+
+          # CertBag → CertSafeBag
+          cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
+          cert_safe_bag = seq(oid(OID_CERTBAG) + t0(cert_bag) + sset(b''))
+
+          # KeyBag (unencrypted PrivateKeyInfo)
+          key_safe_bag  = seq(oid(OID_KEYBAG) + t0(key_der) + sset(b''))
+
+          # SafeContents → ContentInfo(id-data) → PFX (version 3, no MAC)
+          safe_contents = seq(cert_safe_bag + key_safe_bag)
+          content_info  = seq(oid(OID_DATA) + t0(ostr(safe_contents)))
+          pfx           = seq(b'\x02\x01\x03' + content_info)
+
+          open(t + '/cert.p12', 'wb').write(pfx)
+          print(f'p12 written ({len(pfx)} bytes)')
 
       - name: Import certificate to keychain
         env:
