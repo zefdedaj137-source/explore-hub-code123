@@ -125,7 +125,8 @@ jobs:
 
           cert_der = raw_to_der(cert_raw, 'cert')
           key_der  = raw_to_der(key_raw,  'key')
-
+          # Diagnostic: print first 32 bytes of cert_der (cert is public — no secret exposure)
+          print(f'cert_der hex[0:32]: {cert_der[:32].hex()}')
           # Wrap PKCS#1 RSA key → PKCS#8 PrivateKeyInfo if needed
           if b'RSA PRIVATE KEY' in key_raw:
               key_der = seq(b'\x02\x01\x00' + seq(oid(OID_RSA)+b'\x05\x00') + ostr(key_der))
@@ -142,9 +143,11 @@ jobs:
           auth_safe = seq(cert_ci + key_ci)
           outer_ci  = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
 
-          # MAC: non-empty password "password" → UTF-16BE + null terminator
-          # (RFC 7292 BMPString encoding; unambiguous for non-empty strings)
-          P12_PWD = 'password'.encode('utf-16-be') + b'\x00\x00'
+          # DIAGNOSTIC MAC: using b'\x00\x00' (RFC 7292 empty-string BMPString)
+          # This previously gave "passphrase not correct" with old (garbage) cert_der.
+          # Now with correct cert_der: if still "passphrase not correct" → cert is OK,
+          # only MAC password remains to fix. If "Unable to decode" → cert is the problem.
+          P12_PWD = b'\x00\x00'
           salt    = os.urandom(8)
           iters   = 2048
           mk      = pkcs12_kdf(P12_PWD, salt, iters, 20, 3)
@@ -154,14 +157,14 @@ jobs:
 
           pfx = seq(b'\x02\x01\x03' + outer_ci + mac_d)
           open(t+'/cert.p12','wb').write(pfx)
-          print(f'p12 written {len(pfx)}b (MAC pwd=password)')
+          print(f'p12 written {len(pfx)}b; p12 hex[0:16]={pfx[:16].hex()}')
 
       - name: Import certificate to keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          security import $RUNNER_TEMP/cert.p12 -P "password" -A -t agg -f pkcs12 -k $KEYCHAIN_PATH
+          security import $RUNNER_TEMP/cert.p12 -P "" -A -t agg -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           echo "Certificate imported successfully"
