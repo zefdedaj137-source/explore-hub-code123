@@ -64,12 +64,7 @@ jobs:
 
           # Use Python to decode — avoids BSD base64 ignoring --decode on macOS,
           # which would silently produce an empty file.
-          python3 -c "
-import base64, os
-t = os.environ['RUNNER_TEMP']
-open(t+'/cert.pem', 'wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64']))
-open(t+'/key.pem',  'wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))
-"
+          python3 -c "import base64,os; t=os.environ['RUNNER_TEMP']; open(t+'/cert.pem','wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])); open(t+'/key.pem','wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))"
 
           # Use system LibreSSL (/usr/bin/openssl) — Apple's own TLS library,
           # lenient with Apple cert ASN.1 encoding that OpenSSL 3 and the
