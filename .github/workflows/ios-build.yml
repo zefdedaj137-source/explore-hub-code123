@@ -61,24 +61,14 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
-          # Use Python to decode — avoids BSD base64 ignoring --decode on macOS,
-          # which would silently produce an empty file.
           python3 -c "import base64,os; t=os.environ['RUNNER_TEMP']; open(t+'/cert.pem','wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])); open(t+'/key.pem','wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))"
 
-          # Use system LibreSSL (/usr/bin/openssl) — Apple's own TLS library,
-          # lenient with Apple cert ASN.1 encoding that OpenSSL 3 and the
-          # Python cryptography library reject.  A simple temp password avoids
-          # cipher-algorithm issues; RC2/3DES output is accepted by all macOS
-          # security import versions.
-          P12_PASS="gh-ci-$$"
-          /usr/bin/openssl pkcs12 -export \
-            -in    $RUNNER_TEMP/cert.pem \
-            -inkey $RUNNER_TEMP/key.pem \
-            -out   $RUNNER_TEMP/cert.p12 \
-            -passout "pass:$P12_PASS"
-
-          security import $RUNNER_TEMP/cert.p12 -P "$P12_PASS" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          # Import cert and key directly via security import — uses Apple's
+          # Security.framework (not openssl/LibreSSL), so it handles Apple-issued
+          # certs with non-standard ASN.1 extension encoding that all openssl
+          # variants reject.
+          security import $RUNNER_TEMP/cert.pem -k $KEYCHAIN_PATH -T /usr/bin/codesign -T /usr/bin/xcodebuild
+          security import $RUNNER_TEMP/key.pem  -k $KEYCHAIN_PATH -T /usr/bin/codesign -T /usr/bin/xcodebuild
           security list-keychain -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           echo "Certificate imported successfully"
