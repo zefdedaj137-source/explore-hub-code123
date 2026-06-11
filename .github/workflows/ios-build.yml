@@ -55,11 +55,10 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
       - name: Build PKCS#12 (raw DER — cert bytes untouched)
-        # All OpenSSL/LibreSSL/cryptography-lib parsers reject this Apple cert
-        # due to non-standard ASN.1 extension encoding. Solution: build the
-        # PKCS#12 in pure Python using DER primitives, embedding cert bytes
-        # verbatim (no parse/validate). Only Apple's Security framework
-        # (used by `security import`) is lenient enough to accept it.
+        # Apple cert has non-standard ASN.1 encoding that ALL parsers reject.
+        # Fix: embed cert bytes verbatim (no parsing). Encrypt key with RC4-128
+        # (pure Python, no library) so security import gets a ShroudedKeyBag —
+        # unencrypted KeyBag causes "Unknown format" on macOS 15.
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
@@ -76,15 +75,16 @@ jobs:
           def t0(b):   return b'\xa0' + _l(len(b)) + b
           def oid(h):  v = bytes.fromhex(h); return b'\x06' + _l(len(v)) + v
 
-          OID_DATA    = '2a864886f70d010701'
-          OID_CERTBAG = '2a864886f70d010c0a0103'
-          OID_X509    = '2a864886f70d01091601'
-          OID_KEYBAG  = '2a864886f70d010c0a0101'
-          OID_RSA     = '2a864886f70d010101'
-          OID_SHA1    = '2b0e03021a'
+          OID_DATA     = '2a864886f70d010701'
+          OID_CERTBAG  = '2a864886f70d010c0a0103'
+          OID_X509     = '2a864886f70d01091601'
+          OID_SHROUDED = '2a864886f70d010c0a0102'  # pkcs8ShroudedKeyBag
+          OID_RSA      = '2a864886f70d010101'
+          OID_SHA1     = '2b0e03021a'
+          OID_RC4_128  = '2a864886f70d010c0101'    # pbeWithSHA1AndRC4-128
+          OID_LOCALKEY = '2a864886f70d010915'       # localKeyId
 
           def pem_body(data):
-              """Strip PEM armor and return raw DER — no ASN.1 parsing."""
               m = re.search(rb'-----BEGIN [^-]+-----\r?\n?(.*?)\r?\n?-----END',
                             data, re.DOTALL)
               return base64.b64decode(re.sub(rb'[\r\n\s]', b'', m.group(1))) if m else data
@@ -108,6 +108,23 @@ jobs:
                   I = nI
               return out[:klen]
 
+          def rc4(key, data):
+              S = list(range(256))
+              j = 0
+              for i in range(256):
+                  j = (j + S[i] + key[i % len(key)]) % 256
+                  S[i], S[j] = S[j], S[i]
+              result = bytearray()
+              i = j = 0
+              for byte in data:
+                  i = (i + 1) % 256
+                  j = (j + S[i]) % 256
+                  S[i], S[j] = S[j], S[i]
+                  result.append(byte ^ S[(S[i] + S[j]) % 256])
+              return bytes(result)
+
+          P12_PWD = 'tempcipass'.encode('utf-16-be') + b'\x00\x00'
+
           t        = os.environ['RUNNER_TEMP']
           cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
           key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
@@ -122,19 +139,33 @@ jobs:
               key_der = seq(b'\x02\x01\x00' + seq(oid(OID_RSA)+b'\x05\x00') + ostr(key_der))
               print('key: wrapped PKCS#1 -> PKCS#8')
           else:
-              print(f'key_der: {len(key_der)}b (already PKCS#8/EC)')
+              print(f'key_der: {len(key_der)}b (PKCS#8 or EC)')
 
-          # PKCS#12 SafeBags
+          # Encrypt key with pbeWithSHA1AndRC4-128 (pure Python — no library needed)
+          enc_salt  = os.urandom(8)
+          enc_iters = 2048
+          rc4_key   = pkcs12_kdf(P12_PWD, enc_salt, enc_iters, 16, 1)
+          enc_data  = rc4(rc4_key, key_der)
+          pbe_params = seq(ostr(enc_salt) + b'\x02\x02' + enc_iters.to_bytes(2, 'big'))
+          enc_pki   = seq(seq(oid(OID_RC4_128) + pbe_params) + ostr(enc_data))
+
+          # localKeyId bag attribute — links cert and key (SHA-1 of cert DER)
+          key_id    = hashlib.sha1(cert_der).digest()
+          lk_val    = ostr(key_id)
+          lk_attr   = seq(oid(OID_LOCALKEY) + b'\x31' + _l(len(lk_val)) + lk_val)
+          bag_attrs = b'\x31' + _l(len(lk_attr)) + lk_attr
+
+          # SafeBags
           cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
-          cert_safe_bag = seq(oid(OID_CERTBAG) + t0(cert_bag))
-          key_safe_bag  = seq(oid(OID_KEYBAG)  + t0(key_der))
+          cert_safe_bag = seq(oid(OID_CERTBAG)  + t0(cert_bag) + bag_attrs)
+          key_safe_bag  = seq(oid(OID_SHROUDED) + t0(enc_pki)  + bag_attrs)
+
           cert_ci   = seq(oid(OID_DATA) + t0(ostr(seq(cert_safe_bag))))
           key_ci    = seq(oid(OID_DATA) + t0(ostr(seq(key_safe_bag))))
           auth_safe = seq(cert_ci + key_ci)
           outer_ci  = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
 
-          # MAC — password as UTF-16BE + null terminator (RFC 7292 B.1)
-          P12_PWD = 'tempcipass'.encode('utf-16-be') + b'\x00\x00'
+          # MAC
           salt    = os.urandom(8)
           iters   = 2048
           mk      = pkcs12_kdf(P12_PWD, salt, iters, 20, 3)
