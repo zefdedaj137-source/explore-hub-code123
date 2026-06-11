@@ -55,32 +55,26 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
       - name: Create unencrypted P12 from PEM files
-        # Use shell: python3 to avoid heredoc/YAML indentation conflicts.
-        # Writes an unencrypted p12 (NoEncryption) so macOS security import
-        # never hits cipher-algorithm compatibility issues.
-        shell: python3 {0}
+        # Use Homebrew OpenSSL 3 (always present on macos-15) instead of the
+        # Python cryptography library, which rejects some Apple Distribution
+        # certs due to strict UtcTime ASN.1 validation.
+        # -keypbe NONE -certpbe NONE -nomac = fully unencrypted p12, so
+        # macOS security import never hits cipher-algorithm issues.
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, os
-          from cryptography.hazmat.primitives.serialization import pkcs12, load_pem_private_key, NoEncryption
-          from cryptography import x509
-
-          tmp = os.environ['RUNNER_TEMP']
-          cert_pem = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-          key_pem  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
-
-          cert = x509.load_pem_x509_certificate(cert_pem)
-          key  = load_pem_private_key(key_pem, password=None)
-
-          p12_data = pkcs12.serialize_key_and_certificates(
-              name=b'', key=key, cert=cert, cas=None,
-              encryption_algorithm=NoEncryption()
-          )
-          with open(tmp + '/cert_noenc.p12', 'wb') as f:
-              f.write(p12_data)
-          print('p12 created successfully')
+          echo "$DIST_CERT_PEM_BASE64" | base64 --decode > $RUNNER_TEMP/cert.pem
+          echo "$DIST_KEY_PEM_BASE64"  | base64 --decode > $RUNNER_TEMP/key.pem
+          /opt/homebrew/opt/openssl@3/bin/openssl pkcs12 -export \
+            -in  $RUNNER_TEMP/cert.pem \
+            -inkey $RUNNER_TEMP/key.pem \
+            -out $RUNNER_TEMP/cert_noenc.p12 \
+            -passout pass: \
+            -keypbe NONE \
+            -certpbe NONE \
+            -nomac
+          echo "p12 created successfully"
 
       - name: Import certificate to keychain
         env:
