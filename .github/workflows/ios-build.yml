@@ -56,21 +56,20 @@ jobs:
 
       - name: Import code-signing certificate
         env:
-          DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
-          DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
+          DIST_P12_BASE64: ${{ secrets.DIST_P12_BASE64 }}
+          DIST_P12_PASSWORD: ${{ secrets.DIST_P12_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          python3 -c "import base64,os; t=os.environ['RUNNER_TEMP']; open(t+'/cert.pem','wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])); open(t+'/key.pem','wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))"
-
-          # Import cert and key directly via security import — uses Apple's
-          # Security.framework (not openssl/LibreSSL), so it handles Apple-issued
-          # certs with non-standard ASN.1 extension encoding that all openssl
-          # variants reject.
-          # -f openssl = PEM format; -t cert/-t priv = explicit type so
-          # SecKeychainItemImport does not fail with "format unsupported".
-          security import $RUNNER_TEMP/cert.pem -k $KEYCHAIN_PATH -t cert -f openssl -T /usr/bin/codesign -T /usr/bin/xcodebuild
-          security import $RUNNER_TEMP/key.pem  -k $KEYCHAIN_PATH -t priv -f openssl -T /usr/bin/codesign -T /usr/bin/xcodebuild
+          # Decode the .p12 bundle (cert + private key exported together from
+          # Keychain Access). PKCS#12 is the only format reliably accepted by
+          # security import on macOS 15 Sequoia; PEM import via
+          # SecKeychainItemImport was removed in Sequoia.
+          python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/cert.p12','wb').write(base64.b64decode(os.environ['DIST_P12_BASE64']))"
+          security import $RUNNER_TEMP/cert.p12 \
+            -P "$DIST_P12_PASSWORD" \
+            -A -t agg -f pkcs12 \
+            -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           echo "Certificate imported successfully"
