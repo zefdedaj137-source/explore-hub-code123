@@ -133,8 +133,8 @@ jobs:
           auth_safe = seq(cert_ci + key_ci)
           outer_ci  = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
 
-          # MAC — empty password encoded as UTF-16BE null terminator (RFC 7292 B.1)
-          P12_PWD = b'\x00\x00'
+          # MAC — password as UTF-16BE + null terminator (RFC 7292 B.1)
+          P12_PWD = 'tempcipass'.encode('utf-16-be') + b'\x00\x00'
           salt    = os.urandom(8)
           iters   = 2048
           mk      = pkcs12_kdf(P12_PWD, salt, iters, 20, 3)
@@ -154,7 +154,7 @@ jobs:
           echo "=== Importing PKCS#12 to keychain ==="
           security import $RUNNER_TEMP/codesign.p12 \
             -k $KEYCHAIN_PATH \
-            -P "" \
+            -P "tempcipass" \
             -T /usr/bin/codesign \
             -T /usr/bin/security \
             && echo "p12 imported OK" \
