@@ -106,10 +106,15 @@ jobs:
           # KeyBag (unencrypted PrivateKeyInfo)
           key_safe_bag  = seq(oid(OID_KEYBAG) + t0(key_der) + sset(b''))
 
-          # SafeContents → ContentInfo(id-data) → PFX (version 3, no MAC)
-          safe_contents = seq(cert_safe_bag + key_safe_bag)
-          content_info  = seq(oid(OID_DATA) + t0(ostr(safe_contents)))
-          pfx           = seq(b'\x02\x01\x03' + content_info)
+          # SafeContents → AuthenticatedSafe → outer ContentInfo → PFX
+          # RFC 7292 requires two ContentInfo levels:
+          #   PFX.authSafe → ContentInfo(id-data) → AuthenticatedSafe
+          #   AuthenticatedSafe → SEQUENCE OF ContentInfo(id-data) → SafeContents
+          safe_contents      = seq(cert_safe_bag + key_safe_bag)
+          inner_content_info = seq(oid(OID_DATA) + t0(ostr(safe_contents)))
+          authenticated_safe = seq(inner_content_info)           # SEQUENCE OF ContentInfo
+          outer_content_info = seq(oid(OID_DATA) + t0(ostr(authenticated_safe)))
+          pfx                = seq(b'\x02\x01\x03' + outer_content_info)
 
           open(t + '/cert.p12', 'wb').write(pfx)
           print(f'p12 written ({len(pfx)} bytes)')
