@@ -59,13 +59,14 @@ jobs:
         #   - cert DER treated as opaque bytes (never parsed — bypasses all
         #     strict ASN.1 libraries that reject this Apple cert)
         #   - cert and key in separate ContentInfo (matches Keychain export)
-        #   - HMAC-SHA1 MAC via PKCS#12 KDF (hashlib + hmac, no deps)
+        #   - macData omitted (OPTIONAL per RFC 7292 §4; Security.framework
+        #     accepts MAC-less PKCS#12)
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, os, hashlib, hmac as _hmac
+          import base64, os
 
           # ── DER primitives ───────────────────────────────────────────────
           def _l(n):
@@ -82,27 +83,6 @@ jobs:
           OID_X509    = '2a864886f70d01091601'
           OID_KEYBAG  = '2a864886f70d010c0a0101'
           OID_RSA     = '2a864886f70d010101'
-          OID_SHA1    = '2b0e03021a'
-
-          # ── PKCS#12 KDF (RFC 7292 Appendix B, SHA-1) ────────────────────
-          def pkcs12_kdf(pwd, salt, iters, klen, id_b):
-              v, u = 64, 20
-              D = bytes([id_b] * v)
-              pad = lambda d: (d * (v // len(d) + 1))[:v * ((len(d) + v - 1) // v)] if d else b''
-              I = bytearray(pad(salt) + pad(pwd))
-              out = b''
-              for _ in range((klen + u - 1) // u):
-                  H = hashlib.sha1(D + bytes(I)).digest()
-                  for _ in range(iters - 1): H = hashlib.sha1(H).digest()
-                  out += H
-                  B = (H * (v // u + 1))[:v]
-                  nI = bytearray()
-                  for j in range(0, len(I), v):
-                      c = bytes(I[j:j+v])
-                      nI += ((int.from_bytes(c, 'big') + int.from_bytes(B[:len(c)], 'big') + 1)
-                             % (2 ** (8 * len(c)))).to_bytes(len(c), 'big')
-                  I = nI
-              return out[:klen]
 
           t        = os.environ['RUNNER_TEMP']
           cert_pem = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
@@ -120,13 +100,13 @@ jobs:
           if b'BEGIN PRIVATE KEY' not in key_pem:
               key_der = seq(b'\x02\x01\x00' + seq(oid(OID_RSA) + b'\x05\x00') + ostr(key_der))
 
-          # SafeBags — no bagAttributes (OPTIONAL per RFC 7292, omit to keep simple)
+          # SafeBags — no bagAttributes (OPTIONAL per RFC 7292, omit)
           cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
           cert_safe_bag = seq(oid(OID_CERTBAG) + t0(cert_bag))
           key_safe_bag  = seq(oid(OID_KEYBAG)  + t0(key_der))
 
           # Cert and key in SEPARATE ContentInfo within AuthenticatedSafe,
-          # matching Apple Keychain export layout (not one combined SafeContents)
+          # matching Apple Keychain export layout
           cert_ci   = seq(oid(OID_DATA) + t0(ostr(seq(cert_safe_bag))))
           key_ci    = seq(oid(OID_DATA) + t0(ostr(seq(key_safe_bag))))
           auth_safe = seq(cert_ci + key_ci)   # AuthenticatedSafe = SEQ OF ContentInfo
@@ -134,18 +114,10 @@ jobs:
           # Outer PFX ContentInfo wrapping AuthenticatedSafe
           outer_ci = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
 
-          # MAC: HMAC-SHA1 over auth_safe bytes, key from PKCS#12 KDF.
-          # macOS security(1) with -P "" uses OpenSSL convention: empty pwd = b''
-          salt  = os.urandom(8)
-          iters = 2048
-          mk    = pkcs12_kdf(b'', salt, iters, 20, 3)
-          mac_v = _hmac.new(mk, auth_safe, hashlib.sha1).digest()
-          d_info = seq(seq(oid(OID_SHA1) + b'\x05\x00') + ostr(mac_v))
-          mac_d  = seq(d_info + ostr(salt) + b'\x02\x02' + iters.to_bytes(2, 'big'))
-
-          pfx = seq(b'\x02\x01\x03' + outer_ci + mac_d)
+          # PFX with no macData (macData is OPTIONAL per RFC 7292 §4)
+          pfx = seq(b'\x02\x01\x03' + outer_ci)
           open(t + '/cert.p12', 'wb').write(pfx)
-          print(f'p12 written ({len(pfx)} bytes, with MAC)')
+          print(f'p12 written ({len(pfx)} bytes, no MAC)')
 
       - name: Import certificate to keychain
         env:
