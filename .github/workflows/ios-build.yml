@@ -54,77 +54,79 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-      - name: Extract cert and key to files
-        # Bypasses PKCS#12 entirely — import cert and key separately.
-        # This avoids all KDF/MAC encoding issues since security import
-        # accepts raw DER certs and PEM private keys directly.
+      - name: Extract cert and key — build PKCS#12
+        # Uses Python cryptography library to load cert+key (handles PEM and DER),
+        # then serialises a PKCS#12 in pure Python — no dependency on the runner's
+        # OpenSSL version, avoiding macOS 15 strict-DER / sequence-length errors.
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, os, re, sys
+          import base64, os, subprocess, sys
 
-          def raw_to_der(data, name):
-              if data.lstrip()[:5] == b'-----':
-                  m = re.search(rb'-----BEGIN [^-]+-----([^-]+)-----END', data, re.DOTALL)
-                  b64 = re.sub(rb'\s', b'', m.group(1)) if m else \
-                        b''.join(l for l in data.splitlines() if not l.startswith(b'-----'))
-                  der = base64.b64decode(b64)
-                  print(f'{name}: PEM->DER {len(der)}b first4={der[:4].hex()}')
-                  return der
-              elif data[:1] == b'\x30':
-                  print(f'{name}: raw DER {len(data)}b first4={data[:4].hex()}')
-                  return data
-              else:
-                  print(f'{name}: UNKNOWN first4={data[:4].hex()}', file=sys.stderr)
-                  sys.exit(1)
+          t         = os.environ['RUNNER_TEMP']
+          cert_data = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
+          key_data  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
 
-          def to_pem(der, label):
-              b64 = base64.b64encode(der).decode()
-              lines = '\n'.join(b64[i:i+64] for i in range(0, len(b64), 64))
-              return f'-----BEGIN {label}-----\n{lines}\n-----END {label}-----\n'
+          try:
+              from cryptography import x509
+              from cryptography.hazmat.primitives import serialization
+              from cryptography.hazmat.primitives.serialization import pkcs12
+          except ImportError:
+              subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--quiet', 'cryptography'])
+              from cryptography import x509
+              from cryptography.hazmat.primitives import serialization
+              from cryptography.hazmat.primitives.serialization import pkcs12
 
-          t = os.environ['RUNNER_TEMP']
-          cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-          key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
-
-          cert_der = raw_to_der(cert_raw, 'cert')
-          key_der  = raw_to_der(key_raw, 'key')
-
-          open(t + '/cert.der', 'wb').write(cert_der)
-          print(f'cert.der written: {len(cert_der)}b')
-
-          # Also write as PEM (security import auto-detects PEM reliably; DER causes
-          # 'Import/Export format unsupported' on macOS 15 without explicit -f flag)
-          cert_pem_b64 = '\n'.join(
-              base64.b64encode(cert_der[i:i+48]).decode()
-              for i in range(0, len(cert_der), 48))
-          cert_pem = f'-----BEGIN CERTIFICATE-----\n{cert_pem_b64}\n-----END CERTIFICATE-----\n'
-          open(t + '/cert.pem', 'wb').write(cert_pem.encode())
-          print(f'cert.pem written: {len(cert_pem)}b')
-
-          if key_raw.lstrip()[:5] == b'-----':
-              open(t + '/key.pem', 'wb').write(key_raw)
-              label = re.search(rb'-----BEGIN ([^-]+)-----', key_raw).group(1).decode()
-              print(f'key.pem: kept original PEM ({label})')
+          if cert_data.lstrip()[:5] == b'-----':
+              cert = x509.load_pem_x509_certificate(cert_data)
+              print('cert: loaded as PEM')
           else:
-              # Assume PKCS#8 DER; wrap as PEM so security import auto-detects
-              pem = to_pem(key_der, 'PRIVATE KEY').encode()
-              open(t + '/key.pem', 'wb').write(pem)
-              print(f'key.pem: wrote DER as PEM (PRIVATE KEY)')
+              cert = x509.load_der_x509_certificate(cert_data)
+              print('cert: loaded as DER')
+
+          if key_data.lstrip()[:5] == b'-----':
+              key = serialization.load_pem_private_key(key_data, password=None)
+              print('key: loaded as PEM')
+          else:
+              key = serialization.load_der_private_key(key_data, password=None)
+              print('key: loaded as DER')
+
+          p12_pass = b'tempcipass'
+          p12_data = pkcs12.serialize_key_and_certificates(
+              name=b'codesign',
+              key=key,
+              cert=cert,
+              cas=None,
+              encryption_algorithm=serialization.BestAvailableEncryption(p12_pass),
+          )
+          open(t + '/codesign.p12', 'wb').write(p12_data)
+          print(f'codesign.p12 written: {len(p12_data)}b')
 
       - name: Import certificate to keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          P12_PASS="tempcipass_$(openssl rand -hex 8)"
+          echo "=== Importing PKCS#12 to keychain ==="
+          security import $RUNNER_TEMP/codesign.p12 \
+            -k $KEYCHAIN_PATH \
+            -P "tempcipass" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security \
+            && echo "p12 imported OK" \
+            || { echo "p12 import FAILED"; exit 1; }
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          echo "=== Code-signing identities ==="
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+          echo "Certificate and key setup complete"
 
-          # Bundle cert + key into a PKCS#12 — the only format security import
-          # accepts reliably on macOS 15 without "Import/Export format unsupported"
+      # ── 6b. Install provisioning profile ─────────────────────────────────
           echo "=== Creating PKCS#12 ==="
-          openssl pkcs12 -export \
+          /usr/bin/openssl pkcs12 -export \
             -in  $RUNNER_TEMP/cert.pem \
             -inkey $RUNNER_TEMP/key.pem \
             -out $RUNNER_TEMP/codesign.p12 \
@@ -135,14 +137,14 @@ jobs:
           echo "=== Importing PKCS#12 to keychain ==="
           security import $RUNNER_TEMP/codesign.p12 \
             -k $KEYCHAIN_PATH \
-            -P "$P12_PASS" \
+            -P "$P12_PASS"  # PROBE_P12PASS_VAR \
             -T /usr/bin/codesign \
             -T /usr/bin/security \
             && echo "p12 imported OK" \
             || { echo "p12 import FAILED"; exit 1; }
 
           security list-keychain -d user -s $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+          security set-key-partition-list -S apple-tool:,apple:,codesign:  # PROBE_PARTITION \
             -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           echo "=== Code-signing identities ==="
           security find-identity -v -p codesigning $KEYCHAIN_PATH
