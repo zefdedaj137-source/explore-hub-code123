@@ -63,22 +63,34 @@ jobs:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, os
+          import base64, os, sys
 
           t = os.environ['RUNNER_TEMP']
-          cert_pem = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-          key_pem  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
+          cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
+          key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
 
-          def pem_to_der(p):
-              lines = p.decode('ascii', errors='replace').splitlines()
-              return base64.b64decode(''.join(l for l in lines if not l.startswith('-----')))
+          def raw_to_der(data, name):
+              """Handle two secret formats:
+                 - base64(PEM): decode gives '-----BEGIN...' → strip headers → DER
+                 - base64(DER): decode gives binary 0x30...  → use as-is
+              """
+              if data.lstrip()[:5] == b'-----':
+                  lines = data.decode('ascii', errors='replace').splitlines()
+                  der = base64.b64decode(''.join(l for l in lines if not l.startswith('-----')))
+                  print(f'{name}: PEM wrapper detected, extracted {len(der)} DER bytes, first4={der[:4].hex()}')
+                  return der
+              elif data[:1] == b'\x30':
+                  print(f'{name}: raw DER detected, {len(data)} bytes, first4={data[:4].hex()}')
+                  return data
+              else:
+                  print(f'{name}: UNRECOGNISED format, {len(data)} bytes, first4={data[:4].hex()}', file=sys.stderr)
+                  sys.exit(1)
 
-          cert_der = pem_to_der(cert_pem)
-          key_der  = pem_to_der(key_pem)
+          cert_der = raw_to_der(cert_raw, 'cert')
+          key_der  = raw_to_der(key_raw,  'key')
 
           open(t + '/cert.der', 'wb').write(cert_der)
           open(t + '/key.der',  'wb').write(key_der)
-          print(f'cert.der: {len(cert_der)} bytes, key.der: {len(key_der)} bytes')
 
       - name: Import certificate to keychain
         env:
