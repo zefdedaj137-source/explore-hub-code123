@@ -68,7 +68,8 @@ jobs:
           # rejects Apple Distribution certs with post-2049 expiry dates.
           # Pin to < 42 so the lenient parser is used.
           subprocess.check_call(
-              [sys.executable, '-m', 'pip', 'install', '--quiet', 'cryptography<42']
+              [sys.executable, '-m', 'pip', 'install', '--quiet',
+               '--break-system-packages', 'cryptography<42']
           )
 
           # Flush any cached cryptography modules so the pinned version loads.
