@@ -121,10 +121,10 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           # Import certificate as PEM (auto-detect works; raw DER gives
           # 'Import/Export format unsupported' on macOS 15 without -f)
-          echo "=== Importing certificate (DER) ==="
-          security import $RUNNER_TEMP/cert.der -f der -t cert -k $KEYCHAIN_PATH \
-            && echo "cert.der imported OK" \
-            || { echo "cert.der import FAILED"; exit 1; }
+          echo "=== Importing certificate (PEM) ==="
+          security import $RUNNER_TEMP/cert.pem -f pemseq -t cert -k $KEYCHAIN_PATH \
+            && echo "cert.pem imported OK" \
+            || { echo "cert.pem import FAILED"; exit 1; }
           # Import private key (PEM)
           echo "=== Importing private key (PEM) ==="
           security import $RUNNER_TEMP/key.pem -t priv -k $KEYCHAIN_PATH \
