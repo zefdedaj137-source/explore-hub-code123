@@ -135,10 +135,10 @@ jobs:
           outer_ci = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
 
           # MAC: HMAC-SHA1 over auth_safe bytes, key from PKCS#12 KDF.
-          # Empty password = b'\x00\x00' (null-terminated BMPString per RFC 7292 B.1)
+          # macOS security(1) with -P "" uses OpenSSL convention: empty pwd = b''
           salt  = os.urandom(8)
           iters = 2048
-          mk    = pkcs12_kdf(b'\x00\x00', salt, iters, 20, 3)
+          mk    = pkcs12_kdf(b'', salt, iters, 20, 3)
           mac_v = _hmac.new(mk, auth_safe, hashlib.sha1).digest()
           d_info = seq(seq(oid(OID_SHA1) + b'\x05\x00') + ostr(mac_v))
           mac_d  = seq(d_info + ostr(salt) + b'\x02\x02' + iters.to_bytes(2, 'big'))
