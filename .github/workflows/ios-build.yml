@@ -95,6 +95,15 @@ jobs:
           open(t + '/cert.der', 'wb').write(cert_der)
           print(f'cert.der written: {len(cert_der)}b')
 
+          # Also write as PEM (security import auto-detects PEM reliably; DER causes
+          # 'Import/Export format unsupported' on macOS 15 without explicit -f flag)
+          cert_pem_b64 = '\n'.join(
+              base64.b64encode(cert_der[i:i+48]).decode()
+              for i in range(0, len(cert_der), 48))
+          cert_pem = f'-----BEGIN CERTIFICATE-----\n{cert_pem_b64}\n-----END CERTIFICATE-----\n'
+          open(t + '/cert.pem', 'wb').write(cert_pem.encode())
+          print(f'cert.pem written: {len(cert_pem)}b')
+
           if key_raw.lstrip()[:5] == b'-----':
               open(t + '/key.pem', 'wb').write(key_raw)
               label = re.search(rb'-----BEGIN ([^-]+)-----', key_raw).group(1).decode()
@@ -105,323 +114,17 @@ jobs:
               open(t + '/key.pem', 'wb').write(pem)
               print(f'key.pem: wrote DER as PEM (PRIVATE KEY)')
 
-          sys.exit(0)  # cert.der + key.pem written — ignore legacy dead code below
-
-          t = os.environ['RUNNER_TEMP']
-          cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-          key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
-
-          def raw_to_der(data, name):
-              if data.lstrip()[:5] == b'-----':
-                  m = re.search(rb'-----BEGIN [^-]+-----([^-]+)-----END', data, re.DOTALL)
-                  b64 = re.sub(rb'\s', b'', m.group(1)) if m else \
-                        b''.join(l for l in data.splitlines() if not l.startswith(b'-----'))
-                  der = base64.b64decode(b64)
-              elif data[:1] == b'\x30':
-                  der = data
-              else:
-                  print(f'{name}: UNKNOWN first4={data[:4].hex()}', file=sys.stderr); sys.exit(1)
-              print(f'{name}: {len(der)}b first4={der[:4].hex()}')
-              return der
-
-          cert_der = raw_to_der(cert_raw, 'cert')
-          key_der  = raw_to_der(key_raw,  'key')
-          if b'RSA PRIVATE KEY' in key_raw:
-              key_der = seq(b'\x02\x01\x00'+seq(oid(OID_RSA)+b'\x05\x00')+ostr(key_der))
-              print('key: wrapped PKCS#1->PKCS#8')
-
-          cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
-          cert_safe_bag = seq(oid(OID_CERTBAG) + t0(cert_bag))
-          key_safe_bag  = seq(oid(OID_KEYBAG)  + t0(key_der))
-          cert_ci   = seq(oid(OID_DATA) + t0(ostr(seq(cert_safe_bag))))
-          key_ci    = seq(oid(OID_DATA) + t0(ostr(seq(key_safe_bag))))
-          auth_safe = seq(cert_ci + key_ci)
-          outer_ci  = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
-
-          # RFC 7292: non-empty password as UTF-16BE + null terminator (unambiguous)
-          P12_PASS = 'notapassword'
-          P12_PWD  = P12_PASS.encode('utf-16-be') + b'\x00\x00'
-          print(f'P12_PWD ({len(P12_PWD)}b): {P12_PWD.hex()}')
-          salt  = os.urandom(8)
-          iters = 2048
-          mk    = pkcs12_kdf(P12_PWD, salt, iters, 20, 3)
-          mac_v  = _hmac.new(mk, auth_safe, hashlib.sha1).digest()
-          d_info = seq(seq(oid(OID_SHA1)+b'\x05\x00') + ostr(mac_v))
-          mac_d  = seq(d_info + ostr(salt) + b'\x02\x02' + iters.to_bytes(2,'big'))
-
-          pfx = seq(b'\x02\x01\x03' + outer_ci + mac_d)
-          open(t+'/cert.p12','wb').write(pfx)
-          print(f'cert.p12: {len(pfx)}b')
-          import base64, hashlib, hmac as _hmac, os, re, subprocess, sys
-
-          # ── DER primitives ──────────────────────────────────────────────
-          def _l(n):
-              if n < 0x80: return bytes([n])
-              elif n < 0x100: return bytes([0x81, n])
-              else: return bytes([0x82, n >> 8, n & 0xff])
-          def seq(b):  return b'\x30' + _l(len(b)) + b
-          def ostr(b): return b'\x04' + _l(len(b)) + b
-          def t0(b):   return b'\xa0' + _l(len(b)) + b
-          def oid(h):  v = bytes.fromhex(h); return b'\x06' + _l(len(v)) + v
-
-          def parse_tlv(data, pos=0):
-              tag = data[pos]; pos += 1
-              l = data[pos]; pos += 1
-              if l < 0x80: length = l
-              elif l == 0x81: length = data[pos]; pos += 1
-              elif l == 0x82: length = (data[pos]<<8)|data[pos+1]; pos += 2
-              else:
-                  n = l & 0x7f; length = int.from_bytes(data[pos:pos+n],'big'); pos += n
-              return tag, data[pos:pos+length], pos+length
-
-          OID_DATA    = '2a864886f70d010701'
-          OID_CERTBAG = '2a864886f70d010c0a0103'
-          OID_X509    = '2a864886f70d01091601'
-          OID_KEYBAG  = '2a864886f70d010c0a0101'
-          OID_RSA     = '2a864886f70d010101'
-          OID_SHA1    = '2b0e03021a'
-          OID_SHA256  = '608648016503040201'
-
-          def pkcs12_kdf(pwd, salt, iters, klen, id_b, hfn=hashlib.sha1, v=64, u=20):
-              D = bytes([id_b] * v)
-              pad = lambda d: (d*(v//len(d)+1))[:v*((len(d)+v-1)//v)] if d else b''
-              I = bytearray(pad(salt) + pad(pwd))
-              out = b''
-              for _ in range((klen+u-1)//u):
-                  H = hfn(D+bytes(I)).digest()
-                  for _ in range(iters-1): H = hfn(H).digest()
-                  out += H
-                  B = (H*(v//u+1))[:v]
-                  nI = bytearray()
-                  for j in range(0, len(I), v):
-                      c = bytes(I[j:j+v])
-                      nI += ((int.from_bytes(c,'big')+int.from_bytes(B[:len(c)],'big')+1)
-                             %(2**(8*len(c)))).to_bytes(len(c),'big')
-                  I = nI
-              return out[:klen]
-
-          t        = os.environ['RUNNER_TEMP']
-          openssl3 = '/opt/homebrew/opt/openssl@3/bin/openssl'
-
-          # ── A. Detect MAC convention from OpenSSL test p12 ──────────────
-          print('=== Detecting MAC convention ===')
-          detected_pwd  = b'\x00\x00'  # fallback
-          detected_hfn  = hashlib.sha1
-          detected_hoid = OID_SHA1
-          detected_klen = 20
-          detected_u    = 20
-          try:
-              subprocess.run([openssl3,'genrsa','-out',f'{t}/tk.pem','2048'],
-                             check=True, capture_output=True)
-              subprocess.run([openssl3,'req','-new','-x509',
-                              '-key',f'{t}/tk.pem','-out',f'{t}/tc.pem',
-                              '-days','1','-subj','/CN=test','-sha256'],
-                             check=True, capture_output=True)
-              for extra in (['-legacy'], []):
-                  r = subprocess.run([openssl3,'pkcs12','-export',*extra,
-                                      '-in',f'{t}/tc.pem','-inkey',f'{t}/tk.pem',
-                                      '-out',f'{t}/test.p12','-passout','pass:'],
-                                     capture_output=True)
-                  if r.returncode == 0:
-                      print(f'openssl pkcs12 ok (flags={extra})')
-                      break
-
-              if r.returncode == 0:
-                  pfx = open(f'{t}/test.p12','rb').read()
-                  # Parse PFX: SEQ { version, ContentInfo(authSafe), MacData }
-                  _, pfx_c, _ = parse_tlv(pfx)
-                  pos = 0
-                  _, _, pos = parse_tlv(pfx_c, pos)          # version
-                  _, ci, pos = parse_tlv(pfx_c, pos)         # ContentInfo
-                  ci_pos = 0
-                  _, _, ci_pos = parse_tlv(ci, ci_pos)       # OID
-                  _, ctx, _   = parse_tlv(ci, ci_pos)        # [0] context
-                  _, auth_safe_t, _ = parse_tlv(ctx)         # OCTET STRING
-                  _, md, _    = parse_tlv(pfx_c, pos)        # MacData
-                  md_pos = 0
-                  _, di, md_pos = parse_tlv(md, md_pos)      # DigestInfo
-                  di_pos = 0
-                  _, algid_seq, di_pos = parse_tlv(di, di_pos)  # AlgorithmIdentifier
-                  _, mac_bytes, _     = parse_tlv(di, di_pos)   # MAC OCTET STRING
-                  _, salt_b, md_pos   = parse_tlv(md, md_pos)   # salt
-                  iters_v = 2048
-                  if md_pos < len(md):
-                      _, iv, _ = parse_tlv(md, md_pos)
-                      iters_v  = int.from_bytes(iv,'big')
-                  _, mac_oid_b, _ = parse_tlv(algid_seq)     # OID inside AlgId
-
-                  sha256_oid_b = bytes.fromhex(OID_SHA256)
-                  if mac_oid_b == sha256_oid_b:
-                      hfn = hashlib.sha256; hoid = OID_SHA256; klen = 32; u = 32
-                      print(f'MAC alg: SHA-256, iters={iters_v}')
-                  else:
-                      hfn = hashlib.sha1; hoid = OID_SHA1; klen = 20; u = 20
-                      print(f'MAC alg: SHA-1, iters={iters_v}')
-                  print(f'expected mac={mac_bytes.hex()} salt={salt_b.hex()}')
-                  print(f'auth_safe len={len(auth_safe_t)} first4={auth_safe_t[:4].hex()}')
-
-                  for pwd_n, pwd in [("b''", b''), ("b'\\x00\\x00'", b'\x00\x00')]:
-                      mk  = pkcs12_kdf(pwd, salt_b, iters_v, klen, 3, hfn, 64, u)
-                      mac = _hmac.new(mk, auth_safe_t, hfn).digest()
-                      hit = 'MATCH' if mac == mac_bytes else 'no match'
-                      print(f'  pwd={pwd_n}: {mac.hex()} {hit}')
-                      if mac == mac_bytes:
-                          detected_pwd = pwd; detected_hfn = hfn
-                          detected_hoid = hoid; detected_klen = klen; detected_u = u
-                          break
-              else:
-                  print(f'openssl pkcs12 failed: {r.stderr.decode()[:300]}')
-          except Exception as exc:
-              print(f'Detection error: {exc}')
-          print(f'Using pwd={detected_pwd!r} hoid={detected_hoid}')
-
-          # ── B. Extract cert and key DER ─────────────────────────────────
-          cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-          key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
-
-          def raw_to_der(data, name):
-              if data.lstrip()[:5] == b'-----':
-                  m = re.search(rb'-----BEGIN [^-]+-----([^-]+)-----END', data, re.DOTALL)
-                  b64 = re.sub(rb'\s', b'', m.group(1)) if m else \
-                        b''.join(l for l in data.splitlines() if not l.startswith(b'-----'))
-                  der = base64.b64decode(b64)
-              elif data[:1] == b'\x30':
-                  der = data
-              else:
-                  print(f'{name}: UNKNOWN first4={data[:4].hex()}', file=sys.stderr); sys.exit(1)
-              print(f'{name}: {len(der)}b first4={der[:4].hex()}')
-              return der
-
-          cert_der = raw_to_der(cert_raw, 'cert')
-          key_der  = raw_to_der(key_raw, 'key')
-          if b'RSA PRIVATE KEY' in key_raw:
-              key_der = seq(b'\x02\x01\x00'+seq(oid(OID_RSA)+b'\x05\x00')+ostr(key_der))
-              print('key: wrapped PKCS#1->PKCS#8')
-
-          # ── C. Build PKCS#12 with detected MAC convention ────────────────
-          cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
-          cert_safe_bag = seq(oid(OID_CERTBAG) + t0(cert_bag))
-          key_safe_bag  = seq(oid(OID_KEYBAG)  + t0(key_der))
-          cert_ci   = seq(oid(OID_DATA) + t0(ostr(seq(cert_safe_bag))))
-          key_ci    = seq(oid(OID_DATA) + t0(ostr(seq(key_safe_bag))))
-          auth_safe = seq(cert_ci + key_ci)
-          outer_ci  = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
-
-          salt  = os.urandom(8)
-          iters = 2048
-          mk    = pkcs12_kdf(detected_pwd, salt, iters,
-                             detected_klen, 3, detected_hfn, 64, detected_u)
-          mac_v  = _hmac.new(mk, auth_safe, detected_hfn).digest()
-          d_info = seq(seq(oid(detected_hoid)+b'\x05\x00') + ostr(mac_v))
-          mac_d  = seq(d_info + ostr(salt) + b'\x02\x02' + iters.to_bytes(2,'big'))
-
-          pfx = seq(b'\x02\x01\x03' + outer_ci + mac_d)
-          open(t+'/cert.p12','wb').write(pfx)
-          print(f'cert.p12: {len(pfx)}b')
-          import base64, os, hashlib, hmac as _hmac, sys
-
-          def _l(n):
-              if n < 0x80: return bytes([n])
-              elif n < 0x100: return bytes([0x81, n])
-              else: return bytes([0x82, n >> 8, n & 0xff])
-          def seq(b):  return b'\x30' + _l(len(b)) + b
-          def ostr(b): return b'\x04' + _l(len(b)) + b
-          def t0(b):   return b'\xa0' + _l(len(b)) + b
-          def oid(h):  v = bytes.fromhex(h); return b'\x06' + _l(len(v)) + v
-
-          OID_DATA    = '2a864886f70d010701'
-          OID_CERTBAG = '2a864886f70d010c0a0103'
-          OID_X509    = '2a864886f70d01091601'
-          OID_KEYBAG  = '2a864886f70d010c0a0101'
-          OID_RSA     = '2a864886f70d010101'
-          OID_SHA1    = '2b0e03021a'
-
-          def pkcs12_kdf(pwd, salt, iters, klen, id_b):
-              v, u = 64, 20
-              D = bytes([id_b] * v)
-              pad = lambda d: (d * (v // len(d) + 1))[:v * ((len(d) + v - 1) // v)] if d else b''
-              I = bytearray(pad(salt) + pad(pwd))
-              out = b''
-              for _ in range((klen + u - 1) // u):
-                  H = hashlib.sha1(D + bytes(I)).digest()
-                  for _ in range(iters - 1): H = hashlib.sha1(H).digest()
-                  out += H
-                  B = (H * (v // u + 1))[:v]
-                  nI = bytearray()
-                  for j in range(0, len(I), v):
-                      c = bytes(I[j:j+v])
-                      nI += ((int.from_bytes(c,'big')+int.from_bytes(B[:len(c)],'big')+1)
-                             %(2**(8*len(c)))).to_bytes(len(c),'big')
-                  I = nI
-              return out[:klen]
-
-          t        = os.environ['RUNNER_TEMP']
-          cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-          key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
-
-          def raw_to_der(data, name):
-              import re
-              if data.lstrip()[:5] == b'-----':
-                  text = data.decode('ascii', errors='replace')
-                  # Extract first cert/key block only (handles multi-cert chains)
-                  m = re.search(r'-----BEGIN [^-]+-----([^-]+)-----END', text, re.DOTALL)
-                  b64 = m.group(1).replace('\n','').replace('\r','') if m else \
-                        ''.join(l for l in text.splitlines() if not l.startswith('-----'))
-                  der = base64.b64decode(b64)
-                  print(f'{name}: PEM\u2192DER {len(der)}b first4={der[:4].hex()}')
-                  return der
-              elif data[:1] == b'\x30':
-                  print(f'{name}: raw DER {len(data)}b first4={data[:4].hex()}')
-                  return data
-              else:
-                  print(f'{name}: UNKNOWN format first4={data[:4].hex()}', file=sys.stderr)
-                  sys.exit(1)
-
-          cert_der = raw_to_der(cert_raw, 'cert')
-          key_der  = raw_to_der(key_raw,  'key')
-          # Diagnostic: print first 32 bytes of cert_der (cert is public — no secret exposure)
-          print(f'cert_der hex[0:32]: {cert_der[:32].hex()}')
-          # Wrap PKCS#1 RSA key → PKCS#8 PrivateKeyInfo if needed
-          if b'RSA PRIVATE KEY' in key_raw:
-              key_der = seq(b'\x02\x01\x00' + seq(oid(OID_RSA)+b'\x05\x00') + ostr(key_der))
-              print('key: wrapped PKCS#1\u2192PKCS#8')
-
-          # SafeBags (no bagAttributes)
-          cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
-          cert_safe_bag = seq(oid(OID_CERTBAG) + t0(cert_bag))
-          key_safe_bag  = seq(oid(OID_KEYBAG)  + t0(key_der))
-
-          # Cert and key in SEPARATE ContentInfo (Apple Keychain format)
-          cert_ci   = seq(oid(OID_DATA) + t0(ostr(seq(cert_safe_bag))))
-          key_ci    = seq(oid(OID_DATA) + t0(ostr(seq(key_safe_bag))))
-          auth_safe = seq(cert_ci + key_ci)
-          outer_ci  = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
-
-          # MAC password: b'' (OpenSSL convention for empty passphrase).
-          # Previously "Unable to decode" with b'' was likely due to wrong cert extraction;
-          # now that cert is confirmed valid, testing if b'' matches -P "" on macOS 15.
-          P12_PWD = b''
-          salt    = os.urandom(8)
-          iters   = 2048
-          mk      = pkcs12_kdf(P12_PWD, salt, iters, 20, 3)
-          mac_v   = _hmac.new(mk, auth_safe, hashlib.sha1).digest()
-          d_info  = seq(seq(oid(OID_SHA1)+b'\x05\x00') + ostr(mac_v))
-          mac_d   = seq(d_info + ostr(salt) + b'\x02\x02' + iters.to_bytes(2,'big'))
-
-          pfx = seq(b'\x02\x01\x03' + outer_ci + mac_d)
-          open(t+'/cert.p12','wb').write(pfx)
-          print(f'p12 written {len(pfx)}b; p12 hex[0:16]={pfx[:16].hex()}')
-
       - name: Import certificate to keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          # Import certificate directly (DER) — no PKCS#12, no password, no KDF
-          echo "=== Importing certificate (DER) ==="
-          security import $RUNNER_TEMP/cert.der -t cert -k $KEYCHAIN_PATH \
-            && echo "cert.der imported OK" \
-            || { echo "cert.der import FAILED"; exit 1; }
+          # Import certificate as PEM (auto-detect works; raw DER gives
+          # 'Import/Export format unsupported' on macOS 15 without -f)
+          echo "=== Importing certificate (PEM) ==="
+          security import $RUNNER_TEMP/cert.pem -k $KEYCHAIN_PATH \
+            && echo "cert.pem imported OK" \
+            || { echo "cert.pem import FAILED"; exit 1; }
           # Import private key (PEM)
           echo "=== Importing private key (PEM) ==="
           security import $RUNNER_TEMP/key.pem -t priv -k $KEYCHAIN_PATH \
@@ -447,6 +150,7 @@ jobs:
       # ── 7. Build & archive the Xcode project ─────────────────────────────
       - name: Build Xcode archive
         run: |
+          set -o pipefail
           xcodebuild archive \
             -workspace ios/App/App.xcworkspace \
             -scheme App \
@@ -462,6 +166,7 @@ jobs:
       # ── 8. Export IPA ─────────────────────────────────────────────────────
       - name: Export IPA
         run: |
+          set -o pipefail
           cat > $RUNNER_TEMP/ExportOptions.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -494,14 +199,14 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
         run: |
-          python3 -c "import base64,os; open(os.environ['RUNNER_TEMP']+'/AuthKey.p8','wb').write(base64.b64decode(os.environ['APP_STORE_CONNECT_KEY_BASE64']))"
+          mkdir -p ~/private_keys
+          python3 -c "import base64,os; open(os.path.expanduser('~/private_keys/AuthKey_')+os.environ['APP_STORE_CONNECT_KEY_ID']+'.p8','wb').write(base64.b64decode(os.environ['APP_STORE_CONNECT_KEY_BASE64']))"
 
           xcrun altool --upload-app \
             --type ios \
             --file "$RUNNER_TEMP/ipa/App.ipa" \
             --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
-            --apiKey-path "$RUNNER_TEMP/AuthKey.p8"
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
 
       # ── 10. Cleanup keychain ───────────────────────────────────────────────
       - name: Clean up keychain
