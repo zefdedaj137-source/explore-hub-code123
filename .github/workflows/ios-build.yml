@@ -54,57 +54,117 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-      - name: Decode PEM secrets to DER files
-        # Strips PEM headers → raw DER without any ASN.1 parsing.
-        # cert.der and key.der are imported individually so we never need
-        # to build a PKCS#12 (which requires a verifiable MAC on macOS 15).
+      - name: Build PKCS#12 from PEM secrets
+        # Builds PKCS#12 in pure Python stdlib — cert DER treated as opaque,
+        # no ASN.1 parsing needed. Uses explicit non-empty p12 password
+        # "password" whose RFC 7292 encoding (UTF-16BE + null) is unambiguous
+        # (avoids the empty-string OpenSSL vs RFC quirk that caused MAC mismatches).
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, os, sys
+          import base64, os, hashlib, hmac as _hmac, sys
 
-          t = os.environ['RUNNER_TEMP']
+          def _l(n):
+              if n < 0x80: return bytes([n])
+              elif n < 0x100: return bytes([0x81, n])
+              else: return bytes([0x82, n >> 8, n & 0xff])
+          def seq(b):  return b'\x30' + _l(len(b)) + b
+          def ostr(b): return b'\x04' + _l(len(b)) + b
+          def t0(b):   return b'\xa0' + _l(len(b)) + b
+          def oid(h):  v = bytes.fromhex(h); return b'\x06' + _l(len(v)) + v
+
+          OID_DATA    = '2a864886f70d010701'
+          OID_CERTBAG = '2a864886f70d010c0a0103'
+          OID_X509    = '2a864886f70d01091601'
+          OID_KEYBAG  = '2a864886f70d010c0a0101'
+          OID_RSA     = '2a864886f70d010101'
+          OID_SHA1    = '2b0e03021a'
+
+          def pkcs12_kdf(pwd, salt, iters, klen, id_b):
+              v, u = 64, 20
+              D = bytes([id_b] * v)
+              pad = lambda d: (d * (v // len(d) + 1))[:v * ((len(d) + v - 1) // v)] if d else b''
+              I = bytearray(pad(salt) + pad(pwd))
+              out = b''
+              for _ in range((klen + u - 1) // u):
+                  H = hashlib.sha1(D + bytes(I)).digest()
+                  for _ in range(iters - 1): H = hashlib.sha1(H).digest()
+                  out += H
+                  B = (H * (v // u + 1))[:v]
+                  nI = bytearray()
+                  for j in range(0, len(I), v):
+                      c = bytes(I[j:j+v])
+                      nI += ((int.from_bytes(c,'big')+int.from_bytes(B[:len(c)],'big')+1)
+                             %(2**(8*len(c)))).to_bytes(len(c),'big')
+                  I = nI
+              return out[:klen]
+
+          t        = os.environ['RUNNER_TEMP']
           cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
           key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
 
           def raw_to_der(data, name):
-              """Handle two secret formats:
-                 - base64(PEM): decode gives '-----BEGIN...' → strip headers → DER
-                 - base64(DER): decode gives binary 0x30...  → use as-is
-              """
+              import re
               if data.lstrip()[:5] == b'-----':
-                  lines = data.decode('ascii', errors='replace').splitlines()
-                  der = base64.b64decode(''.join(l for l in lines if not l.startswith('-----')))
-                  print(f'{name}: PEM wrapper detected, extracted {len(der)} DER bytes, first4={der[:4].hex()}')
+                  text = data.decode('ascii', errors='replace')
+                  # Extract first cert/key block only (handles multi-cert chains)
+                  m = re.search(r'-----BEGIN [^-]+-----([^-]+)-----END', text, re.DOTALL)
+                  b64 = m.group(1).replace('\n','').replace('\r','') if m else \
+                        ''.join(l for l in text.splitlines() if not l.startswith('-----'))
+                  der = base64.b64decode(b64)
+                  print(f'{name}: PEM\u2192DER {len(der)}b first4={der[:4].hex()}')
                   return der
               elif data[:1] == b'\x30':
-                  print(f'{name}: raw DER detected, {len(data)} bytes, first4={data[:4].hex()}')
+                  print(f'{name}: raw DER {len(data)}b first4={data[:4].hex()}')
                   return data
               else:
-                  print(f'{name}: UNRECOGNISED format, {len(data)} bytes, first4={data[:4].hex()}', file=sys.stderr)
+                  print(f'{name}: UNKNOWN format first4={data[:4].hex()}', file=sys.stderr)
                   sys.exit(1)
 
           cert_der = raw_to_der(cert_raw, 'cert')
           key_der  = raw_to_der(key_raw,  'key')
 
-          open(t + '/cert.der', 'wb').write(cert_der)
-          open(t + '/key.der',  'wb').write(key_der)
+          # Wrap PKCS#1 RSA key → PKCS#8 PrivateKeyInfo if needed
+          if b'RSA PRIVATE KEY' in key_raw:
+              key_der = seq(b'\x02\x01\x00' + seq(oid(OID_RSA)+b'\x05\x00') + ostr(key_der))
+              print('key: wrapped PKCS#1\u2192PKCS#8')
+
+          # SafeBags (no bagAttributes)
+          cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
+          cert_safe_bag = seq(oid(OID_CERTBAG) + t0(cert_bag))
+          key_safe_bag  = seq(oid(OID_KEYBAG)  + t0(key_der))
+
+          # Cert and key in SEPARATE ContentInfo (Apple Keychain format)
+          cert_ci   = seq(oid(OID_DATA) + t0(ostr(seq(cert_safe_bag))))
+          key_ci    = seq(oid(OID_DATA) + t0(ostr(seq(key_safe_bag))))
+          auth_safe = seq(cert_ci + key_ci)
+          outer_ci  = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
+
+          # MAC: non-empty password "password" → UTF-16BE + null terminator
+          # (RFC 7292 BMPString encoding; unambiguous for non-empty strings)
+          P12_PWD = 'password'.encode('utf-16-be') + b'\x00\x00'
+          salt    = os.urandom(8)
+          iters   = 2048
+          mk      = pkcs12_kdf(P12_PWD, salt, iters, 20, 3)
+          mac_v   = _hmac.new(mk, auth_safe, hashlib.sha1).digest()
+          d_info  = seq(seq(oid(OID_SHA1)+b'\x05\x00') + ostr(mac_v))
+          mac_d   = seq(d_info + ostr(salt) + b'\x02\x02' + iters.to_bytes(2,'big'))
+
+          pfx = seq(b'\x02\x01\x03' + outer_ci + mac_d)
+          open(t+'/cert.p12','wb').write(pfx)
+          print(f'p12 written {len(pfx)}b (MAC pwd=password)')
 
       - name: Import certificate to keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          # add-certificates uses SecCertificateCreateWithData — lenient DER parser
-          # that accepts Apple's non-standard ASN.1 encoding quirks.
-          security add-certificates -k $KEYCHAIN_PATH $RUNNER_TEMP/cert.der
-          # Import private key DER (PKCS#1 or PKCS#8) directly.
-          security import $RUNNER_TEMP/key.der -t priv -A -k $KEYCHAIN_PATH
+          security import $RUNNER_TEMP/cert.p12 -P "password" -A -t agg -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          echo "Certificate and key imported successfully"
+          echo "Certificate imported successfully"
 
       # ── 6b. Install provisioning profile ─────────────────────────────────
       - name: Install provisioning profile
