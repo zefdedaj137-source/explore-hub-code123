@@ -144,7 +144,7 @@ jobs:
             || { echo "p12 import FAILED"; exit 1; }
 
           security list-keychain -d user -s $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple:,codesign:  # PROBE_PARTITION \
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
             -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           echo "=== Code-signing identities ==="
           security find-identity -v -p codesigning $KEYCHAIN_PATH
