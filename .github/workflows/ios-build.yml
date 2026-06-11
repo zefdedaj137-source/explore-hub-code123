@@ -66,11 +66,14 @@ jobs:
 
           # cryptography >= 42 added strict UTCTime ASN.1 validation that
           # rejects Apple Distribution certs with post-2049 expiry dates.
-          # Pin to < 42 so the lenient parser is used.
+          # Install < 42 to an explicit target dir and prepend it to sys.path
+          # so it wins over the Homebrew cryptography 48 already in site-packages.
+          _target = os.path.join(os.environ['RUNNER_TEMP'], 'cryptography_pinned')
           subprocess.check_call(
               [sys.executable, '-m', 'pip', 'install', '--quiet',
-               '--break-system-packages', '--ignore-installed', 'cryptography<42']
+               '--target', _target, 'cryptography<42']
           )
+          sys.path.insert(0, _target)
 
           # Flush any cached cryptography modules so the pinned version loads.
           for mod in list(sys.modules):
