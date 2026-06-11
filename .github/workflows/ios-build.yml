@@ -54,13 +54,10 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-      - name: Create unencrypted P12 from PEM secrets
-        # Builds a RFC-7292-conformant PKCS#12 in pure Python stdlib:
-        #   - cert DER treated as opaque bytes (never parsed — bypasses all
-        #     strict ASN.1 libraries that reject this Apple cert)
-        #   - cert and key in separate ContentInfo (matches Keychain export)
-        #   - macData omitted (OPTIONAL per RFC 7292 §4; Security.framework
-        #     accepts MAC-less PKCS#12)
+      - name: Decode PEM secrets to DER files
+        # Strips PEM headers → raw DER without any ASN.1 parsing.
+        # cert.der and key.der are imported individually so we never need
+        # to build a PKCS#12 (which requires a verifiable MAC on macOS 15).
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
@@ -68,27 +65,10 @@ jobs:
         run: |
           import base64, os
 
-          # ── DER primitives ───────────────────────────────────────────────
-          def _l(n):
-              if n < 0x80: return bytes([n])
-              elif n < 0x100: return bytes([0x81, n])
-              else: return bytes([0x82, n >> 8, n & 0xff])
-          def seq(b):  return b'\x30' + _l(len(b)) + b
-          def ostr(b): return b'\x04' + _l(len(b)) + b
-          def t0(b):   return b'\xa0' + _l(len(b)) + b
-          def oid(h):  v = bytes.fromhex(h); return b'\x06' + _l(len(v)) + v
-
-          OID_DATA    = '2a864886f70d010701'
-          OID_CERTBAG = '2a864886f70d010c0a0103'
-          OID_X509    = '2a864886f70d01091601'
-          OID_KEYBAG  = '2a864886f70d010c0a0101'
-          OID_RSA     = '2a864886f70d010101'
-
-          t        = os.environ['RUNNER_TEMP']
+          t = os.environ['RUNNER_TEMP']
           cert_pem = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
           key_pem  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
 
-          # Strip PEM headers → raw DER (no ASN.1 parsing of the cert at all)
           def pem_to_der(p):
               lines = p.decode('ascii', errors='replace').splitlines()
               return base64.b64decode(''.join(l for l in lines if not l.startswith('-----')))
@@ -96,38 +76,23 @@ jobs:
           cert_der = pem_to_der(cert_pem)
           key_der  = pem_to_der(key_pem)
 
-          # Wrap PKCS#1 RSA key in PKCS#8 PrivateKeyInfo if needed
-          if b'BEGIN PRIVATE KEY' not in key_pem:
-              key_der = seq(b'\x02\x01\x00' + seq(oid(OID_RSA) + b'\x05\x00') + ostr(key_der))
-
-          # SafeBags — no bagAttributes (OPTIONAL per RFC 7292, omit)
-          cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
-          cert_safe_bag = seq(oid(OID_CERTBAG) + t0(cert_bag))
-          key_safe_bag  = seq(oid(OID_KEYBAG)  + t0(key_der))
-
-          # Cert and key in SEPARATE ContentInfo within AuthenticatedSafe,
-          # matching Apple Keychain export layout
-          cert_ci   = seq(oid(OID_DATA) + t0(ostr(seq(cert_safe_bag))))
-          key_ci    = seq(oid(OID_DATA) + t0(ostr(seq(key_safe_bag))))
-          auth_safe = seq(cert_ci + key_ci)   # AuthenticatedSafe = SEQ OF ContentInfo
-
-          # Outer PFX ContentInfo wrapping AuthenticatedSafe
-          outer_ci = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
-
-          # PFX with no macData (macData is OPTIONAL per RFC 7292 §4)
-          pfx = seq(b'\x02\x01\x03' + outer_ci)
-          open(t + '/cert.p12', 'wb').write(pfx)
-          print(f'p12 written ({len(pfx)} bytes, no MAC)')
+          open(t + '/cert.der', 'wb').write(cert_der)
+          open(t + '/key.der',  'wb').write(key_der)
+          print(f'cert.der: {len(cert_der)} bytes, key.der: {len(key_der)} bytes')
 
       - name: Import certificate to keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          security import $RUNNER_TEMP/cert.p12 -P "" -A -t agg -f pkcs12 -k $KEYCHAIN_PATH
+          # Import cert DER directly — no PKCS#12 wrapper, Security.framework
+          # stores the raw DER and is lenient about non-standard encodings.
+          security import $RUNNER_TEMP/cert.der -t cert -k $KEYCHAIN_PATH
+          # Import private key DER directly.
+          security import $RUNNER_TEMP/key.der  -t priv -A -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          echo "Certificate imported successfully"
+          echo "Certificate and key imported successfully"
 
       # ── 6b. Install provisioning profile ─────────────────────────────────
       - name: Install provisioning profile
