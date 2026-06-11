@@ -85,11 +85,11 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          # Import cert DER directly — no PKCS#12 wrapper, Security.framework
-          # stores the raw DER and is lenient about non-standard encodings.
-          security import $RUNNER_TEMP/cert.der -t cert -k $KEYCHAIN_PATH
-          # Import private key DER directly.
-          security import $RUNNER_TEMP/key.der  -t priv -A -k $KEYCHAIN_PATH
+          # add-certificates uses SecCertificateCreateWithData — lenient DER parser
+          # that accepts Apple's non-standard ASN.1 encoding quirks.
+          security add-certificates -k $KEYCHAIN_PATH $RUNNER_TEMP/cert.der
+          # Import private key DER (PKCS#1 or PKCS#8) directly.
+          security import $RUNNER_TEMP/key.der -t priv -A -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           echo "Certificate and key imported successfully"
