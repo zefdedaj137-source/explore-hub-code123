@@ -7,7 +7,11 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-15   # Apple Silicon Mac runner (Xcode 16)
+    # macos-15 has a stricter SecCertificateCreateWithData that rejects the Apple Distribution
+    # cert's non-standard ASN.1 encoding (invalid UTCTime + extension SEQ length mismatch).
+    # macos-14 (Sonoma) uses the older lenient parser — still has Xcode 16.x available.
+    # LONG-TERM FIX: revoke and re-issue the cert from Apple Developer portal.
+    runs-on: macos-14
     timeout-minutes: 60
 
     steps:
