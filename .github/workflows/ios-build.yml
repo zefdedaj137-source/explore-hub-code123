@@ -125,32 +125,6 @@ jobs:
           echo "Certificate and key setup complete"
 
       # ── 6b. Install provisioning profile ─────────────────────────────────
-          echo "=== Creating PKCS#12 ==="
-          /usr/bin/openssl pkcs12 -export \
-            -in  $RUNNER_TEMP/cert.pem \
-            -inkey $RUNNER_TEMP/key.pem \
-            -out $RUNNER_TEMP/codesign.p12 \
-            -passout "pass:$P12_PASS" \
-            && echo "p12 created OK" \
-            || { echo "p12 creation FAILED"; exit 1; }
-
-          echo "=== Importing PKCS#12 to keychain ==="
-          security import $RUNNER_TEMP/codesign.p12 \
-            -k $KEYCHAIN_PATH \
-            -P "$P12_PASS"  # PROBE_P12PASS_VAR \
-            -T /usr/bin/codesign \
-            -T /usr/bin/security \
-            && echo "p12 imported OK" \
-            || { echo "p12 import FAILED"; exit 1; }
-
-          security list-keychain -d user -s $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple:,codesign: \
-            -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          echo "=== Code-signing identities ==="
-          security find-identity -v -p codesigning $KEYCHAIN_PATH
-          echo "Certificate and key setup complete"
-
-      # ── 6b. Install provisioning profile ─────────────────────────────────
       - name: Install provisioning profile
         env:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
