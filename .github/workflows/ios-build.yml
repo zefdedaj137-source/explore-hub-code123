@@ -55,49 +55,33 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
       - name: Create unencrypted P12 from PEM secrets
-        # shell: python3 {0} writes the run: block to a temp .py file and
-        # executes it — no heredoc needed, so no YAML indentation conflict.
-        shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import subprocess, sys, base64, os
+          # Decode with Python — avoids BSD base64 --decode empty-file issue.
+          python3 -c "import base64,os; t=os.environ['RUNNER_TEMP']; open(t+'/cert.pem','wb').write(base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])); open(t+'/key.pem','wb').write(base64.b64decode(os.environ['DIST_KEY_PEM_BASE64']))"
 
-          # cryptography >= 42 added strict UTCTime ASN.1 validation that
-          # rejects Apple Distribution certs with post-2049 expiry dates.
-          # Install < 42 to an explicit target dir and prepend it to sys.path
-          # so it wins over the Homebrew cryptography 48 already in site-packages.
-          _target = os.path.join(os.environ['RUNNER_TEMP'], 'cryptography_pinned')
-          subprocess.check_call(
-              [sys.executable, '-m', 'pip', 'install', '--quiet',
-               '--target', _target, 'cryptography<42']
-          )
-          sys.path.insert(0, _target)
+          OPENSSL3=/opt/homebrew/opt/openssl@3/bin/openssl
 
-          # Flush any cached cryptography modules so the pinned version loads.
-          for mod in list(sys.modules):
-              if mod.startswith('cryptography'):
-                  del sys.modules[mod]
+          # Re-encode the cert via `openssl x509` which uses OpenSSL 3's raw
+          # PEM_read_bio_X509 reader, NOT the STORE API that previously failed
+          # (STORE failure was also masking an empty-file bug).  The raw reader
+          # is more lenient about non-standard extension DER encoding than
+          # LibreSSL 3.3, and the re-encoded output is clean for pkcs12.
+          $OPENSSL3 x509 -in $RUNNER_TEMP/cert.pem -out $RUNNER_TEMP/cert_re.pem
 
-          from cryptography.hazmat.primitives.serialization import (
-              pkcs12, load_pem_private_key, NoEncryption
-          )
-          from cryptography import x509
-
-          t        = os.environ['RUNNER_TEMP']
-          cert_pem = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
-          key_pem  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
-
-          cert = x509.load_pem_x509_certificate(cert_pem)
-          key  = load_pem_private_key(key_pem, password=None)
-
-          p12_data = pkcs12.serialize_key_and_certificates(
-              name=b'', key=key, cert=cert, cas=None,
-              encryption_algorithm=NoEncryption()
-          )
-          open(t + '/cert.p12', 'wb').write(p12_data)
-          print('p12 created successfully')
+          # Build unencrypted p12 — -keypbe NONE -certpbe NONE -nomac means no
+          # cipher algorithm, so security import has no compatibility issues.
+          $OPENSSL3 pkcs12 -export \
+            -in    $RUNNER_TEMP/cert_re.pem \
+            -inkey $RUNNER_TEMP/key.pem \
+            -out   $RUNNER_TEMP/cert.p12 \
+            -passout pass: \
+            -keypbe NONE \
+            -certpbe NONE \
+            -nomac
+          echo "p12 created successfully"
 
       - name: Import certificate to keychain
         env:
