@@ -54,17 +54,30 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-      - name: Prepare cert and key files
-        # Apple cert has non-standard ASN.1 that ALL strict parsers reject.
-        # Strategy: write cert bytes verbatim to cert.der (no parsing/re-encoding).
-        # We then use security add-certificates (SecCertificateCreateWithData — lenient)
-        # for the cert and security import for just the key, bypassing PKCS#12 entirely.
+      - name: Import cert via ctypes + key via security import
+        # All CLI tools (security add-certificates, security import cert.der/pem) call
+        # SecCertificateCreateFromData which rejects this cert's non-standard ASN.1.
+        # Solution: call SecCertificateCreateWithData + SecCertificateAddToKeychain
+        # directly via ctypes — the lowest-level Apple API, no CLI wrapper involved.
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, os, re
+          import base64, ctypes, os, re, sys
+
+          CF  = ctypes.CDLL('/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation')
+          Sec = ctypes.CDLL('/System/Library/Frameworks/Security.framework/Security')
+
+          CF.CFDataCreate.restype                      = ctypes.c_void_p
+          CF.CFDataCreate.argtypes                     = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_long]
+          CF.CFRelease.argtypes                        = [ctypes.c_void_p]
+          Sec.SecCertificateCreateWithData.restype     = ctypes.c_void_p
+          Sec.SecCertificateCreateWithData.argtypes    = [ctypes.c_void_p, ctypes.c_void_p]
+          Sec.SecKeychainOpen.restype                  = ctypes.c_int32
+          Sec.SecKeychainOpen.argtypes                 = [ctypes.c_char_p, ctypes.POINTER(ctypes.c_void_p)]
+          Sec.SecCertificateAddToKeychain.restype      = ctypes.c_int32
+          Sec.SecCertificateAddToKeychain.argtypes     = [ctypes.c_void_p, ctypes.c_void_p]
 
           def pem_body(data):
               m = re.search(rb'-----BEGIN [^-]+-----\r?\n?(.*?)\r?\n?-----END',
@@ -75,27 +88,47 @@ jobs:
           cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
           key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
 
-          # Cert: strip PEM armor only — DO NOT parse/re-encode (preserves non-standard ASN.1)
           cert_der = pem_body(cert_raw)
-          open(t + '/cert.der', 'wb').write(cert_der)
-          print(f'cert.der: {len(cert_der)}b first4={cert_der[:4].hex()}')
+          print(f'cert_raw: {len(cert_raw)}b  is_pem={cert_raw.lstrip()[:5]}')
+          print(f'cert_der: {len(cert_der)}b  first16={cert_der[:16].hex()}', flush=True)
 
-          # Key: write PEM as-is (no certificate parsing involved)
+          # Write key PEM for the bash step below
           open(t + '/key.pem', 'wb').write(key_raw)
-          print(f'key.pem: {len(key_raw)}b')
 
-      - name: Import certificate and key to keychain
+          # Open the signing keychain
+          kc = ctypes.c_void_p()
+          st = Sec.SecKeychainOpen((t + '/app-signing.keychain-db').encode(), ctypes.byref(kc))
+          assert st == 0, f'SecKeychainOpen failed: {st}'
+          print(f'SecKeychainOpen OK (kc={kc.value:#x})', flush=True)
+
+          # Create SecCertificateRef from raw DER bytes
+          data_ref = CF.CFDataCreate(None, cert_der, len(cert_der))
+          assert data_ref, 'CFDataCreate failed'
+          cert_ref = Sec.SecCertificateCreateWithData(None, data_ref)
+          CF.CFRelease(data_ref)
+
+          if not cert_ref:
+              print('FATAL: SecCertificateCreateWithData returned NULL', file=sys.stderr)
+              print('cert_der first 128 bytes:', cert_der[:128].hex(), file=sys.stderr)
+              CF.CFRelease(kc)
+              sys.exit(1)
+          print(f'SecCertificateCreateWithData OK (cert={cert_ref:#x})', flush=True)
+
+          # Add certificate to the keychain
+          st = Sec.SecCertificateAddToKeychain(cert_ref, kc)
+          CF.CFRelease(cert_ref)
+          CF.CFRelease(kc)
+          # errSecDuplicateItem (-25299) is fine
+          if st not in (0, -25299):
+              print(f'FATAL: SecCertificateAddToKeychain failed: {st}', file=sys.stderr)
+              sys.exit(1)
+          print(f'Certificate added to keychain (status={st})', flush=True)
+
+      - name: Import private key to keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          # Use security add-certificates which calls SecCertificateCreateWithData —
-          # Apple's own lenient parser that accepts non-standard DER encodings.
-          echo "=== Adding certificate to keychain ==="
-          security add-certificates -k $KEYCHAIN_PATH $RUNNER_TEMP/cert.der \
-            && echo "cert added OK" \
-            || { echo "cert add FAILED"; exit 1; }
-          # Import just the private key — no certificate parsing involved.
           echo "=== Importing private key to keychain ==="
           security import $RUNNER_TEMP/key.pem \
             -k $KEYCHAIN_PATH \
