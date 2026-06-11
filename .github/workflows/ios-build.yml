@@ -54,142 +54,55 @@ jobs:
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-      - name: Build PKCS#12 (raw DER — cert bytes untouched)
-        # Apple cert has non-standard ASN.1 encoding that ALL parsers reject.
-        # Fix: embed cert bytes verbatim (no parsing). Encrypt key with RC4-128
-        # (pure Python, no library) so security import gets a ShroudedKeyBag —
-        # unencrypted KeyBag causes "Unknown format" on macOS 15.
+      - name: Prepare cert and key files
+        # Apple cert has non-standard ASN.1 that ALL strict parsers reject.
+        # Strategy: write cert bytes verbatim to cert.der (no parsing/re-encoding).
+        # We then use security add-certificates (SecCertificateCreateWithData — lenient)
+        # for the cert and security import for just the key, bypassing PKCS#12 entirely.
         shell: python3 {0}
         env:
           DIST_CERT_PEM_BASE64: ${{ secrets.DIST_CERT_PEM_BASE64 }}
           DIST_KEY_PEM_BASE64: ${{ secrets.DIST_KEY_PEM_BASE64 }}
         run: |
-          import base64, hashlib, hmac as _hmac, os, re, sys
-
-          def _l(n):
-              if n < 0x80: return bytes([n])
-              elif n < 0x100: return bytes([0x81, n])
-              else: return bytes([0x82, n >> 8, n & 0xff])
-          def seq(b):  return b'\x30' + _l(len(b)) + b
-          def ostr(b): return b'\x04' + _l(len(b)) + b
-          def t0(b):   return b'\xa0' + _l(len(b)) + b
-          def oid(h):  v = bytes.fromhex(h); return b'\x06' + _l(len(v)) + v
-
-          OID_DATA     = '2a864886f70d010701'
-          OID_CERTBAG  = '2a864886f70d010c0a0103'
-          OID_X509     = '2a864886f70d01091601'
-          OID_SHROUDED = '2a864886f70d010c0a0102'  # pkcs8ShroudedKeyBag
-          OID_RSA      = '2a864886f70d010101'
-          OID_SHA1     = '2b0e03021a'
-          OID_RC4_128  = '2a864886f70d010c0101'    # pbeWithSHA1AndRC4-128
-          OID_LOCALKEY = '2a864886f70d010915'       # localKeyId
+          import base64, os, re
 
           def pem_body(data):
               m = re.search(rb'-----BEGIN [^-]+-----\r?\n?(.*?)\r?\n?-----END',
                             data, re.DOTALL)
               return base64.b64decode(re.sub(rb'[\r\n\s]', b'', m.group(1))) if m else data
 
-          def pkcs12_kdf(pwd, salt, iters, klen, id_b):
-              v, u = 64, 20
-              D = bytes([id_b] * v)
-              pad = lambda d: (d*(v//len(d)+1))[:v*((len(d)+v-1)//v)] if d else b''
-              I = bytearray(pad(salt) + pad(pwd))
-              out = b''
-              for _ in range((klen+u-1)//u):
-                  H = hashlib.sha1(D+bytes(I)).digest()
-                  for _ in range(iters-1): H = hashlib.sha1(H).digest()
-                  out += H
-                  B = (H*(v//u+1))[:v]
-                  nI = bytearray()
-                  for j in range(0, len(I), v):
-                      c = bytes(I[j:j+v])
-                      nI += ((int.from_bytes(c,'big')+int.from_bytes(B[:len(c)],'big')+1)
-                             %(2**(8*len(c)))).to_bytes(len(c),'big')
-                  I = nI
-              return out[:klen]
-
-          def rc4(key, data):
-              S = list(range(256))
-              j = 0
-              for i in range(256):
-                  j = (j + S[i] + key[i % len(key)]) % 256
-                  S[i], S[j] = S[j], S[i]
-              result = bytearray()
-              i = j = 0
-              for byte in data:
-                  i = (i + 1) % 256
-                  j = (j + S[i]) % 256
-                  S[i], S[j] = S[j], S[i]
-                  result.append(byte ^ S[(S[i] + S[j]) % 256])
-              return bytes(result)
-
-          P12_PWD = 'tempcipass'.encode('utf-16-be') + b'\x00\x00'
-
           t        = os.environ['RUNNER_TEMP']
           cert_raw = base64.b64decode(os.environ['DIST_CERT_PEM_BASE64'])
           key_raw  = base64.b64decode(os.environ['DIST_KEY_PEM_BASE64'])
 
-          # Cert: strip PEM armor only — DO NOT parse, preserves non-standard encoding
+          # Cert: strip PEM armor only — DO NOT parse/re-encode (preserves non-standard ASN.1)
           cert_der = pem_body(cert_raw)
-          print(f'cert_der: {len(cert_der)}b first4={cert_der[:4].hex()}')
+          open(t + '/cert.der', 'wb').write(cert_der)
+          print(f'cert.der: {len(cert_der)}b first4={cert_der[:4].hex()}')
 
-          # Key: strip PEM armor; wrap PKCS#1 RSA -> PKCS#8 if needed
-          key_der = pem_body(key_raw)
-          if b'RSA PRIVATE KEY' in key_raw:
-              key_der = seq(b'\x02\x01\x00' + seq(oid(OID_RSA)+b'\x05\x00') + ostr(key_der))
-              print('key: wrapped PKCS#1 -> PKCS#8')
-          else:
-              print(f'key_der: {len(key_der)}b (PKCS#8 or EC)')
+          # Key: write PEM as-is (no certificate parsing involved)
+          open(t + '/key.pem', 'wb').write(key_raw)
+          print(f'key.pem: {len(key_raw)}b')
 
-          # Encrypt key with pbeWithSHA1AndRC4-128 (pure Python — no library needed)
-          enc_salt  = os.urandom(8)
-          enc_iters = 2048
-          rc4_key   = pkcs12_kdf(P12_PWD, enc_salt, enc_iters, 16, 1)
-          enc_data  = rc4(rc4_key, key_der)
-          pbe_params = seq(ostr(enc_salt) + b'\x02\x02' + enc_iters.to_bytes(2, 'big'))
-          enc_pki   = seq(seq(oid(OID_RC4_128) + pbe_params) + ostr(enc_data))
-
-          # localKeyId bag attribute — links cert and key (SHA-1 of cert DER)
-          key_id    = hashlib.sha1(cert_der).digest()
-          lk_val    = ostr(key_id)
-          lk_attr   = seq(oid(OID_LOCALKEY) + b'\x31' + _l(len(lk_val)) + lk_val)
-          bag_attrs = b'\x31' + _l(len(lk_attr)) + lk_attr
-
-          # SafeBags
-          cert_bag      = seq(oid(OID_X509) + t0(ostr(cert_der)))
-          cert_safe_bag = seq(oid(OID_CERTBAG)  + t0(cert_bag) + bag_attrs)
-          key_safe_bag  = seq(oid(OID_SHROUDED) + t0(enc_pki)  + bag_attrs)
-
-          cert_ci   = seq(oid(OID_DATA) + t0(ostr(seq(cert_safe_bag))))
-          key_ci    = seq(oid(OID_DATA) + t0(ostr(seq(key_safe_bag))))
-          auth_safe = seq(cert_ci + key_ci)
-          outer_ci  = seq(oid(OID_DATA) + t0(ostr(auth_safe)))
-
-          # MAC
-          salt    = os.urandom(8)
-          iters   = 2048
-          mk      = pkcs12_kdf(P12_PWD, salt, iters, 20, 3)
-          mac_v   = _hmac.new(mk, auth_safe, hashlib.sha1).digest()
-          d_info  = seq(seq(oid(OID_SHA1)+b'\x05\x00') + ostr(mac_v))
-          mac_d   = seq(d_info + ostr(salt) + b'\x02\x02' + iters.to_bytes(2,'big'))
-
-          pfx = seq(b'\x02\x01\x03' + outer_ci + mac_d)
-          open(t + '/codesign.p12', 'wb').write(pfx)
-          print(f'codesign.p12: {len(pfx)}b')
-
-      - name: Import certificate to keychain
+      - name: Import certificate and key to keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          echo "=== Importing PKCS#12 to keychain ==="
-          security import $RUNNER_TEMP/codesign.p12 \
+          # Use security add-certificates which calls SecCertificateCreateWithData —
+          # Apple's own lenient parser that accepts non-standard DER encodings.
+          echo "=== Adding certificate to keychain ==="
+          security add-certificates -k $KEYCHAIN_PATH $RUNNER_TEMP/cert.der \
+            && echo "cert added OK" \
+            || { echo "cert add FAILED"; exit 1; }
+          # Import just the private key — no certificate parsing involved.
+          echo "=== Importing private key to keychain ==="
+          security import $RUNNER_TEMP/key.pem \
             -k $KEYCHAIN_PATH \
-            -P "tempcipass" \
             -T /usr/bin/codesign \
             -T /usr/bin/security \
-            && echo "p12 imported OK" \
-            || { echo "p12 import FAILED"; exit 1; }
+            && echo "key imported OK" \
+            || { echo "key import FAILED"; exit 1; }
           security list-keychain -d user -s $KEYCHAIN_PATH
           security set-key-partition-list -S apple-tool:,apple:,codesign: \
             -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
