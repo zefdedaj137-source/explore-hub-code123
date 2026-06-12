@@ -119,6 +119,12 @@ jobs:
           echo "Certificate and key setup complete"
 
       # ── 6b. Install provisioning profile ─────────────────────────────────
+      - name: Set build number
+        run: |
+          BUILD_NUMBER=${{ github.run_number }}
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" ios/App/App/Info.plist
+          echo "Build number set to $BUILD_NUMBER"
+
       - name: Install provisioning profile
         env:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
