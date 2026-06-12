@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useGlobalMatchRealtime } from "@/hooks/useGlobalMatchRealtime";
 import { App as CapApp } from "@capacitor/app";
 import { Browser } from "@capacitor/browser";
+import { useIOSPermissions } from "@/hooks/useIOSPermissions";
 
 // Lazy load deferred (non-critical) UI overlays — keeps them out of the initial bundle
 const MatchAnimation = lazy(() =>
@@ -118,6 +119,9 @@ const queryClient = new QueryClient({
 const AppContent = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Request iOS permissions (notifications, location, camera, mic) once after login
+  useIOSPermissions(user?.id);
 
   // Handle password recovery redirect — Supabase may send users to "/"
   // with the recovery hash instead of "/reset-password"
