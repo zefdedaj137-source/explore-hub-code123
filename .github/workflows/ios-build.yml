@@ -44,6 +44,11 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync ios
 
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios/App
+          pod install --repo-update
+
       # ── 6. Import Apple code-signing certificate ──────────────────────────
       - name: Set up signing keychain
         env:
