@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 const BottomNav = () => {
   const navigate = useNavigate();
@@ -80,86 +81,58 @@ const BottomNav = () => {
 
   const handleNav = useCallback(
     (path: string) => {
-      // Trigger haptic feedback on supported devices
-      if ("vibrate" in navigator) {
-        navigator.vibrate(8);
-      }
+      // Native iOS-quality haptic tap
+      Haptics.impact({ style: ImpactStyle.Light }).catch(() => {
+        if ("vibrate" in navigator) navigator.vibrate(8);
+      });
       setPressedPath(path);
-      setTimeout(() => setPressedPath(null), 200);
+      setTimeout(() => setPressedPath(null), 150);
       navigate(path);
     },
     [navigate]
   );
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
-      <div className="mx-auto max-w-md px-4 pb-3">
-        <div className="flex justify-around items-center h-[72px] rounded-2xl relative overflow-hidden bottom-nav-bar">
-          {/* Active glow background pill — smoothly repositioned via CSS */}
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            if (!isActive) return null;
-            const idx = navItems.indexOf(item);
-            const pillLeft = ["left-[1%]", "left-[21%]", "left-[41%]", "left-[61%]", "left-[81%]"];
-            return (
-              <div
-                key={`glow-${item.path}`}
-                className={`absolute inset-y-2 w-[18%] rounded-xl transition-all duration-300 ease-out nav-glow-pill ${pillLeft[idx]}`}
-              />
-            );
-          })}
+    <nav className="fixed bottom-0 left-0 right-0 z-50 ios-tab-bar">
+      {/* iOS-style frosted glass tab bar — full width, no floating card */}
+      <div className="flex justify-around items-end px-1 pt-2 tab-bar-inner">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+          const isPressed = pressedPath === item.path;
 
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            const isPressed = pressedPath === item.path;
-
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleNav(item.path)}
-                aria-label={item.label}
-                aria-current={isActive ? "page" : undefined}
-                className="flex flex-col items-center justify-center flex-1 h-full gap-0.5 relative z-10 select-none"
-                style={{
-                  transform: isPressed ? "scale(0.88)" : "scale(1)",
-                  transition: "transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                }}
+          return (
+            <button
+              key={item.path}
+              onClick={() => handleNav(item.path)}
+              aria-label={item.label}
+              aria-current={isActive ? "page" : undefined}
+              className={`flex flex-col items-center justify-center flex-1 gap-[3px] py-1 relative select-none min-h-[44px] transition-transform duration-100 ${isPressed ? "scale-[0.85]" : "scale-100"}`}
+            >
+              <div className="relative">
+                <Icon
+                  className="h-[27px] w-[27px] transition-colors duration-150"
+                  strokeWidth={isActive ? 2.2 : 1.6}
+                  style={{ color: isActive ? "#e8274b" : "var(--nav-icon-inactive)" }}
+                />
+                {item.badge > 0 && (
+                  <span className="absolute -top-1.5 -right-2 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 badge-rose">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
+                {item.dot && item.badge === 0 && (
+                  <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-orange-500 border-2 border-background dot-pulse" />
+                )}
+              </div>
+              <span
+                data-active={isActive}
+                className="tab-label text-[10px] font-medium tracking-tight transition-colors duration-150"
               >
-                <div className="relative">
-                  <Icon
-                    className="h-[26px] w-[26px]"
-                    style={{
-                      color: isActive ? "#e8274b" : "var(--nav-icon-inactive)",
-                      filter: isActive ? "drop-shadow(0 0 6px rgba(232,39,75,0.7))" : "none",
-                      transform: isActive ? "scale(1.12)" : "scale(1)",
-                      transition:
-                        "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, filter 0.2s ease",
-                    }}
-                  />
-                  {item.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-2 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 badge-rose animate-bounce-in">
-                      {item.badge > 99 ? "99+" : item.badge}
-                    </span>
-                  )}
-                  {item.dot && item.badge === 0 && (
-                    <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-orange-500 border-2 border-background dot-pulse" />
-                  )}
-                </div>
-                <span
-                  className="text-[9px] font-semibold tracking-widest uppercase"
-                  style={{
-                    color: isActive ? "#e8274b" : undefined,
-                    opacity: isActive ? 1 : 0.45,
-                    transition: "color 0.2s ease, opacity 0.2s ease",
-                  }}
-                >
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </nav>
   );

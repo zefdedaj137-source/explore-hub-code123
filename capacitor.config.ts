@@ -25,10 +25,11 @@ const config: CapacitorConfig = {
     CapacitorHttp: {
       enabled: true,
     },
-    // Status bar — dark content on light background
+    // Status bar — light content (white text) so it's visible on the app's dark header
     StatusBar: {
-      style: "Dark",
-      backgroundColor: "#ffffff",
+      style: "Light",
+      backgroundColor: "#000000",
+      overlaysWebView: false,
     },
   },
 };

@@ -748,10 +748,15 @@ All colors MUST be HSL.
     padding-right: env(safe-area-inset-right, 0px);
   }
 
-  /* Bottom offset for fixed elements that sit just above the bottom nav.
-     The nav is h-16 (4rem) + pb-3 (0.75rem) plus safe-area. */
+  /* Bottom offset for fixed elements that sit just above the iOS tab bar.
+     Tab bar: ~49px + safe-area-inset-bottom (34px on iPhone X+). */
   .bottom-nav-offset {
-    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(49px + env(safe-area-inset-bottom, 0px) + 8px);
+  }
+
+  /* iOS tab bar inner content area — clears home indicator */
+  .tab-bar-inner {
+    padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 4px);
   }
 
   /* Momentum (inertial) scrolling on iOS for all overflow containers */
@@ -921,6 +926,25 @@ All colors MUST be HSL.
       0 -4px 40px rgba(0, 0, 0, 0.6),
       0 8px 32px rgba(0, 0, 0, 0.5),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* iOS-style full-width tab bar */
+  .ios-tab-bar {
+    background: rgba(249, 249, 249, 0.94);
+    backdrop-filter: saturate(180%) blur(30px);
+    -webkit-backdrop-filter: saturate(180%) blur(30px);
+    border-top: 0.5px solid rgba(0, 0, 0, 0.18);
+  }
+  .dark .ios-tab-bar {
+    background: rgba(18, 18, 18, 0.92);
+    border-top: 0.5px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .tab-label {
+    color: var(--nav-icon-inactive);
+  }
+  .tab-label[data-active="true"] {
+    color: #e8274b;
   }
   .nav-glow-pill {
     background: linear-gradient(135deg, rgba(232, 39, 75, 0.18), rgba(255, 107, 53, 0.12));
