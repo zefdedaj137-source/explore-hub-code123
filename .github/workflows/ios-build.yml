@@ -53,13 +53,6 @@ jobs:
           echo "=== After cap sync ==="
           ls -la ios/App/ 2>/dev/null || echo "no ios/App/ after sync"
 
-      - name: Install CocoaPods dependencies
-        run: |
-          echo "=== Podfile check ==="
-          ls -la ios/App/Podfile 2>/dev/null || echo "NO PODFILE"
-          cd ios/App
-          pod install
-
       # ── 6. Import Apple code-signing certificate ──────────────────────────
       - name: Set up signing keychain
         env:
@@ -111,11 +104,17 @@ jobs:
           cp $RUNNER_TEMP/build_pp.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
       # ── 7. Build & archive the Xcode project ─────────────────────────────
+      - name: Resolve SPM packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project ios/App/App.xcodeproj \
+            -scheme App
+
       - name: Build Xcode archive
         run: |
           set -o pipefail
           xcodebuild archive \
-            -workspace ios/App/App.xcworkspace \
+            -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -archivePath $RUNNER_TEMP/App.xcarchive \
