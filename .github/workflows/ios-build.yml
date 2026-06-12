@@ -66,6 +66,18 @@ jobs:
           /usr/libexec/PlistBuddy -c "Print :NSMicrophoneUsageDescription" "$PLIST"
           /usr/libexec/PlistBuddy -c "Print :NSCameraUsageDescription" "$PLIST"
 
+          # Register custom URL scheme so iOS can redirect OAuth back into the app.
+          # This makes com.shqiponja.app://auth/callback work for Apple/Google Sign In.
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes array" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0 dict" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLName string com.shqiponja.app" "$PLIST" 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLName com.shqiponja.app" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes array" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string com.shqiponja.app" "$PLIST" 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 com.shqiponja.app" "$PLIST"
+          echo "URL scheme registered:"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleURLTypes" "$PLIST"
+
       - name: Configure Xcode project signing
         env:
           DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}

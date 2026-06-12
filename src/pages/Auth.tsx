@@ -11,6 +11,7 @@ import { analytics } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { Browser } from "@capacitor/browser";
 
 // Inline SVGs replacing react-icons (saves ~150 KB)
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -333,15 +334,6 @@ const Auth = () => {
       return;
     }
 
-    if (!birthDate) {
-      toast.error(t("auth.birthdateRequired") || "Please enter your date of birth");
-      return;
-    }
-    if (!isAgeValid(birthDate)) {
-      toast.error(t("auth.mustBe18") || "You must be 18 or older to use Shqiponja");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -430,10 +422,17 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      const isNative = !!(
+        window as Window & { Capacitor?: { isNativePlatform?: () => boolean } }
+      ).Capacitor?.isNativePlatform?.();
+      const redirectTo = isNative
+        ? "com.shqiponja.app://auth/callback"
+        : `${window.location.origin}/auth/callback`;
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
           skipBrowserRedirect: true,
           scopes: "openid email profile",
         },
@@ -442,17 +441,12 @@ const Auth = () => {
       if (error) throw error;
 
       if (data?.url) {
-        try {
-          if (window.top && window.top !== window.self) {
-            window.top.location.href = data.url;
-          } else {
-            window.location.href = data.url;
-          }
-          return;
-        } catch (e) {
-          window.open(data.url, "_blank", "noopener,noreferrer");
-          return;
+        if (isNative) {
+          await Browser.open({ url: data.url, windowName: "_self" });
+        } else {
+          window.location.href = data.url;
         }
+        return;
       }
 
       toast.error(
@@ -469,10 +463,17 @@ const Auth = () => {
     if (loading) return;
     setLoading(true);
     try {
+      const isNative = !!(
+        window as Window & { Capacitor?: { isNativePlatform?: () => boolean } }
+      ).Capacitor?.isNativePlatform?.();
+      const redirectTo = isNative
+        ? "com.shqiponja.app://auth/callback"
+        : `${window.location.origin}/auth/callback`;
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "apple",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
           skipBrowserRedirect: true,
         },
       });
@@ -480,17 +481,12 @@ const Auth = () => {
       if (error) throw error;
 
       if (data?.url) {
-        try {
-          if (window.top && window.top !== window.self) {
-            window.top.location.href = data.url;
-          } else {
-            window.location.href = data.url;
-          }
-          return;
-        } catch (e) {
-          window.open(data.url, "_blank", "noopener,noreferrer");
-          return;
+        if (isNative) {
+          await Browser.open({ url: data.url, windowName: "_self" });
+        } else {
+          window.location.href = data.url;
         }
+        return;
       }
 
       toast.error(t("auth.appleSignInError"));
@@ -708,26 +704,6 @@ const Auth = () => {
                         inputMode="tel"
                       />
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="birthDatePhone"
-                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
-                    >
-                      {t("auth.dateOfBirth") || "Date of Birth"}
-                    </Label>
-                    <Input
-                      id="birthDatePhone"
-                      type="date"
-                      value={birthDate}
-                      onChange={(e) => setBirthDate(e.target.value)}
-                      max={maxBirthDate}
-                      required
-                      className="rounded-xl dark:border-0 dark:text-white focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground"
-                    />
-                    <p className="text-xs dark:text-white/35 text-muted-foreground">
-                      {t("auth.mustBe18Hint") || "You must be 18 or older to use Shqiponja"}
-                    </p>
                   </div>
                   <Button
                     type="submit"

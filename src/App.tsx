@@ -13,6 +13,8 @@ import { ConnectionBanner } from "@/components/ConnectionBanner";
 import { logger } from "@/lib/logger";
 import { supabase } from "@/integrations/supabase/client";
 import { useGlobalMatchRealtime } from "@/hooks/useGlobalMatchRealtime";
+import { App as CapApp } from "@capacitor/app";
+import { Browser } from "@capacitor/browser";
 
 // Lazy load deferred (non-critical) UI overlays — keeps them out of the initial bundle
 const MatchAnimation = lazy(() =>
@@ -129,6 +131,46 @@ const AppContent = () => {
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Handle deep link callback from Apple/Google OAuth on Capacitor iOS.
+  // When Apple/Google redirects to com.shqiponja.app://auth/callback#access_token=...
+  // iOS opens the app via the URL scheme. We extract the tokens and set the session.
+  useEffect(() => {
+    let listenerHandle: { remove: () => void } | null = null;
+
+    CapApp.addListener("appUrlOpen", async ({ url }) => {
+      if (!url.includes("auth/callback")) return;
+      try {
+        // Replace the custom scheme with https so URL can be parsed normally
+        const normalized = url
+          .replace("com.shqiponja.app://", "https://shqiponja.app/")
+          .replace("com.shqiponja.app:", "https://shqiponja.app");
+        const parsed = new URL(normalized);
+        // Tokens may be in the hash (implicit) or query (PKCE)
+        const params = new URLSearchParams(
+          parsed.hash ? parsed.hash.replace("#", "") : parsed.search.replace("?", "")
+        );
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+        if (accessToken && refreshToken) {
+          await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          // Close the in-app browser (SFSafariViewController)
+          await Browser.close();
+        }
+      } catch (err) {
+        logger.error("Deep link OAuth error:", err);
+      }
+    }).then((handle) => {
+      listenerHandle = handle;
+    });
+
+    return () => {
+      listenerHandle?.remove();
+    };
+  }, []);
 
   const handleAcceptCall = (matchId: string, callType: "voice" | "video") => {
     logger.log("📞 Accepting call, navigating to chat:", { matchId, callType });

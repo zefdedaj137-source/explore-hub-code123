@@ -13,6 +13,28 @@ validateEnv();
 initSentry();
 initWebVitals();
 
+// Force touchstart/touchmove listeners to be passive globally.
+// Third-party libs (embla-carousel, vaul, framer-motion) register these as
+// non-passive, causing scroll-blocking violations. Safe to patch here because
+// the swipe card uses CSS `touch-action: none` for scroll prevention instead
+// of calling preventDefault(), so no library needs a non-passive touch listener.
+const _origAEL = EventTarget.prototype.addEventListener;
+EventTarget.prototype.addEventListener = function (
+  type: string,
+  listener: EventListenerOrEventListenerObject,
+  options?: boolean | AddEventListenerOptions
+) {
+  if (type === "touchstart" || type === "touchmove") {
+    const patched: AddEventListenerOptions =
+      typeof options === "boolean"
+        ? { capture: options, passive: true }
+        : { ...(options as AddEventListenerOptions), passive: true };
+    _origAEL.call(this, type, listener, patched);
+  } else {
+    _origAEL.call(this, type, listener, options);
+  }
+};
+
 // Replay queued offline actions when connectivity returns
 initOfflineQueue(async (action: QueuedAction) => {
   if (action.method === "rpc") {
