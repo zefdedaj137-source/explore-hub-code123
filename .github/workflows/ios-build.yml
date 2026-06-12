@@ -35,14 +35,12 @@ jobs:
           VITE_REVENUECAT_API_KEY: ${{ secrets.VITE_REVENUECAT_API_KEY }}
 
       # ── 5. Capacitor iOS setup ────────────────────────────────────────────
-      - name: Add iOS platform (if not present)
+      - name: Add iOS platform and sync
         run: |
-          if [ ! -d "ios" ]; then
+          if [ ! -f "ios/App/Podfile" ]; then
             npx cap add ios
           fi
-
-      - name: Sync Capacitor
-        run: npx cap sync ios
+          npx cap sync ios
 
       - name: Install CocoaPods dependencies
         run: |
