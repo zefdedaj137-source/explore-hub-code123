@@ -37,15 +37,28 @@ jobs:
       # ── 5. Capacitor iOS setup ────────────────────────────────────────────
       - name: Add iOS platform and sync
         run: |
+          echo "=== Before cap add ==="
+          ls -la ios/ 2>/dev/null || echo "no ios/ dir"
           if [ ! -f "ios/App/Podfile" ]; then
+            echo "=== Running: npx cap add ios ==="
             npx cap add ios
+          else
+            echo "=== Podfile already exists, skipping cap add ==="
           fi
+          echo "=== After cap add ==="
+          ls -la ios/ 2>/dev/null || echo "no ios/ dir after cap add"
+          ls -la ios/App/ 2>/dev/null || echo "no ios/App/ dir"
+          echo "=== Running: npx cap sync ios ==="
           npx cap sync ios
+          echo "=== After cap sync ==="
+          ls -la ios/App/ 2>/dev/null || echo "no ios/App/ after sync"
 
       - name: Install CocoaPods dependencies
         run: |
+          echo "=== Podfile check ==="
+          ls -la ios/App/Podfile 2>/dev/null || echo "NO PODFILE"
           cd ios/App
-          pod install --repo-update
+          pod install
 
       # ── 6. Import Apple code-signing certificate ──────────────────────────
       - name: Set up signing keychain
