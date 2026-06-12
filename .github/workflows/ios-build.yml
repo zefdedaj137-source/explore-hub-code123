@@ -37,21 +37,38 @@ jobs:
       # ── 5. Capacitor iOS setup ────────────────────────────────────────────
       - name: Add iOS platform and sync
         run: |
-          echo "=== Before cap add ==="
-          ls -la ios/ 2>/dev/null || echo "no ios/ dir"
-          if [ ! -f "ios/App/Podfile" ]; then
-            echo "=== Running: npx cap add ios ==="
+          if [ ! -d "ios/App" ]; then
             npx cap add ios
-          else
-            echo "=== Podfile already exists, skipping cap add ==="
           fi
-          echo "=== After cap add ==="
-          ls -la ios/ 2>/dev/null || echo "no ios/ dir after cap add"
-          ls -la ios/App/ 2>/dev/null || echo "no ios/App/ dir"
-          echo "=== Running: npx cap sync ios ==="
           npx cap sync ios
-          echo "=== After cap sync ==="
-          ls -la ios/App/ 2>/dev/null || echo "no ios/App/ after sync"
+
+      - name: Configure Xcode project signing
+        env:
+          DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          PROVISIONING_PROFILE_NAME: ${{ secrets.PROVISIONING_PROFILE_NAME }}
+        run: |
+          python3 - <<'PYEOF'
+          import re, os
+          pbxproj = 'ios/App/App.xcodeproj/project.pbxproj'
+          team    = os.environ['DEVELOPMENT_TEAM'].strip()
+          profile = os.environ['PROVISIONING_PROFILE_NAME'].strip()
+          with open(pbxproj) as f:
+              content = f.read()
+          # Inject manual signing into the App native target build configurations.
+          # SPM package targets are NOT listed in the pbxproj, so this only
+          # affects the App target — avoiding the RevenueCat provisioning error.
+          content = content.replace(
+              'CODE_SIGN_STYLE = Automatic;',
+              ('CODE_SIGN_IDENTITY = "iPhone Distribution";\n'
+               '\t\t\t\tCODE_SIGN_STYLE = Manual;\n'
+               f'\t\t\t\tDEVELOPMENT_TEAM = "{team}";\n'
+               f'\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "{profile}";')
+          )
+          content = re.sub(r'DEVELOPMENT_TEAM = "";', f'DEVELOPMENT_TEAM = "{team}";', content)
+          with open(pbxproj, 'w') as f:
+              f.write(content)
+          print(f'Signing configured: team={team!r}, profile={profile!r}')
+          PYEOF
 
       # ── 6. Import Apple code-signing certificate ──────────────────────────
       - name: Set up signing keychain
@@ -117,11 +134,7 @@ jobs:
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            -archivePath $RUNNER_TEMP/App.xcarchive \
-            CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }} \
-            CODE_SIGN_IDENTITY="iPhone Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="${{ secrets.PROVISIONING_PROFILE_NAME }}"
+            -archivePath $RUNNER_TEMP/App.xcarchive
 
       # ── 8. Export IPA ─────────────────────────────────────────────────────
       - name: Export IPA
