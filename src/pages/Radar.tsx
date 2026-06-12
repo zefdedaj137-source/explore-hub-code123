@@ -64,6 +64,22 @@ export default function Radar() {
 
   const lastLocationUpdateRef = useRef(0);
 
+  // Safety timeout: if location hasn't resolved within 13 s, stop spinning
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          setLocationError(
+            "Location request timed out. Please enable location services and try again."
+          );
+          return false;
+        }
+        return prev;
+      });
+    }, 13000);
+    return () => clearTimeout(t);
+  }, []);
+
   // Update user's location in database (rate-limited: at most once per 60 s)
   const updateUserLocation = useCallback(
     async (lat: number, lng: number) => {

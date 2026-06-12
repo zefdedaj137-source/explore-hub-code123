@@ -11,10 +11,14 @@ const config: CapacitorConfig = {
     // cleartext: true,
   },
   ios: {
-    // Allows Supabase wss:// connections
     allowsLinkPreview: false,
-    scrollEnabled: true,
-    contentInset: "automatic",
+    // Disable native scroll bounce — the app manages its own scroll areas
+    scrollEnabled: false,
+    contentInset: "never",
+    // Allow video/audio to play inline without going full-screen (calls, GIFs)
+    allowsInlineMediaPlayback: true,
+    // Suppress iOS text-size adjustment when orientation changes
+    limitsNavigationsToAppBoundDomains: true,
   },
   plugins: {
     // Capacitor HTTP — allows all HTTPS requests (Supabase, etc.)

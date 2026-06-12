@@ -136,12 +136,30 @@ export const CallDialog = ({
         isSecure: window.isSecureContext,
       });
 
-      // Check if getUserMedia is supported
+      // Check if getUserMedia is supported.
+      // On Capacitor iOS, the capacitor:// scheme is a secure context but
+      // navigator.mediaDevices can appear undefined on some iOS versions.
+      // Use window.isSecureContext as the primary check, and allow native
+      // Capacitor apps to proceed so iOS prompts for mic/camera permission.
+      const isCapacitorNative = !!(
+        window as Window & { Capacitor?: { isNativePlatform?: () => boolean } }
+      ).Capacitor?.isNativePlatform?.();
+      const isSecureContext =
+        window.isSecureContext ||
+        window.location.protocol === "https:" ||
+        window.location.hostname === "localhost" ||
+        window.location.protocol === "capacitor:";
+
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        const isHttps =
-          window.location.protocol === "https:" || window.location.hostname === "localhost";
+        if (isCapacitorNative) {
+          // iOS requires NSMicrophoneUsageDescription / NSCameraUsageDescription
+          // in Info.plist. If mediaDevices is still missing, prompt the user.
+          throw new Error(
+            "Please allow microphone access for Shqiponja in iOS Settings → Privacy → Microphone"
+          );
+        }
         throw new Error(
-          isHttps ? t("callDialog.browserNotSupported") : t("callDialog.httpsRequired")
+          isSecureContext ? t("callDialog.browserNotSupported") : t("callDialog.httpsRequired")
         );
       }
 

@@ -49,6 +49,23 @@ jobs:
           fi
           npx cap sync ios
 
+      - name: Patch iOS permissions in Info.plist
+        run: |
+          PLIST="ios/App/App/Info.plist"
+          add_key() {
+            /usr/libexec/PlistBuddy -c "Add :$1 string '$2'" "$PLIST" 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Set :$1 '$2'" "$PLIST"
+          }
+          add_key NSMicrophoneUsageDescription "Shqiponja needs microphone access for voice messages and calls."
+          add_key NSCameraUsageDescription "Shqiponja needs camera access for photos and video calls."
+          add_key NSPhotoLibraryUsageDescription "Shqiponja needs photo library access to share photos."
+          add_key NSPhotoLibraryAddUsageDescription "Shqiponja needs permission to save photos."
+          add_key NSLocationWhenInUseUsageDescription "Shqiponja uses your location to show you nearby people."
+          add_key NSLocationAlwaysAndWhenInUseUsageDescription "Shqiponja uses your location to show you nearby people."
+          echo "Info.plist permission strings applied:"
+          /usr/libexec/PlistBuddy -c "Print :NSMicrophoneUsageDescription" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Print :NSCameraUsageDescription" "$PLIST"
+
       - name: Configure Xcode project signing
         env:
           DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
