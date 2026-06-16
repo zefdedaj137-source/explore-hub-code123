@@ -1579,7 +1579,7 @@ const Chat = () => {
 
   if (loading) {
     return (
-      <div className="min-h-dvh flex flex-col bg-gradient-subtle">
+      <div className="h-dvh flex flex-col overflow-hidden bg-gradient-subtle">
         <div className="flex-1 p-4">
           <div className="container mx-auto max-w-2xl space-y-4">
             <MessageSkeleton />
@@ -1593,7 +1593,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-dvh flex flex-col pb-24 page-bg">
+    <div className="h-dvh flex flex-col overflow-hidden pb-24 page-bg">
       {/* Header */}
       <ChatHeader
         matchProfile={matchProfile}
@@ -1676,7 +1676,7 @@ const Chat = () => {
       {/* Messages */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4"
+        className="flex-1 overflow-y-auto p-4 scroll-momentum"
         onScroll={(e) => {
           const el = e.currentTarget;
           if (el.scrollTop < 80 && hasOlderMessages && !loadingOlder) {

@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://fonts.googleapis.com https://fonts.gstatic.com https://nominatim.openstreetmap.org https://tenor.googleapis.com; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://youtube.com;" />
     <title>Shqiponja - Premium Dating for Albanian Diaspora</title>
     <meta name="description" content="Connect with Albanian singles worldwide. Premium dating platform for the Albanian diaspora. Find meaningful relationships with verified profiles." />
@@ -62,6 +62,8 @@
         -webkit-font-smoothing: antialiased;
         overscroll-behavior: none;
         height: 100%;
+        /* Prevent pinch-to-zoom at CSS layer — allows pan scroll but blocks scale gesture */
+        touch-action: pan-x pan-y;
       }
 
       /* ── Root placeholder spinner (shows before React mounts) ── */
@@ -100,5 +102,17 @@
     <a href="#root" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded">Skip to content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Prevent pinch-to-zoom and double-tap zoom on iOS WKWebView.
+      // The viewport user-scalable=no is respected by Safari but not always
+      // by WKWebView in Capacitor — these event listeners close that gap.
+      document.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
+      document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
+      document.addEventListener('gestureend', function(e) { e.preventDefault(); }, { passive: false });
+      // Block multi-touch pinch (two-finger scale) via touchmove
+      document.addEventListener('touchmove', function(e) {
+        if (e.touches && e.touches.length > 1) { e.preventDefault(); }
+      }, { passive: false });
+    </script>
   </body>
 </html>

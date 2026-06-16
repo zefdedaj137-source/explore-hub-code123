@@ -315,6 +315,11 @@ All colors MUST be HSL.
     /* Improve text clarity on retina screens */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Lock root scroll on iOS — individual containers handle their own scroll */
+    height: 100%;
+    overflow: hidden;
+    /* Prevent pinch-to-zoom — allows pan but blocks scale gesture */
+    touch-action: pan-x pan-y;
   }
 
   body {
@@ -329,6 +334,16 @@ All colors MUST be HSL.
       "calt" 1;
     /* Prevent overscroll bounce bleed on iOS */
     overscroll-behavior: none;
+    /* Lock body scroll on iOS so WKWebView doesn't scroll the root */
+    height: 100%;
+    overflow: hidden;
+    /* Prevent pinch-to-zoom */
+    touch-action: pan-x pan-y;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
   }
 
   /* Modern, branded focus ring that works on all themes */
@@ -763,6 +778,21 @@ All colors MUST be HSL.
   .scroll-momentum {
     -webkit-overflow-scrolling: touch;
     overflow-y: auto;
+  }
+
+  /* Apply iOS momentum scrolling to every overflow-y scrollable element */
+  .overflow-y-auto,
+  .overflow-y-scroll,
+  [class*="overflow-y-auto"],
+  [class*="overflow-y-scroll"] {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Pages that need normal full-page scroll (non-chat pages) */
+  .page-scroll {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Swipeable card area — allow horizontal drag without triggering scroll */

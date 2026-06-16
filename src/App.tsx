@@ -201,474 +201,476 @@ const AppContent = () => {
       <ConnectionBanner />
       <Toaster />
       <Sonner />
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
+      <div className="page-scroll">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
 
-          {/* Protected routes */}
-          <Route
-            path="/profile-setup"
-            element={
-              <ProtectedRoute>
-                <ProfileSetup />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/discover"
-            element={
-              <ProtectedRoute>
-                <Discover />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/matches"
-            element={
-              <ProtectedRoute>
-                <Matches />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat/:matchId"
-            element={
-              <ProtectedRoute>
-                <ChatWithKey />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <Chat />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/my-profile"
-            element={
-              <ProtectedRoute>
-                <MyProfile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit-profile"
-            element={
-              <ProtectedRoute>
-                <EditProfile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/premium-success"
-            element={
-              <ProtectedRoute>
-                <PremiumSuccess />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/superlike-success"
-            element={
-              <ProtectedRoute>
-                <SuperlikeSuccess />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/coins-success"
-            element={
-              <ProtectedRoute>
-                <CoinsSuccess />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/who-liked-you"
-            element={
-              <ProtectedRoute>
-                <WhoLikedYou />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/radar"
-            element={
-              <ProtectedRoute>
-                <Radar />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/games"
-            element={
-              <ProtectedRoute>
-                <Games />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/game-discover"
-            element={
-              <ProtectedRoute>
-                <GameDiscover />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/game-lobby"
-            element={
-              <ProtectedRoute>
-                <GameLobby />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/game-session/:sessionId"
-            element={
-              <ProtectedRoute>
-                <GameSession />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/game-session-music/:sessionId"
-            element={
-              <ProtectedRoute>
-                <GameSessionMusic />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/game-session-dance/:sessionId"
-            element={
-              <ProtectedRoute>
-                <GameSessionDance />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/safety"
-            element={
-              <ProtectedRoute>
-                <SafetyCenter />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <ProtectedRoute>
-                <NotificationsCenter />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/wallet"
-            element={
-              <ProtectedRoute>
-                <Wallet />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/call-history"
-            element={
-              <ProtectedRoute>
-                <CallHistory />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/saved"
-            element={
-              <ProtectedRoute>
-                <SavedProfiles />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/recently-viewed"
-            element={
-              <ProtectedRoute>
-                <RecentlyViewed />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/blocked"
-            element={
-              <ProtectedRoute>
-                <BlockedUsers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/insights"
-            element={
-              <ProtectedRoute>
-                <ProfileInsights />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/invite"
-            element={
-              <ProtectedRoute>
-                <InviteFriends />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/rewards"
-            element={
-              <ProtectedRoute>
-                <DailyRewards />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/safety-tips"
-            element={
-              <ProtectedRoute>
-                <SafetyTips />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/verification"
-            element={
-              <ProtectedRoute>
-                <ProfileVerification />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/date-planner"
-            element={
-              <ProtectedRoute>
-                <DatePlanner />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/boost-bundles"
-            element={
-              <ProtectedRoute>
-                <BoostBundles />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/activity"
-            element={
-              <ProtectedRoute>
-                <ActivityFeed />
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected routes */}
+            <Route
+              path="/profile-setup"
+              element={
+                <ProtectedRoute>
+                  <ProfileSetup />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/discover"
+              element={
+                <ProtectedRoute>
+                  <Discover />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/matches"
+              element={
+                <ProtectedRoute>
+                  <Matches />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat/:matchId"
+              element={
+                <ProtectedRoute>
+                  <ChatWithKey />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-profile"
+              element={
+                <ProtectedRoute>
+                  <MyProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-profile"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/premium-success"
+              element={
+                <ProtectedRoute>
+                  <PremiumSuccess />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/superlike-success"
+              element={
+                <ProtectedRoute>
+                  <SuperlikeSuccess />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/coins-success"
+              element={
+                <ProtectedRoute>
+                  <CoinsSuccess />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/who-liked-you"
+              element={
+                <ProtectedRoute>
+                  <WhoLikedYou />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/radar"
+              element={
+                <ProtectedRoute>
+                  <Radar />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/games"
+              element={
+                <ProtectedRoute>
+                  <Games />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game-discover"
+              element={
+                <ProtectedRoute>
+                  <GameDiscover />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game-lobby"
+              element={
+                <ProtectedRoute>
+                  <GameLobby />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game-session/:sessionId"
+              element={
+                <ProtectedRoute>
+                  <GameSession />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game-session-music/:sessionId"
+              element={
+                <ProtectedRoute>
+                  <GameSessionMusic />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game-session-dance/:sessionId"
+              element={
+                <ProtectedRoute>
+                  <GameSessionDance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/safety"
+              element={
+                <ProtectedRoute>
+                  <SafetyCenter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <NotificationsCenter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wallet"
+              element={
+                <ProtectedRoute>
+                  <Wallet />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/call-history"
+              element={
+                <ProtectedRoute>
+                  <CallHistory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/saved"
+              element={
+                <ProtectedRoute>
+                  <SavedProfiles />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recently-viewed"
+              element={
+                <ProtectedRoute>
+                  <RecentlyViewed />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/blocked"
+              element={
+                <ProtectedRoute>
+                  <BlockedUsers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/insights"
+              element={
+                <ProtectedRoute>
+                  <ProfileInsights />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/invite"
+              element={
+                <ProtectedRoute>
+                  <InviteFriends />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/rewards"
+              element={
+                <ProtectedRoute>
+                  <DailyRewards />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/safety-tips"
+              element={
+                <ProtectedRoute>
+                  <SafetyTips />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/verification"
+              element={
+                <ProtectedRoute>
+                  <ProfileVerification />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/date-planner"
+              element={
+                <ProtectedRoute>
+                  <DatePlanner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/boost-bundles"
+              element={
+                <ProtectedRoute>
+                  <BoostBundles />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/activity"
+              element={
+                <ProtectedRoute>
+                  <ActivityFeed />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/match-insights"
-            element={
-              <ProtectedRoute>
-                <MatchInsights />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/video-intro"
-            element={
-              <ProtectedRoute>
-                <VideoIntro />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/safety-checkin"
-            element={
-              <ProtectedRoute>
-                <SafetyCheckIn />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/stories"
-            element={
-              <ProtectedRoute>
-                <Stories />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/match-goals"
-            element={
-              <ProtectedRoute>
-                <MatchGoals />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/mood-status"
-            element={
-              <ProtectedRoute>
-                <MoodStatus />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/music-taste"
-            element={
-              <ProtectedRoute>
-                <MusicTaste />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/photo-verification"
-            element={
-              <ProtectedRoute>
-                <PhotoVerificationSelfie />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/ghost-alerts"
-            element={
-              <ProtectedRoute>
-                <GhostModeAlert />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/match-insights"
+              element={
+                <ProtectedRoute>
+                  <MatchInsights />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/video-intro"
+              element={
+                <ProtectedRoute>
+                  <VideoIntro />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/safety-checkin"
+              element={
+                <ProtectedRoute>
+                  <SafetyCheckIn />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stories"
+              element={
+                <ProtectedRoute>
+                  <Stories />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/match-goals"
+              element={
+                <ProtectedRoute>
+                  <MatchGoals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mood-status"
+              element={
+                <ProtectedRoute>
+                  <MoodStatus />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/music-taste"
+              element={
+                <ProtectedRoute>
+                  <MusicTaste />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/photo-verification"
+              element={
+                <ProtectedRoute>
+                  <PhotoVerificationSelfie />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ghost-alerts"
+              element={
+                <ProtectedRoute>
+                  <GhostModeAlert />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/profile-soundtrack"
-            element={
-              <ProtectedRoute>
-                <ProfileSoundtrack />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/features"
-            element={
-              <ProtectedRoute>
-                <Features />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/ai-matchmaker"
-            element={
-              <ProtectedRoute>
-                <AIMatchmaker />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/spotted"
-            element={
-              <ProtectedRoute>
-                <Spotted />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/events"
-            element={
-              <ProtectedRoute>
-                <Events />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/second-look"
-            element={
-              <ProtectedRoute>
-                <SecondLook />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/weekly-spotlight"
-            element={
-              <ProtectedRoute>
-                <WeeklySpotlight />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/date-spot-suggestions"
-            element={
-              <ProtectedRoute>
-                <DateSpotSuggestions />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/double-date-planner"
-            element={
-              <ProtectedRoute>
-                <DoubleDatePlanner />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/events-map"
-            element={
-              <ProtectedRoute>
-                <EventsMap />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/icebreaker-games"
-            element={
-              <ProtectedRoute>
-                <IcebreakerGames />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/profile-soundtrack"
+              element={
+                <ProtectedRoute>
+                  <ProfileSoundtrack />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/features"
+              element={
+                <ProtectedRoute>
+                  <Features />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ai-matchmaker"
+              element={
+                <ProtectedRoute>
+                  <AIMatchmaker />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/spotted"
+              element={
+                <ProtectedRoute>
+                  <Spotted />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/events"
+              element={
+                <ProtectedRoute>
+                  <Events />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/second-look"
+              element={
+                <ProtectedRoute>
+                  <SecondLook />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/weekly-spotlight"
+              element={
+                <ProtectedRoute>
+                  <WeeklySpotlight />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/date-spot-suggestions"
+              element={
+                <ProtectedRoute>
+                  <DateSpotSuggestions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/double-date-planner"
+              element={
+                <ProtectedRoute>
+                  <DoubleDatePlanner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/events-map"
+              element={
+                <ProtectedRoute>
+                  <EventsMap />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/icebreaker-games"
+              element={
+                <ProtectedRoute>
+                  <IcebreakerGames />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Admin routes */}
-          <Route
-            path="/admin/safety"
-            element={
-              <ProtectedRoute adminOnly>
-                <AdminSafety />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/analytics"
-            element={
-              <ProtectedRoute adminOnly>
-                <AdminAnalytics />
-              </ProtectedRoute>
-            }
-          />
+            {/* Admin routes */}
+            <Route
+              path="/admin/safety"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminSafety />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/analytics"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminAnalytics />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </div>
 
       {/* Global incoming call listener — lazy, only for authenticated users */}
       {user && (

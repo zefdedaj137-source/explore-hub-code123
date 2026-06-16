@@ -12,8 +12,9 @@ const config: CapacitorConfig = {
   },
   ios: {
     allowsLinkPreview: false,
-    // Disable native scroll bounce — the app manages its own scroll areas
-    scrollEnabled: false,
+    // scrollEnabled must stay true — disabling it breaks page scroll everywhere.
+    // Overscroll bounce is suppressed via CSS (overscroll-behavior: none on body).
+    scrollEnabled: true,
     contentInset: "never",
     // Allow video/audio to play inline without going full-screen (calls, GIFs)
     allowsInlineMediaPlayback: true,
