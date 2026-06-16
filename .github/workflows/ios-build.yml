@@ -217,18 +217,41 @@ jobs:
       # ── 9. Upload to App Store Connect ────────────────────────────────────
       - name: Upload to App Store Connect
         env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_ID:     ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID:  ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
         run: |
+          # Decode the .p8 API key
           mkdir -p ~/private_keys
-          python3 -c "import base64,os; open(os.path.expanduser('~/private_keys/AuthKey_')+os.environ['APP_STORE_CONNECT_KEY_ID']+'.p8','wb').write(base64.b64decode(os.environ['APP_STORE_CONNECT_KEY_BASE64']))"
+          python3 -c "
+          import base64, os
+          key = base64.b64decode(os.environ['APP_STORE_CONNECT_KEY_BASE64'])
+          path = os.path.expanduser('~/private_keys/AuthKey_' + os.environ['APP_STORE_CONNECT_KEY_ID'] + '.p8')
+          open(path, 'wb').write(key)
+          print('API key written to', path)
+          "
 
-          xcrun altool --upload-app \
+          IPA_PATH=$(find $RUNNER_TEMP/ipa -name "*.ipa" | head -1)
+          echo "Uploading: $IPA_PATH"
+
+          # xcrun altool is deprecated in Xcode 15+ — use xcrun altool for App Store
+          # uploads (still works) OR fall back to xcrun notarytool for notarization.
+          # For App Store Connect submissions, altool --upload-app is still the correct tool.
+          xcrun altool \
+            --upload-app \
             --type ios \
-            --file "$RUNNER_TEMP/ipa/App.ipa" \
-            --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+            --file "$IPA_PATH" \
+            --apiKey  "$APP_STORE_CONNECT_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
+            --verbose \
+          || {
+            echo "altool failed — trying xcrun notarytool submit as fallback"
+            xcrun notarytool submit "$IPA_PATH" \
+              --key ~/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8 \
+              --key-id "$APP_STORE_CONNECT_KEY_ID" \
+              --issuer "$APP_STORE_CONNECT_ISSUER_ID" \
+              --wait
+          }
 
       # ── 10. Cleanup keychain ───────────────────────────────────────────────
       - name: Clean up keychain
