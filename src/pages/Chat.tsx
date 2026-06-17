@@ -287,6 +287,31 @@ const Chat = () => {
     }
   }, [showCallDialog, matchId, navigate]);
 
+  // Reset viewport zoom on mount/unmount to prevent persistent zoom
+  useEffect(() => {
+    // Reset zoom to 100% on mount
+    const resetZoom = () => {
+      const viewport = document.querySelector("meta[name='viewport']");
+      if (viewport) {
+        viewport.setAttribute(
+          "content",
+          "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"
+        );
+      }
+      // Ensure document is not zoomed
+      if (document.body.style.zoom) {
+        document.body.style.zoom = "1";
+      }
+    };
+
+    resetZoom();
+
+    // Reset zoom when unmounting to prevent persistent zoom
+    return () => {
+      resetZoom();
+    };
+  }, []);
+
   // Scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -1593,7 +1618,10 @@ const Chat = () => {
   }
 
   return (
-    <div className="h-dvh flex flex-col overflow-hidden pb-24 page-bg">
+    <div
+      className="h-dvh flex flex-col overflow-hidden pb-24 page-bg"
+      style={{ touchAction: "pan-x pan-y" }}
+    >
       {/* Header */}
       <ChatHeader
         matchProfile={matchProfile}
