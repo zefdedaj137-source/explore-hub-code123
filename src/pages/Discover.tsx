@@ -2347,7 +2347,7 @@ const Discover = () => {
                 onClick={() =>
                   boosterActive ? setShowBoostStatusDialog(true) : setShowBoostDialog(true)
                 }
-                className={`relative flex items-center justify-center p-2.5 rounded-full transition-colors group ${boosterActive ? "bg-primary/10" : "hover:bg-muted"}`}
+                className={`relative flex items-center justify-center h-10 w-10 rounded-full transition-colors group ${boosterActive ? "bg-primary/10" : "hover:bg-muted"}`}
                 aria-label={t("discover.boostAria")}
               >
                 <Zap
@@ -2362,7 +2362,7 @@ const Discover = () => {
                 onClick={() =>
                   swipeLimit.isPremium ? navigate("/settings") : setShowUpgradeDialog(true)
                 }
-                className="flex items-center justify-center p-2.5 hover:bg-muted rounded-full transition-colors"
+                className="flex items-center justify-center h-10 w-10 hover:bg-muted rounded-full transition-colors"
                 aria-label={t("discover.premiumAria")}
               >
                 <Crown
@@ -2371,7 +2371,7 @@ const Discover = () => {
               </button>
               <button
                 onClick={handleOpenNotifications}
-                className="relative flex items-center justify-center p-2.5 hover:bg-muted rounded-full transition-colors"
+                className="relative flex items-center justify-center h-10 w-10 hover:bg-muted rounded-full transition-colors"
                 aria-label={t("discover.notificationsAria")}
               >
                 <Bell className="h-6 w-6 text-foreground" />
@@ -2387,7 +2387,7 @@ const Discover = () => {
               <Sheet>
                 <SheetTrigger asChild>
                   <button
-                    className="flex items-center justify-center p-2.5 hover:bg-muted rounded-full transition-colors"
+                    className="flex items-center justify-center h-10 w-10 hover:bg-muted rounded-full transition-colors"
                     aria-label={t("discover.menuAria")}
                   >
                     <Menu className="h-6 w-6 text-primary" />

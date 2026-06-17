@@ -795,9 +795,9 @@ All colors MUST be HSL.
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Swipeable card area — allow horizontal drag without triggering scroll */
+  /* Swipeable card area — allow vertical scroll but block pinch zoom */
   .swipe-area {
-    touch-action: pan-y pinch-zoom;
+    touch-action: pan-y;
   }
 
   /* ── Page background — light by default, dark when .dark class active ─── */
