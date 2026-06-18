@@ -78,6 +78,24 @@ jobs:
           echo "URL scheme registered:"
           /usr/libexec/PlistBuddy -c "Print :CFBundleURLTypes" "$PLIST"
 
+      - name: Wire entitlements into Xcode project
+        run: |
+          python3 - <<'PYEOF'
+          import re
+          pbxproj = 'ios/App/App.xcodeproj/project.pbxproj'
+          with open(pbxproj) as f:
+              content = f.read()
+          # Add CODE_SIGN_ENTITLEMENTS to both Debug and Release build settings
+          content = re.sub(
+              r'(PRODUCT_BUNDLE_IDENTIFIER = com\.shqiponja\.app;)',
+              r'\1\n\t\t\t\tCODE_SIGN_ENTITLEMENTS = App/App.entitlements;',
+              content
+          )
+          with open(pbxproj, 'w') as f:
+              f.write(content)
+          print('Entitlements wired into project.pbxproj')
+          PYEOF
+
       - name: Configure Xcode project signing
         env:
           DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
