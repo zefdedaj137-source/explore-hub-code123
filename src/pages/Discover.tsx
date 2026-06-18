@@ -3576,7 +3576,7 @@ const Discover = () => {
               {/* 3 Hours Option */}
               <button
                 onClick={async () => {
-                  const cost = 50;
+                  const cost = 5;
                   if (!user?.id) {
                     toast.error(t("discover.signInToBoost"));
                     return;
@@ -3621,21 +3621,21 @@ const Discover = () => {
                   }
                 }}
                 className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={walletBalance < 50}
+                disabled={walletBalance < 5}
               >
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">3 Hours</div>
                     <div className="text-sm text-muted-foreground">{t("discover.quickBoost")}</div>
                   </div>
-                  <div className="text-2xl font-bold text-primary">50 coins</div>
+                  <div className="text-2xl font-bold text-primary">5 coins</div>
                 </div>
               </button>
 
               {/* 6 Hours Option */}
               <button
                 onClick={async () => {
-                  const cost = 80;
+                  const cost = 9;
                   if (!user?.id) {
                     toast.error(t("discover.signInToBoost"));
                     return;
@@ -3680,21 +3680,21 @@ const Discover = () => {
                   }
                 }}
                 className="w-full p-4 border-2 border-primary bg-primary/10 rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={walletBalance < 80}
+                disabled={walletBalance < 9}
               >
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-bold text-lg">6 Hours</div>
                     <div className="text-sm text-muted-foreground">{t("discover.mostPopular")}</div>
                   </div>
-                  <div className="text-2xl font-bold text-primary">80 coins</div>
+                  <div className="text-2xl font-bold text-primary">9 coins</div>
                 </div>
               </button>
 
               {/* 10 Hours Option */}
               <button
                 onClick={async () => {
-                  const cost = 100;
+                  const cost = 13;
                   if (!user?.id) {
                     toast.error(t("discover.signInToBoost"));
                     return;
@@ -3742,7 +3742,7 @@ const Discover = () => {
                   }
                 }}
                 className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={walletBalance < 100}
+                disabled={walletBalance < 13}
               >
                 <div className="flex justify-between items-center">
                   <div>
@@ -3751,7 +3751,7 @@ const Discover = () => {
                       {t("discover.bestValueBadge")}
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-primary">100 coins</div>
+                  <div className="text-2xl font-bold text-primary">13 coins</div>
                 </div>
               </button>
             </div>
