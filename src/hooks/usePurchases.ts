@@ -24,21 +24,29 @@ import {
   type ProductId,
 } from "@/lib/iap-products";
 
-export const isNativePlatform = () => Capacitor.isNativePlatform();
+export const isNativePlatform = () => {
+  const platform = Capacitor.getPlatform();
+  return Capacitor.isNativePlatform() || platform === "ios" || platform === "android";
+};
 
 // ─── RevenueCat initialisation (runs once on first hook mount) ──────────────
 let rcInitialised = false;
 
 async function initRevenueCat(userId: string) {
-  if (rcInitialised || !isNativePlatform()) return;
+  if (rcInitialised) return;
   if (!REVENUECAT_API_KEY) {
     console.warn("VITE_REVENUECAT_API_KEY not set — IAP disabled");
     return;
   }
-  await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
-  await Purchases.configure({ apiKey: REVENUECAT_API_KEY });
-  await Purchases.logIn({ appUserID: userId });
-  rcInitialised = true;
+  // Always try to initialise on native platforms
+  try {
+    await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+    await Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+    await Purchases.logIn({ appUserID: userId });
+    rcInitialised = true;
+  } catch (e) {
+    console.warn("RevenueCat init failed (non-native env):", e);
+  }
 }
 
 // ─── Fulfil a consumable purchase server-side ───────────────────────────────
@@ -105,7 +113,7 @@ export function usePurchases() {
 
   // Initialise RevenueCat on native
   useEffect(() => {
-    if (user && isNativePlatform()) {
+    if (user) {
       initRevenueCat(user.id).catch(console.error);
     }
   }, [user]);
@@ -114,7 +122,7 @@ export function usePurchases() {
   const checkPremium = useCallback(async () => {
     if (!user) return false;
 
-    if (isNativePlatform() && rcInitialised) {
+    if (rcInitialised) {
       try {
         const { customerInfo } = await Purchases.getCustomerInfo();
         const active = !!customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT];
@@ -144,7 +152,7 @@ export function usePurchases() {
       }
       setLoading(true);
       try {
-        if (isNativePlatform()) {
+        if (isNativePlatform() || rcInitialised) {
           // ── Native iOS / StoreKit ──────────────────────────────────────
           await initRevenueCat(user.id);
 
