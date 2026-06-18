@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -787,13 +789,19 @@ const Settings = () => {
                   <Button
                     variant="outline"
                     className="w-full bg-yellow-600/10 border-yellow-600/50 text-yellow-100 hover:bg-yellow-600/20 hover:text-yellow-50"
-                    onClick={() => {
+                    onClick={async () => {
                       toast.info("Opening subscription management...");
-                      // This would typically open Stripe customer portal
-                      window.open(
-                        import.meta.env.VITE_STRIPE_PORTAL_URL || "https://billing.stripe.com",
-                        "_blank"
-                      );
+                      const isNative =
+                        Capacitor.isNativePlatform() || Capacitor.getPlatform() === "ios";
+                      if (isNative) {
+                        // Apple requires subscriptions to be managed through iOS Settings
+                        await Browser.open({ url: "https://apps.apple.com/account/subscriptions" });
+                      } else {
+                        window.open(
+                          import.meta.env.VITE_STRIPE_PORTAL_URL || "https://billing.stripe.com",
+                          "_blank"
+                        );
+                      }
                     }}
                   >
                     Manage Subscription
@@ -832,25 +840,33 @@ const Settings = () => {
                         <AlertDialogCancel>Keep Premium</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={async () => {
-                            try {
-                              setLoading(true);
-                              // Update premium status in database
-                              const { error } = await supabase
-                                .from("profiles")
-                                .update({ is_premium: false })
-                                .eq("id", user?.id);
-
-                              if (error) throw error;
-
-                              setIsPremium(false);
-                              toast.success(
-                                "Premium membership cancelled. You'll have access until the end of your billing period."
-                              );
-                            } catch (error) {
-                              toast.error("Failed to cancel membership. Please try again.");
-                              console.error(error);
-                            } finally {
-                              setLoading(false);
+                            const isNative =
+                              Capacitor.isNativePlatform() || Capacitor.getPlatform() === "ios";
+                            if (isNative) {
+                              // Apple does not allow cancelling subscriptions from inside the app
+                              // Must redirect user to iOS subscription management
+                              await Browser.open({
+                                url: "https://apps.apple.com/account/subscriptions",
+                              });
+                              toast.info("To cancel, tap your subscription and select Cancel.");
+                            } else {
+                              try {
+                                setLoading(true);
+                                const { error } = await supabase
+                                  .from("profiles")
+                                  .update({ is_premium: false })
+                                  .eq("id", user?.id);
+                                if (error) throw error;
+                                setIsPremium(false);
+                                toast.success(
+                                  "Premium membership cancelled. You'll have access until the end of your billing period."
+                                );
+                              } catch (error) {
+                                toast.error("Failed to cancel membership. Please try again.");
+                                console.error(error);
+                              } finally {
+                                setLoading(false);
+                              }
                             }
                           }}
                           className="bg-primary hover:bg-primary"
