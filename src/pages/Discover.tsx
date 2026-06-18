@@ -2334,20 +2334,24 @@ const Discover = () => {
     <div className="min-h-dvh pb-24 page-bg">
       {/* Header */}
       <div className="container mx-auto max-w-2xl p-4">
-        <div className="rounded-2xl p-5 mb-6 glass-header">
+        <div className="rounded-2xl px-3 py-3 mb-6 glass-header">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <img src="/eagle-logo.png" alt="Shqiponja" className="h-12 w-12 object-contain" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] bg-clip-text text-transparent">
+            <div className="flex items-center gap-2">
+              <img
+                src="/eagle-logo.png"
+                alt="Shqiponja"
+                className="h-9 w-9 object-contain shrink-0"
+              />
+              <span className="text-lg font-bold bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] bg-clip-text text-transparent">
                 Shqiponja
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
               <button
                 onClick={() =>
                   boosterActive ? setShowBoostStatusDialog(true) : setShowBoostDialog(true)
                 }
-                className={`relative flex items-center justify-center h-10 w-10 rounded-full transition-colors group ${boosterActive ? "bg-primary/10" : "hover:bg-muted"}`}
+                className={`relative flex items-center justify-center h-9 w-9 rounded-full transition-colors group ${boosterActive ? "bg-primary/10" : "hover:bg-muted"}`}
                 aria-label={t("discover.boostAria")}
               >
                 <Zap
@@ -2362,7 +2366,7 @@ const Discover = () => {
                 onClick={() =>
                   swipeLimit.isPremium ? navigate("/settings") : setShowUpgradeDialog(true)
                 }
-                className="flex items-center justify-center h-10 w-10 hover:bg-muted rounded-full transition-colors"
+                className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-full transition-colors"
                 aria-label={t("discover.premiumAria")}
               >
                 <Crown
@@ -2371,7 +2375,7 @@ const Discover = () => {
               </button>
               <button
                 onClick={handleOpenNotifications}
-                className="relative flex items-center justify-center h-10 w-10 hover:bg-muted rounded-full transition-colors"
+                className="relative flex items-center justify-center h-9 w-9 hover:bg-muted rounded-full transition-colors"
                 aria-label={t("discover.notificationsAria")}
               >
                 <Bell className="h-6 w-6 text-foreground" />
@@ -2387,7 +2391,7 @@ const Discover = () => {
               <Sheet>
                 <SheetTrigger asChild>
                   <button
-                    className="flex items-center justify-center h-10 w-10 hover:bg-muted rounded-full transition-colors"
+                    className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-full transition-colors"
                     aria-label={t("discover.menuAria")}
                   >
                     <Menu className="h-6 w-6 text-primary" />
