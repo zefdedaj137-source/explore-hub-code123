@@ -157,20 +157,43 @@ export function usePurchases() {
           await initRevenueCat(user.id);
 
           if (productId === PRODUCT_IDS.PREMIUM_MONTHLY) {
-            // Use RevenueCat Offerings for subscriptions
+            // Try RevenueCat Offerings first; fall back to direct StoreKit if empty
             const { current } = await Purchases.getOfferings();
             const pkg =
               current?.availablePackages.find((p) => p.product.identifier === productId) ??
               current?.availablePackages[0];
-            if (!pkg) throw new Error("Subscription product not found");
-            const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
+
+            let customerInfo;
+            if (pkg) {
+              ({ customerInfo } = await Purchases.purchasePackage({ aPackage: pkg }));
+            } else {
+              // Offerings not configured in RevenueCat — purchase directly via StoreKit
+              const { products } = await Purchases.getProducts({
+                productIdentifiers: [productId],
+              });
+              const storeProduct = products[0];
+              if (!storeProduct)
+                throw new Error(
+                  "Subscription product not found in App Store. Check App Store Connect status."
+                );
+              const result = await Purchases.purchaseStoreProduct({ product: storeProduct });
+              customerInfo = result.customerInfo;
+            }
             const active = !!customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT];
             setHasPremium(active);
             if (active) toast.success("Welcome to Premium! 🎉");
           } else {
-            // Consumable: purchase via StoreKit
+            // Consumable: fetch the real StoreProduct first, then purchase
+            const { products } = await Purchases.getProducts({
+              productIdentifiers: [productId],
+            });
+            const storeProduct = products[0];
+            if (!storeProduct)
+              throw new Error(
+                "Product not found in App Store. Check product ID and App Store Connect status."
+              );
             const { transaction } = await Purchases.purchaseStoreProduct({
-              product: { productIdentifier: productId } as never,
+              product: storeProduct,
             });
             if (transaction) {
               await fulfillNativePurchase(productId);
