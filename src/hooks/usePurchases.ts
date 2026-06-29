@@ -11,7 +11,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import { Purchases, LOG_LEVEL } from "@revenuecat/purchases-capacitor";
+import { Purchases, LOG_LEVEL, PURCHASE_TYPE } from "@revenuecat/purchases-capacitor";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -168,8 +168,10 @@ export function usePurchases() {
               ({ customerInfo } = await Purchases.purchasePackage({ aPackage: pkg }));
             } else {
               // Offerings not configured in RevenueCat — purchase directly via StoreKit
+              // Must pass type: SUBSCRIPTION or Apple won't return subscription products
               const { products } = await Purchases.getProducts({
                 productIdentifiers: [productId],
+                type: PURCHASE_TYPE.SUBSCRIPTION,
               });
               const storeProduct = products[0];
               if (!storeProduct)
