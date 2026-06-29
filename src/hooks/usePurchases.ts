@@ -11,7 +11,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import { Purchases, LOG_LEVEL, PURCHASE_TYPE } from "@revenuecat/purchases-capacitor";
+import { Purchases, LOG_LEVEL } from "@revenuecat/purchases-capacitor";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -156,51 +156,29 @@ export function usePurchases() {
           // ── Native iOS / StoreKit ──────────────────────────────────────
           await initRevenueCat(user.id);
 
-          if (productId === PRODUCT_IDS.PREMIUM_MONTHLY) {
-            // Try RevenueCat Offerings first; fall back to direct StoreKit if empty
-            const { current } = await Purchases.getOfferings();
-            const pkg =
-              current?.availablePackages.find((p) => p.product.identifier === productId) ??
-              current?.availablePackages[0];
+          // Always use purchasePackage — purchaseStoreProduct loses the native
+          // identifier key when the StoreProduct crosses the Capacitor bridge.
+          const { current } = await Purchases.getOfferings();
+          const allPackages = current?.availablePackages ?? [];
+          const pkg = allPackages.find((p) => p.product.identifier === productId);
 
-            let customerInfo;
-            if (pkg) {
-              ({ customerInfo } = await Purchases.purchasePackage({ aPackage: pkg }));
-            } else {
-              // Offerings not configured in RevenueCat — purchase directly via StoreKit
-              // Must pass type: SUBSCRIPTION or Apple won't return subscription products
-              const { products } = await Purchases.getProducts({
-                productIdentifiers: [productId],
-                type: PURCHASE_TYPE.SUBSCRIPTION,
-              });
-              const storeProduct = products[0];
-              if (!storeProduct)
-                throw new Error(
-                  "Subscription product not found in App Store. Check App Store Connect status."
-                );
-              const result = await Purchases.purchaseStoreProduct({ product: storeProduct });
-              customerInfo = result.customerInfo;
-            }
+          if (!pkg) {
+            throw new Error(
+              `Product "${productId}" not found in RevenueCat offerings. ` +
+                `Make sure it is added as a package in the RevenueCat dashboard default offering.`
+            );
+          }
+
+          const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
+
+          if (productId === PRODUCT_IDS.PREMIUM_MONTHLY) {
             const active = !!customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT];
             setHasPremium(active);
             if (active) toast.success("Welcome to Premium! 🎉");
           } else {
-            // Consumable: fetch the real StoreProduct first, then purchase
-            const { products } = await Purchases.getProducts({
-              productIdentifiers: [productId],
-            });
-            const storeProduct = products[0];
-            if (!storeProduct)
-              throw new Error(
-                "Product not found in App Store. Check product ID and App Store Connect status."
-              );
-            const { transaction } = await Purchases.purchaseStoreProduct({
-              product: storeProduct,
-            });
-            if (transaction) {
-              await fulfillNativePurchase(productId);
-              toast.success("Purchase successful!");
-            }
+            // Consumable — fulfil server-side (add coins / superlikes)
+            await fulfillNativePurchase(productId);
+            toast.success("Purchase successful!");
           }
         } else {
           // ── Web: Stripe Checkout ────────────────────────────────────────
