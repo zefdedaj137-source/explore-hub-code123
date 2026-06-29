@@ -793,11 +793,21 @@ All colors MUST be HSL.
     height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
   /* Swipeable card area — allow vertical scroll but block pinch zoom */
   .swipe-area {
     touch-action: pan-y;
+  }
+
+  /* iOS momentum scroll for any overflow-y-auto container */
+  .overflow-y-auto,
+  .overflow-y-scroll,
+  [class*="overflow-y-auto"],
+  [class*="overflow-y-scroll"] {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
   /* ── Page background — light by default, dark when .dark class active ─── */
