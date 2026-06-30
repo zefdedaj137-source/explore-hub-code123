@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=428px, initial-scale=1">
+<title>Shqiponja — Screenshot Generator</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; display: flex; flex-direction: column; align-items: center; gap: 40px; padding: 40px 20px; }
+
+  .label { color: #aaa; font-size: 13px; margin-bottom: 8px; text-align: center; }
+  .frame { position: relative; overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,0.6); }
+
+  /* ── SCREEN 1 — Discover (phone) ── */
+  .screen {
+    background: #fdf8f8;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    height: 50px;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: flex-end;
+    padding: 0 20px 8px;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+
+  .header {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    margin: 8px 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+  .logo-row { display: flex; align-items: center; gap: 8px; }
+  .logo-eagle {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #f5373b, #ff7043);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .logo-text { font-size: 18px; font-weight: 800; background: linear-gradient(135deg, #f5373b, #ff7043); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header-icons { display: flex; gap: 4px; }
+  .icon-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+  .tabs { display: flex; margin: 4px 16px 8px; gap: 8px; }
+  .tab { flex: 1; text-align: center; padding: 10px; border-radius: 14px; font-size: 14px; font-weight: 600; }
+  .tab-active { background: linear-gradient(135deg, #f5373b, #ff7043); color: white; }
+  .tab-inactive { background: white; color: #888; }
+
+  .card {
+    margin: 0 16px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    position: relative;
+    flex: 1;
+    max-height: 520px;
+  }
+  .card-img {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, #2d1b4e 0%, #4a1942 40%, #c0392b 100%);
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-img::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 600'%3E%3Ccircle cx='200' cy='180' r='130' fill='%23ffffff10'/%3E%3Ccircle cx='200' cy='160' r='80' fill='%23ffffff08'/%3E%3C/svg%3E") center/cover;
+  }
+  .person-silhouette {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 140px;
+    opacity: 0.5;
+  }
+  .card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+  }
+  .card-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    color: white;
+  }
+  .card-name { font-size: 26px; font-weight: 800; }
+  .card-age { font-size: 22px; font-weight: 300; opacity: 0.9; }
+  .card-badges { display: flex; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
+  .badge { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+  .badge-verified { background: linear-gradient(135deg,#f5373b,#ff7043); }
+  .badge-online { background: #27ae60; }
+  .badge-match { background: linear-gradient(135deg,#e91e63,#ff5722); }
+  .card-loc { font-size: 13px; opacity: 0.8; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+  .photo-dots { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 4px; }
+  .dot { flex: 1; height: 3px; border-radius: 2px; }
+  .dot-active { background: white; }
+  .dot-inactive { background: rgba(255,255,255,0.35); }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+  }
+  .action-btn {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+  .btn-nope { background: white; border: 2px solid #ff4444; }
+  .btn-superlike { background: white; border: 2px solid #3498db; width: 48px; height: 48px; font-size: 20px; }
+  .btn-like { background: linear-gradient(135deg,#f5373b,#ff7043); }
+  .btn-rose { background: white; border: 2px solid #e91e63; width: 48px; height: 48px; font-size: 20px; }
+
+  .bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0 20px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 20px; }
+  .nav-dot { width: 5px; height: 5px; border-radius: 50%; background: #f5373b; }
+
+  /* ── SCREEN 2 — Matches/Chat ── */
+  .chat-screen { background: #fdf8f8; }
+  .match-header { background: white; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .match-title { font-size: 22px; font-weight: 800; color: #1a1a2e; }
+  .match-subtitle { font-size: 13px; color: #888; margin-top: 2px; }
+  .match-row { display: flex; gap: 14px; padding: 12px 16px; overflow: hidden; }
+  .match-avatar { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .avatar-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg,#f5373b,#ff7043); padding: 2px; }
+  .avatar-inner { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(160deg,#4a1942,#c0392b); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .avatar-name { font-size: 11px; color: #555; font-weight: 600; }
+  .chat-list { flex: 1; }
+  .chat-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f5f0f0; }
+  .chat-avatar { width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; position: relative; }
+  .online-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; background: #27ae60; border: 2px solid white; }
+  .chat-info { flex: 1; }
+  .chat-name { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+  .chat-preview { font-size: 13px; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-meta { text-align: right; }
+  .chat-time { font-size: 11px; color: #aaa; }
+  .chat-badge { background: linear-gradient(135deg,#f5373b,#ff7043); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-left: auto; margin-top: 4px; }
+
+  /* ── SCREEN 3 — Profile ── */
+  .profile-header-img { height: 280px; background: linear-gradient(160deg,#4a1942,#c0392b); display: flex; align-items: center; justify-content: center; font-size: 100px; position: relative; }
+  .profile-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%); }
+  .profile-info { padding: 16px; }
+  .profile-name { font-size: 26px; font-weight: 800; color: #1a1a2e; }
+  .profile-sub { font-size: 14px; color: #888; margin-top: 4px; }
+  .profile-stats { display: flex; gap: 12px; margin: 14px 0; }
+  .stat { flex: 1; background: white; border-radius: 16px; padding: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .stat-num { font-size: 22px; font-weight: 800; background: linear-gradient(135deg,#f5373b,#ff7043); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+  .interests { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .interest-tag { padding: 6px 14px; border-radius: 20px; background: rgba(245,55,59,0.08); color: #f5373b; font-size: 13px; font-weight: 600; border: 1px solid rgba(245,55,59,0.2); }
+
+  /* iPad screen */
+  .ipad-screen { background: #fdf8f8; display: flex; }
+  .ipad-sidebar { width: 320px; background: white; border-right: 1px solid #f0e8e8; display: flex; flex-direction: column; }
+  .ipad-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ipad-card { width: 360px; border-radius: 28px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.2); }
+</style>
+</head>
+<body>
+
+<div style="color:#fff;font-size:22px;font-weight:800;margin-bottom:10px;">📱 Shqiponja — App Store Screenshots</div>
+<div style="color:#aaa;font-size:13px;margin-bottom:30px;text-align:center;">Instructions: Right-click any screenshot → "Save image as…" OR use Chrome DevTools → Capture screenshot</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCREENSHOT 1 — Discover / Swipe (iPhone 6.5" = 428×926) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="label">📸 Screenshot 1 — Discover (428 × 926 → save then resize to 1284×2778)</div>
+<div class="frame" style="width:428px; height:926px; border-radius:50px;">
+  <div class="screen" style="width:428px; height:926px;">
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div style="width:120px;height:34px;background:#000;border-radius:0 0 20px 20px;margin-top:-50px;margin-left:50%;transform:translateX(-50%);position:relative;"></div>
+      <span>▐▌ ◻ ▊</span>
+    </div>
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-row">
+        <div class="logo-eagle">🦅</div>
+        <span class="logo-text">Shqiponja</span>
+      </div>
+      <div class="header-icons">
+        <div class="icon-btn">⚡</div>
+        <div class="icon-btn">👑</div>
+        <div class="icon-btn">🔔</div>
+        <div class="icon-btn">☰</div>
+      </div>
+    </div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab tab-active">For You</div>
+      <div class="tab tab-inactive">Last Active</div>
+    </div>
+    <!-- Swipe Card -->
+    <div class="card">
+      <div class="card-img" style="height:100%;">
+        <div class="photo-dots">
+          <div class="dot dot-active"></div>
+          <div class="dot dot-inactive"></div>
+          <div class="dot dot-inactive"></div>
+        </div>
+        <div class="person-silhouette">👩</div>
+        <div class="card-overlay"></div>
+        <div class="card-info">
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span class="card-name">Arta</span>
+            <span class="card-age">24</span>
+          </div>
+          <div class="card-badges">
+            <span class="badge badge-verified">✓ Verified</span>
+            <span class="badge badge-online">● Online</span>
+            <span class="badge badge-match">❤️ 87% Match</span>
+          </div>
+          <div class="card-loc">📍 Tiranë, Albania · 2 km away</div>
+        </div>
+      </div>
+    </div>
+    <!-- Actions -->
+    <div class="actions">
+      <div class="action-btn btn-nope">✕</div>
+      <div class="action-btn btn-superlike" style="width:48px;height:48px;font-size:20px;">⭐</div>
+      <div class="action-btn btn-like">♥</div>
+      <div class="action-btn btn-rose" style="width:48px;height:48px;font-size:20px;">🌹</div>
+    </div>
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item">🏠<div class="nav-dot"></div></div>
+      <div class="nav-item" style="opacity:0.4">💬</div>
+      <div class="nav-item" style="opacity:0.4">📍</div>
+      <div class="nav-item" style="opacity:0.4">👤</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCREENSHOT 2 — Matches / Chat -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="label">📸 Screenshot 2 — Matches & Chat</div>
+<div class="frame" style="width:428px; height:926px; border-radius:50px;">
+  <div class="screen chat-screen" style="width:428px; height:926px; display:flex; flex-direction:column;">
+    <div class="status-bar" style="background:white;">
+      <span>9:41</span><span>▐▌ ◻ ▊</span>
+    </div>
+    <div class="match-header">
+      <div class="match-title">Matches</div>
+      <div class="match-subtitle">People who liked you back 💫</div>
+      <!-- Match bubbles -->
+      <div class="match-row" style="margin-top:14px;">
+        <div class="match-avatar">
+          <div class="avatar-ring"><div class="avatar-inner">👩</div></div>
+          <span class="avatar-name">Arta</span>
+        </div>
+        <div class="match-avatar">
+          <div class="avatar-ring" style="background:linear-gradient(135deg,#9b59b6,#3498db)"><div class="avatar-inner" style="background:linear-gradient(160deg,#1a3a5c,#2980b9)">👱‍♀️</div></div>
+          <span class="avatar-name">Fjolla</span>
+        </div>
+        <div class="match-avatar">
+          <div class="avatar-ring" style="background:linear-gradient(135deg,#27ae60,#2980b9)"><div class="avatar-inner" style="background:linear-gradient(160deg,#1a4a3a,#1a6a2a)">👧</div></div>
+          <span class="avatar-name">Besa</span>
+        </div>
+        <div class="match-avatar">
+          <div class="avatar-ring" style="background:linear-gradient(135deg,#e67e22,#e74c3c)"><div class="avatar-inner" style="background:linear-gradient(160deg,#4a2010,#8b2500)">👩‍🦰</div></div>
+          <span class="avatar-name">Drita</span>
+        </div>
+        <div class="match-avatar">
+          <div class="avatar-ring" style="background:linear-gradient(135deg,#f39c12,#d35400)"><div class="avatar-inner" style="background:linear-gradient(160deg,#3d2010,#5c3010)">🙍‍♀️</div></div>
+          <span class="avatar-name">Teuta</span>
+        </div>
+      </div>
+    </div>
+    <!-- Chat list -->
+    <div style="padding:10px 0 0;font-size:13px;font-weight:700;color:#888;padding-left:16px;">MESSAGES</div>
+    <div class="chat-list">
+      <div class="chat-item">
+        <div class="chat-avatar" style="background:linear-gradient(160deg,#4a1942,#c0392b)">👩<div class="online-dot"></div></div>
+        <div class="chat-info">
+          <div class="chat-name">Arta</div>
+          <div class="chat-preview">Faleminderit shumë! 😊 A jeni në Tiranë?</div>
+        </div>
+        <div class="chat-meta">
+          <div class="chat-time">2m</div>
+          <div class="chat-badge">2</div>
+        </div>
+      </div>
+      <div class="chat-item">
+        <div class="chat-avatar" style="background:linear-gradient(160deg,#1a3a5c,#2980b9)">👱‍♀️</div>
+        <div class="chat-info">
+          <div class="chat-name">Fjolla</div>
+          <div class="chat-preview">Po, do dalim fundjavën? 🌹</div>
+        </div>
+        <div class="chat-meta"><div class="chat-time">1h</div></div>
+      </div>
+      <div class="chat-item">
+        <div class="chat-avatar" style="background:linear-gradient(160deg,#1a4a3a,#27ae60)">👧<div class="online-dot"></div></div>
+        <div class="chat-info">
+          <div class="chat-name">Besa</div>
+          <div class="chat-preview">Haha, kjo është shumë e drejtë! 😄</div>
+        </div>
+        <div class="chat-meta">
+          <div class="chat-time">3h</div>
+          <div class="chat-badge">1</div>
+        </div>
+      </div>
+      <div class="chat-item">
+        <div class="chat-avatar" style="background:linear-gradient(160deg,#4a2010,#8b2500)">👩‍🦰</div>
+        <div class="chat-info">
+          <div class="chat-name">Drita</div>
+          <div class="chat-preview">Çfarë muzike dëgjon? 🎵</div>
+        </div>
+        <div class="chat-meta"><div class="chat-time">Yesterday</div></div>
+      </div>
+      <div class="chat-item">
+        <div class="chat-avatar" style="background:linear-gradient(160deg,#3d2010,#5c3010)">🙍‍♀️</div>
+        <div class="chat-info">
+          <div class="chat-name">Teuta</div>
+          <div class="chat-preview">Gëzuar! Shpresoj ta shijojmë.</div>
+        </div>
+        <div class="chat-meta"><div class="chat-time">2 days</div></div>
+      </div>
+    </div>
+    <div class="bottom-nav" style="margin-top:auto;">
+      <div class="nav-item" style="opacity:0.4">🏠</div>
+      <div class="nav-item">💬<div class="nav-dot"></div></div>
+      <div class="nav-item" style="opacity:0.4">📍</div>
+      <div class="nav-item" style="opacity:0.4">👤</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCREENSHOT 3 — Profile -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="label">📸 Screenshot 3 — Your Profile</div>
+<div class="frame" style="width:428px; height:926px; border-radius:50px;">
+  <div class="screen" style="width:428px; height:926px; overflow:hidden;">
+    <div class="status-bar" style="background:rgba(74,25,66,0.9);color:white;">
+      <span>9:41</span><span>▐▌ ◻ ▊</span>
+    </div>
+    <div class="profile-header-img">
+      👩‍🦱
+      <div class="profile-overlay"></div>
+      <div style="position:absolute;bottom:16px;left:16px;color:white;">
+        <div style="font-size:28px;font-weight:800;">Arta B.</div>
+        <div style="font-size:14px;opacity:0.8;margin-top:2px;">📍 Tiranë · Online now</div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <span class="badge badge-verified">✓ Verified</span>
+          <span style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:linear-gradient(135deg,#f5373b,#ff7043);color:white;">Premium</span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-info">
+      <div class="profile-stats">
+        <div class="stat"><div class="stat-num">47</div><div class="stat-label">Likes</div></div>
+        <div class="stat"><div class="stat-num">12</div><div class="stat-label">Matches</div></div>
+        <div class="stat"><div class="stat-num">98%</div><div class="stat-label">Response</div></div>
+      </div>
+      <div style="font-size:14px;color:#555;line-height:1.6;margin-top:4px;">
+        Dashuruese e natyrës dhe kafesë 🌿☕ Punoj si dizajnere grafike dhe kërkoj dikë me të cilin të ndaj aventura dhe buzëqeshje.
+      </div>
+      <div class="interests">
+        <span class="interest-tag">🎨 Art</span>
+        <span class="interest-tag">☕ Coffee</span>
+        <span class="interest-tag">✈️ Travel</span>
+        <span class="interest-tag">🎵 Music</span>
+        <span class="interest-tag">🌿 Nature</span>
+        <span class="interest-tag">📸 Photography</span>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;">
+        <button style="flex:1;background:linear-gradient(135deg,#f5373b,#ff7043);color:white;border:none;border-radius:16px;padding:14px;font-size:15px;font-weight:700;">Edit Profile</button>
+        <button style="width:50px;background:white;border:2px solid #f5373b;border-radius:16px;font-size:20px;">⚙️</button>
+      </div>
+    </div>
+    <div class="bottom-nav" style="position:absolute;bottom:0;left:0;right:0;">
+      <div class="nav-item" style="opacity:0.4">🏠</div>
+      <div class="nav-item" style="opacity:0.4">💬</div>
+      <div class="nav-item" style="opacity:0.4">📍</div>
+      <div class="nav-item">👤<div class="nav-dot"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCREENSHOT 4 — iPad (13-inch = 1024×1366 display) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="label">📸 Screenshot 4 — iPad (13-inch) — save then resize to 2048×2732</div>
+<div class="frame" style="width:1024px; height:1366px; border-radius:30px;">
+  <div class="ipad-screen" style="width:1024px; height:1366px;">
+    <!-- Sidebar -->
+    <div class="ipad-sidebar">
+      <div class="status-bar" style="background:white;color:#1a1a2e;border-bottom:1px solid #f0e8e8;">
+        <span>9:41</span><span>▐▌ ▊</span>
+      </div>
+      <div style="padding:20px 16px 10px;">
+        <div class="logo-row" style="margin-bottom:20px;">
+          <div class="logo-eagle" style="width:44px;height:44px;font-size:24px;">🦅</div>
+          <span class="logo-text" style="font-size:22px;">Shqiponja</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#888;margin-bottom:10px;">MATCHES</div>
+        <div class="chat-item" style="border-radius:14px;background:rgba(245,55,59,0.06);border-bottom:none;margin-bottom:4px;">
+          <div class="chat-avatar" style="background:linear-gradient(160deg,#4a1942,#c0392b)">👩<div class="online-dot"></div></div>
+          <div class="chat-info"><div class="chat-name">Arta</div><div class="chat-preview">Faleminderit shumë! 😊</div></div>
+          <div class="chat-badge">2</div>
+        </div>
+        <div class="chat-item" style="border-radius:14px;border-bottom:none;margin-bottom:4px;">
+          <div class="chat-avatar" style="background:linear-gradient(160deg,#1a3a5c,#2980b9)">👱‍♀️</div>
+          <div class="chat-info"><div class="chat-name">Fjolla</div><div class="chat-preview">Po, do dalim fundjavën? 🌹</div></div>
+        </div>
+        <div class="chat-item" style="border-radius:14px;border-bottom:none;margin-bottom:4px;">
+          <div class="chat-avatar" style="background:linear-gradient(160deg,#1a4a3a,#27ae60)">👧<div class="online-dot"></div></div>
+          <div class="chat-info"><div class="chat-name">Besa</div><div class="chat-preview">Haha, kjo është shumë e drejtë!</div></div>
+          <div class="chat-badge">1</div>
+        </div>
+        <div class="chat-item" style="border-radius:14px;border-bottom:none;margin-bottom:4px;">
+          <div class="chat-avatar" style="background:linear-gradient(160deg,#4a2010,#8b2500)">👩‍🦰</div>
+          <div class="chat-info"><div class="chat-name">Drita</div><div class="chat-preview">Çfarë muzike dëgjon? 🎵</div></div>
+        </div>
+        <div class="chat-item" style="border-radius:14px;border-bottom:none;">
+          <div class="chat-avatar" style="background:linear-gradient(160deg,#3d2010,#5c3010)">🙍‍♀️</div>
+          <div class="chat-info"><div class="chat-name">Teuta</div><div class="chat-preview">Gëzuar! Shpresoj ta shijojmë.</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Main area -->
+    <div class="ipad-main" style="background:#fdf8f8;position:relative;">
+      <!-- Header strip -->
+      <div style="position:absolute;top:0;left:0;right:0;background:rgba(255,255,255,0.9);backdrop-filter:blur(20px);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0e8e8;">
+        <div style="display:flex;gap:8px;">
+          <div class="tab tab-active" style="padding:8px 20px;">For You</div>
+          <div class="tab tab-inactive" style="padding:8px 20px;">Last Active</div>
+        </div>
+        <div class="header-icons">
+          <div class="icon-btn">⚡</div><div class="icon-btn">👑</div><div class="icon-btn">🔔</div>
+        </div>
+      </div>
+      <!-- Swipe card -->
+      <div class="ipad-card" style="margin-top:30px;">
+        <div style="position:relative;height:580px;background:linear-gradient(160deg,#2d1b4e 0%,#4a1942 40%,#c0392b 100%);">
+          <div class="photo-dots" style="top:14px;left:14px;right:14px;">
+            <div class="dot dot-active"></div><div class="dot dot-inactive"></div><div class="dot dot-inactive"></div>
+          </div>
+          <div style="position:absolute;bottom:140px;left:50%;transform:translateX(-50%);font-size:160px;opacity:0.5;">👩</div>
+          <div class="card-overlay"></div>
+          <div class="card-info">
+            <div style="display:flex;align-items:baseline;gap:10px;">
+              <span style="font-size:32px;font-weight:800;color:white;">Arta</span>
+              <span style="font-size:26px;color:white;opacity:0.9;">24</span>
+            </div>
+            <div class="card-badges">
+              <span class="badge badge-verified">✓ Verified</span>
+              <span class="badge badge-online">● Online</span>
+              <span class="badge badge-match">❤️ 87% Match</span>
+            </div>
+            <div class="card-loc" style="color:rgba(255,255,255,0.8);font-size:14px;">📍 Tiranë · 2 km away</div>
+          </div>
+        </div>
+        <div style="background:white;padding:20px;display:flex;justify-content:center;gap:20px;">
+          <div class="action-btn btn-nope" style="width:64px;height:64px;font-size:28px;">✕</div>
+          <div class="action-btn btn-superlike" style="width:56px;height:56px;font-size:24px;">⭐</div>
+          <div class="action-btn btn-like" style="width:64px;height:64px;font-size:28px;">♥</div>
+          <div class="action-btn btn-rose" style="width:56px;height:56px;font-size:24px;">🌹</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="color:#ccc;font-size:13px;margin-top:20px;text-align:center;max-width:700px;">
+  <b style="color:#f5373b;">How to save as PNG:</b><br>
+  1. Open this file in Chrome<br>
+  2. Press F12 → Console → type: <code style="background:#333;padding:2px 6px;border-radius:4px;">document.querySelectorAll('.frame').forEach((el,i)=>{ el.scrollIntoView(); })</code><br>
+  3. Or simply right-click each screenshot frame → "Save image as" won't work for div — instead use <b>Chrome DevTools → Elements → right-click .frame → Capture node screenshot</b><br>
+  4. Upload to App Store Connect. iPhone screenshots: upload all 3 phone ones. iPad: upload the wide one.
+</div>
+
+</body>
+</html>

@@ -135,6 +135,7 @@ const Discover = () => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [notificationTab, setNotificationTab] = useState<"views" | "likes">("views");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [cardImageIndex, setCardImageIndex] = useState(0); // photo index on main swipe card
   // Load last seen count from localStorage on mount (user-specific)
   const [lastSeenNotificationCount, setLastSeenNotificationCount] = useState(() => {
     if (!user) return 0;
@@ -991,6 +992,7 @@ const Discover = () => {
     // Optimistically advance to the next card immediately — reverted on failure
     const preSwipeIndex = currentProfileIndex;
     setCurrentProfileIndex((prev) => prev + 1);
+    setCardImageIndex(0); // reset photo index for new card
 
     try {
       // Use the like_user RPC function which handles swipe limits
@@ -2331,7 +2333,7 @@ const Discover = () => {
   }
 
   return (
-    <div className="min-h-dvh pb-24 page-bg">
+    <div className="min-h-dvh pb-24 page-bg" style={{ paddingTop: "env(safe-area-inset-top)" }}>
       {/* Header */}
       <div className="container mx-auto max-w-2xl p-4">
         <div className="rounded-2xl px-3 py-3 mb-6 glass-header">
@@ -3031,11 +3033,57 @@ const Discover = () => {
                       {currentProfile.profile_image_url ? (
                         <>
                           <OptimizedImage
-                            src={currentProfile.profile_image_url}
+                            src={
+                              (currentProfile.profile_images &&
+                                currentProfile.profile_images[cardImageIndex]) ||
+                              currentProfile.profile_image_url
+                            }
                             alt={currentProfile.full_name}
                             className="w-full h-full"
                             priority
                           />
+                          {/* Photo progress dots */}
+                          {currentProfile.profile_images &&
+                            currentProfile.profile_images.length > 1 && (
+                              <div className="absolute top-3 left-3 right-3 flex gap-1 z-10">
+                                {currentProfile.profile_images.map((_, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={`h-1 flex-1 rounded-full transition-all ${idx === cardImageIndex ? "bg-white" : "bg-white/40"}`}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          {/* Tap left = prev photo, tap right = next photo */}
+                          {currentProfile.profile_images &&
+                            currentProfile.profile_images.length > 1 && (
+                              <>
+                                <div
+                                  className="absolute left-0 top-0 w-1/3 h-full z-10 cursor-pointer"
+                                  onPointerDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCardImageIndex((prev) =>
+                                      prev === 0
+                                        ? currentProfile.profile_images!.length - 1
+                                        : prev - 1
+                                    );
+                                  }}
+                                />
+                                <div
+                                  className="absolute right-0 top-0 w-1/3 h-full z-10 cursor-pointer"
+                                  onPointerDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCardImageIndex((prev) =>
+                                      prev === currentProfile.profile_images!.length - 1
+                                        ? 0
+                                        : prev + 1
+                                    );
+                                  }}
+                                />
+                              </>
+                            )}
                           {/* Gradient overlay for better text readability */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
