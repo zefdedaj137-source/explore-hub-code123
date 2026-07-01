@@ -160,9 +160,12 @@ const Discover = () => {
 
   // Swipe gesture state
   const [swipeOffset, setSwipeOffset] = useState(0);
+  const [swipeOffsetY, setSwipeOffsetY] = useState(0);
   const [swipeStartX, setSwipeStartX] = useState<number | null>(null);
+  const [swipeStartY, setSwipeStartY] = useState<number | null>(null);
+  const [swipeAxis, setSwipeAxis] = useState<"x" | "y" | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
-  const [swipeExiting, setSwipeExiting] = useState<"left" | "right" | null>(null);
+  const [swipeExiting, setSwipeExiting] = useState<"left" | "right" | "up" | "down" | null>(null);
   const [showSwipeHint, setShowSwipeHint] = useState(() => {
     try {
       return !localStorage.getItem("discover_hint_shown");
@@ -181,24 +184,54 @@ const Discover = () => {
   const handlePassRef = useRef<((profileId: string) => Promise<void>) | null>(null);
 
   const SWIPE_THRESHOLD = 72;
+  const SWIPE_THRESHOLD_Y = 90;
 
-  const handleSwipeStart = useCallback((clientX: number) => {
+  const handleSwipeStart = useCallback((clientX: number, clientY: number) => {
     setSwipeStartX(clientX);
+    setSwipeStartY(clientY);
+    setSwipeAxis(null);
     setIsSwiping(true);
   }, []);
 
   const handleSwipeMove = useCallback(
-    (clientX: number) => {
-      if (swipeStartX === null) return;
-      setSwipeOffset(clientX - swipeStartX);
+    (clientX: number, clientY: number) => {
+      if (swipeStartX === null || swipeStartY === null) return;
+      const dx = clientX - swipeStartX;
+      const dy = clientY - swipeStartY;
+      // Lock axis after 8px movement to prevent diagonal jitter
+      if (swipeAxis === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+        setSwipeAxis(Math.abs(dx) >= Math.abs(dy) ? "x" : "y");
+      }
+      if (swipeAxis === "x" || (swipeAxis === null && Math.abs(dx) > Math.abs(dy))) {
+        setSwipeOffset(dx);
+      } else {
+        setSwipeOffsetY(dy);
+      }
     },
-    [swipeStartX]
+    [swipeStartX, swipeStartY, swipeAxis]
   );
 
   const handleSwipeEnd = useCallback(() => {
     if (!isSwiping) return;
     const currentProfile = profiles[currentProfileIndex];
-    if (Math.abs(swipeOffset) > SWIPE_THRESHOLD && currentProfile) {
+    if (swipeAxis === "y" && Math.abs(swipeOffsetY) > SWIPE_THRESHOLD_Y && currentProfile) {
+      const direction = swipeOffsetY < 0 ? "up" : "down"; // up = like, down = pass
+      setSwipeExiting(direction);
+      setTimeout(() => {
+        if (direction === "up") {
+          handleLikeRef.current?.(currentProfile.id);
+        } else {
+          handlePassRef.current?.(currentProfile.id);
+        }
+        setSwipeExiting(null);
+        setSwipeOffset(0);
+        setSwipeOffsetY(0);
+        setSwipeStartX(null);
+        setSwipeStartY(null);
+        setSwipeAxis(null);
+        setIsSwiping(false);
+      }, 300);
+    } else if (swipeAxis !== "y" && Math.abs(swipeOffset) > SWIPE_THRESHOLD && currentProfile) {
       const direction = swipeOffset > 0 ? "right" : "left";
       setSwipeExiting(direction);
       setTimeout(() => {
@@ -209,25 +242,42 @@ const Discover = () => {
         }
         setSwipeExiting(null);
         setSwipeOffset(0);
+        setSwipeOffsetY(0);
         setSwipeStartX(null);
+        setSwipeStartY(null);
+        setSwipeAxis(null);
         setIsSwiping(false);
       }, 300);
     } else {
       setSwipeOffset(0);
+      setSwipeOffsetY(0);
       setSwipeStartX(null);
+      setSwipeStartY(null);
+      setSwipeAxis(null);
       setIsSwiping(false);
     }
-  }, [isSwiping, swipeOffset, profiles, currentProfileIndex]);
+  }, [isSwiping, swipeOffset, swipeOffsetY, swipeAxis, profiles, currentProfileIndex]);
 
   const swipeRotation = swipeExiting
     ? swipeExiting === "right"
       ? 15
-      : -15
+      : swipeExiting === "left"
+        ? -15
+        : 0
     : Math.min(Math.max(swipeOffset * 0.08, -15), 15);
-  const swipeTranslateX = swipeExiting ? (swipeExiting === "right" ? 500 : -500) : swipeOffset;
+  const swipeTranslateX =
+    swipeExiting === "right" ? 500 : swipeExiting === "left" ? -500 : swipeOffset;
+  const swipeTranslateY =
+    swipeExiting === "up" ? -700 : swipeExiting === "down" ? 700 : swipeOffsetY;
   const swipeOpacity = swipeExiting ? 0 : 1;
-  const likeOpacity = Math.min(Math.max(swipeOffset / SWIPE_THRESHOLD, 0), 1);
-  const nopeOpacity = Math.min(Math.max(-swipeOffset / SWIPE_THRESHOLD, 0), 1);
+  const likeOpacity =
+    swipeAxis === "y"
+      ? Math.min(Math.max(-swipeOffsetY / SWIPE_THRESHOLD_Y, 0), 1)
+      : Math.min(Math.max(swipeOffset / SWIPE_THRESHOLD, 0), 1);
+  const nopeOpacity =
+    swipeAxis === "y"
+      ? Math.min(Math.max(swipeOffsetY / SWIPE_THRESHOLD_Y, 0), 1)
+      : Math.min(Math.max(-swipeOffset / SWIPE_THRESHOLD, 0), 1);
 
   useEffect(() => {
     if (!showSwipeHint) return;
@@ -244,7 +294,7 @@ const Discover = () => {
 
   useEffect(() => {
     if (cardRef.current) {
-      cardRef.current.style.transform = `translateX(${swipeTranslateX}px) rotate(${swipeRotation}deg)`;
+      cardRef.current.style.transform = `translateX(${swipeTranslateX}px) translateY(${swipeTranslateY}px) rotate(${swipeRotation}deg)`;
       cardRef.current.style.opacity = String(swipeOpacity);
       cardRef.current.style.transition =
         isSwiping && !swipeExiting ? "none" : "transform 0.3s ease-out, opacity 0.3s ease-out";
@@ -257,6 +307,7 @@ const Discover = () => {
     }
   }, [
     swipeTranslateX,
+    swipeTranslateY,
     swipeRotation,
     swipeOpacity,
     isSwiping,
@@ -2333,7 +2384,14 @@ const Discover = () => {
   }
 
   return (
-    <div className="min-h-dvh pb-24 page-bg" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+    <div
+      className="min-h-dvh pb-24 page-bg"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch" as never,
+      }}
+    >
       {/* Header */}
       <div className="container mx-auto max-w-2xl p-4">
         <div className="rounded-2xl px-3 py-3 mb-6 glass-header">
@@ -3002,15 +3060,15 @@ const Discover = () => {
                   onPointerDown={(e) => {
                     if ((e.target as HTMLElement).closest("button, a, video, input")) return;
                     e.currentTarget.setPointerCapture(e.pointerId);
-                    handleSwipeStart(e.clientX);
+                    handleSwipeStart(e.clientX, e.clientY);
                   }}
                   onPointerMove={(e) => {
-                    if (isSwiping) handleSwipeMove(e.clientX);
+                    if (isSwiping) handleSwipeMove(e.clientX, e.clientY);
                   }}
                   onPointerUp={handleSwipeEnd}
                   onPointerCancel={handleSwipeEnd}
                 >
-                  <Card className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.3)] transition-all duration-500 border-0 rounded-3xl">
+                  <Card className="overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] hover:shadow-[0_25px_70px_rgba(0,0,0,0.3)] transition-all duration-500 border-0 rounded-3xl card-enter">
                     {/* Story ring indicator */}
                     {profileStories.length > 0 && (
                       <button
@@ -3417,17 +3475,29 @@ const Discover = () => {
               )}
               {currentProfile && showSwipeHint && (
                 <div className="absolute inset-x-0 top-0 bottom-28 z-50 flex items-center justify-center pointer-events-none">
-                  <div className="flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/70 backdrop-blur-sm animate-in fade-in duration-500">
-                    <div className="flex items-center gap-1.5 text-red-400">
-                      <X className="h-4 w-4" />
-                      <span className="text-sm font-semibold text-white">Pass</span>
-                    </div>
-                    <div className="w-px h-6 bg-white/30" />
-                    <span className="text-xs text-white/60">swipe to discover</span>
-                    <div className="w-px h-6 bg-white/30" />
+                  <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-black/70 backdrop-blur-sm animate-in fade-in duration-500">
                     <div className="flex items-center gap-1.5 text-green-400">
-                      <span className="text-sm font-semibold text-white">Like</span>
+                      <span className="text-xs font-semibold text-white/70">swipe up</span>
                       <Heart className="h-4 w-4" />
+                      <span className="text-sm font-bold text-white">Like</span>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-1.5 text-red-400">
+                        <X className="h-4 w-4" />
+                        <span className="text-sm font-bold text-white">Pass</span>
+                        <span className="text-xs font-semibold text-white/70">←</span>
+                      </div>
+                      <div className="w-px h-6 bg-white/20" />
+                      <div className="flex items-center gap-1.5 text-green-400">
+                        <span className="text-xs font-semibold text-white/70">→</span>
+                        <span className="text-sm font-bold text-white">Like</span>
+                        <Heart className="h-4 w-4" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-red-400">
+                      <span className="text-sm font-bold text-white">Pass</span>
+                      <X className="h-4 w-4" />
+                      <span className="text-xs font-semibold text-white/70">swipe down</span>
                     </div>
                   </div>
                 </div>

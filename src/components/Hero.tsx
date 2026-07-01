@@ -12,33 +12,30 @@ const Hero = () => {
   return (
     <section
       className="relative min-h-dvh flex items-center justify-center overflow-hidden"
-      style={{ background: "linear-gradient(160deg,#07050d 0%,#0d0a18 50%,#08050e 100%)" }}
+      style={{ background: "linear-gradient(160deg, #fff5f5 0%, #fff 40%, #fff8f0 100%)" }}
     >
       {/* ── Animated orb background ── */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-32 -left-32 w-[700px] h-[700px] rounded-full animate-float opacity-60 orb-rose" />
-        <div className="absolute -bottom-48 -right-24 w-[800px] h-[800px] rounded-full animate-float-slow opacity-50 orb-purple" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full orb-gold" />
+        <div className="absolute -top-32 -left-32 w-[700px] h-[700px] rounded-full animate-float opacity-30 orb-rose" />
+        <div className="absolute -bottom-48 -right-24 w-[800px] h-[800px] rounded-full animate-float-slow opacity-20 orb-purple" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-40 orb-gold" />
       </div>
 
-      {/* ── Subtle grid ── */}
-      <div className="absolute inset-0 opacity-[0.025] pointer-events-none bg-grid-overlay" />
-
       {/* ── Noise grain ── */}
-      <div className="absolute inset-0 opacity-[0.018] pointer-events-none bg-noise-overlay" />
+      <div className="absolute inset-0 opacity-[0.012] pointer-events-none bg-noise-overlay" />
 
       <div className="container mx-auto px-4 py-24 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* ── Left: Content ── */}
           <div className="space-y-8 text-center lg:text-left animate-fade-in">
             {/* Live badge */}
-            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full glass">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white border border-rose-100 shadow-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-[#e8274b]" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#e8274b]" />
               </span>
               <img src={albanianEagle} alt="" role="presentation" className="w-5 h-5 opacity-80" />
-              <span className="text-sm font-semibold tracking-widest uppercase text-white/70">
+              <span className="text-sm font-semibold tracking-widest uppercase text-rose-500">
                 {t("hero.premiumDating")}
               </span>
             </div>
@@ -46,12 +43,12 @@ const Hero = () => {
             {/* Headline */}
             <div className="space-y-3">
               <h1 className="text-6xl md:text-[82px] font-bold leading-[0.88] tracking-tight font-serif">
-                <span className="block text-white/95">{t("hero.findYour")}</span>
+                <span className="block text-gray-900">{t("hero.findYour")}</span>
                 <span className="block text-gradient-fire animate-gradient-x">
                   {t("hero.dashuri")}
                 </span>
               </h1>
-              <p className="text-lg md:text-xl leading-relaxed max-w-md font-light text-white/[0.42]">
+              <p className="text-lg md:text-xl leading-relaxed max-w-md font-light text-gray-500">
                 {t("hero.tagline")}
               </p>
             </div>
@@ -73,7 +70,7 @@ const Hero = () => {
                 onClick={() =>
                   document.getElementById("nearby")?.scrollIntoView({ behavior: "smooth" })
                 }
-                className="text-base px-8 py-6 rounded-2xl font-semibold transition-all hover:scale-105 bg-white/[0.06] border border-white/[0.12] text-white/75"
+                className="text-base px-8 py-6 rounded-2xl font-semibold transition-all hover:scale-105 bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200"
               >
                 {t("hero.exploreProfiles")}
               </Button>
@@ -86,10 +83,13 @@ const Hero = () => {
                 { icon: Heart, value: "5K+", label: t("hero.couples") },
                 { icon: Globe, value: "70+", label: t("hero.countries") },
               ].map(({ icon: Icon, value, label }) => (
-                <div key={label} className="glass-card rounded-2xl p-4 text-center">
-                  <Icon className="h-4 w-4 mx-auto mb-1.5 text-amber-400/70" />
+                <div
+                  key={label}
+                  className="bg-white rounded-2xl p-4 text-center shadow-sm border border-gray-100"
+                >
+                  <Icon className="h-4 w-4 mx-auto mb-1.5 text-rose-400" />
                   <div className="text-2xl font-bold text-gradient-gold">{value}</div>
-                  <div className="text-[10px] uppercase tracking-widest mt-0.5 text-white/35">
+                  <div className="text-[10px] uppercase tracking-widest mt-0.5 text-gray-400">
                     {label}
                   </div>
                 </div>
@@ -100,10 +100,10 @@ const Hero = () => {
           {/* ── Right: Image ── */}
           <div className="relative animate-scale-in hidden lg:block">
             {/* Glow halo */}
-            <div className="absolute inset-4 rounded-3xl blur-3xl opacity-30 glow-halo-rose" />
+            <div className="absolute inset-4 rounded-3xl blur-3xl opacity-20 glow-halo-rose" />
 
             {/* Main image card */}
-            <div className="relative rounded-3xl overflow-hidden hero-image-frame">
+            <div className="relative rounded-3xl overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.15)]">
               <img
                 src={heroCouple}
                 alt="Happy Albanian Couple"
@@ -129,23 +129,23 @@ const Hero = () => {
             </div>
 
             {/* Floating badge – verified */}
-            <div className="absolute -top-4 -right-4 glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 animate-float-slow shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
-              <Shield className="w-4 h-4 text-green-400" />
-              <span className="text-sm font-semibold text-white/85">
+            <div className="absolute -top-4 -right-4 bg-white rounded-2xl px-4 py-2.5 flex items-center gap-2 animate-float-slow shadow-lg border border-gray-100">
+              <Shield className="w-4 h-4 text-green-500" />
+              <span className="text-sm font-semibold text-gray-700">
                 {t("hero.verifiedProfiles")}
               </span>
             </div>
 
             {/* Floating badge – nearby */}
-            <div className="absolute top-1/2 -left-6 glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 animate-float shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+            <div className="absolute top-1/2 -left-6 bg-white rounded-2xl px-4 py-2.5 flex items-center gap-2 animate-float shadow-lg border border-gray-100">
               <MapPin className="w-4 h-4 text-[#e8274b]" />
-              <span className="text-sm font-semibold text-white/85">{t("hero.nearYou")}</span>
+              <span className="text-sm font-semibold text-gray-700">{t("hero.nearYou")}</span>
             </div>
 
             {/* Floating badge – premium */}
-            <div className="absolute bottom-40 -right-5 glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+            <div className="absolute bottom-40 -right-5 bg-white rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-lg border border-gray-100">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-semibold text-white/85">
+              <span className="text-sm font-semibold text-gray-700">
                 {t("hero.premiumMatches")}
               </span>
             </div>

@@ -911,12 +911,47 @@ All colors MUST be HSL.
   .btn-rose {
     background: linear-gradient(135deg, #e8274b, #ff6b35);
     box-shadow: 0 0 30px rgba(232, 39, 75, 0.35);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      opacity 0.15s ease;
+  }
+  .btn-rose:active {
+    transform: scale(0.96);
+    opacity: 0.9;
   }
   .btn-rose-hero {
     background: linear-gradient(135deg, #e8274b, #ff6b35);
     box-shadow:
       0 0 40px rgba(232, 39, 75, 0.45),
       0 8px 32px rgba(0, 0, 0, 0.4);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .btn-rose-hero:active {
+    transform: scale(0.97);
+  }
+
+  /* ── iOS-style press feedback on all tappable elements ─── */
+  button:active:not(:disabled),
+  [role="button"]:active {
+    opacity: 0.75;
+  }
+
+  /* ── Smooth card entry animation ─── */
+  @keyframes cardEnter {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  .card-enter {
+    animation: cardEnter 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
 
   /* ── Auth page ─── */
