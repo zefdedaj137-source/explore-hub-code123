@@ -158,14 +158,23 @@ export function usePurchases() {
 
           // Always use purchasePackage — purchaseStoreProduct loses the native
           // identifier key when the StoreProduct crosses the Capacitor bridge.
-          const { current } = await Purchases.getOfferings();
-          const allPackages = current?.availablePackages ?? [];
-          const pkg = allPackages.find((p) => p.product.identifier === productId);
+          const { current, all } = await Purchases.getOfferings();
+
+          // Search current offering first, then fall back to ALL offerings
+          // (handles case where default offering isn't marked as "current" in RevenueCat)
+          const currentPkgs = current?.availablePackages ?? [];
+          const allPkgs = Object.values(all ?? {}).flatMap((o) => o.availablePackages);
+          const searchPool = currentPkgs.length > 0 ? currentPkgs : allPkgs;
+
+          const pkg =
+            searchPool.find((p) => p.product.identifier === productId) ??
+            allPkgs.find((p) => p.product.identifier === productId);
 
           if (!pkg) {
+            const available = allPkgs.map((p) => p.product.identifier).join(", ") || "none";
             throw new Error(
-              `Product "${productId}" not found in RevenueCat offerings. ` +
-                `Make sure it is added as a package in the RevenueCat dashboard default offering.`
+              `Product "${productId}" not found in any RevenueCat offering. ` +
+                `Available products: ${available}`
             );
           }
 

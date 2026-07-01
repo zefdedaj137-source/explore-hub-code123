@@ -10,7 +10,10 @@ const Hero = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="relative min-h-dvh flex items-center justify-center overflow-hidden page-bg">
+    <section
+      className="relative min-h-dvh flex items-center justify-center overflow-hidden"
+      style={{ background: "linear-gradient(160deg,#07050d 0%,#0d0a18 50%,#08050e 100%)" }}
+    >
       {/* ── Animated orb background ── */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-32 -left-32 w-[700px] h-[700px] rounded-full animate-float opacity-60 orb-rose" />
@@ -44,7 +47,9 @@ const Hero = () => {
             <div className="space-y-3">
               <h1 className="text-6xl md:text-[82px] font-bold leading-[0.88] tracking-tight font-serif">
                 <span className="block text-white/95">{t("hero.findYour")}</span>
-                <span className="block text-gradient-fire animate-gradient-x">{t("hero.dashuri")}</span>
+                <span className="block text-gradient-fire animate-gradient-x">
+                  {t("hero.dashuri")}
+                </span>
               </h1>
               <p className="text-lg md:text-xl leading-relaxed max-w-md font-light text-white/[0.42]">
                 {t("hero.tagline")}
@@ -126,7 +131,9 @@ const Hero = () => {
             {/* Floating badge – verified */}
             <div className="absolute -top-4 -right-4 glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 animate-float-slow shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
               <Shield className="w-4 h-4 text-green-400" />
-              <span className="text-sm font-semibold text-white/85">{t("hero.verifiedProfiles")}</span>
+              <span className="text-sm font-semibold text-white/85">
+                {t("hero.verifiedProfiles")}
+              </span>
             </div>
 
             {/* Floating badge – nearby */}
@@ -138,7 +145,9 @@ const Hero = () => {
             {/* Floating badge – premium */}
             <div className="absolute bottom-40 -right-5 glass-strong rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-semibold text-white/85">{t("hero.premiumMatches")}</span>
+              <span className="text-sm font-semibold text-white/85">
+                {t("hero.premiumMatches")}
+              </span>
             </div>
           </div>
         </div>
