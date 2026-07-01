@@ -54,7 +54,8 @@ serve(async (req) => {
       stripe_session_id?: string;
     };
 
-    const { product_id, coins, source, transaction_id, stripe_session_id } = body;
+    let { product_id, coins } = body;
+    const { source, transaction_id, stripe_session_id } = body;
 
     // ── For Stripe: resolve product_id and coins from session metadata ─────
     if (source === "stripe" && stripe_session_id) {
