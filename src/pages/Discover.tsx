@@ -208,9 +208,9 @@ const Discover = () => {
       }
       if (swipeAxis === "x" || (swipeAxis === null && Math.abs(dx) > Math.abs(dy))) {
         setSwipeOffset(dx);
-      } else {
-        setSwipeOffsetY(dy);
       }
+      // Vertical drags no longer like/pass — ignore them so the card only
+      // responds to left/right swipes.
     },
     [swipeStartX, swipeStartY, swipeAxis]
   );
@@ -218,24 +218,7 @@ const Discover = () => {
   const handleSwipeEnd = useCallback(() => {
     if (!isSwiping) return;
     const currentProfile = profiles[currentProfileIndex];
-    if (swipeAxis === "y" && Math.abs(swipeOffsetY) > SWIPE_THRESHOLD_Y && currentProfile) {
-      const direction = swipeOffsetY < 0 ? "up" : "down"; // up = like, down = pass
-      setSwipeExiting(direction);
-      setTimeout(() => {
-        if (direction === "up") {
-          handleLikeRef.current?.(currentProfile.id);
-        } else {
-          handlePassRef.current?.(currentProfile.id);
-        }
-        setSwipeExiting(null);
-        setSwipeOffset(0);
-        setSwipeOffsetY(0);
-        setSwipeStartX(null);
-        setSwipeStartY(null);
-        setSwipeAxis(null);
-        setIsSwiping(false);
-      }, 300);
-    } else if (swipeAxis !== "y" && Math.abs(swipeOffset) > SWIPE_THRESHOLD && currentProfile) {
+    if (swipeAxis !== "y" && Math.abs(swipeOffset) > SWIPE_THRESHOLD && currentProfile) {
       const direction = swipeOffset > 0 ? "right" : "left";
       setSwipeExiting(direction);
       setTimeout(() => {
@@ -260,7 +243,7 @@ const Discover = () => {
       setSwipeAxis(null);
       setIsSwiping(false);
     }
-  }, [isSwiping, swipeOffset, swipeOffsetY, swipeAxis, profiles, currentProfileIndex]);
+  }, [isSwiping, swipeOffset, swipeAxis, profiles, currentProfileIndex]);
 
   const swipeRotation = swipeExiting
     ? swipeExiting === "right"
@@ -3477,11 +3460,6 @@ const Discover = () => {
               {currentProfile && showSwipeHint && (
                 <div className="absolute inset-x-0 top-0 bottom-28 z-50 flex items-center justify-center pointer-events-none">
                   <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-black/70 backdrop-blur-sm animate-in fade-in duration-500">
-                    <div className="flex items-center gap-1.5 text-green-400">
-                      <span className="text-xs font-semibold text-white/70">swipe up</span>
-                      <Heart className="h-4 w-4" />
-                      <span className="text-sm font-bold text-white">Like</span>
-                    </div>
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-1.5 text-red-400">
                         <X className="h-4 w-4" />
@@ -3494,11 +3472,6 @@ const Discover = () => {
                         <span className="text-sm font-bold text-white">Like</span>
                         <Heart className="h-4 w-4" />
                       </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-red-400">
-                      <span className="text-sm font-bold text-white">Pass</span>
-                      <X className="h-4 w-4" />
-                      <span className="text-xs font-semibold text-white/70">swipe down</span>
                     </div>
                   </div>
                 </div>
