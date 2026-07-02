@@ -179,6 +179,10 @@ const Discover = () => {
   const lastLikeTime = useRef(0);
   const lastSuperlikeTime = useRef(0);
   const swipeResetPushScheduled = useRef(false);
+  // Prevents overlapping swipe actions — a second tap while an RPC is in flight
+  // could advance the card index multiple times (skipping profiles / passing the
+  // swipe limit) before the first call resolves.
+  const swipeInFlightRef = useRef(false);
   // Refs to always call the latest handleLike/handlePass from handleSwipeEnd (avoids stale closure)
   const handleLikeRef = useRef<((profileId: string) => Promise<void>) | null>(null);
   const handlePassRef = useRef<((profileId: string) => Promise<void>) | null>(null);
@@ -1027,6 +1031,8 @@ const Discover = () => {
   // Handle like action
   const handleLike = async (profileId: string) => {
     if (!user) return;
+    // Block overlapping swipes — a queued tap must wait for the current RPC
+    if (swipeInFlightRef.current) return;
     // Haptic feedback
     if (navigator.vibrate) navigator.vibrate(15);
     // Rate limit: 1 like per 500ms — check BEFORE recording history to avoid phantom rewind entries
@@ -1041,6 +1047,7 @@ const Discover = () => {
     analytics.like(profileId);
 
     // Optimistically advance to the next card immediately — reverted on failure
+    swipeInFlightRef.current = true;
     const preSwipeIndex = currentProfileIndex;
     setCurrentProfileIndex((prev) => prev + 1);
     setCardImageIndex(0); // reset photo index for new card
@@ -1164,6 +1171,8 @@ const Discover = () => {
       logger.error("Error liking profile:", error);
       const errorMessage = (error as { message?: string } | null)?.message ?? "Unknown error";
       toast.error(t("discover.failedToLike", { error: errorMessage }));
+    } finally {
+      swipeInFlightRef.current = false;
     }
   };
   // Keep ref in sync so handleSwipeEnd always calls the latest version
@@ -1191,59 +1200,53 @@ const Discover = () => {
     const profileId = currentProfile.id;
 
     try {
-      // Use superlike
-      const { data: usageData, error: usageError } = (await supabase.rpc("use_superlike", {
+      // Atomic: verifies superlike balance + swipe limit, records the like,
+      // creates the match on a mutual like, and only then deducts the superlike.
+      // A failed swipe-limit check no longer burns a superlike credit.
+      const { data, error } = (await supabase.rpc("superlike_user", {
         p_user_id: user.id,
-      })) as { data: { success: boolean; superlikes_remaining: number } | null; error: unknown };
-
-      if (usageError) throw usageError;
-
-      if (!usageData?.success) {
-        setShowSuperlikeDialog(true);
-        return;
-      }
-
-      // Update superlike count
-      setSuperlikesRemaining(usageData.superlikes_remaining || 0);
-
-      // Use like_user RPC with is_superlike flag — enforces swipe limits & atomic match creation
-      const { data: likeData, error: likeError } = (await supabase.rpc("like_user", {
-        current_user_id: user.id,
-        target_user_id: profileId,
-        p_is_superlike: true,
+        p_target_id: profileId,
       })) as {
         data: {
           success: boolean;
           error?: string;
-          remaining_swipes: number;
-          minutes_until_reset: number;
-          is_premium: boolean;
-          is_match: boolean;
+          is_match?: boolean;
+          match_id?: string | null;
+          remaining_swipes?: number;
+          minutes_until_reset?: number;
+          is_premium?: boolean;
+          superlikes_remaining?: number;
         } | null;
         error: unknown;
       };
 
-      if (likeError) throw likeError;
+      if (error) throw error;
 
-      if (!likeData) {
-        throw new Error("No data returned from like_user function");
+      if (!data) {
+        throw new Error("No data returned from superlike_user function");
       }
 
-      if (!likeData.success) {
-        // Swipe limit reached even for superlike
-        setShowUpgradeDialog(true);
-        toast.info(likeData.error || "Out of swipes!");
+      if (!data.success) {
+        if (data.error === "No superlikes remaining") {
+          setSuperlikesRemaining(0);
+          setShowSuperlikeDialog(true);
+        } else {
+          // Swipe limit reached — no superlike was consumed
+          setShowUpgradeDialog(true);
+          toast.info(data.error || "Out of swipes!");
+        }
         return;
       }
 
-      // Update local swipe limit state
+      // Sync remaining balances from the authoritative server response
+      setSuperlikesRemaining(data.superlikes_remaining ?? 0);
       setSwipeLimit({
-        remainingSwipes: likeData.remaining_swipes || 0,
-        minutesUntilReset: Math.ceil(likeData.minutes_until_reset || 0),
-        isPremium: likeData.is_premium || false,
+        remainingSwipes: data.remaining_swipes || 0,
+        minutesUntilReset: Math.ceil(data.minutes_until_reset || 0),
+        isPremium: data.is_premium || false,
       });
 
-      if (likeData.is_match) {
+      if (data.is_match) {
         markMatchHandled(profileId); // prevent global overlay from double-firing
         const matchedUserProfile = profiles.find((p) => p.id === profileId);
         if (matchedUserProfile) {
@@ -1251,19 +1254,7 @@ const Discover = () => {
           setIsPremiumRosesMatch(false);
           setShowMatchAnimation(true);
         }
-        // Fetch match ID for chat navigation
-        const [u1, u2] = user.id < profileId ? [user.id, profileId] : [profileId, user.id];
-        supabase
-          .from("matches")
-          .select("id")
-          .eq("user1_id", u1)
-          .eq("user2_id", u2)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .single()
-          .then(({ data: matchRow }) => {
-            if (matchRow) setMatchedMatchId(matchRow.id);
-          });
+        if (data.match_id) setMatchedMatchId(data.match_id);
         toast.success(t("discover.itsAMatch") + " 🎉");
       } else {
         toast.success(t("discover.superlikeSent"));
@@ -1278,9 +1269,9 @@ const Discover = () => {
       logger.error("Error sending superlike:", error);
       if (!navigator.onLine) {
         enqueue({
-          table: "like_user",
+          table: "superlike_user",
           method: "rpc",
-          payload: { current_user_id: user.id, target_user_id: currentProfile.id },
+          payload: { p_user_id: user.id, p_target_id: currentProfile.id },
         });
         toast.info(t("discover.superlikeOffline"));
         setCurrentProfileIndex((prev) => prev + 1);
@@ -1306,91 +1297,47 @@ const Discover = () => {
     try {
       const profileId = rosesTargetProfile.id;
 
-      // Check if match already exists
-      const { data: existingMatch } = await supabase
-        .from("matches")
-        .select("id")
-        .or(
-          `and(user1_id.eq.${user.id},user2_id.eq.${profileId}),and(user1_id.eq.${profileId},user2_id.eq.${user.id})`
-        )
-        .maybeSingle();
+      // Atomic: verifies balance, records the like, creates the special match,
+      // deducts exactly one coin, logs the transaction, and migrates any prior
+      // instant messages — all in a single locked DB call. No partial-failure
+      // window (free match / lost coin) and no double-match under rapid taps.
+      const { data, error } = (await supabase.rpc("send_premium_roses", {
+        p_user_id: user.id,
+        p_target_id: profileId,
+      })) as {
+        data: { success: boolean; error?: string; match_id?: string; balance?: number } | null;
+        error: unknown;
+      };
 
-      if (existingMatch) {
-        toast.info(t("discover.alreadyMatched"));
+      if (error) {
+        logger.error("Error sending premium roses:", error);
+        throw error;
+      }
+
+      if (!data?.success) {
+        if (data?.error === "already_matched") {
+          toast.info(t("discover.alreadyMatched"));
+        } else if (data?.error === "Not enough coins") {
+          toast.error(t("discover.notEnoughCoins"));
+        } else {
+          toast.error("Failed to send premium roses");
+        }
         setShowPremiumRosesDialog(false);
+        setRosesTargetProfile(null);
         return;
       }
 
-      // Premium Roses: Only create like from current user (no need for reciprocal like)
-      // The match will be created directly, bypassing normal mutual-like requirement
-      logger.log("💝 Creating your like (Premium Roses bypass mutual requirement)...");
+      const matchId = data.match_id;
+      setWalletBalance(data.balance ?? Math.max(walletBalance - 1, 0));
 
-      // Delete any existing likes first to avoid conflicts
-      await supabase.from("likes").delete().eq("liker_id", user.id).eq("liked_id", profileId);
-
-      const { error: likeError } = await supabase.from("likes").insert({
-        liker_id: user.id,
-        liked_id: profileId,
-      });
-
-      if (likeError) {
-        logger.error("Error creating like:", likeError);
-        // Don't throw - Premium Roses should create match regardless
-        logger.log("⚠️ Like creation failed, but continuing with Premium Roses match...");
-      }
-
-      // Create match with special rose type
-      logger.log("💐 Creating Premium Roses match...");
-      const [u1, u2] = user.id < profileId ? [user.id, profileId] : [profileId, user.id];
-      const { data: matchData, error: matchError } = await supabase
-        .from("matches")
-        .insert({
-          user1_id: u1,
-          user2_id: u2,
-          special_match_type: "premium_roses",
-        })
-        .select()
-        .single();
-
-      if (matchError) {
-        logger.error("Error creating match:", matchError);
-        throw matchError;
-      }
-
-      // Deduct coin - use current DB balance to avoid stale-state race condition
-      const { data: walletData } = await supabase
-        .from("wallets")
-        .select("balance")
-        .eq("user_id", user.id)
-        .single();
-      const currentBalance = (walletData as { balance: number } | null)?.balance ?? walletBalance;
-      await supabase
-        .from("wallets")
-        .update({ balance: Math.max(currentBalance - 1, 0), updated_at: new Date().toISOString() })
-        .eq("user_id", user.id);
-      await supabase
-        .from("wallet_transactions")
-        .insert({ user_id: user.id, amount: -1, type: "spend", item: "premium_roses" });
-      setWalletBalance((prev) => Math.max(prev - 1, 0));
-
-      logger.log("✅ Premium Roses match created successfully!", matchData);
-
-      // Migrate any pre-existing instant messages into the match chat so conversation history
-      // is preserved and not left as an orphaned IM thread
-      if (matchData?.id) {
-        await supabase.rpc("migrate_instant_messages_to_match", {
-          p_match_id: matchData.id,
-          p_user1_id: user.id,
-          p_user2_id: profileId,
-        });
-      }
+      logger.log("✅ Premium Roses match created successfully!", matchId);
 
       // Show match animation with Premium Roses theme
       markMatchHandled(profileId); // prevent global overlay from double-firing
       setMatchedProfile(rosesTargetProfile);
       setIsPremiumRosesMatch(true);
       setShowMatchAnimation(true);
-      if (matchData?.id) setMatchedMatchId(matchData.id);
+      if (matchId) setMatchedMatchId(matchId);
 
       toast.success(t("discover.rosesSent"));
 
@@ -1426,10 +1373,61 @@ const Discover = () => {
     navigate("/wallet");
   };
 
+  // Buy a spotlight boost with coins from the in-app boost dialog.
+  // Atomic: verifies balance, deducts coins, activates the booster, and logs the
+  // transaction in a single locked DB call — no free-boost / lost-coin window.
+  const handleBoostPurchase = async (hours: number, cost: number) => {
+    if (!user?.id) {
+      toast.error(t("discover.signInToBoost"));
+      return;
+    }
+    if (walletBalance < cost) {
+      toast.error(t("discover.notEnoughCoins"));
+      return;
+    }
+    try {
+      const { data, error } = (await supabase.rpc("activate_booster_paid", {
+        p_user_id: user.id,
+        p_hours: hours,
+        p_cost: cost,
+      })) as {
+        data: { success: boolean; error?: string; balance?: number } | null;
+        error: unknown;
+      };
+
+      if (error) throw error;
+
+      if (!data?.success) {
+        toast.error(
+          data?.error === "Not enough coins"
+            ? t("discover.notEnoughCoins")
+            : t("discover.failedBoost")
+        );
+        return;
+      }
+
+      setWalletBalance(data.balance ?? Math.max(walletBalance - cost, 0));
+      toast.success(
+        hours === 3
+          ? t("discover.boost3h")
+          : hours === 6
+            ? t("discover.boost6h")
+            : t("discover.boost10h")
+      );
+      setShowBoostDialog(false);
+      await fetchMyProfile();
+    } catch (error) {
+      logger.error("Error activating boost:", error);
+      toast.error(t("discover.failedBoost"));
+    }
+  };
+
   // Handle pass action
   // Helper to persist excluded profile IDs in sessionStorage so remounts don't bring them back
   const handlePass = async (profileId: string) => {
     if (!user) return;
+    // Block overlapping swipes — a queued tap must wait for the current RPC
+    if (swipeInFlightRef.current) return;
     // Haptic feedback
     if (navigator.vibrate) navigator.vibrate(10);
     analytics.pass(profileId);
@@ -1442,6 +1440,7 @@ const Discover = () => {
       ...prev,
       { type: "pass" as const, profileId, timestamp: Date.now() },
     ]);
+    swipeInFlightRef.current = true;
     setCurrentProfileIndex((prev) => prev + 1);
 
     try {
@@ -1517,6 +1516,8 @@ const Discover = () => {
       logger.error("Error passing profile:", error);
       const errorMessage = (error as { message?: string } | null)?.message ?? "Unknown error";
       toast.error(t("discover.failedToPass", { error: errorMessage }));
+    } finally {
+      swipeInFlightRef.current = false;
     }
   };
   // Keep ref in sync so handleSwipeEnd always calls the latest version
@@ -3693,51 +3694,7 @@ const Discover = () => {
 
               {/* 3 Hours Option */}
               <button
-                onClick={async () => {
-                  const cost = 5;
-                  if (!user?.id) {
-                    toast.error(t("discover.signInToBoost"));
-                    return;
-                  }
-                  if (walletBalance < cost) {
-                    toast.error(t("discover.notEnoughCoins"));
-                    return;
-                  }
-                  try {
-                    const { error } = await supabase.rpc("activate_booster", {
-                      user_id: user.id,
-                      hours: 3,
-                    });
-                    if (error) throw error;
-                    // Fetch fresh balance to avoid stale-state race
-                    const { data: freshWallet } = await supabase
-                      .from("wallets")
-                      .select("balance")
-                      .eq("user_id", user.id)
-                      .single();
-                    const freshBalance =
-                      (freshWallet as { balance: number } | null)?.balance ?? walletBalance;
-                    const { error: walletError } = await supabase
-                      .from("wallets")
-                      .update({
-                        balance: Math.max(freshBalance - cost, 0),
-                        updated_at: new Date().toISOString(),
-                      })
-                      .eq("user_id", user.id);
-                    if (walletError) throw walletError;
-                    const { error: txError } = await supabase
-                      .from("wallet_transactions")
-                      .insert({ user_id: user.id, amount: -cost, type: "spend", item: "boost_3h" });
-                    if (txError) throw txError;
-                    setWalletBalance(Math.max(freshBalance - cost, 0));
-                    toast.success(t("discover.boost3h"));
-                    setShowBoostDialog(false);
-                    await fetchMyProfile();
-                  } catch (error) {
-                    logger.error("Error activating boost:", error);
-                    toast.error(t("discover.failedBoost"));
-                  }
-                }}
+                onClick={() => handleBoostPurchase(3, 5)}
                 className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={walletBalance < 5}
               >
@@ -3752,51 +3709,7 @@ const Discover = () => {
 
               {/* 6 Hours Option */}
               <button
-                onClick={async () => {
-                  const cost = 9;
-                  if (!user?.id) {
-                    toast.error(t("discover.signInToBoost"));
-                    return;
-                  }
-                  if (walletBalance < cost) {
-                    toast.error(t("discover.notEnoughCoins"));
-                    return;
-                  }
-                  try {
-                    const { error } = await supabase.rpc("activate_booster", {
-                      user_id: user.id,
-                      hours: 6,
-                    });
-                    if (error) throw error;
-                    // Fetch fresh balance to avoid stale-state race
-                    const { data: freshWallet } = await supabase
-                      .from("wallets")
-                      .select("balance")
-                      .eq("user_id", user.id)
-                      .single();
-                    const freshBalance =
-                      (freshWallet as { balance: number } | null)?.balance ?? walletBalance;
-                    const { error: walletError } = await supabase
-                      .from("wallets")
-                      .update({
-                        balance: Math.max(freshBalance - cost, 0),
-                        updated_at: new Date().toISOString(),
-                      })
-                      .eq("user_id", user.id);
-                    if (walletError) throw walletError;
-                    const { error: txError } = await supabase
-                      .from("wallet_transactions")
-                      .insert({ user_id: user.id, amount: -cost, type: "spend", item: "boost_6h" });
-                    if (txError) throw txError;
-                    setWalletBalance(Math.max(freshBalance - cost, 0));
-                    toast.success(t("discover.boost6h"));
-                    setShowBoostDialog(false);
-                    await fetchMyProfile();
-                  } catch (error) {
-                    logger.error("Error activating boost:", error);
-                    toast.error(t("discover.failedBoost"));
-                  }
-                }}
+                onClick={() => handleBoostPurchase(6, 9)}
                 className="w-full p-4 border-2 border-primary bg-primary/10 rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={walletBalance < 9}
               >
@@ -3811,54 +3724,7 @@ const Discover = () => {
 
               {/* 10 Hours Option */}
               <button
-                onClick={async () => {
-                  const cost = 13;
-                  if (!user?.id) {
-                    toast.error(t("discover.signInToBoost"));
-                    return;
-                  }
-                  if (walletBalance < cost) {
-                    toast.error(t("discover.notEnoughCoins"));
-                    return;
-                  }
-                  try {
-                    const { error } = await supabase.rpc("activate_booster", {
-                      user_id: user.id,
-                      hours: 10,
-                    });
-                    if (error) throw error;
-                    // Fetch fresh balance to avoid stale-state race
-                    const { data: freshWallet } = await supabase
-                      .from("wallets")
-                      .select("balance")
-                      .eq("user_id", user.id)
-                      .single();
-                    const freshBalance =
-                      (freshWallet as { balance: number } | null)?.balance ?? walletBalance;
-                    const { error: walletError } = await supabase
-                      .from("wallets")
-                      .update({
-                        balance: Math.max(freshBalance - cost, 0),
-                        updated_at: new Date().toISOString(),
-                      })
-                      .eq("user_id", user.id);
-                    if (walletError) throw walletError;
-                    const { error: txError } = await supabase.from("wallet_transactions").insert({
-                      user_id: user.id,
-                      amount: -cost,
-                      type: "spend",
-                      item: "boost_10h",
-                    });
-                    if (txError) throw txError;
-                    setWalletBalance(Math.max(freshBalance - cost, 0));
-                    toast.success(t("discover.boost10h"));
-                    setShowBoostDialog(false);
-                    await fetchMyProfile();
-                  } catch (error) {
-                    logger.error("Error activating boost:", error);
-                    toast.error(t("discover.failedBoost"));
-                  }
-                }}
+                onClick={() => handleBoostPurchase(10, 13)}
                 className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={walletBalance < 13}
               >

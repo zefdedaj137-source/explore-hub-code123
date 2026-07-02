@@ -7,6 +7,16 @@ interface ProtectedRouteProps {
   adminOnly?: boolean;
 }
 
+// Parsed once at module load — env vars are static at build time.
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "")
+  .split(",")
+  .map((e: string) => e.trim().toLowerCase())
+  .filter(Boolean);
+const ADMIN_IDS = (import.meta.env.VITE_ADMIN_USER_IDS || "")
+  .split(",")
+  .map((e: string) => e.trim())
+  .filter(Boolean);
+
 const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
 
@@ -20,16 +30,8 @@ const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) =>
 
   // Admin check — allow by email or by user ID
   if (adminOnly) {
-    const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || "")
-      .split(",")
-      .map((e: string) => e.trim().toLowerCase())
-      .filter(Boolean);
-    const adminIds = (import.meta.env.VITE_ADMIN_USER_IDS || "")
-      .split(",")
-      .map((e: string) => e.trim())
-      .filter(Boolean);
     const userEmail = (user.email || user.user_metadata?.email || "").toLowerCase().trim();
-    const isAdmin = (userEmail && adminEmails.includes(userEmail)) || adminIds.includes(user.id);
+    const isAdmin = (userEmail && ADMIN_EMAILS.includes(userEmail)) || ADMIN_IDS.includes(user.id);
     if (!isAdmin) {
       return <Navigate to="/discover" replace />;
     }

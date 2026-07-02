@@ -55,9 +55,15 @@ export function useGlobalMatchRealtime() {
       .select("interests")
       .eq("id", user.id)
       .single()
-      .then(({ data }) => {
-        myInterestsRef.current = (data?.interests as string[]) ?? [];
-      });
+      .then(
+        ({ data }) => {
+          myInterestsRef.current = (data?.interests as string[]) ?? [];
+        },
+        () => {
+          // Non-fatal: shared-interest computation falls back to an empty list
+          myInterestsRef.current = [];
+        }
+      );
   }, [user]);
 
   const handleNewMatch = useCallback(

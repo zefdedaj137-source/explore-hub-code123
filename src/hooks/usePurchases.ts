@@ -31,19 +31,26 @@ export const isNativePlatform = () => {
 
 // ─── RevenueCat initialisation (runs once on first hook mount) ──────────────
 let rcInitialised = false;
+let rcCurrentUserId: string | null = null;
 
 async function initRevenueCat(userId: string) {
-  if (rcInitialised) return;
+  // Already initialised for this exact user — nothing to do.
+  if (rcInitialised && rcCurrentUserId === userId) return;
   if (!REVENUECAT_API_KEY) {
     console.warn("VITE_REVENUECAT_API_KEY not set — IAP disabled");
     return;
   }
   // Always try to initialise on native platforms
   try {
-    await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
-    await Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+    if (!rcInitialised) {
+      await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+      await Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+    }
+    // (Re-)identify the current user so purchases are never attributed to a
+    // previously logged-in account after a user switch.
     await Purchases.logIn({ appUserID: userId });
     rcInitialised = true;
+    rcCurrentUserId = userId;
   } catch (e) {
     console.warn("RevenueCat init failed (non-native env):", e);
   }

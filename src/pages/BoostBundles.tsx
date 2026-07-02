@@ -59,25 +59,29 @@ const BoostBundles = () => {
 
     setProcessing(hours);
     try {
-      const { error } = await supabase.rpc("activate_booster", {
-        user_id: user.id,
-        hours,
-      });
+      // Atomic: verifies balance, deducts coins, activates booster, and records
+      // the transaction in a single locked DB call — no partial-failure window.
+      const { data, error } = (await supabase.rpc("activate_booster_paid", {
+        p_user_id: user.id,
+        p_hours: hours,
+        p_cost: cost,
+      })) as {
+        data: { success: boolean; error?: string; balance?: number } | null;
+        error: unknown;
+      };
+
       if (error) throw error;
 
-      const newBalance = walletBalance - cost;
-      const { error: walletError } = await supabase
-        .from("wallets")
-        .update({ balance: newBalance, updated_at: new Date().toISOString() })
-        .eq("user_id", user.id);
-      if (walletError) throw walletError;
+      if (!data?.success) {
+        toast.error(
+          data?.error === "Not enough coins"
+            ? t("boostBundles.notEnoughCoins")
+            : t("boostBundles.failedActivate")
+        );
+        return;
+      }
 
-      const { error: txError } = await supabase
-        .from("wallet_transactions")
-        .insert({ user_id: user.id, amount: -cost, type: "spend", item: `boost_${hours}h_bundle` });
-      if (txError) throw txError;
-
-      setWalletBalance(newBalance);
+      setWalletBalance(data.balance ?? walletBalance - cost);
       toast.success(t("boostBundles.activated", { hours }));
     } catch (error) {
       logger.error("Boost purchase error", error);

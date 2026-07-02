@@ -206,6 +206,7 @@ const Chat = () => {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const recordingStreamRef = useRef<MediaStream | null>(null);
 
   // Photo message states
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -313,6 +314,7 @@ const Chat = () => {
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordingStreamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
@@ -327,6 +329,7 @@ const Chat = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         setAudioBlob(audioBlob);
         stream.getTracks().forEach((track) => track.stop());
+        recordingStreamRef.current = null;
       };
 
       mediaRecorder.start();
@@ -346,6 +349,17 @@ const Chat = () => {
       toast.success(t("chat.voiceMessageRecorded"));
     }
   };
+
+  // Ensure the microphone is released if the user navigates away mid-recording
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      recordingStreamRef.current?.getTracks().forEach((track) => track.stop());
+      recordingStreamRef.current = null;
+    };
+  }, []);
 
   // Send voice message
   const sendVoiceMessage = async () => {

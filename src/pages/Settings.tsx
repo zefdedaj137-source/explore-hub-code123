@@ -423,11 +423,18 @@ const Settings = () => {
     if (!user) return;
     setLoading(true);
     try {
-      // Call RPC to delete all user data (messages, matches, likes, reports, profile)
+      // Call RPC to delete all user data (messages, matches, likes, reports,
+      // profile) and the auth account itself.
       const { error } = await supabase.rpc("delete_user_account", { p_user_id: user.id });
       if (error) throw error;
 
-      await supabase.auth.signOut();
+      // Best-effort sign-out: the auth user no longer exists, so this may fail.
+      // A failure here must not mask the successful deletion.
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        /* session already invalid after account deletion */
+      }
       toast.success("Account permanently deleted");
       navigate("/", { replace: true });
     } catch (error) {

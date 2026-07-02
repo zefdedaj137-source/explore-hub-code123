@@ -27,7 +27,18 @@ function load(): QueuedAction[] {
 }
 
 function save(queue: QueuedAction[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
+  } catch {
+    // Quota exceeded (or storage unavailable). Drop the oldest half and retry
+    // once so the newest actions are still persisted rather than losing them all.
+    try {
+      const trimmed = queue.slice(Math.floor(queue.length / 2));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+    } catch {
+      // Storage is fully unavailable — nothing more we can safely do.
+    }
+  }
 }
 
 /** Add an action to the offline queue */

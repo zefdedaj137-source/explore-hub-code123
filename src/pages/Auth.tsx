@@ -5,8 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, Phone } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { analytics } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -19,27 +18,18 @@ const AppleIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Simple E.164 phone validation — replaces react-phone-number-input (saves ~80 KB)
-function isValidPhoneNumber(phone: string) {
-  return /^\+[1-9]\d{6,14}$/.test(phone.replace(/[\s()-]/g, ""));
-}
+// (phone/SMS auth removed — email + Apple sign-in only)
 
 const Auth = () => {
   const { user, loading: authLoading } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
-  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   // Email auth states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // Phone auth states
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
 
   // Age verification
   const [birthDate, setBirthDate] = useState("");
@@ -304,97 +294,6 @@ const Auth = () => {
     }
   };
 
-  const handleSendOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!phoneNumber) {
-      toast.error(t("auth.enterPhone"));
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      if (!isValidPhoneNumber(phoneNumber)) {
-        throw new Error("Enter a valid phone number in international format (e.g., +355…)");
-      }
-
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: phoneNumber,
-        options: { channel: "sms", shouldCreateUser: true },
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      setOtpSent(true);
-      toast.success(t("auth.otpSentPhone"));
-    } catch (error) {
-      const errorMsg = (error as Error).message || "Failed to send OTP";
-      toast.error(errorMsg);
-
-      // Show additional helpful message
-      if (errorMsg.includes("SMS") || errorMsg.includes("phone")) {
-        toast.error(t("auth.twilioError"));
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!otpCode || otpCode.length !== 6) {
-      toast.error(t("auth.enterOtpCode"));
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: phoneNumber,
-        token: otpCode,
-        type: "sms",
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        // Check if profile exists
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", data.user.id)
-          .maybeSingle();
-
-        if (!profile) {
-          toast.success(t("auth.accountCreated"));
-          // Send welcome SMS for new phone users (fire-and-forget)
-          supabase.functions
-            .invoke("send-welcome", {
-              body: { phone: phoneNumber },
-            })
-            .catch((err) => logger.error("Welcome SMS failed:", err));
-        } else {
-          toast.success(t("auth.welcomeBackMsg"));
-        }
-        // Navigation will be handled by useEffect based on profile status
-      }
-    } catch (error) {
-      toast.error((error as Error).message || "Invalid OTP code");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetPhoneAuth = () => {
-    setOtpSent(false);
-    setOtpCode("");
-  };
-
   const handleAppleSignIn = async () => {
     if (loading) return;
     setLoading(true);
@@ -463,239 +362,129 @@ const Auth = () => {
 
         {/* Glass card */}
         <div className="rounded-3xl p-7 animate-slide-up glass-panel">
-          <Tabs
-            value={authMethod}
-            onValueChange={(v) => setAuthMethod(v as "email" | "phone")}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2 mb-6 p-1 rounded-xl dark:bg-white/[0.06] bg-black/[0.04] dark:border-white/[0.08] border-black/[0.08] border">
-              <TabsTrigger
-                value="email"
-                className="gap-2 rounded-lg dark:data-[state=active]:text-white data-[state=active]:text-foreground transition-all dark:text-white/50 text-muted-foreground"
+          {isForgotPassword ? (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="email"
+                  className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                >
+                  <Mail className="h-4 w-4" />
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder={t("auth.emailPlaceholder")}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  required
+                  className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
+                />
+                <p className="text-xs dark:text-white/35 text-muted-foreground">
+                  {t("auth.resetLinkDesc")}
+                </p>
+              </div>
+              <Button
+                type="submit"
+                className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
+                disabled={loading}
               >
-                <Mail className="h-4 w-4" />
-                Email
-              </TabsTrigger>
-              <TabsTrigger
-                value="phone"
-                className="gap-2 rounded-lg dark:data-[state=active]:text-white data-[state=active]:text-foreground transition-all dark:text-white/50 text-muted-foreground"
+                {loading ? t("auth.sending") : t("auth.sendResetLink")}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full rounded-xl dark:text-white/50 text-muted-foreground"
+                onClick={() => setIsForgotPassword(false)}
               >
-                <Phone className="h-4 w-4" />
-                Phone
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="email">
-              {isForgotPassword ? (
-                <form onSubmit={handleForgotPassword} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="email"
-                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                {t("auth.backToSignIn")}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleEmailAuth} className="space-y-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="email"
+                  className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                >
+                  <Mail className="h-4 w-4" />
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder={t("auth.emailPlaceholder")}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  required
+                  className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="password"
+                  className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
+                >
+                  <Lock className="h-4 w-4" />
+                  {t("auth.password")}
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete={isLogin ? "current-password" : "new-password"}
+                  required
+                  minLength={6}
+                  className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
+                />
+                {isLogin && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setIsForgotPassword(true)}
+                      className="text-xs transition-colors hover:text-rose-300 text-[#e8274b]/80"
                     >
-                      <Mail className="h-4 w-4" />
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder={t("auth.emailPlaceholder")}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
-                      required
-                      className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
-                    />
-                    <p className="text-xs dark:text-white/35 text-muted-foreground">
-                      {t("auth.resetLinkDesc")}
-                    </p>
+                      {t("auth.forgotPassword")}
+                    </button>
                   </div>
-                  <Button
-                    type="submit"
-                    className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
-                    disabled={loading}
+                )}
+              </div>
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="birthDate"
+                    className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
                   >
-                    {loading ? t("auth.sending") : t("auth.sendResetLink")}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full rounded-xl dark:text-white/50 text-muted-foreground"
-                    onClick={() => setIsForgotPassword(false)}
-                  >
-                    {t("auth.backToSignIn")}
-                  </Button>
-                </form>
-              ) : (
-                <form onSubmit={handleEmailAuth} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="email"
-                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
-                    >
-                      <Mail className="h-4 w-4" />
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder={t("auth.emailPlaceholder")}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      autoComplete="email"
-                      required
-                      className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="password"
-                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
-                    >
-                      <Lock className="h-4 w-4" />
-                      {t("auth.password")}
-                    </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      autoComplete={isLogin ? "current-password" : "new-password"}
-                      required
-                      minLength={6}
-                      className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
-                    />
-                    {isLogin && (
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setIsForgotPassword(true)}
-                          className="text-xs transition-colors hover:text-rose-300 text-[#e8274b]/80"
-                        >
-                          {t("auth.forgotPassword")}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  {!isLogin && (
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="birthDate"
-                        className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
-                      >
-                        {t("auth.dateOfBirth") || "Date of Birth"}
-                      </Label>
-                      <Input
-                        id="birthDate"
-                        type="date"
-                        value={birthDate}
-                        onChange={(e) => setBirthDate(e.target.value)}
-                        max={maxBirthDate}
-                        required
-                        className="rounded-xl dark:border-0 dark:text-white focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground"
-                      />
-                      <p className="text-xs dark:text-white/35 text-muted-foreground">
-                        {t("auth.mustBe18Hint") || "You must be 18 or older to use Shqiponja"}
-                      </p>
-                    </div>
-                  )}
-                  <Button
-                    type="submit"
-                    className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
-                    disabled={loading}
-                  >
-                    {loading ? t("common.loading") : isLogin ? t("auth.signIn") : t("auth.signUp")}
-                  </Button>
-                </form>
-              )}
-            </TabsContent>
-
-            <TabsContent value="phone">
-              {!otpSent ? (
-                <form onSubmit={handleSendOTP} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="phone"
-                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
-                    >
-                      <Phone className="h-4 w-4" />
-                      Phone Number
-                    </Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm select-none pointer-events-none">
-                        +
-                      </span>
-                      <input
-                        type="tel"
-                        id="phone"
-                        value={phoneNumber.replace(/^\+/, "")}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/[^\d\s()-]/g, "");
-                          setPhoneNumber("+" + raw);
-                        }}
-                        placeholder={t("auth.phonePlaceholder") || "355 69 123 4567"}
-                        className="w-full rounded-xl border border-input bg-background px-3 py-2.5 pl-7 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        autoComplete="tel"
-                        inputMode="tel"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
-                    disabled={loading}
-                  >
-                    {loading ? t("auth.sending") : t("auth.continueWithPhone")}
-                  </Button>
-                  <p className="text-xs text-center dark:text-white/30 text-muted-foreground">
-                    {t("auth.worksForBoth")}
+                    {t("auth.dateOfBirth") || "Date of Birth"}
+                  </Label>
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    max={maxBirthDate}
+                    required
+                    className="rounded-xl dark:border-0 dark:text-white focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground"
+                  />
+                  <p className="text-xs dark:text-white/35 text-muted-foreground">
+                    {t("auth.mustBe18Hint") || "You must be 18 or older to use Shqiponja"}
                   </p>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyOTP} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="otp"
-                      className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
-                    >
-                      <Lock className="h-4 w-4" />
-                      {t("auth.enterOtp")}
-                    </Label>
-                    <p className="text-sm mb-2 dark:text-white/35 text-muted-foreground">
-                      {t("auth.otpSent")} {phoneNumber}
-                    </p>
-                    <Input
-                      id="otp"
-                      type="text"
-                      placeholder="000000"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      autoComplete="one-time-code"
-                      maxLength={6}
-                      required
-                      className="rounded-xl dark:border-0 dark:text-white dark:placeholder:text-white/25 text-center text-2xl tracking-widest focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground placeholder:text-muted-foreground/50"
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 btn-rose"
-                    disabled={loading}
-                  >
-                    {loading ? t("auth.verifying") : t("auth.verifySignIn")}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full rounded-xl dark:text-white/50 text-muted-foreground"
-                    onClick={resetPhoneAuth}
-                  >
-                    {t("auth.useDifferentNumber")}
-                  </Button>
-                </form>
+                </div>
               )}
-            </TabsContent>
-          </Tabs>
+              <Button
+                type="submit"
+                className="w-full rounded-xl border-0 text-white font-semibold py-5 transition-all hover:opacity-90 hover:scale-[1.01] btn-rose"
+                disabled={loading}
+              >
+                {loading ? t("common.loading") : isLogin ? t("auth.signIn") : t("auth.signUp")}
+              </Button>
+            </form>
+          )}
 
           {/* Divider */}
           <div className="relative my-6">

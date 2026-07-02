@@ -47,5 +47,15 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Shqiponja uses the camera so you can take profile photos, verify your identity with a selfie, and make video calls with your matches.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Shqiponja uses the microphone for voice messages and voice/video calls with your matches.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Shqiponja needs access to your photo library so you can choose photos for your profile and share them in chats.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Shqiponja can save photos you receive or capture to your photo library.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Shqiponja uses your location to show you nearby matches and calculate distance to other people.</string>
 </dict>
 </plist>
