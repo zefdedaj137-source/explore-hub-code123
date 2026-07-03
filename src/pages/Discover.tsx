@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useCallback, useMemo, memo, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { sanitizeText } from "@/lib/sanitize";
@@ -20,11 +20,7 @@ import {
   MessageCircle,
   Settings,
   Crown,
-  Filter,
-  Home,
-  Users,
   Menu,
-  Navigation,
   Info,
   ChevronLeft,
   ChevronRight,
@@ -37,18 +33,11 @@ import {
   Eye,
   RotateCcw,
   User,
-  Briefcase,
-  GraduationCap,
-  Ruler,
-  Church,
   SlidersHorizontal,
-  MoreVertical,
   Coins,
-  Bookmark,
   Smile,
   Ghost,
   Star,
-  Undo2,
   Loader2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -128,7 +117,7 @@ const Discover = () => {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [showSuperlikeDialog, setShowSuperlikeDialog] = useState(false);
-  const [superlikeCheckoutLoading, setSuperlikeCheckoutLoading] = useState<number | null>(null);
+  const [superlikeCheckoutLoading] = useState<number | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [profileViews, setProfileViews] = useState<Profile[]>([]);
   const [profileLikes, setProfileLikes] = useState<Profile[]>([]);
@@ -152,10 +141,10 @@ const Discover = () => {
   const [showBoostStatusDialog, setShowBoostStatusDialog] = useState(false);
   const [instantMessageCredits, setInstantMessageCredits] = useState(0);
   const [walletBalance, setWalletBalance] = useState(0);
-  const [savedProfiles, setSavedProfiles] = useState<Set<string>>(new Set());
+  const [, setSavedProfiles] = useState<Set<string>>(new Set());
   const [travelModeActive, setTravelModeActive] = useState(false);
-  const [travelLatitude, setTravelLatitude] = useState<number | null>(null);
-  const [travelLongitude, setTravelLongitude] = useState<number | null>(null);
+  const [, setTravelLatitude] = useState<number | null>(null);
+  const [, setTravelLongitude] = useState<number | null>(null);
   const [travelCity, setTravelCity] = useState<string | null>(null);
 
   // Swipe gesture state
@@ -340,20 +329,6 @@ const Discover = () => {
     }
   }, [savedKey]);
 
-  const toggleSaveProfile = (profileId: string) => {
-    if (!savedKey) return;
-    setSavedProfiles((prev) => {
-      const next = new Set(prev);
-      if (next.has(profileId)) {
-        next.delete(profileId);
-      } else {
-        next.add(profileId);
-      }
-      localStorage.setItem(savedKey, JSON.stringify(Array.from(next)));
-      return next;
-    });
-  };
-
   const hasLoadedCacheRef = useRef(false);
   const prevCacheKeyRef = useRef<string | null>(null);
   useEffect(() => {
@@ -421,7 +396,7 @@ const Discover = () => {
   const [showNotificationProfileDialog, setShowNotificationProfileDialog] = useState(false);
   const [notificationProfile, setNotificationProfile] = useState<Profile | null>(null);
   const [notificationProfileImageIndex, setNotificationProfileImageIndex] = useState(0);
-  const [showNotificationFullProfile, setShowNotificationFullProfile] = useState(false);
+  const [, setShowNotificationFullProfile] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [profileStories, setProfileStories] = useState<StoryItem[]>([]);
   const [showStoryViewer, setShowStoryViewer] = useState(false);
@@ -500,54 +475,6 @@ const Discover = () => {
     }
   }, [user]);
 
-  // Fetch superlike count
-  const fetchSuperlikeCount = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = (await supabase
-        .from("profiles")
-        .select("superlikes_remaining")
-        .eq("id", user.id)
-        .single()) as { data: { superlikes_remaining: number } | null; error: unknown };
-
-      if (error) throw error;
-      setSuperlikesRemaining(data?.superlikes_remaining || 0);
-    } catch (error) {
-      logger.error("Error fetching superlike count:", error);
-    }
-  }, [user]);
-
-  // Check subscription and swipe limits
-  const checkSwipeLimit = useCallback(async () => {
-    try {
-      if (!user) return;
-
-      // Get remaining swipes and subscription status
-      const { data, error } = (await supabase.rpc("get_remaining_swipes", {
-        user_id: user.id,
-      })) as {
-        data: { remaining_swipes: number; minutes_until_reset: number; is_premium: boolean } | null;
-        error: unknown;
-      };
-
-      if (error) throw error;
-
-      if (data) {
-        setSwipeLimit({
-          remainingSwipes: data.remaining_swipes,
-          minutesUntilReset: Math.ceil(data.minutes_until_reset),
-          isPremium: data.is_premium,
-        });
-      }
-
-      // Also fetch superlike count
-      await fetchSuperlikeCount();
-    } catch (error) {
-      logger.error("Error checking swipe limits:", error);
-    }
-  }, [user, fetchSuperlikeCount]);
-
   // Fetch rewind count
   const fetchRewindCount = useCallback(async () => {
     if (!user) return;
@@ -610,48 +537,6 @@ const Discover = () => {
     },
     [user?.id]
   );
-
-  // Load liked profiles from database
-  const loadLikedProfiles = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from("likes")
-        .select("liked_id, action")
-        .eq("liker_id", user.id);
-
-      if (error) throw error;
-
-      const likedIds = data ? data.filter((l) => l.action !== "pass").map((l) => l.liked_id) : [];
-      const passedIds = data ? data.filter((l) => l.action === "pass").map((l) => l.liked_id) : [];
-
-      // Also fetch matched user IDs so they are excluded from discovery
-      const { data: matchData } = await supabase
-        .from("matches")
-        .select("user1_id, user2_id")
-        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
-
-      const matchedIds = (matchData || []).map((m) =>
-        m.user1_id === user.id ? m.user2_id : m.user1_id
-      );
-
-      const allExcluded = new Set([...likedIds, ...passedIds, ...matchedIds]);
-      setLikedProfiles(new Set([...likedIds, ...matchedIds]));
-      const localExcluded = getLocalExcluded();
-      setPassedProfiles(new Set([...passedIds, ...localExcluded]));
-      logger.log(
-        "Loaded liked profiles:",
-        likedIds.length,
-        "passed:",
-        passedIds.length,
-        "matched:",
-        matchedIds.length
-      );
-    } catch (error) {
-      logger.error("Error loading liked profiles:", error);
-    }
-  }, [user, getLocalExcluded]);
 
   // Fetch profile views (users who viewed your profile)
   const fetchProfileViews = useCallback(async () => {
@@ -783,7 +668,7 @@ const Discover = () => {
           .filter((like) => like.profiles)
           .map((like) => ({
             ...(like.profiles as unknown as Profile),
-            timestamp: like.created_at,
+            timestamp: like.created_at ?? undefined,
           }));
         setProfileLikes(likers);
       }
@@ -822,30 +707,36 @@ const Discover = () => {
             ? myProfile.travel_longitude
             : myProfile.longitude) ?? 0;
 
-        const { data, error } = await supabase.rpc("get_discover_profiles", {
-          current_user_id: user.id,
-          user_latitude: userLat,
-          user_longitude: userLon,
-          p_min_age: filters.minAge,
-          p_max_age: filters.maxAge,
-          p_max_distance_km: filters.maxDistance,
-          p_gender_pref: myProfile.gender_preference || filters.gender || "everyone",
-          p_my_gender: myProfile.gender || "",
-          p_is_premium: swipeLimit.isPremium,
-          p_verified_only: filters.verifiedOnly,
-          p_has_profile_image: filters.hasProfileImage,
-          p_interests: filters.specificInterests,
-          p_min_height: filters.minHeight,
-          p_max_height: filters.maxHeight,
-          p_education: filters.education,
-          p_smoking: filters.smoking,
-          p_drinking: filters.drinking,
-          p_religion: filters.religion,
-          p_looking_for: filters.lookingFor,
-          p_zodiac_sign: filters.zodiacSign,
-          p_offset: offset,
-          p_limit: 50,
-        });
+        const { data, error } = (await supabase.rpc(
+          "get_discover_profiles" as never,
+          {
+            current_user_id: user.id,
+            user_latitude: userLat,
+            user_longitude: userLon,
+            p_min_age: filters.minAge,
+            p_max_age: filters.maxAge,
+            p_max_distance_km: filters.maxDistance,
+            p_gender_pref: myProfile.gender_preference || filters.gender || "everyone",
+            p_my_gender: myProfile.gender || "",
+            p_is_premium: swipeLimit.isPremium,
+            p_verified_only: filters.verifiedOnly,
+            p_has_profile_image: filters.hasProfileImage,
+            p_interests: filters.specificInterests,
+            p_min_height: filters.minHeight,
+            p_max_height: filters.maxHeight,
+            p_education: filters.education,
+            p_smoking: filters.smoking,
+            p_drinking: filters.drinking,
+            p_religion: filters.religion,
+            p_looking_for: filters.lookingFor,
+            p_zodiac_sign: filters.zodiacSign,
+            p_offset: offset,
+            p_limit: 50,
+          } as never
+        )) as {
+          data: Record<string, unknown>[] | null;
+          error: { code?: string; message?: string } | null;
+        };
 
         if (error) {
           // Graceful fallback: RPC not yet deployed — tell the user to run migration
@@ -858,14 +749,19 @@ const Discover = () => {
           throw error;
         }
 
-        const fetched: Profile[] = (data || []).map((p: Record<string, unknown>) => ({
-          ...p,
-          interests: p.interests || [],
-        }));
+        const fetched: Profile[] = (data || []).map(
+          (p) =>
+            ({
+              ...p,
+              interests: (p.interests as string[] | undefined) || [],
+            }) as unknown as Profile
+        );
 
         const sorted = filters.smartSort
           ? [...fetched].sort(
-              (a, b) => computeMatchScore(b, myProfile) - computeMatchScore(a, myProfile)
+              (a, b) =>
+                computeMatchScore(b, myProfile as Profile) -
+                computeMatchScore(a, myProfile as Profile)
             )
           : fetched;
 
@@ -894,117 +790,6 @@ const Discover = () => {
       fetchProfiles(discoverOffset.current);
     }
   }, [loading, fetchProfiles]);
-
-  // Fetch spotlight/boosted profiles
-  const fetchSpotlightProfiles = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      // Get user's location first
-      const myProfile = await fetchMyProfile();
-
-      // Determine which coordinates to use (travel or regular)
-      const userLat =
-        myProfile?.travel_mode_active && myProfile?.travel_latitude
-          ? myProfile.travel_latitude
-          : myProfile?.latitude;
-      const userLon =
-        myProfile?.travel_mode_active && myProfile?.travel_longitude
-          ? myProfile.travel_longitude
-          : myProfile?.longitude;
-
-      if (!myProfile || !userLat || !userLon) {
-        logger.log("Cannot fetch spotlight profiles: user location not available");
-        return;
-      }
-
-      const { data, error } = (await supabase.rpc("get_spotlight_profiles", {
-        current_user_id: user.id,
-        user_latitude: userLat,
-        user_longitude: userLon,
-        max_distance_km: filters.maxDistance,
-      })) as { data: Profile[] | null; error: unknown };
-
-      if (error) {
-        const errorObj = error as { code?: string; message?: string };
-        // Silently handle missing function (user hasn't run migration yet)
-        if (errorObj.code === "PGRST202" || errorObj.message?.includes("not found")) {
-          logger.log(
-            "Spotlight function not available yet. Run migration: 20251031_add_spotlight_profiles_function.sql"
-          );
-          return;
-        }
-        logger.error("Error fetching spotlight profiles:", error);
-        return;
-      }
-
-      if (data) {
-        // Add distance to spotlight profiles
-        const profilesWithDistance = data
-          .map((profile: Profile) => {
-            let distance_km = undefined;
-            if (userLat && userLon) {
-              // Check if the profile user is in travel mode and use their travel coordinates
-              const profileLat =
-                profile.travel_mode_active && profile.travel_latitude
-                  ? profile.travel_latitude
-                  : profile.latitude;
-              const profileLon =
-                profile.travel_mode_active && profile.travel_longitude
-                  ? profile.travel_longitude
-                  : profile.longitude;
-
-              if (profileLat && profileLon) {
-                distance_km = calculateDistance(userLat, userLon, profileLat, profileLon);
-              }
-            }
-
-            return {
-              ...profile,
-              distance_km,
-              interests: profile.interests || [],
-            };
-          })
-          .filter((profile: Profile) => {
-            // Exclude already liked/passed profiles
-            if (likedProfiles.has(profile.id) || passedProfiles.has(profile.id)) return false;
-
-            // Apply gender filter (mutual matching)
-            const myGenderPref = (
-              myProfile?.gender_preference ||
-              filters.gender ||
-              "everyone"
-            ).toLowerCase();
-            const myGender = (myProfile?.gender || "").toLowerCase();
-            const theirGenderPref = (profile.gender_preference || "everyone").toLowerCase();
-            const theirGender = (profile.gender || "").toLowerCase();
-
-            // 1. Do I want to see their gender? (skip if their gender is unknown)
-            if (myGenderPref !== "everyone" && theirGender && theirGender !== myGenderPref) {
-              return false;
-            }
-            // 2. Do they want to see my gender? (skip if their preference is unknown)
-            if (theirGenderPref !== "everyone" && myGender && myGender !== theirGenderPref) {
-              return false;
-            }
-
-            // Filter spotlight profiles by distance when in travel mode or always
-            if (profile.distance_km !== undefined && profile.distance_km > filters.maxDistance) {
-              logger.log(
-                `🚫 Filtering out spotlight ${profile.full_name}: ${Math.round(profile.distance_km)}km > ${filters.maxDistance}km`
-              );
-              return false;
-            }
-            return true;
-          });
-
-        logger.log(`Found ${profilesWithDistance.length} boosted profiles`);
-        setSpotlightProfiles(profilesWithDistance);
-      }
-    } catch (error) {
-      logger.error("Error fetching spotlight profiles:", error);
-    }
-  }, [user, filters.maxDistance, filters.gender, fetchMyProfile, likedProfiles, passedProfiles]);
 
   const { buyProduct } = usePurchases();
 
@@ -1084,8 +869,10 @@ const Discover = () => {
               status: "pending",
               send_at: midnight.toISOString(),
             })
-            .then(() => {})
-            .catch(() => {});
+            .then(
+              () => {},
+              () => {}
+            );
         }
         return;
       }
@@ -1485,10 +1272,9 @@ const Discover = () => {
       // so the profile doesn't reappear in the next session.
       const { error: passError } = await supabase
         .from("likes")
-        .upsert(
-          { liker_id: user.id, liked_id: profileId, action: "pass" },
-          { onConflict: "liker_id,liked_id" }
-        );
+        .upsert({ liker_id: user.id, liked_id: profileId, action: "pass" } as never, {
+          onConflict: "liker_id,liked_id",
+        });
 
       if (passError) {
         logger.error("Error storing pass:", passError);
@@ -1583,7 +1369,7 @@ const Discover = () => {
           .delete()
           .eq("liker_id", user.id)
           .eq("liked_id", lastAction.profileId)
-          .eq("action", "pass");
+          .eq("action" as never, "pass");
 
         removeLocalExcluded(lastAction.profileId);
         setPassedProfiles((prev) => {
@@ -1765,10 +1551,12 @@ const Discover = () => {
       localStorage.removeItem(`discover_profiles_cache_${user.id}`);
 
       // 1. Load liked profiles + matched users from database
-      const { data: likesData } = await supabase
+      const { data: likesData } = (await supabase
         .from("likes")
         .select("liked_id, action")
-        .eq("liker_id", user.id);
+        .eq("liker_id", user.id)) as {
+        data: Array<{ liked_id: string; action: string }> | null;
+      };
 
       const likedIds = likesData
         ? likesData.filter((l) => l.action !== "pass").map((l) => l.liked_id)
@@ -1983,8 +1771,8 @@ const Discover = () => {
           profileCount: profilesData.length,
         });
 
-        const profilesWithDistance = profilesData
-          .map((profile: Profile) => {
+        const profilesWithDistance = (profilesData as unknown as Profile[])
+          .map((profile) => {
             let distance_km = undefined;
             if (userLat && userLon) {
               // Check if the profile user is in travel mode and use their travel coordinates
@@ -2059,7 +1847,9 @@ const Discover = () => {
 
         const sortedProfiles = filters.smartSort
           ? [...profilesWithDistance].sort(
-              (a, b) => computeMatchScore(b, myProfile) - computeMatchScore(a, myProfile)
+              (a, b) =>
+                computeMatchScore(b, myProfile as Profile) -
+                computeMatchScore(a, myProfile as Profile)
             )
           : profilesWithDistance;
 
@@ -2347,13 +2137,9 @@ const Discover = () => {
     // Skip if initializeData is still running (it already fetches profiles internally)
     if (isInitializingRef.current) return;
     logger.log("Filters changed, refetching profiles...");
-    let cancelled = false;
     fetchProfiles().catch(() => {
-      /* cancelled */
+      /* ignore */
     });
-    return () => {
-      cancelled = true;
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
@@ -3637,7 +3423,7 @@ const Discover = () => {
                         const { data, error } = (await supabase.rpc(
                           "activate_booster_with_credit",
                           {
-                            user_id: user?.id,
+                            user_id: user?.id ?? "",
                             hours: 3,
                           }
                         )) as {
