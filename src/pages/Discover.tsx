@@ -1270,7 +1270,7 @@ const Discover = () => {
   const handlePremiumRoses = async () => {
     if (!user || !rosesTargetProfile) return;
 
-    if (walletBalance < 1) {
+    if (walletBalance < 50) {
       toast.error(t("discover.notEnoughCoins"), {
         action: {
           label: t("discover.getCoins", "Get Coins"),
@@ -1325,7 +1325,7 @@ const Discover = () => {
       }
 
       const matchId = data.match_id;
-      setWalletBalance(data.balance ?? Math.max(walletBalance - 1, 0));
+      setWalletBalance(data.balance ?? Math.max(walletBalance - 50, 0));
 
       logger.log("✅ Premium Roses match created successfully!", matchId);
 
@@ -3827,7 +3827,7 @@ const Discover = () => {
                   <Crown className="h-6 w-6 text-primary animate-pulse" />
                   <div className="flex flex-col items-center">
                     <span className="text-2xl font-bold text-primary dark:text-primary/60">
-                      1 Coin
+                      50 Coins
                     </span>
                     <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full mt-1">
                       Wallet balance: {walletBalance}
@@ -3849,7 +3849,7 @@ const Discover = () => {
                 {t("common.cancel")}
               </Button>
               <Button
-                disabled={walletBalance < 1}
+                disabled={walletBalance < 50}
                 onClick={handlePremiumRoses}
                 className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white font-bold text-lg shadow-xl border-2 border-primary/30 "
               >
