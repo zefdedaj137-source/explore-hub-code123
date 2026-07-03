@@ -1288,7 +1288,7 @@ const Settings = () => {
             >
               <CardTitle className="text-lg flex items-center gap-2">
                 <Palette className="h-5 w-5" />
-                Erscheinungsbild ({t("settings.theme")})
+                Appearance ({t("settings.theme")})
                 <ChevronDown
                   className={`h-4 w-4 ml-auto transition-transform ${expandedSections.appearance ? "rotate-180" : ""}`}
                 />
@@ -1657,19 +1657,19 @@ const Settings = () => {
                 />
                 <SettingsSection
                   icon={FileText}
-                  title="Bildrichtlinien"
+                  title="Image Guidelines"
                   description="Image guidelines"
                   onClick={() => navigate("/safety")}
                 />
                 <SettingsSection
                   icon={Lock}
-                  title="Datenschutz"
+                  title="Privacy Policy"
                   description="Privacy policy"
                   onClick={() => navigate("/privacy")}
                 />
                 <SettingsSection
                   icon={FileText}
-                  title="AGB"
+                  title="Terms & Conditions"
                   description="Terms & conditions"
                   onClick={() => navigate("/terms")}
                 />
