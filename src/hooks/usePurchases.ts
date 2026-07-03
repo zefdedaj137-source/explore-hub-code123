@@ -32,6 +32,7 @@ export const isNativePlatform = () => {
 // ─── RevenueCat initialisation (runs once on first hook mount) ──────────────
 let rcInitialised = false;
 let rcCurrentUserId: string | null = null;
+let rcConfigurePromise: Promise<void> | null = null;
 
 async function initRevenueCat(userId: string) {
   // Already initialised for this exact user — nothing to do.
@@ -42,16 +43,22 @@ async function initRevenueCat(userId: string) {
   }
   // Always try to initialise on native platforms
   try {
-    if (!rcInitialised) {
-      await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
-      await Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+    // Configure exactly once even under concurrent callers — configuring twice
+    // can throw, and the shared promise serialises the setup step.
+    if (!rcConfigurePromise) {
+      rcConfigurePromise = (async () => {
+        await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+        await Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+      })();
     }
+    await rcConfigurePromise;
     // (Re-)identify the current user so purchases are never attributed to a
     // previously logged-in account after a user switch.
     await Purchases.logIn({ appUserID: userId });
     rcInitialised = true;
     rcCurrentUserId = userId;
   } catch (e) {
+    rcConfigurePromise = null; // allow a fresh configure attempt after failure
     console.warn("RevenueCat init failed (non-native env):", e);
   }
 }

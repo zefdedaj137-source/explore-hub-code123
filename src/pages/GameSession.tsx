@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -598,6 +598,15 @@ const GameSession = () => {
     }
   }, [gameFinished, opponentFinished]);
 
+  // Clear the pending turn-advance timer on unmount so it can't fire state
+  // updates (setGameFinished / switchTurn) after the component is gone.
+  const turnTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (turnTimeoutRef.current) clearTimeout(turnTimeoutRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     if (user && sessionId) {
       initializeGame();
@@ -738,7 +747,7 @@ const GameSession = () => {
     const newQuestionNumber = questionNumber + 1;
     setQuestionNumber(newQuestionNumber);
 
-    setTimeout(() => {
+    turnTimeoutRef.current = setTimeout(() => {
       if (newQuestionNumber >= 6) {
         // I finished - broadcast to opponent and switch turn so they can continue
         setGameFinished(true);

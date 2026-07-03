@@ -227,21 +227,30 @@ const Auth = () => {
 
           toast.success(t("auth.accountCreated"));
 
-          // Listen for session to be ready before navigating
+          // Navigate exactly once — whichever of the auth event or the 5s
+          // fallback fires first wins; the other is cancelled/ignored.
+          let navigated = false;
+          const goToSetup = () => {
+            if (navigated) return;
+            navigated = true;
+            navigate("/profile-setup");
+          };
+
           const {
             data: { subscription },
           } = supabase.auth.onAuthStateChange((_event, session) => {
             if (session?.user) {
               if (import.meta.env.DEV) logger.log("✅ Session ready, navigating to profile setup");
               subscription.unsubscribe();
-              navigate("/profile-setup");
+              clearTimeout(fallbackTimer);
+              goToSetup();
             }
           });
 
           // Fallback: if no auth event fires within 5s, navigate anyway
-          setTimeout(() => {
+          const fallbackTimer = setTimeout(() => {
             subscription.unsubscribe();
-            navigate("/profile-setup");
+            goToSetup();
           }, 5000);
         } else {
           if (import.meta.env.DEV) logger.log("⚠️ Sign up returned no user");

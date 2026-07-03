@@ -160,10 +160,14 @@ const Spotted = () => {
         if (!user) return;
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        await supabase
+        const { error } = await supabase
           .from("profiles")
           .update({ latitude: lat, longitude: lng, location: `${lat},${lng}` })
           .eq("id", user.id);
+        if (error) {
+          toast.error("Failed to save your location. Please try again.");
+          return;
+        }
         setMyLocation({ lat, lng });
         setLocationError(null);
       },

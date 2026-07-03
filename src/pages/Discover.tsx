@@ -1271,7 +1271,15 @@ const Discover = () => {
     if (!user || !rosesTargetProfile) return;
 
     if (walletBalance < 1) {
-      toast.error(t("discover.notEnoughCoins"));
+      toast.error(t("discover.notEnoughCoins"), {
+        action: {
+          label: t("discover.getCoins", "Get Coins"),
+          onClick: () => navigate("/wallet"),
+        },
+      });
+      setShowPremiumRosesDialog(false);
+      setRosesTargetProfile(null);
+      navigate("/wallet");
       return;
     }
 
@@ -1301,7 +1309,13 @@ const Discover = () => {
         if (data?.error === "already_matched") {
           toast.info(t("discover.alreadyMatched"));
         } else if (data?.error === "Not enough coins") {
-          toast.error(t("discover.notEnoughCoins"));
+          toast.error(t("discover.notEnoughCoins"), {
+            action: {
+              label: t("discover.getCoins", "Get Coins"),
+              onClick: () => navigate("/wallet"),
+            },
+          });
+          navigate("/wallet");
         } else {
           toast.error("Failed to send premium roses");
         }
@@ -1365,7 +1379,14 @@ const Discover = () => {
       return;
     }
     if (walletBalance < cost) {
-      toast.error(t("discover.notEnoughCoins"));
+      toast.error(t("discover.notEnoughCoins"), {
+        action: {
+          label: t("discover.getCoins", "Get Coins"),
+          onClick: () => navigate("/wallet"),
+        },
+      });
+      setShowBoostDialog(false);
+      navigate("/wallet");
       return;
     }
     try {
@@ -1381,11 +1402,18 @@ const Discover = () => {
       if (error) throw error;
 
       if (!data?.success) {
-        toast.error(
-          data?.error === "Not enough coins"
-            ? t("discover.notEnoughCoins")
-            : t("discover.failedBoost")
-        );
+        if (data?.error === "Not enough coins") {
+          toast.error(t("discover.notEnoughCoins"), {
+            action: {
+              label: t("discover.getCoins", "Get Coins"),
+              onClick: () => navigate("/wallet"),
+            },
+          });
+          setShowBoostDialog(false);
+          navigate("/wallet");
+        } else {
+          toast.error(t("discover.failedBoost"));
+        }
         return;
       }
 

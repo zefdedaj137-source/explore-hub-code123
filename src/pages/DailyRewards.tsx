@@ -164,7 +164,7 @@ const DailyRewards = () => {
 
   // Determine which day cells are filled. streakCount is 0-6 after claiming;
   // when claimedToday, the displayed progress = streakCount (post-claim value from DB)
-  const filledDays = claimedToday ? streakCount : streakCount;
+  const filledDays = streakCount;
 
   return (
     <div className="min-h-dvh bg-background pb-24">

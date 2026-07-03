@@ -266,6 +266,9 @@ const DatePlanner = () => {
       const formattedDate = new Date(dateTime).toLocaleString();
       const chatMessage = `?? I planned a date!\n?? ${location}\n?? ${formattedDate}${notes ? `\n?? ${notes}` : ""}\n\nCheck your Date Planner to accept!`;
 
+      // Track whether the user was already notified of a partial-success state
+      // so we don't stack a contradictory generic "created" toast on top.
+      let partialNotice = false;
       if (match?.id) {
         const { error: msgError } = await supabase.from("messages").insert({
           match_id: match.id,
@@ -283,14 +286,16 @@ const DatePlanner = () => {
           if (msgError2) {
             logger.error("Message fallback also failed:", msgError2.message);
             toast.error(t("datePlanner.createdNoChat"));
+            partialNotice = true;
           }
         }
       } else {
         logger.warn("No match found for partner, cannot send chat notification.");
         toast.error(t("datePlanner.createdNoMatch"));
+        partialNotice = true;
       }
 
-      toast.success(t("datePlanner.created"));
+      if (!partialNotice) toast.success(t("datePlanner.created"));
       setSelectedPartner("");
       setDateTime("");
       setLocation("");

@@ -53,7 +53,13 @@ const BoostBundles = () => {
   const handlePurchase = async (hours: number, cost: number) => {
     if (!user) return;
     if (walletBalance < cost) {
-      toast.error(t("boostBundles.notEnoughCoins"));
+      toast.error(t("boostBundles.notEnoughCoins"), {
+        action: {
+          label: t("boostBundles.getCoins", "Get Coins"),
+          onClick: () => navigate("/wallet"),
+        },
+      });
+      navigate("/wallet");
       return;
     }
 
@@ -73,11 +79,17 @@ const BoostBundles = () => {
       if (error) throw error;
 
       if (!data?.success) {
-        toast.error(
-          data?.error === "Not enough coins"
-            ? t("boostBundles.notEnoughCoins")
-            : t("boostBundles.failedActivate")
-        );
+        if (data?.error === "Not enough coins") {
+          toast.error(t("boostBundles.notEnoughCoins"), {
+            action: {
+              label: t("boostBundles.getCoins", "Get Coins"),
+              onClick: () => navigate("/wallet"),
+            },
+          });
+          navigate("/wallet");
+        } else {
+          toast.error(t("boostBundles.failedActivate"));
+        }
         return;
       }
 

@@ -146,6 +146,16 @@ const GameSessionDance = () => {
     };
   }, []);
 
+  // Track mount status so long async handlers (video upload/broadcast) don't
+  // set state after the user has navigated away.
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   // Manage blob URL lifecycle to prevent memory leak
   useEffect(() => {
     if (recordedVideo) {
@@ -498,6 +508,7 @@ const GameSessionDance = () => {
       });
     }
 
+    if (!isMountedRef.current) return;
     setGamePhase("theirTurn");
     toast.success(t("gameSession.videoSent"));
   };

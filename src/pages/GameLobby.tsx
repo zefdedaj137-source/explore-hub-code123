@@ -75,7 +75,7 @@ const GameLobby = () => {
       return () => {
         clearInterval(interval);
         cleanupInvites?.();
-        updateUserStatus("offline");
+        void updateUserStatus("offline").catch(() => {});
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -351,6 +351,7 @@ const GameLobby = () => {
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Go back"
               onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
             >
               <ArrowLeft className="h-5 w-5" />

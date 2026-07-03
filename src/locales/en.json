@@ -216,6 +216,7 @@
     "superlikeOffline": "You're offline. Superlike will be sent when connection returns.",
     "failedSuperlike": "Failed to send superlike",
     "notEnoughCoins": "Not enough coins. Please top up your wallet.",
+    "getCoins": "Get Coins",
     "alreadyMatched": "You're already matched with this person!",
     "rosesSent": "💐 Premium Roses sent! Instant match created with rose-themed chat!",
     "outOfSwipes": "Out of swipes! Please wait or upgrade to premium.",
@@ -1125,6 +1126,7 @@
     "processing": "Processing...",
     "save": "Save",
     "notEnoughCoins": "Not enough coins. Please top up your wallet.",
+    "getCoins": "Get Coins",
     "failedActivate": "Failed to activate boost.",
     "activated": "Boost activated for {{hours}} hours!"
   },
@@ -1647,6 +1649,8 @@
     "dailyRewardsDesc": "Claim free coins every day",
     "limitedBoosts": "Limited-Time Boosts",
     "limitedBoostsDesc": "Discounted boost bundles",
+    "wallet": "Coin Wallet",
+    "walletDesc": "Buy & manage your coins",
     "inviteFriends": "Invite Friends",
     "inviteFriendsDesc": "Share your invite code"
   },

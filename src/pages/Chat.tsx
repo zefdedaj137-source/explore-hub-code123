@@ -1654,6 +1654,7 @@ const Chat = () => {
               variant="ghost"
               size="icon"
               className="h-8 w-8"
+              aria-label={t("common.close", "Close")}
               onClick={() => {
                 setShowMessageSearch(false);
                 setMessageSearchQuery("");
@@ -2619,6 +2620,7 @@ const Chat = () => {
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label={t("common.close", "Close")}
                 onClick={() => {
                   setShowGifPicker(false);
                   setGifSearchQuery("");

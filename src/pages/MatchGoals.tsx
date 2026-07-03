@@ -51,7 +51,10 @@ const MatchGoals = () => {
     setLoading(true);
     try {
       const weekStart = getWeekStart();
-      const weekStartIso = new Date(weekStart).toISOString();
+      // Parse the YYYY-MM-DD as LOCAL midnight (not UTC) so the week boundary
+      // matches the user's local week; new Date("YYYY-MM-DD") would parse as UTC.
+      const [wy, wm, wd] = weekStart.split("-").map(Number);
+      const weekStartIso = new Date(wy, wm - 1, wd).toISOString();
 
       const [messagesCount, matchesCount] = await Promise.all([
         supabase

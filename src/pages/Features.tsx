@@ -13,6 +13,7 @@ import {
   Music,
   Zap,
   Share2,
+  Wallet,
   ChevronRight,
   ChevronDown,
 } from "lucide-react";
@@ -168,6 +169,12 @@ const Features = () => {
           </CardHeader>
           {expandedSections.rewards && (
             <CardContent className="space-y-2">
+              <SettingsSection
+                icon={Wallet}
+                title={t("featuresPage.wallet", "Coin Wallet")}
+                description={t("featuresPage.walletDesc", "Buy & manage your coins")}
+                onClick={() => navigate("/wallet")}
+              />
               <SettingsSection
                 icon={CalendarCheck}
                 title={t("featuresPage.dailyRewards")}

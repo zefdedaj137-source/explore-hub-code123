@@ -40,6 +40,8 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
 
     logger.log("🎧 Setting up incoming call listener for user:", user.id);
 
+    let active = true;
+
     const channel = supabase
       .channel(`incoming_calls_${user.id}`)
       .on(
@@ -71,7 +73,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
 
           logger.log("👤 Caller profile:", callerProfile);
 
-          if (callerProfile) {
+          if (callerProfile && active) {
             setIncomingCall({
               sessionId: session.id,
               callerId: session.caller_id,
@@ -90,6 +92,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
 
     return () => {
       logger.log("🔌 Cleaning up incoming call listener");
+      active = false;
       supabase.removeChannel(channel);
     };
   }, [user]);

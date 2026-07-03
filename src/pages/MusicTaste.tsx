@@ -98,6 +98,7 @@ const MusicTaste = () => {
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Go back"
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
         >
           <ArrowLeft className="h-5 w-5" />

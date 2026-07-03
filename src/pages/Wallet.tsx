@@ -41,7 +41,11 @@ const Wallet = () => {
       .maybeSingle();
 
     if (!data) {
-      await supabase.from("wallets").insert({ user_id: user.id, balance: 0 });
+      // Atomic create-if-missing: upsert avoids a unique-constraint violation
+      // when two concurrent loads both try to seed the wallet row.
+      await supabase
+        .from("wallets")
+        .upsert({ user_id: user.id, balance: 0 }, { onConflict: "user_id" });
       setBalance(0);
     } else {
       setBalance(data.balance || 0);

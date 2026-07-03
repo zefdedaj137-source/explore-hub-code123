@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -647,6 +647,15 @@ const GameSessionMusic = () => {
     }
   }, [gameFinished, opponentFinished]);
 
+  // Clear the pending turn-advance timer on unmount so it can't fire state
+  // updates (setGameFinished / switchTurn) after the component is gone.
+  const turnTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (turnTimeoutRef.current) clearTimeout(turnTimeoutRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     if (user && sessionId) {
       initializeGame();
@@ -670,6 +679,12 @@ const GameSessionMusic = () => {
         .eq("id", sessionId)
         .single();
       const invite = inviteData as unknown as GameInviteWithProfiles | null;
+
+      if (error) throw error;
+      if (!invite) throw new Error("Game invite not found");
+
+      // Determine opponent (the other participant of the invite)
+      const opponentData = invite.from_user_id === user?.id ? invite.to_user : invite.from_user;
       setOpponent(opponentData);
       setCurrentTurn(invite.from_user_id);
 
@@ -773,7 +788,7 @@ const GameSessionMusic = () => {
     const newQuestionNumber = questionNumber + 1;
     setQuestionNumber(newQuestionNumber);
 
-    setTimeout(() => {
+    turnTimeoutRef.current = setTimeout(() => {
       if (newQuestionNumber >= 6) {
         setGameFinished(true);
         supabase.channel(`game-session-music-${sessionId}`).send({

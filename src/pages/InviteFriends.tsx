@@ -15,6 +15,7 @@ const InviteFriends = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [invitesSent, setInvitesSent] = useState(0);
+  const [sharing, setSharing] = useState(false);
 
   const storageKey = useMemo(() => (user ? `invite_stats_${user.id}` : null), [user]);
   const codeKey = useMemo(() => (user ? `invite_code_${user.id}` : null), [user]);
@@ -69,6 +70,8 @@ const InviteFriends = () => {
   }, [user, navigate, loadStats]);
 
   const handleShare = async () => {
+    if (sharing) return; // guard against rapid double-taps awarding coins twice
+    setSharing(true);
     const payload = {
       title: "Join me on Explore Hub",
       text: "Let�s match on Explore Hub! Use my invite code for bonus coins.",
@@ -97,13 +100,11 @@ const InviteFriends = () => {
             .eq("user_id", user.id)
             .single();
           const currentBalance = (wallet as { balance: number } | null)?.balance ?? 0;
-          await supabase
-            .from("wallets")
-            .upsert({
-              user_id: user.id,
-              balance: currentBalance + 3,
-              updated_at: new Date().toISOString(),
-            });
+          await supabase.from("wallets").upsert({
+            user_id: user.id,
+            balance: currentBalance + 3,
+            updated_at: new Date().toISOString(),
+          });
           await supabase
             .from("wallet_transactions")
             .insert({ user_id: user.id, amount: 3, type: "earn", item: "invite_reward" });
@@ -115,6 +116,8 @@ const InviteFriends = () => {
     } catch (error) {
       logger.error("Share failed", error);
       toast.error(t("inviteFriends.shareError"));
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -179,7 +182,7 @@ const InviteFriends = () => {
           </div>
 
           <div className="grid sm:grid-cols-2 gap-3">
-            <Button className="w-full" onClick={handleShare}>
+            <Button className="w-full" onClick={handleShare} disabled={sharing}>
               <Share2 className="h-4 w-4 mr-2" />
               {t("inviteFriends.shareInvite")}
             </Button>

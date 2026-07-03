@@ -956,10 +956,45 @@ All colors MUST be HSL.
 
   /* ── Auth page ─── */
   .logo-rose {
-    background: linear-gradient(135deg, #e8274b, #ff6b35);
+    position: relative;
+    background: radial-gradient(120% 120% at 30% 20%, #ff8a5b 0%, #e8274b 55%, #c81d54 100%);
     box-shadow:
-      0 0 50px rgba(232, 39, 75, 0.5),
-      0 12px 40px rgba(0, 0, 0, 0.5);
+      0 0 46px rgba(232, 39, 75, 0.45),
+      0 14px 44px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      inset 0 -6px 18px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+    isolation: isolate;
+    animation: logoFloat 5.5s ease-in-out infinite;
+  }
+  /* Soft top-left sheen for a premium, glossy finish */
+  .logo-rose::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 42%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .logo-rose > img {
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+  }
+  @keyframes logoFloat {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-4px) scale(1.015);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .logo-rose {
+      animation: none;
+    }
   }
   .glass-panel {
     background: rgba(255, 255, 255, 0.85);
