@@ -104,7 +104,7 @@ const GhostModeAlert = () => {
       await supabase.from("messages").insert({
         match_id: matchId,
         sender_id: user.id,
-        content: `Hey ${partnerName}! ?? Just checking in � hope you're doing well!`,
+        content: `Hey ${partnerName}! 👋 Just checking in — hope you're doing well!`,
       });
       const nudges = JSON.parse(localStorage.getItem(`nudges_${user.id}`) || "[]") as string[];
       nudges.push(matchId);

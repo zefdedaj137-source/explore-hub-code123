@@ -154,7 +154,7 @@ const DoubleDatePlanner = () => {
 
       // Send chat messages to notify both partners
       const formattedDate = new Date(dateTime).toLocaleString();
-      const chatMessage = `?? Double date planned!\n?? ${location}\n?? ${formattedDate}${notes ? `\n?? ${notes}` : ""}\n\nCheck your Double Date Planner for details!`;
+      const chatMessage = `💑 Double date planned!\n📍 ${location}\n🗓️ ${formattedDate}${notes ? `\n📝 ${notes}` : ""}\n\nCheck your Double Date Planner for details!`;
 
       for (const partnerId of [partner1, partner2]) {
         const match = matches.find(

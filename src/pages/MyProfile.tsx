@@ -138,7 +138,7 @@ const MyProfile = () => {
     }
     fetchProfile();
 
-    // Defer achievements check until browser is idle � avoids blocking initial paint
+    // Defer achievements check until browser is idle — avoids blocking initial paint
     const runAchievements = () => {
       checkAndGrantAchievements(user.id).then((newBadges) => {
         if (newBadges.length > 0) {
@@ -864,19 +864,19 @@ const MyProfile = () => {
             <div className="grid grid-cols-2 gap-4">
               {profile.work && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">?? Work</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
                   <p className="font-semibold text-sm text-foreground">{profile.work}</p>
                 </Card>
               )}
               {profile.education && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">?? Education</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
                   <p className="font-semibold text-sm text-foreground">{profile.education}</p>
                 </Card>
               )}
               {(profile.height_cm || profile.height) && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">?? Height</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
                   <p className="font-semibold text-sm text-foreground">
                     {profile.height_cm ? `${profile.height_cm} cm` : profile.height}
                   </p>
@@ -884,37 +884,37 @@ const MyProfile = () => {
               )}
               {profile.zodiac_sign && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">? Zodiac</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
                   <p className="font-semibold text-sm text-foreground">{profile.zodiac_sign}</p>
                 </Card>
               )}
               {profile.religion && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">?? Religion</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
                   <p className="font-semibold text-sm text-foreground">{profile.religion}</p>
                 </Card>
               )}
               {profile.lifestyle && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">?? Lifestyle</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">🌿 Lifestyle</p>
                   <p className="font-semibold text-sm text-foreground">{profile.lifestyle}</p>
                 </Card>
               )}
               {profile.drinking && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">?? Drinking</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
                   <p className="font-semibold text-sm text-foreground">{profile.drinking}</p>
                 </Card>
               )}
               {profile.smoking && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">?? Smoking</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
                   <p className="font-semibold text-sm text-foreground">{profile.smoking}</p>
                 </Card>
               )}
               {profile.pets && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">?? Pets</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
                   <p className="font-semibold text-sm text-foreground">{profile.pets}</p>
                 </Card>
               )}
@@ -992,7 +992,7 @@ const MyProfile = () => {
                     {(profile.soundtrack_title || profile.soundtrack_artist) && (
                       <p className="text-sm text-muted-foreground">
                         {profile.soundtrack_title}
-                        {profile.soundtrack_artist ? ` � ${profile.soundtrack_artist}` : ""}
+                        {profile.soundtrack_artist ? ` • ${profile.soundtrack_artist}` : ""}
                       </p>
                     )}
                     {ytId && (

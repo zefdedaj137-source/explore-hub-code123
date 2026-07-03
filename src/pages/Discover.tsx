@@ -3747,17 +3747,17 @@ const Discover = () => {
       {/* Premium Roses VIP Dialog */}
       <Dialog open={showPremiumRosesDialog} onOpenChange={setShowPremiumRosesDialog}>
         <DialogContent
-          className="sm:max-w-lg bg-gradient-to-br from-background via-muted to-primary/10  border-4 border-primary/30 "
+          className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-gradient-to-br from-background via-muted to-primary/10  border-4 border-primary/30 "
           aria-describedby={undefined}
         >
           <DialogHeader>
-            <DialogTitle className="text-3xl font-bold text-center bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] bg-clip-text text-transparent flex items-center justify-center gap-3">
-              <Flower2 className="h-8 w-8 text-primary animate-bounce" />
+            <DialogTitle className="text-2xl sm:text-3xl font-bold text-center bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] bg-clip-text text-transparent flex items-center justify-center gap-2 sm:gap-3">
+              <Flower2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-bounce" />
               Premium Roses
-              <Crown className="h-8 w-8 text-primary animate-pulse" />
+              <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse" />
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-6 py-4">
+          <div className="space-y-4 py-2">
             {rosesTargetProfile && (
               <div className="relative">
                 {/* Rose Animation Background */}
@@ -3765,11 +3765,11 @@ const Discover = () => {
                   <Flower2 className="h-32 w-32 text-primary animate-spin-slow" />
                 </div>
 
-                <div className="relative flex flex-col items-center gap-4 p-6 bg-card/80 dark:bg-primary/10/80 rounded-xl border-2 border-border /30 backdrop-blur-sm">
+                <div className="relative flex flex-col items-center gap-3 p-4 bg-card/80 dark:bg-primary/10/80 rounded-xl border-2 border-border /30 backdrop-blur-sm">
                   <img
                     src={rosesTargetProfile.profile_image_url || "/placeholder.svg"}
                     alt={rosesTargetProfile.full_name}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-primary/30 shadow-xl"
+                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-primary/30 shadow-xl"
                   />
                   <div className="text-center">
                     <h3 className="text-2xl font-bold text-foreground dark:text-primary/20">
@@ -3783,7 +3783,7 @@ const Discover = () => {
               </div>
             )}
 
-            <div className="bg-gradient-to-r from-muted to-muted  p-6 rounded-xl border-2 border-border /30">
+            <div className="bg-gradient-to-r from-muted to-muted  p-4 rounded-xl border-2 border-border /30">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <Flower2 className="h-6 w-6 text-primary dark:text-primary mt-1 flex-shrink-0" />
@@ -3840,35 +3840,33 @@ const Discover = () => {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowPremiumRosesDialog(false)}
-                className="flex-1 border-2 border-border dark:border-primary hover:bg-muted dark:hover:bg-primary/50"
-              >
-                {t("common.cancel")}
-              </Button>
+            <div className="flex flex-col gap-3">
               <Button
                 disabled={walletBalance < 50}
                 onClick={handlePremiumRoses}
-                className="flex-1 bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white font-bold text-lg shadow-xl border-2 border-primary/30 "
+                className="w-full bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white font-bold text-lg shadow-xl border-2 border-primary/30 "
               >
                 <Flower2 className="h-5 w-5 mr-2 animate-bounce" />
                 Send Roses 💐
               </Button>
-              <Button
-                variant="outline"
-                className="flex-1 border-2 border-border"
-                onClick={() => navigate("/wallet")}
-              >
-                <Coins className="h-5 w-5 mr-2" />
-                Buy Coins
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowPremiumRosesDialog(false)}
+                  className="flex-1 border-2 border-border dark:border-primary hover:bg-muted dark:hover:bg-primary/50"
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-2 border-border"
+                  onClick={() => navigate("/wallet")}
+                >
+                  <Coins className="h-5 w-5 mr-2" />
+                  Buy Coins
+                </Button>
+              </div>
             </div>
-
-            <p className="text-xs text-center text-primary dark:text-primary/80 font-semibold bg-primary/10 dark:bg-primary/30 py-2 rounded">
-              🧪 TEST MODE: No payment required - Testing Premium Roses feature
-            </p>
           </div>
         </DialogContent>
       </Dialog>

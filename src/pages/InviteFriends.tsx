@@ -73,8 +73,8 @@ const InviteFriends = () => {
     if (sharing) return; // guard against rapid double-taps awarding coins twice
     setSharing(true);
     const payload = {
-      title: "Join me on Explore Hub",
-      text: "Let�s match on Explore Hub! Use my invite code for bonus coins.",
+      title: "Join me on Shqiponja",
+      text: "Let's match on Shqiponja! Use my invite code for bonus coins.",
       url: inviteLink,
     };
 
@@ -108,7 +108,7 @@ const InviteFriends = () => {
           await supabase
             .from("wallet_transactions")
             .insert({ user_id: user.id, amount: 3, type: "earn", item: "invite_reward" });
-          toast.success(t("inviteFriends.rewardCoins", "?? You earned 3 coins for sharing!"));
+          toast.success(t("inviteFriends.rewardCoins", "🎉 You earned 3 coins for sharing!"));
         } catch (e) {
           logger.error("Failed to credit invite reward", e);
         }

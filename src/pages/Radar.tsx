@@ -554,7 +554,7 @@ export default function Radar() {
                       <span className="font-medium">{selectedUser.city}</span>
                       {selectedUser.distance && (
                         <span className="text-muted-foreground">
-                          � {formatDistance(selectedUser.distance)} away
+                          📍 {formatDistance(selectedUser.distance)} away
                         </span>
                       )}
                     </div>
@@ -564,13 +564,13 @@ export default function Radar() {
                   <div className="grid grid-cols-2 gap-4">
                     {selectedUser.work && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">?? Work</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
                         <p className="font-semibold text-sm text-foreground">{selectedUser.work}</p>
                       </Card>
                     )}
                     {selectedUser.education && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">?? Education</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.education}
                         </p>
@@ -578,7 +578,7 @@ export default function Radar() {
                     )}
                     {selectedUser.height && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">?? Height</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.height}
                         </p>
@@ -586,7 +586,7 @@ export default function Radar() {
                     )}
                     {selectedUser.zodiac_sign && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">? Zodiac</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.zodiac_sign}
                         </p>
@@ -594,7 +594,7 @@ export default function Radar() {
                     )}
                     {selectedUser.religion && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">?? Religion</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.religion}
                         </p>
@@ -602,7 +602,7 @@ export default function Radar() {
                     )}
                     {selectedUser.lifestyle && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">?? Lifestyle</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">🌿 Lifestyle</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.lifestyle}
                         </p>
@@ -610,7 +610,7 @@ export default function Radar() {
                     )}
                     {selectedUser.drinking && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">?? Drinking</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.drinking}
                         </p>
@@ -618,7 +618,7 @@ export default function Radar() {
                     )}
                     {selectedUser.smoking && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">?? Smoking</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.smoking}
                         </p>
@@ -626,7 +626,7 @@ export default function Radar() {
                     )}
                     {selectedUser.pets && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">?? Pets</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
                         <p className="font-semibold text-sm text-foreground">{selectedUser.pets}</p>
                       </Card>
                     )}
@@ -636,7 +636,7 @@ export default function Radar() {
                   {selectedUser.bio && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">??</span> About
+                        <span className="text-2xl">📝</span> About
                       </h3>
                       <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                         {selectedUser.bio}
@@ -648,7 +648,7 @@ export default function Radar() {
                   {selectedUser.looking_for && selectedUser.looking_for.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">??</span> Looking For
+                        <span className="text-2xl">💖</span> Looking For
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedUser.looking_for.map((item, idx) => (
@@ -667,7 +667,7 @@ export default function Radar() {
                   {selectedUser.interests && selectedUser.interests.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">?</span> Interests
+                        <span className="text-2xl">🎯</span> Interests
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedUser.interests.map((interest, idx) => (
@@ -746,8 +746,8 @@ export default function Radar() {
                 <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                 {t("radar.greenDot")}
               </p>
-              <p>?? Radar shows users within 100 meters of your current location</p>
-              <p>? Send superlikes to stand out and get noticed!</p>
+              <p>📡 Radar shows users within 100 meters of your current location</p>
+              <p>⭐ Send superlikes to stand out and get noticed!</p>
             </div>
           </CardContent>
         </Card>

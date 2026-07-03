@@ -123,9 +123,9 @@ const SecondLook = () => {
       localStorage.setItem(storageKey, JSON.stringify(updated));
 
       if (data?.is_match) {
-        toast.success(`?? It's a match with ${profile.full_name}!`);
+        toast.success(`💞 It's a match with ${profile.full_name}!`);
       } else {
-        toast.success(`?? Liked ${profile.full_name}`);
+        toast.success(`👍 Liked ${profile.full_name}`);
       }
 
       // Remove from local list
@@ -138,7 +138,7 @@ const SecondLook = () => {
   };
 
   const handleDismiss = (profileId: string) => {
-    // Permanently dismiss � remove from passed list
+    // Permanently dismiss — remove from passed list
     const stored = localStorage.getItem(storageKey);
     const passedData: { id: string; passedAt: string }[] = stored ? JSON.parse(stored) : [];
     const updated = passedData.filter((p) => p.id !== profileId);

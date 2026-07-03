@@ -264,7 +264,7 @@ const DatePlanner = () => {
 
       // Send chat message to notify the partner
       const formattedDate = new Date(dateTime).toLocaleString();
-      const chatMessage = `?? I planned a date!\n?? ${location}\n?? ${formattedDate}${notes ? `\n?? ${notes}` : ""}\n\nCheck your Date Planner to accept!`;
+      const chatMessage = `💌 I planned a date!\n📍 ${location}\n🗓️ ${formattedDate}${notes ? `\n📝 ${notes}` : ""}\n\nCheck your Date Planner to accept!`;
 
       // Track whether the user was already notified of a partial-success state
       // so we don't stack a contradictory generic "created" toast on top.
@@ -343,12 +343,12 @@ const DatePlanner = () => {
       const formattedDate = new Date(plan.scheduled_for).toLocaleString();
       let chatMessage = "";
       if (status === "confirmed") {
-        chatMessage = `? Date accepted!\n?? ${plan.location}\n?? ${formattedDate}\n\nIt's a date! ??`;
+        chatMessage = `✅ Date accepted!\n📍 ${plan.location}\n🗓️ ${formattedDate}\n\nIt's a date! 💕`;
       } else if (status === "canceled") {
         const wasConfirmed = plan.status === "confirmed";
         chatMessage = wasConfirmed
-          ? `? Date canceled.\n?? ${plan.location}\n?? ${formattedDate}`
-          : `? Date declined.\n?? ${plan.location}\n?? ${formattedDate}`;
+          ? `❌ Date canceled.\n📍 ${plan.location}\n🗓️ ${formattedDate}`
+          : `❌ Date declined.\n📍 ${plan.location}\n🗓️ ${formattedDate}`;
       }
       if (chatMessage) {
         const { error: msgError } = await supabase.from("messages").insert({

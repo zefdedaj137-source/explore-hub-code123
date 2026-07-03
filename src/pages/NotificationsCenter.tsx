@@ -92,7 +92,7 @@ const NotificationsCenter = () => {
       const { error } = await supabase.functions.invoke("send-push", {
         body: {
           user_id: user.id,
-          title: "Explore Hub",
+          title: "Shqiponja",
           body: "Test push delivered successfully.",
           url: "/notifications",
         },

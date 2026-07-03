@@ -98,7 +98,7 @@ async function handlePush(
     const { data, error } = await query;
     if (error) throw error;
     const payload = JSON.stringify({
-      title: title || "Explore Hub",
+      title: title || "Shqiponja",
       body: msgBody || "You have a new update.",
       url: url || "/notifications",
     });
