@@ -706,7 +706,7 @@ const Settings = () => {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Premium Booster Section - Only show when booster is active */}
           {boosterActive && boosterExpiresAt && (
             <Card className="shadow-elegant bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-400">
@@ -890,25 +890,24 @@ const Settings = () => {
 
           {/* Travel Mode Section - Premium Feature */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("travel")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <span>✈️ Travel Mode</span>
-                {isPremium && (
-                  <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black border-none">
-                    Premium
-                  </Badge>
-                )}
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.travel ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-              <CardDescription>
-                Explore matches in different cities around the world
-              </CardDescription>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <MapPin className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Travel Mode</span>
+              {isPremium && (
+                <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black border-none">
+                  Premium
+                </Badge>
+              )}
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.travel ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.travel && (
               <CardContent>
                 {user && (
@@ -935,20 +934,24 @@ const Settings = () => {
             )}
           </Card>
 
+          <p className="px-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Account
+          </p>
           {/* Account Section */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("account")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Account
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.account ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Account</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.account ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.account && (
               <CardContent className="space-y-2">
                 <SettingsSection
@@ -1025,19 +1028,20 @@ const Settings = () => {
 
           {/* Activity & History */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("activity")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Activity & History
-                {!isPremium && <Lock className="h-4 w-4 text-muted-foreground" />}
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.activity ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Activity className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Activity & History</span>
+              {!isPremium && <Lock className="h-4 w-4 text-muted-foreground" />}
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.activity ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.activity &&
               (isPremium ? (
                 <CardContent className="space-y-2">
@@ -1112,18 +1116,19 @@ const Settings = () => {
 
           {/* Safety & Verification */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("safety")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5" />
-                Safety & Verification
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.safety ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <ShieldCheck className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Safety & Verification</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.safety ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.safety && (
               <CardContent className="space-y-2">
                 <SettingsSection
@@ -1154,21 +1159,24 @@ const Settings = () => {
             )}
           </Card>
 
+          <p className="px-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Preferences
+          </p>
           {/* Discovery Settings */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("discovery")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Discovery Settings
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.discovery ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-              <CardDescription>Customize your discovery preferences</CardDescription>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Discovery Settings</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.discovery ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.discovery && (
               <CardContent className="space-y-6">
                 {/* Looking For */}
@@ -1282,18 +1290,19 @@ const Settings = () => {
 
           {/* Appearance Section */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("appearance")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Palette className="h-5 w-5" />
-                Appearance ({t("settings.theme")})
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.appearance ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Palette className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Appearance ({t("settings.theme")})</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.appearance ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.appearance && (
               <CardContent>
                 <RadioGroup value={theme} onValueChange={handleThemeChange} className="space-y-3">
@@ -1339,18 +1348,19 @@ const Settings = () => {
 
           {/* Privacy Section */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("privacy")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Lock className="h-5 w-5" />
-                Privacy & Security
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.privacy ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Lock className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Privacy & Security</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.privacy ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.privacy && (
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -1400,18 +1410,19 @@ const Settings = () => {
 
           {/* Notifications Section */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("notifications")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                Notifications
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.notifications ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Bell className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Notifications</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.notifications ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.notifications && (
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -1589,20 +1600,24 @@ const Settings = () => {
             )}
           </Card>
 
+          <p className="px-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Community & Support
+          </p>
           {/* Social & Community */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("social")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Social & Community
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.social ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Social & Community</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.social ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.social && (
               <CardContent className="space-y-2">
                 <SettingsSection
@@ -1635,18 +1650,19 @@ const Settings = () => {
 
           {/* Help, Legal & Data */}
           <Card className="shadow-elegant">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("help")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2">
-                <HelpCircle className="h-5 w-5" />
-                Help & Legal
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.help ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-primary/10">
+                <HelpCircle className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-medium flex-1">Help & Legal</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.help ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.help && (
               <CardContent className="space-y-2">
                 <SettingsSection
@@ -1711,20 +1727,24 @@ const Settings = () => {
             )}
           </Card>
 
+          <p className="px-1 pt-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Account Management
+          </p>
           {/* Danger Zone */}
           <Card className="shadow-elegant border-destructive/50">
-            <CardHeader
-              className="cursor-pointer select-none"
+            <button
+              type="button"
               onClick={() => toggleSection("danger")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
             >
-              <CardTitle className="text-lg flex items-center gap-2 text-destructive">
-                <Trash2 className="h-5 w-5" />
-                Danger Zone
-                <ChevronDown
-                  className={`h-4 w-4 ml-auto transition-transform ${expandedSections.danger ? "rotate-180" : ""}`}
-                />
-              </CardTitle>
-            </CardHeader>
+              <div className="p-2 rounded-lg bg-destructive/10">
+                <Trash2 className="h-5 w-5 text-destructive" />
+              </div>
+              <span className="font-medium flex-1 text-destructive">Danger Zone</span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.danger ? "rotate-180" : ""}`}
+              />
+            </button>
             {expandedSections.danger && (
               <CardContent className="space-y-4">
                 {/* Data Export (GDPR) */}
@@ -1845,18 +1865,19 @@ const Settings = () => {
 
           {isAdmin && (
             <Card className="shadow-elegant">
-              <CardHeader
-                className="cursor-pointer select-none"
+              <button
+                type="button"
                 onClick={() => toggleSection("admin")}
+                className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors text-left"
               >
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Admin
-                  <ChevronDown
-                    className={`h-4 w-4 ml-auto transition-transform ${expandedSections.admin ? "rotate-180" : ""}`}
-                  />
-                </CardTitle>
-              </CardHeader>
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Shield className="h-5 w-5 text-primary" />
+                </div>
+                <span className="font-medium flex-1">Admin</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform ${expandedSections.admin ? "rotate-180" : ""}`}
+                />
+              </button>
               {expandedSections.admin && (
                 <CardContent className="space-y-2">
                   <SettingsSection
