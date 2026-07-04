@@ -64,11 +64,11 @@ async function initRevenueCat(userId: string) {
 }
 
 // ─── Fulfil a consumable purchase server-side ───────────────────────────────
-async function fulfillNativePurchase(productId: ProductId): Promise<void> {
+async function fulfillNativePurchase(productId: ProductId, transactionId?: string): Promise<void> {
   if (COIN_PACK_AMOUNTS[productId] !== undefined) {
     const coins = COIN_PACK_AMOUNTS[productId]!;
     const { error } = await supabase.functions.invoke("fulfill-coins-purchase", {
-      body: { product_id: productId, coins, source: "apple_iap" },
+      body: { product_id: productId, coins, source: "apple_iap", transaction_id: transactionId },
     });
     if (error) throw error;
     return;
@@ -77,7 +77,7 @@ async function fulfillNativePurchase(productId: ProductId): Promise<void> {
   if (SUPERLIKE_PACK_AMOUNTS[productId] !== undefined) {
     const amount = SUPERLIKE_PACK_AMOUNTS[productId]!;
     const { error } = await supabase.functions.invoke("fulfill-superlike-iap", {
-      body: { product_id: productId, amount, source: "apple_iap" },
+      body: { product_id: productId, amount, source: "apple_iap", transaction_id: transactionId },
     });
     if (error) throw error;
     return;
@@ -192,15 +192,18 @@ export function usePurchases() {
             );
           }
 
-          const { customerInfo } = await Purchases.purchasePackage({ aPackage: pkg });
+          const { customerInfo, transaction } = await Purchases.purchasePackage({ aPackage: pkg });
 
           if (productId === PRODUCT_IDS.PREMIUM_MONTHLY) {
             const active = !!customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT];
             setHasPremium(active);
             if (active) toast.success("Welcome to Premium! 🎉");
           } else {
-            // Consumable — fulfil server-side (add coins / superlikes)
-            await fulfillNativePurchase(productId);
+            // Consumable — fulfil server-side (add coins / superlikes).
+            // Pass the StoreKit transaction id so each purchase gets a unique
+            // idempotency key — otherwise repeat purchases of the same pack
+            // collide and silently skip crediting.
+            await fulfillNativePurchase(productId, transaction?.transactionIdentifier);
             toast.success("Purchase successful!");
           }
         } else {
