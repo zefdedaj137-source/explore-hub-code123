@@ -2899,14 +2899,22 @@ const Discover = () => {
               {currentProfile ? (
                 <div
                   ref={cardRef}
-                  className="relative select-none touch-none cursor-grab"
+                  className="relative select-none touch-pan-y cursor-grab"
                   onPointerDown={(e) => {
                     if ((e.target as HTMLElement).closest("button, a, video, input")) return;
-                    e.currentTarget.setPointerCapture(e.pointerId);
+                    // Don't capture the pointer yet — capturing here would block the
+                    // browser's native vertical scroll. We only take ownership once a
+                    // horizontal swipe is detected (see onPointerMove).
                     handleSwipeStart(e.clientX, e.clientY);
                   }}
                   onPointerMove={(e) => {
-                    if (isSwiping) handleSwipeMove(e.clientX, e.clientY);
+                    if (!isSwiping) return;
+                    handleSwipeMove(e.clientX, e.clientY);
+                    // Once the gesture is clearly horizontal, capture the pointer so the
+                    // full swipe keeps tracking even if the finger leaves the card.
+                    if (swipeAxis === "x" && !e.currentTarget.hasPointerCapture(e.pointerId)) {
+                      e.currentTarget.setPointerCapture(e.pointerId);
+                    }
                   }}
                   onPointerUp={handleSwipeEnd}
                   onPointerCancel={handleSwipeEnd}
