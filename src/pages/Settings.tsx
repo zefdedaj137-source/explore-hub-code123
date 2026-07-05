@@ -78,9 +78,11 @@ import {
   Music2,
   Download,
   Moon,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportUserData, downloadBlob } from "@/lib/gdpr";
+import { usePurchases } from "@/hooks/usePurchases";
 
 type ProfileData = {
   is_premium?: boolean;
@@ -132,6 +134,7 @@ const Settings = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { restorePurchases } = usePurchases();
   const [loading, setLoading] = useState(false);
   const [theme, setTheme] = useState<"light" | "white" | "dark" | "blue">("dark");
   const [notifications, setNotifications] = useState({
@@ -1700,6 +1703,12 @@ const Settings = () => {
                   title="About Us"
                   description="Learn more about Shqiponja"
                   onClick={() => toast.info("Shqiponja — Where hearts connect. v1.0.0")}
+                />
+                <SettingsSection
+                  icon={RotateCcw}
+                  title="Restore Purchases"
+                  description="Restore your premium or coins on this device"
+                  onClick={() => restorePurchases()}
                 />
 
                 <Separator className="my-2" />

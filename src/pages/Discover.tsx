@@ -412,7 +412,7 @@ const Discover = () => {
   const [tempFilters, setTempFilters] = useState({
     minAge: 18,
     maxAge: 50,
-    maxDistance: 100,
+    maxDistance: 500,
     gender: "everyone",
     smartSort: true,
     // Premium filters
@@ -431,7 +431,7 @@ const Discover = () => {
   const [filters, setFilters] = useState({
     minAge: 18,
     maxAge: 50,
-    maxDistance: 100,
+    maxDistance: 500,
     gender: "everyone",
     smartSort: true,
     // Premium filters
@@ -3337,8 +3337,32 @@ const Discover = () => {
               )}
             </div>
           ) : (
-            <div className="flex justify-center items-center h-96 text-muted-foreground">
-              <p>{t("discover.noMoreProfiles")}</p>
+            <div className="flex flex-col justify-center items-center gap-4 h-96 px-8 text-center">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <MapPin className="h-8 w-8 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <p className="font-semibold text-foreground">{t("discover.noMoreProfiles")}</p>
+                <p className="text-sm text-muted-foreground max-w-xs">
+                  {t(
+                    "discover.noMoreProfilesDesc",
+                    "No one new nearby right now. Try widening your distance or adjusting your filters to see more people."
+                  )}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 w-full max-w-xs">
+                <Button onClick={handleOpenFilterSheet} className="w-full">
+                  <SlidersHorizontal className="h-4 w-4 mr-2" />
+                  {t("discover.adjustFilters", "Adjust filters")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => fetchProfilesRef.current?.(0)}
+                  className="w-full"
+                >
+                  {t("discover.refresh", "Refresh")}
+                </Button>
+              </div>
             </div>
           )}
         </>

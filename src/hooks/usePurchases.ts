@@ -158,6 +158,48 @@ export function usePurchases() {
     checkPremium();
   }, [checkPremium]);
 
+  // Restore previously bought purchases (Apple/App Store requirement).
+  // On native this asks StoreKit/RevenueCat to re-sync entitlements to the
+  // current account; on web it re-checks the subscription via Supabase.
+  const restorePurchases = useCallback(async () => {
+    if (!user) {
+      toast.error("Please sign in first");
+      return false;
+    }
+    setLoading(true);
+    try {
+      if (isNativePlatform() || rcInitialised) {
+        await initRevenueCat(user.id);
+        const { customerInfo } = await Purchases.restorePurchases();
+        const active = !!customerInfo.entitlements.active[REVENUECAT_ENTITLEMENT];
+        setHasPremium(active);
+        if (active) {
+          toast.success("Purchases restored! Premium is active. 🎉");
+        } else {
+          toast.info("No previous purchases found to restore.");
+        }
+        return active;
+      }
+
+      // Web: re-check subscription status via Supabase Edge Function
+      const active = await checkPremium();
+      if (active) {
+        toast.success("Purchases restored! Premium is active. 🎉");
+      } else {
+        toast.info("No previous purchases found to restore.");
+      }
+      return active;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Restore failed";
+      if (!msg.toLowerCase().includes("cancel")) {
+        toast.error(msg);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [user, checkPremium]);
+
   const buyProduct = useCallback(
     async (productId: ProductId) => {
       if (!user) {
@@ -227,5 +269,12 @@ export function usePurchases() {
     [user]
   );
 
-  return { buyProduct, hasPremium, checkPremium, loading, isNative: isNativePlatform() };
+  return {
+    buyProduct,
+    restorePurchases,
+    hasPremium,
+    checkPremium,
+    loading,
+    isNative: isNativePlatform(),
+  };
 }
