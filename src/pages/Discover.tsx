@@ -93,6 +93,8 @@ import {
   isOnline,
 } from "@/utils/discover-utils";
 import { ProfileGridCard } from "@/components/discover/ProfileGridCard";
+import { Geolocation } from "@capacitor/geolocation";
+import { Capacitor } from "@capacitor/core";
 
 const Discover = () => {
   const { t } = useTranslation();
@@ -175,6 +177,8 @@ const Discover = () => {
   // Refs to always call the latest handleLike/handlePass from handleSwipeEnd (avoids stale closure)
   const handleLikeRef = useRef<((profileId: string) => Promise<void>) | null>(null);
   const handlePassRef = useRef<((profileId: string) => Promise<void>) | null>(null);
+  // Ref to the latest fetchProfiles so the location effect can refetch without re-subscribing
+  const fetchProfilesRef = useRef<((offset?: number) => Promise<void>) | null>(null);
 
   const SWIPE_THRESHOLD = 72;
   const SWIPE_THRESHOLD_Y = 90;
@@ -790,6 +794,12 @@ const Discover = () => {
       fetchProfiles(discoverOffset.current);
     }
   }, [loading, fetchProfiles]);
+
+  // Keep the ref pointing at the latest fetchProfiles so the location effect
+  // can trigger a refetch (to show distances) without depending on it directly.
+  useLayoutEffect(() => {
+    fetchProfilesRef.current = fetchProfiles;
+  });
 
   const { buyProduct } = usePurchases();
 
@@ -1910,9 +1920,58 @@ const Discover = () => {
     );
   }, [lastSeenNotificationCount, user]);
 
-  // Auto-update location on page load/login
+  // Auto-update location on page load/login. Uses the Capacitor Geolocation
+  // plugin on native iOS/Android (the browser API is unreliable inside the
+  // WebView) and falls back to navigator.geolocation on web. Saving real
+  // coordinates is what lets the cards show the km/m distance.
   useEffect(() => {
-    if (!user || !navigator.geolocation) return;
+    if (!user) return;
+
+    const isNative = Capacitor.isNativePlatform();
+
+    const saveCoords = async (latitude: number, longitude: number) => {
+      try {
+        // Best-effort reverse geocode for a human-readable city/country.
+        let city = "";
+        let country = "";
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
+            {
+              headers: {
+                "User-Agent": "ShqiponjaApp/1.0",
+              },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            const address = data.address || {};
+            city = address.city || address.town || address.village || address.municipality || "";
+            country = address.country || "";
+          }
+        } catch {
+          // Geocoding is optional — coordinates alone are enough for distance.
+        }
+
+        const update: Record<string, unknown> = { latitude, longitude };
+        if (city && country) {
+          update.city = city;
+          update.country = country;
+          update.location = `${city}, ${country}`;
+        }
+
+        await supabase
+          .from("profiles")
+          .update(update as never)
+          .eq("id", user.id);
+        logger.log("Location updated automatically:", latitude, longitude, city, country);
+
+        // Refetch so distances appear on the current session's cards immediately.
+        fetchProfilesRef.current?.(0);
+      } catch (error) {
+        logger.error("Silent location update failed:", error);
+      }
+    };
 
     const updateLocationSilently = async () => {
       // Check travel mode from database to avoid race conditions with state
@@ -1927,54 +1986,40 @@ const Discover = () => {
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          try {
-            // Use Nominatim reverse geocoding
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
-              {
-                headers: {
-                  "User-Agent": "ShqiponjaApp/1.0",
-                },
-              }
-            );
-
-            if (!response.ok) return;
-
-            const data = await response.json();
-            const address = data.address;
-            const city =
-              address.city || address.town || address.village || address.municipality || "";
-            const country = address.country || "";
-
-            if (city && country) {
-              // Update location in database silently
-              await supabase
-                .from("profiles")
-                .update({
-                  city: city,
-                  country: country,
-                  location: `${city}, ${country}`,
-                  latitude: latitude,
-                  longitude: longitude,
-                })
-                .eq("id", user.id);
-
-              logger.log("Location updated automatically:", city, country);
+      if (isNative) {
+        // Native: use the Capacitor Geolocation plugin.
+        try {
+          const perm = await Geolocation.checkPermissions();
+          if (perm.location !== "granted" && perm.coarseLocation !== "granted") {
+            const req = await Geolocation.requestPermissions({ permissions: ["location"] });
+            if (req.location !== "granted" && req.coarseLocation !== "granted") {
+              logger.log("Location permission not granted — cannot compute distance");
+              return;
             }
-          } catch (error) {
-            logger.error("Silent location update failed:", error);
           }
+          const position = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 10000,
+          });
+          await saveCoords(position.coords.latitude, position.coords.longitude);
+        } catch (error) {
+          logger.error("Native geolocation failed:", error);
+        }
+        return;
+      }
+
+      // Web fallback
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          void saveCoords(position.coords.latitude, position.coords.longitude);
         },
         () => {
           // Fail silently
         },
         {
           enableHighAccuracy: true,
-          timeout: 5000,
+          timeout: 10000,
           maximumAge: 0,
         }
       );
@@ -3041,7 +3086,7 @@ const Discover = () => {
                                       <span>{currentProfile.city}</span>
                                     </div>
                                   ) : null}
-                                  {currentProfile.distance_km && (
+                                  {currentProfile.distance_km != null && (
                                     <div className="backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
                                       {formatDistance(currentProfile.distance_km)} away
                                     </div>
