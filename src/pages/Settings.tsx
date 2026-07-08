@@ -103,15 +103,24 @@ type ProfileData = {
 };
 
 const LANGUAGES = [
-  { code: "en", label: "English" },
   { code: "sq", label: "Shqip (Albanian)" },
+  { code: "en", label: "English" },
+  { code: "de", label: "Deutsch (German)" },
+  { code: "es", label: "Español (Spanish)" },
+  { code: "fr", label: "Français (French)" },
+  { code: "it", label: "Italiano (Italian)" },
+  { code: "nl", label: "Nederlands (Dutch)" },
+  { code: "pl", label: "Polski (Polish)" },
+  { code: "pt", label: "Português (Portuguese)" },
 ] as const;
 
 const LanguagePicker = () => {
   const { t, i18n } = useTranslation();
+  const currentCode = i18n.language?.split("-")[0] ?? "en";
+  const selected = LANGUAGES.some((l) => l.code === currentCode) ? currentCode : "en";
   return (
     <RadioGroup
-      value={i18n.language?.startsWith("sq") ? "sq" : "en"}
+      value={selected}
       onValueChange={(v) => i18n.changeLanguage(v)}
       className="space-y-2"
     >
