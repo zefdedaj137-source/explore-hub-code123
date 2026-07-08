@@ -1672,7 +1672,16 @@ const Settings = () => {
                   icon={HelpCircle}
                   title="Help Center"
                   description="Get help and support"
-                  onClick={() => navigate("/safety")}
+                  onClick={() => navigate("/support")}
+                />
+                <SettingsSection
+                  icon={Mail}
+                  title="Contact Support"
+                  description="Email us at support@shqiponjat.xyz"
+                  onClick={() => {
+                    window.location.href =
+                      "mailto:support@shqiponjat.xyz?subject=Shqiponja%20Support";
+                  }}
                 />
                 <SettingsSection
                   icon={FileText}

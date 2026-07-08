@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Lock } from "lucide-react";
 import { analytics } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
@@ -33,6 +34,9 @@ const Auth = () => {
 
   // Age verification
   const [birthDate, setBirthDate] = useState("");
+
+  // Terms + zero-tolerance content policy agreement (App Store Guideline 1.2)
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -159,6 +163,13 @@ const Auth = () => {
       }
       if (!isAgeValid(birthDate)) {
         toast.error(t("auth.mustBe18") || "You must be 18 or older to use Shqiponja");
+        return;
+      }
+      if (!agreedToTerms) {
+        toast.error(
+          t("auth.mustAgreeTerms") ||
+            "Please agree to the Terms and the zero-tolerance content policy to continue"
+        );
         return;
       }
     }
@@ -305,6 +316,13 @@ const Auth = () => {
 
   const handleAppleSignIn = async () => {
     if (loading) return;
+    if (!isLogin && !agreedToTerms) {
+      toast.error(
+        t("auth.mustAgreeTerms") ||
+          "Please agree to the Terms and the zero-tolerance content policy to continue"
+      );
+      return;
+    }
     setLoading(true);
     try {
       const isNative = !!(
@@ -313,6 +331,9 @@ const Auth = () => {
       const redirectTo = isNative
         ? "com.shqiponja.app://auth/callback"
         : `${window.location.origin}/auth/callback`;
+
+      // Mark that user came via Apple OAuth (requires age verification before profile creation)
+      sessionStorage.setItem("require_age_verification", "true");
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "apple",
@@ -483,6 +504,40 @@ const Auth = () => {
                   <p className="text-xs dark:text-white/35 text-muted-foreground">
                     {t("auth.mustBe18Hint") || "You must be 18 or older to use Shqiponja"}
                   </p>
+                </div>
+              )}
+              {!isLogin && (
+                <div className="flex items-start gap-3 rounded-xl p-3 dark:bg-white/[0.04] bg-black/[0.03] border dark:border-white/10 border-black/[0.08]">
+                  <Checkbox
+                    id="agreeTerms"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                    className="mt-0.5"
+                  />
+                  <Label
+                    htmlFor="agreeTerms"
+                    className="text-xs leading-relaxed font-normal cursor-pointer dark:text-white/60 text-muted-foreground"
+                  >
+                    {t("auth.agreeTermsPrefix") || "I confirm I am 18 or older and agree to the"}{" "}
+                    <button
+                      type="button"
+                      onClick={() => navigate("/terms")}
+                      className="underline text-[#e8274b]/90 hover:text-rose-300"
+                    >
+                      {t("auth.termsLink") || "Terms of Use (EULA)"}
+                    </button>{" "}
+                    {t("common.and") || "and"}{" "}
+                    <button
+                      type="button"
+                      onClick={() => navigate("/privacy")}
+                      className="underline text-[#e8274b]/90 hover:text-rose-300"
+                    >
+                      {t("auth.privacyLink") || "Privacy Policy"}
+                    </button>
+                    {". "}
+                    {t("auth.zeroToleranceNotice") ||
+                      "I understand there is zero tolerance for objectionable content or abusive behavior, and that such content will be removed and offending users banned."}
+                  </Label>
                 </div>
               )}
               <Button

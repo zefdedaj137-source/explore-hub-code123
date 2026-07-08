@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://shqiponja.app/</loc>
+    <loc>https://shqiponjat.xyz/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://shqiponja.app/auth</loc>
+    <loc>https://shqiponjat.xyz/auth</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://shqiponja.app/features</loc>
+    <loc>https://shqiponjat.xyz/features</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://shqiponja.app/terms</loc>
+    <loc>https://shqiponjat.xyz/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://shqiponja.app/privacy</loc>
+    <loc>https://shqiponjat.xyz/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://shqiponja.app/safety-tips</loc>
+    <loc>https://shqiponjat.xyz/safety-tips</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

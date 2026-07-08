@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 const LAST_UPDATED = "July 2, 2026";
 const CONTACT_EMAIL = "privacy@shqiponja.app";
-const SUPPORT_EMAIL = "support@shqiponja.app";
+const SUPPORT_EMAIL = "support@shqiponjat.xyz";
 
 type Section = {
   heading: string;

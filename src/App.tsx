@@ -34,6 +34,7 @@ const PushPrompt = lazy(() =>
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const AgeVerification = lazy(() => import("./pages/AgeVerification"));
 const ProfileSetup = lazy(() => import("./pages/ProfileSetup"));
 const Discover = lazy(() => import("./pages/Discover"));
 const Matches = lazy(() => import("./pages/Matches"));
@@ -60,6 +61,7 @@ const GameSessionDance = lazy(() => import("./pages/GameSessionDance"));
 const SafetyCenter = lazy(() => import("./pages/SafetyCenter"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const Support = lazy(() => import("./pages/Support"));
 const NotificationsCenter = lazy(() => import("./pages/NotificationsCenter"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const CallHistory = lazy(() => import("./pages/CallHistory"));
@@ -208,9 +210,11 @@ const AppContent = () => {
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/age-verification" element={<AgeVerification />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/support" element={<Support />} />
 
             {/* Protected routes */}
             <Route

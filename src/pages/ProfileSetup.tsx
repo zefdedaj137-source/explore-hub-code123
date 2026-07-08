@@ -23,17 +23,27 @@ import { z } from "zod";
 import { getOrCreateVariant, Variant } from "@/lib/experiments";
 import { containsProfanity } from "@/lib/profanityFilter";
 
+// Exact age (in whole years) from an ISO yyyy-mm-dd date string
+const yearsSince = (isoDate: string): number => {
+  const dob = new Date(isoDate + "T00:00:00");
+  const now = new Date();
+  let years = now.getFullYear() - dob.getFullYear();
+  const m = now.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) years--;
+  return years;
+};
+
 const profileSchema = z.object({
   full_name: z
     .string()
     .trim()
     .min(2, { message: "Name must be at least 2 characters" })
     .max(100, { message: "Name must be less than 100 characters" }),
-  age: z
-    .number()
-    .int()
-    .min(18, { message: "You must be at least 18 years old" })
-    .max(100, { message: "Age must be less than 100" }),
+  date_of_birth: z
+    .string()
+    .min(1, { message: "Please enter your date of birth" })
+    .refine((d) => yearsSince(d) >= 18, { message: "You must be at least 18 years old" })
+    .refine((d) => yearsSince(d) <= 120, { message: "Please enter a valid date of birth" }),
   city: z
     .string()
     .trim()
@@ -62,7 +72,7 @@ const ProfileSetup = () => {
 
   const [formData, setFormData] = useState({
     full_name: "",
-    age: "",
+    date_of_birth: "",
     gender: "",
     looking_for: "",
     city: "",
@@ -72,6 +82,13 @@ const ProfileSetup = () => {
     zodiac_sign: "",
     religion: "",
   });
+
+  // Latest date that still makes the user 18 today (used as the date input's max)
+  const maxBirthDate = (() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 18);
+    return d.toISOString().split("T")[0];
+  })();
 
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [selfiePhoto, setSelfiePhoto] = useState<string | null>(null);
@@ -349,7 +366,7 @@ const ProfileSetup = () => {
       // Validate profile data
       const validationResult = profileSchema.safeParse({
         full_name: formData.full_name,
-        age: parseInt(formData.age),
+        date_of_birth: formData.date_of_birth,
         city: formData.city,
         country: formData.country,
         bio: formData.bio,
@@ -367,10 +384,17 @@ const ProfileSetup = () => {
         .map((i) => i.trim())
         .filter((i) => i.length > 0);
 
+      // Store the exact date of birth the user entered and derive the age from it
+      const dateOfBirthString = validationResult.data.date_of_birth;
+      const computedAge = yearsSince(dateOfBirthString);
+
       const { error } = await supabase.from("profiles").upsert({
         id: user.id,
         full_name: validationResult.data.full_name,
-        age: validationResult.data.age,
+        age: computedAge,
+        date_of_birth: dateOfBirthString,
+        age_verified_at: new Date().toISOString(),
+        age_verification_method: "profile_setup",
         gender: formData.gender,
         looking_for: formData.looking_for ? [formData.looking_for] : [],
         gender_preference: formData.looking_for || "everyone",
@@ -555,16 +579,18 @@ const ProfileSetup = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="age">{t("profileSetup.ageLabel")}</Label>
+              <Label htmlFor="date_of_birth">{t("profileSetup.dobLabel") || "Date of Birth"}</Label>
               <Input
-                id="age"
-                type="number"
-                min="18"
-                max="100"
-                value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                id="date_of_birth"
+                type="date"
+                max={maxBirthDate}
+                value={formData.date_of_birth}
+                onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                {t("profileSetup.dobHint") || "You must be 18 or older to use Shqiponja"}
+              </p>
             </div>
           </div>
 

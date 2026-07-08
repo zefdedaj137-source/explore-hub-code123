@@ -23,4 +23,4 @@ Disallow: /wallet
 Disallow: /blocked
 Disallow: /notifications
 
-Sitemap: https://shqiponja.app/sitemap.xml
+Sitemap: https://shqiponjat.xyz/sitemap.xml

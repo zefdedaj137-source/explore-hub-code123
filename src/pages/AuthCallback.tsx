@@ -27,6 +27,10 @@ const AuthCallback = () => {
           return;
         }
 
+        // Check if user came via Apple OAuth and needs age verification
+        const requiresAgeVerification =
+          sessionStorage.getItem("require_age_verification") === "true";
+
         // Check if profile exists
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
@@ -40,11 +44,28 @@ const AuthCallback = () => {
         }
 
         if (!profile) {
-          toast.success(t("authCallback.welcome"));
-          navigate("/profile-setup");
+          // New user - if they came via OAuth, they must verify age first
+          if (requiresAgeVerification) {
+            toast.info("Please verify your age to continue");
+            navigate("/age-verification", { replace: true });
+          } else {
+            toast.success(t("authCallback.welcome"));
+            navigate("/profile-setup", { replace: true });
+          }
         } else {
-          toast.success(t("authCallback.welcomeBack"));
-          navigate("/discover");
+          // Existing user - check if they have verified their age
+          // If they have age_verified_at, they're good to go
+          if (profile.age_verified_at || profile.date_of_birth) {
+            toast.success(t("authCallback.welcomeBack"));
+            navigate("/discover", { replace: true });
+          } else if (requiresAgeVerification) {
+            // They came via OAuth and haven't verified age yet
+            toast.info("Please verify your age to continue");
+            navigate("/age-verification", { replace: true });
+          } else {
+            // Legacy: Profile exists but age not verified - send to age verification or profile setup
+            navigate("/profile-setup", { replace: true });
+          }
         }
       } catch (error) {
         toast.error(t("authCallback.authFailed"));

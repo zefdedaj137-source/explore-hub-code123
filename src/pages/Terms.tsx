@@ -6,7 +6,7 @@ import BottomNav from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 
 const LAST_UPDATED = "July 2, 2026";
-const SUPPORT_EMAIL = "support@shqiponja.app";
+const SUPPORT_EMAIL = "support@shqiponjat.xyz";
 
 type Section = {
   heading: string;
