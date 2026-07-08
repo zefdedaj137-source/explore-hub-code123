@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Mic, Trash2, Reply } from "lucide-react";
 import { sanitizeText } from "@/lib/sanitize";
+import { useTranslation } from "react-i18next";
 
 interface Message {
   id: string;
@@ -43,6 +44,7 @@ export function MessageBubble({
   onReply,
   onDelete,
 }: MessageBubbleProps) {
+  const { t } = useTranslation();
   return (
     <div
       id={`msg-${message.id}`}
@@ -91,7 +93,7 @@ export function MessageBubble({
           ) : message.image_url ? (
             <img
               src={message.image_url}
-              alt="Shared photo"
+              alt={t("messageBubble.sharedPhoto")}
               className="rounded-lg max-w-full max-h-64 object-cover cursor-pointer"
               onClick={() => window.open(message.image_url, "_blank", "noopener,noreferrer")}
             />
@@ -163,7 +165,7 @@ export function MessageBubble({
             <button
               onClick={() => onReply(message)}
               className="p-1 rounded-full hover:bg-muted text-muted-foreground"
-              title="Reply"
+              title={t("matches.reply")}
             >
               <Reply className="h-3.5 w-3.5" />
             </button>
@@ -171,7 +173,7 @@ export function MessageBubble({
               <button
                 onClick={() => onDelete(message.id)}
                 className="p-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                title="Delete"
+                title={t("common.delete")}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>

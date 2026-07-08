@@ -824,7 +824,7 @@ export const CallDialog = ({
               size="icon"
               className="rounded-full h-14 w-14 bg-red-700 hover:bg-red-800"
               onClick={blockAndEnd}
-              title="Block user and end call"
+              title={t("callDialog.blockAndEnd")}
             >
               <Ban className="h-6 w-6" />
             </Button>

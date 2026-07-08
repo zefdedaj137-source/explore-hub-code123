@@ -76,7 +76,10 @@
     "releaseToRefresh": "↓ Release to refresh",
     "share": "Share",
     "disable": "Disable",
-    "online": "Online"
+    "online": "Online",
+    "userNotAuthenticated": "User not authenticated",
+    "albanianEagle": "Albanian Eagle",
+    "happyAlbanianCouple": "Happy Albanian Couple"
   },
   "auth": {
     "signIn": "Sign In",
@@ -294,7 +297,16 @@
     "keepEditing": "Keep editing",
     "discard": "Discard",
     "roses": "Roses",
-    "noBoosterDesc": "No users are currently using boost in your area"
+    "noBoosterDesc": "No users are currently using boost in your area",
+    "premiumRoseBouquet": "Premium Rose Bouquet",
+    "failedPremiumRoses": "Failed to send premium roses",
+    "sendRoses": "Send Roses",
+    "instantMessage": "Instant Message",
+    "undoLastAction": "Undo last action",
+    "boosterActive": "Booster is already active!",
+    "failedBooster": "Failed to activate booster",
+    "premiumRequiredBooster": "Premium subscription required to activate booster",
+    "failedLike": "Failed to like. Try again."
   },
   "matches": {
     "title": "Matches",
@@ -719,7 +731,20 @@
     "deactivateDesc": "Your profile will be hidden immediately. After the chosen period, your account and all data will be permanently deleted unless you log back in.",
     "deactivateFor": "Deactivate for {{days}} days",
     "updating": "Updating...",
-    "updatePassword": "Update Password"
+    "updatePassword": "Update Password",
+    "enterEmail": "Please enter your email",
+    "codeSent": "Verification code sent to your email!",
+    "enterEmailAndOtp": "Please enter both email and OTP code",
+    "emailVerified": "Email verified successfully!",
+    "signInFirst": "Please sign in first.",
+    "adminEnabled": "Admin mode enabled.",
+    "failedAdmin": "Failed to enable admin mode.",
+    "cancelInstructions": "To cancel, tap your subscription and select Cancel.",
+    "emailAddress": "Email Address",
+    "sixDigitCode": "6-digit code",
+    "loginInformation": "Login Information",
+    "contactSupportAction": "Contact Support",
+    "restorePurchases": "Restore Purchases"
   },
   "editProfile": {
     "heading": "Edit Profile",
@@ -968,7 +993,11 @@
     "itsAMatch": "🎉 It's a match! You can now chat with them!",
     "superlikeSent": "⚡ Superlike sent!",
     "failedSuperlike": "Failed to send superlike",
-    "back": "Back"
+    "back": "Back",
+    "likedToast": "💛 Liked! They'll see your interest.",
+    "failedLocation": "Failed to save your location. Please try again.",
+    "locationDenied": "Location access denied. Please enable it in your browser settings.",
+    "crossedPaths": "People you've crossed paths with"
   },
   "datePlanner": {
     "heading": "Date Planner",
@@ -1021,7 +1050,8 @@
     "noTransactions": "No transactions yet",
     "invalidAmount": "Invalid coin amount",
     "failedUpdate": "Failed to update wallet",
-    "coinsAdded": "Added {{coins}} coins to your wallet."
+    "coinsAdded": "Added {{coins}} coins to your wallet.",
+    "backToWallet": "Back to Wallet"
   },
   "premiumSuccess": {
     "title": "Welcome to Premium!",
@@ -1306,7 +1336,8 @@
     "profileAnthem": "Profile Anthem",
     "anthemPlaceholder": "Song that describes you, e.g. Blinding Lights - The Weeknd",
     "saveMusicTaste": "Save Music Taste 🎵",
-    "saved": "Music taste saved! 🎵"
+    "saved": "Music taste saved! 🎵",
+    "removeArtist": "Remove artist"
   },
   "notificationsCenter": {
     "title": "Notifications",
@@ -1454,7 +1485,9 @@
     "removed": "Soundtrack removed",
     "failedRemove": "Failed to remove",
     "removeSoundtrack": "Remove soundtrack",
-    "musicUrlHint": "https://youtube.com/watch?v=... or https://open.spotify.com/track/..."
+    "musicUrlHint": "https://youtube.com/watch?v=... or https://open.spotify.com/track/...",
+    "youtubePlayer": "YouTube player",
+    "spotifyPlayer": "Spotify player"
   },
   "profileVerification": {
     "title": "Get Verified",
@@ -1487,7 +1520,10 @@
     "cameraDenied": "Camera access denied. Please allow camera access or upload a photo instead.",
     "selfieFirst": "Please provide a selfie first.",
     "submitted": "Verification request submitted! We'll review it within 24-48h.",
-    "failedSubmit": "Failed to submit request."
+    "failedSubmit": "Failed to submit request.",
+    "verification": "Verification",
+    "selfiePreview": "Selfie preview",
+    "idPreview": "ID preview"
   },
   "photoVerification": {
     "title": "Photo Verification",
@@ -1744,14 +1780,16 @@
   "callDialog": {
     "callFailed": "Call Failed",
     "browserNotSupported": "Your browser doesn't support audio/video calls. Please use Chrome, Firefox, Safari 11+, or Edge.",
-    "httpsRequired": "Audio/video calls require HTTPS. Please use the secure ngrok URL (https://...)."
+    "httpsRequired": "Audio/video calls require HTTPS. Please use the secure ngrok URL (https://...).",
+    "blockAndEnd": "Block user and end call"
   },
   "incomingCall": {
     "incoming": "Incoming",
     "video": "Video",
     "voice": "Voice",
     "call": "Call",
-    "from": "from"
+    "from": "from",
+    "blockCaller": "Block caller"
   },
   "chatHeader": {
     "backToMatches": "Back to matches",
@@ -1795,7 +1833,12 @@
     "title": "Adults Only",
     "message": "You must be at least 18 years old to use Shqiponja.",
     "confirm": "I am 18+ years old",
-    "exit": "Exit"
+    "exit": "Exit",
+    "restrictionNotice": "Age Restriction Notice",
+    "req18": "At least 18 years of age (or the age of majority in your jurisdiction)",
+    "reqLegal": "Legally able to enter into this agreement",
+    "reqLaws": "Able to use this service in accordance with all applicable laws and regulations",
+    "verifyToContinue": "Please verify your age to continue"
   },
   "radarNearby": {
     "title": "Radar",
@@ -2207,5 +2250,12 @@
     "Night Owl": "Night Owl",
     "Early Bird": "Early Bird",
     "DIY Projects": "DIY Projects"
+  },
+  "support": {
+    "title": "Support",
+    "hereToHelp": "We're here to help",
+    "contactUs": "Contact us",
+    "faq": "Frequently asked questions",
+    "safetyPolicies": "Safety & policies"
   }
 }

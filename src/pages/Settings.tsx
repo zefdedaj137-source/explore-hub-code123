@@ -188,15 +188,15 @@ const Settings = () => {
 
   const handleChangePassword = async () => {
     if (!oldPassword || !newPassword || !confirmPassword) {
-      toast.error("Please fill in all fields");
+      toast.error(t("auth.fillAllFields"));
       return;
     }
     if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+      toast.error(t("settings.passwordMin"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("settings.passwordsDoNotMatch"));
       return;
     }
     setPasswordLoading(true);
@@ -204,7 +204,7 @@ const Settings = () => {
       // Verify old password by re-authenticating
       const email = user?.email;
       if (!email) {
-        toast.error("Unable to verify account");
+        toast.error(t("settings.unableVerify"));
         return;
       }
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -212,12 +212,12 @@ const Settings = () => {
         password: oldPassword,
       });
       if (signInError) {
-        toast.error("Current password is incorrect");
+        toast.error(t("settings.wrongPassword"));
         return;
       }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success("Password updated successfully");
+      toast.success(t("settings.passwordUpdated"));
       setShowPasswordDialog(false);
       setOldPassword("");
       setNewPassword("");
@@ -273,7 +273,7 @@ const Settings = () => {
 
             if (refreshError || !session) {
               console.error("Session refresh failed:", refreshError);
-              toast.error("Session expired. Please log in again.");
+              toast.error(t("settings.sessionExpired"));
               navigate("/auth");
               return;
             }
@@ -355,7 +355,7 @@ const Settings = () => {
         setPushSubscribed(!!subs?.length);
       } catch (error) {
         console.error("Error fetching user status:", error);
-        toast.error("Failed to load settings. Please try refreshing the page.");
+        toast.error(t("settings.failedLoad"));
       }
     };
 
@@ -372,7 +372,7 @@ const Settings = () => {
 
   const handleSendVerificationEmail = async () => {
     if (!emailForVerification) {
-      toast.error("Please enter your email");
+      toast.error(t("settings.enterEmail"));
       return;
     }
 
@@ -383,7 +383,7 @@ const Settings = () => {
       });
 
       if (error) throw error;
-      toast.success("Verification code sent to your email!");
+      toast.success(t("settings.codeSent"));
     } catch (error) {
       toast.error((error as Error).message || "Failed to send verification email");
     } finally {
@@ -393,7 +393,7 @@ const Settings = () => {
 
   const handleVerifyOTP = async () => {
     if (!emailForVerification || !otpCode) {
-      toast.error("Please enter both email and OTP code");
+      toast.error(t("settings.enterEmailAndOtp"));
       return;
     }
 
@@ -406,7 +406,7 @@ const Settings = () => {
       });
 
       if (error) throw error;
-      toast.success("Email verified successfully!");
+      toast.success(t("settings.emailVerified"));
       setShowVerificationSection(false);
     } catch (error) {
       toast.error((error as Error).message || "Failed to verify OTP");
@@ -417,17 +417,17 @@ const Settings = () => {
 
   const handleEnableAdmin = async () => {
     if (!user?.id) {
-      toast.error("Please sign in first.");
+      toast.error(t("settings.signInFirst"));
       return;
     }
     try {
       const { error } = await supabase.from("admin_users").insert({ user_id: user.id });
       if (error) throw error;
       setIsAdmin(true);
-      toast.success("Admin mode enabled.");
+      toast.success(t("settings.adminEnabled"));
     } catch (error) {
       console.error("Error enabling admin:", error);
-      toast.error("Failed to enable admin mode.");
+      toast.error(t("settings.failedAdmin"));
     }
   };
 
@@ -447,7 +447,7 @@ const Settings = () => {
       } catch {
         /* session already invalid after account deletion */
       }
-      toast.success("Account permanently deleted");
+      toast.success(t("settings.accountDeleted"));
       navigate("/", { replace: true });
     } catch (error) {
       console.error("Delete account error:", error);

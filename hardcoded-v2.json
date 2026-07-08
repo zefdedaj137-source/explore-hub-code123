@@ -1,0 +1,1265 @@
+{
+  "src/components/AgeGate.tsx": [
+    {
+      "line": 35,
+      "text": "Age Restriction Notice",
+      "kind": "jsx"
+    },
+    {
+      "line": 46,
+      "text": "At least 18 years of age (or the age of majority in your jurisdiction)",
+      "kind": "jsx"
+    },
+    {
+      "line": 47,
+      "text": "Legally able to enter into this agreement",
+      "kind": "jsx"
+    },
+    {
+      "line": 48,
+      "text": "Able to use this service in accordance with all applicable laws and regulations",
+      "kind": "jsx"
+    }
+  ],
+  "src/components/CallDialog.tsx": [
+    {
+      "line": 827,
+      "text": "Block user and end call",
+      "kind": "title"
+    }
+  ],
+  "src/components/chat/ChatInput.tsx": [
+    {
+      "line": 117,
+      "text": "Preview",
+      "kind": "alt"
+    },
+    {
+      "line": 199,
+      "text": "Plan a date",
+      "kind": "title"
+    },
+    {
+      "line": 211,
+      "text": "Send photo",
+      "kind": "title"
+    },
+    {
+      "line": 223,
+      "text": "Take photo",
+      "kind": "title"
+    },
+    {
+      "line": 235,
+      "text": "Send GIF",
+      "kind": "title"
+    }
+  ],
+  "src/components/chat/MessageBubble.tsx": [
+    {
+      "line": 94,
+      "text": "Shared photo",
+      "kind": "alt"
+    },
+    {
+      "line": 166,
+      "text": "Reply",
+      "kind": "title"
+    },
+    {
+      "line": 174,
+      "text": "Delete",
+      "kind": "title"
+    }
+  ],
+  "src/components/ErrorBoundary.tsx": [
+    {
+      "line": 46,
+      "text": "Something went wrong",
+      "kind": "jsx"
+    }
+  ],
+  "src/components/Footer.tsx": [
+    {
+      "line": 15,
+      "text": "Shqiponja",
+      "kind": "jsx"
+    },
+    {
+      "line": 100,
+      "text": "Instagram",
+      "kind": "aria-label"
+    },
+    {
+      "line": 107,
+      "text": "Facebook",
+      "kind": "aria-label"
+    },
+    {
+      "line": 114,
+      "text": "Twitter / X",
+      "kind": "aria-label"
+    }
+  ],
+  "src/components/Hero.tsx": [
+    {
+      "line": 109,
+      "text": "Happy Albanian Couple",
+      "kind": "alt"
+    }
+  ],
+  "src/components/IncomingCallDialog.tsx": [
+    {
+      "line": 245,
+      "text": "Block caller",
+      "kind": "title"
+    }
+  ],
+  "src/components/LoveStories.tsx": [
+    {
+      "line": 55,
+      "text": "Shqiponja",
+      "kind": "jsx"
+    }
+  ],
+  "src/components/MatchAnimation.tsx": [
+    {
+      "line": 203,
+      "text": "Premium Rose Bouquet",
+      "kind": "alt"
+    },
+    {
+      "line": 222,
+      "text": "Premium Rose Bouquet",
+      "kind": "alt"
+    },
+    {
+      "line": 281,
+      "text": "Albanian Eagle",
+      "kind": "alt"
+    },
+    {
+      "line": 299,
+      "text": "Albanian Eagle",
+      "kind": "alt"
+    }
+  ],
+  "src/components/Navbar.tsx": [
+    {
+      "line": 39,
+      "text": "Albanian Eagle",
+      "kind": "alt"
+    }
+  ],
+  "src/components/RadarNearby.tsx": [
+    {
+      "line": 70,
+      "text": "You",
+      "kind": "alt"
+    }
+  ],
+  "src/contexts/AuthContext.tsx": [
+    {
+      "line": 18,
+      "text": "Promise",
+      "kind": "jsx"
+    }
+  ],
+  "src/pages/AgeVerification.tsx": [
+    {
+      "line": 56,
+      "text": "User not authenticated",
+      "kind": "toast"
+    },
+    {
+      "line": 114,
+      "text": "Shqiponja",
+      "kind": "alt"
+    }
+  ],
+  "src/pages/AIMatchmaker.tsx": [
+    {
+      "line": 316,
+      "text": "Go back",
+      "kind": "aria-label"
+    }
+  ],
+  "src/pages/Auth.tsx": [
+    {
+      "line": 381,
+      "text": "Shqiponja",
+      "kind": "alt"
+    }
+  ],
+  "src/pages/AuthCallback.tsx": [
+    {
+      "line": 49,
+      "text": "Please verify your age to continue",
+      "kind": "toast"
+    },
+    {
+      "line": 63,
+      "text": "Please verify your age to continue",
+      "kind": "toast"
+    }
+  ],
+  "src/pages/Chat.tsx": [
+    {
+      "line": 1877,
+      "text": "Upload photo",
+      "kind": "title"
+    },
+    {
+      "line": 1886,
+      "text": "Take photo",
+      "kind": "title"
+    },
+    {
+      "line": 2198,
+      "text": "Story",
+      "kind": "alt"
+    },
+    {
+      "line": 2387,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 2405,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 2569,
+      "text": "Story",
+      "kind": "alt"
+    }
+  ],
+  "src/pages/CoinsSuccess.tsx": [
+    {
+      "line": 70,
+      "text": "Back to Wallet",
+      "kind": "jsx"
+    }
+  ],
+  "src/pages/DateSpotSuggestions.tsx": [
+    {
+      "line": 186,
+      "text": "Go back",
+      "kind": "aria-label"
+    }
+  ],
+  "src/pages/Discover.tsx": [
+    {
+      "line": 178,
+      "text": "Promise",
+      "kind": "jsx"
+    },
+    {
+      "line": 179,
+      "text": "Promise",
+      "kind": "jsx"
+    },
+    {
+      "line": 181,
+      "text": "Promise",
+      "kind": "jsx"
+    },
+    {
+      "line": 1117,
+      "text": "Failed to send premium roses",
+      "kind": "toast"
+    },
+    {
+      "line": 2245,
+      "text": "Shqiponja",
+      "kind": "alt"
+    },
+    {
+      "line": 2486,
+      "text": "Min",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2499,
+      "text": "Max",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2594,
+      "text": "Min",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2607,
+      "text": "Max",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2633,
+      "text": "Any",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2660,
+      "text": "Any",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2683,
+      "text": "Any",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2710,
+      "text": "Any",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2744,
+      "text": "Any",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2768,
+      "text": "Any",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2771,
+      "text": "Any",
+      "kind": "jsx"
+    },
+    {
+      "line": 3230,
+      "text": "Super Like",
+      "kind": "title"
+    },
+    {
+      "line": 3253,
+      "text": "Send Roses",
+      "kind": "title"
+    },
+    {
+      "line": 3274,
+      "text": "Instant Message",
+      "kind": "title"
+    },
+    {
+      "line": 3295,
+      "text": "Undo last action",
+      "kind": "title"
+    },
+    {
+      "line": 3333,
+      "text": "Pass",
+      "kind": "jsx"
+    },
+    {
+      "line": 3339,
+      "text": "Like",
+      "kind": "jsx"
+    },
+    {
+      "line": 4241,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 4252,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 4930,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 4941,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 5307,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 5318,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 5458,
+      "text": "Story",
+      "kind": "alt"
+    }
+  ],
+  "src/pages/EditProfile.tsx": [
+    {
+      "line": 1330,
+      "text": "Bio",
+      "kind": "jsx"
+    },
+    {
+      "line": 1754,
+      "text": "Yes",
+      "kind": "jsx"
+    },
+    {
+      "line": 1859,
+      "text": "YouTube player",
+      "kind": "title"
+    },
+    {
+      "line": 1870,
+      "text": "Spotify player",
+      "kind": "title"
+    },
+    {
+      "line": 2193,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 2204,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    }
+  ],
+  "src/pages/Features.tsx": [
+    {
+      "line": 66,
+      "text": "Go back",
+      "kind": "title"
+    }
+  ],
+  "src/pages/GameLobby.tsx": [
+    {
+      "line": 354,
+      "text": "Go back",
+      "kind": "aria-label"
+    }
+  ],
+  "src/pages/Games.tsx": [
+    {
+      "line": 20,
+      "text": "Go back",
+      "kind": "aria-label"
+    }
+  ],
+  "src/pages/GameSessionMusic.tsx": [
+    {
+      "line": 904,
+      "text": "You",
+      "kind": "jsx"
+    }
+  ],
+  "src/pages/GhostModeAlert.tsx": [
+    {
+      "line": 130,
+      "text": "Go back",
+      "kind": "aria-label"
+    }
+  ],
+  "src/pages/Matches.tsx": [
+    {
+      "line": 941,
+      "text": "Shqiponja",
+      "kind": "alt"
+    },
+    {
+      "line": 942,
+      "text": "Shqiponja",
+      "kind": "jsx"
+    },
+    {
+      "line": 1905,
+      "text": "Story",
+      "kind": "alt"
+    },
+    {
+      "line": 2100,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 2118,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 2402,
+      "text": "Story",
+      "kind": "alt"
+    }
+  ],
+  "src/pages/MoodStatus.tsx": [
+    {
+      "line": 114,
+      "text": "Go back",
+      "kind": "aria-label"
+    }
+  ],
+  "src/pages/MusicTaste.tsx": [
+    {
+      "line": 101,
+      "text": "Go back",
+      "kind": "aria-label"
+    },
+    {
+      "line": 135,
+      "text": "Remove artist",
+      "kind": "title"
+    }
+  ],
+  "src/pages/MyProfile.tsx": [
+    {
+      "line": 341,
+      "text": "Shqiponja",
+      "kind": "alt"
+    },
+    {
+      "line": 342,
+      "text": "Shqiponja",
+      "kind": "jsx"
+    },
+    {
+      "line": 610,
+      "text": "My soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 621,
+      "text": "My soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 1002,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 1013,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 1079,
+      "text": "Story",
+      "kind": "alt"
+    }
+  ],
+  "src/pages/ProfileSetup.tsx": [
+    {
+      "line": 46,
+      "text": "yearsSince(d)",
+      "kind": "jsx"
+    },
+    {
+      "line": 452,
+      "text": "Profile",
+      "kind": "alt"
+    },
+    {
+      "line": 525,
+      "text": "Verification",
+      "kind": "alt"
+    }
+  ],
+  "src/pages/ProfileSoundtrack.tsx": [
+    {
+      "line": 244,
+      "text": "YouTube player",
+      "kind": "title"
+    },
+    {
+      "line": 255,
+      "text": "Spotify player",
+      "kind": "title"
+    }
+  ],
+  "src/pages/ProfileVerification.tsx": [
+    {
+      "line": 298,
+      "text": "Selfie preview",
+      "kind": "alt"
+    },
+    {
+      "line": 375,
+      "text": "ID preview",
+      "kind": "alt"
+    }
+  ],
+  "src/pages/Radar.tsx": [
+    {
+      "line": 370,
+      "text": "Shqiponja",
+      "kind": "alt"
+    },
+    {
+      "line": 371,
+      "text": "Shqiponja",
+      "kind": "jsx"
+    }
+  ],
+  "src/pages/Settings.tsx": [
+    {
+      "line": 191,
+      "text": "Please fill in all fields",
+      "kind": "toast"
+    },
+    {
+      "line": 195,
+      "text": "New password must be at least 6 characters",
+      "kind": "toast"
+    },
+    {
+      "line": 199,
+      "text": "Passwords do not match",
+      "kind": "toast"
+    },
+    {
+      "line": 207,
+      "text": "Unable to verify account",
+      "kind": "toast"
+    },
+    {
+      "line": 215,
+      "text": "Current password is incorrect",
+      "kind": "toast"
+    },
+    {
+      "line": 220,
+      "text": "Password updated successfully",
+      "kind": "toast"
+    },
+    {
+      "line": 276,
+      "text": "Session expired. Please log in again.",
+      "kind": "toast"
+    },
+    {
+      "line": 358,
+      "text": "Failed to load settings. Please try refreshing the page.",
+      "kind": "toast"
+    },
+    {
+      "line": 375,
+      "text": "Please enter your email",
+      "kind": "toast"
+    },
+    {
+      "line": 386,
+      "text": "Verification code sent to your email!",
+      "kind": "toast"
+    },
+    {
+      "line": 396,
+      "text": "Please enter both email and OTP code",
+      "kind": "toast"
+    },
+    {
+      "line": 409,
+      "text": "Email verified successfully!",
+      "kind": "toast"
+    },
+    {
+      "line": 420,
+      "text": "Please sign in first.",
+      "kind": "toast"
+    },
+    {
+      "line": 427,
+      "text": "Admin mode enabled.",
+      "kind": "toast"
+    },
+    {
+      "line": 430,
+      "text": "Failed to enable admin mode.",
+      "kind": "toast"
+    },
+    {
+      "line": 450,
+      "text": "Account permanently deleted",
+      "kind": "toast"
+    },
+    {
+      "line": 488,
+      "text": "Premium subscription required to activate booster",
+      "kind": "toast"
+    },
+    {
+      "line": 493,
+      "text": "Booster is already active!",
+      "kind": "toast"
+    },
+    {
+      "line": 518,
+      "text": "Failed to activate booster",
+      "kind": "toast"
+    },
+    {
+      "line": 564,
+      "text": "Session expired. Please log in again.",
+      "kind": "toast"
+    },
+    {
+      "line": 582,
+      "text": "Discovery settings updated successfully!",
+      "kind": "toast"
+    },
+    {
+      "line": 588,
+      "text": "Discovery settings updated successfully!",
+      "kind": "toast"
+    },
+    {
+      "line": 591,
+      "text": "Failed to update discovery settings",
+      "kind": "toast"
+    },
+    {
+      "line": 609,
+      "text": "Invite link copied to clipboard!",
+      "kind": "toast"
+    },
+    {
+      "line": 615,
+      "text": "Notifications are not supported in this browser.",
+      "kind": "toast"
+    },
+    {
+      "line": 623,
+      "text": "Push notifications enabled.",
+      "kind": "toast"
+    },
+    {
+      "line": 625,
+      "text": "Push notifications not enabled.",
+      "kind": "toast"
+    },
+    {
+      "line": 634,
+      "text": "Push subscription saved.",
+      "kind": "toast"
+    },
+    {
+      "line": 637,
+      "text": "Failed to enable push.",
+      "kind": "toast"
+    },
+    {
+      "line": 646,
+      "text": "Push subscription removed.",
+      "kind": "toast"
+    },
+    {
+      "line": 649,
+      "text": "Failed to disable push.",
+      "kind": "toast"
+    },
+    {
+      "line": 668,
+      "text": "Failed to submit request.",
+      "kind": "toast"
+    },
+    {
+      "line": 778,
+      "text": "Premium Benefits",
+      "kind": "jsx"
+    },
+    {
+      "line": 812,
+      "text": "Opening subscription management...",
+      "kind": "toast"
+    },
+    {
+      "line": 840,
+      "text": "Cancel Premium Membership?",
+      "kind": "jsx"
+    },
+    {
+      "line": 859,
+      "text": "Keep Premium",
+      "kind": "jsx"
+    },
+    {
+      "line": 870,
+      "text": "To cancel, tap your subscription and select Cancel.",
+      "kind": "toast"
+    },
+    {
+      "line": 884,
+      "text": "Failed to cancel membership. Please try again.",
+      "kind": "toast"
+    },
+    {
+      "line": 913,
+      "text": "Travel Mode",
+      "kind": "jsx"
+    },
+    {
+      "line": 962,
+      "text": "Account",
+      "kind": "jsx"
+    },
+    {
+      "line": 971,
+      "text": "Verify Your Account",
+      "kind": "title"
+    },
+    {
+      "line": 980,
+      "text": "Email Address",
+      "kind": "jsx"
+    },
+    {
+      "line": 1001,
+      "text": "Enter OTP Code",
+      "kind": "jsx"
+    },
+    {
+      "line": 1004,
+      "text": "6-digit code",
+      "kind": "placeholder"
+    },
+    {
+      "line": 1026,
+      "text": "Edit Profile",
+      "kind": "title"
+    },
+    {
+      "line": 1033,
+      "text": "Login Information",
+      "kind": "title"
+    },
+    {
+      "line": 1051,
+      "text": "Activity & History",
+      "kind": "jsx"
+    },
+    {
+      "line": 1062,
+      "text": "Call History",
+      "kind": "title"
+    },
+    {
+      "line": 1068,
+      "text": "Saved Profiles",
+      "kind": "title"
+    },
+    {
+      "line": 1074,
+      "text": "Recently Viewed",
+      "kind": "title"
+    },
+    {
+      "line": 1080,
+      "text": "Activity Feed",
+      "kind": "title"
+    },
+    {
+      "line": 1086,
+      "text": "Profile Insights",
+      "kind": "title"
+    },
+    {
+      "line": 1092,
+      "text": "Match Insights",
+      "kind": "title"
+    },
+    {
+      "line": 1098,
+      "text": "Match Goals",
+      "kind": "title"
+    },
+    {
+      "line": 1104,
+      "text": "Stories",
+      "kind": "title"
+    },
+    {
+      "line": 1115,
+      "text": "Premium Feature",
+      "kind": "jsx"
+    },
+    {
+      "line": 1139,
+      "text": "Safety & Verification",
+      "kind": "jsx"
+    },
+    {
+      "line": 1148,
+      "text": "Get Verified",
+      "kind": "title"
+    },
+    {
+      "line": 1154,
+      "text": "Safety Tips",
+      "kind": "title"
+    },
+    {
+      "line": 1160,
+      "text": "Safety Check-in",
+      "kind": "title"
+    },
+    {
+      "line": 1166,
+      "text": "Blocked Users",
+      "kind": "title"
+    },
+    {
+      "line": 1187,
+      "text": "Discovery Settings",
+      "kind": "jsx"
+    },
+    {
+      "line": 1196,
+      "text": "Interested In",
+      "kind": "jsx"
+    },
+    {
+      "line": 1235,
+      "text": "Min Age",
+      "kind": "jsx"
+    },
+    {
+      "line": 1253,
+      "text": "Max Age",
+      "kind": "jsx"
+    },
+    {
+      "line": 1276,
+      "text": "Maximum Distance",
+      "kind": "jsx"
+    },
+    {
+      "line": 1355,
+      "text": "Language / Gjuha",
+      "kind": "jsx"
+    },
+    {
+      "line": 1371,
+      "text": "Privacy & Security",
+      "kind": "jsx"
+    },
+    {
+      "line": 1382,
+      "text": "Incognito Mode",
+      "kind": "jsx"
+    },
+    {
+      "line": 1383,
+      "text": "Hide your profile",
+      "kind": "jsx"
+    },
+    {
+      "line": 1404,
+      "text": "Save Data",
+      "kind": "jsx"
+    },
+    {
+      "line": 1405,
+      "text": "Record profile view history",
+      "kind": "jsx"
+    },
+    {
+      "line": 1433,
+      "text": "Notifications",
+      "kind": "jsx"
+    },
+    {
+      "line": 1441,
+      "text": "New Matches",
+      "kind": "jsx"
+    },
+    {
+      "line": 1458,
+      "text": "Messages",
+      "kind": "jsx"
+    },
+    {
+      "line": 1475,
+      "text": "Likes",
+      "kind": "jsx"
+    },
+    {
+      "line": 1492,
+      "text": "Promotions",
+      "kind": "jsx"
+    },
+    {
+      "line": 1539,
+      "text": "From",
+      "kind": "jsx"
+    },
+    {
+      "line": 1589,
+      "text": "DND disabled",
+      "kind": "toast"
+    },
+    {
+      "line": 1607,
+      "text": "Notification Center",
+      "kind": "title"
+    },
+    {
+      "line": 1628,
+      "text": "Social & Community",
+      "kind": "jsx"
+    },
+    {
+      "line": 1637,
+      "text": "Wallet & Coins",
+      "kind": "title"
+    },
+    {
+      "line": 1643,
+      "text": "Invite Friends",
+      "kind": "title"
+    },
+    {
+      "line": 1649,
+      "text": "Review Us",
+      "kind": "title"
+    },
+    {
+      "line": 1651,
+      "text": "Thank you for your support! ❤️",
+      "kind": "toast"
+    },
+    {
+      "line": 1655,
+      "text": "Social Media",
+      "kind": "title"
+    },
+    {
+      "line": 1657,
+      "text": "Follow us @shqiponja on social media!",
+      "kind": "toast"
+    },
+    {
+      "line": 1673,
+      "text": "Help & Legal",
+      "kind": "jsx"
+    },
+    {
+      "line": 1682,
+      "text": "Help Center",
+      "kind": "title"
+    },
+    {
+      "line": 1688,
+      "text": "Contact Support",
+      "kind": "title"
+    },
+    {
+      "line": 1697,
+      "text": "Image Guidelines",
+      "kind": "title"
+    },
+    {
+      "line": 1703,
+      "text": "Privacy Policy",
+      "kind": "title"
+    },
+    {
+      "line": 1709,
+      "text": "Terms & Conditions",
+      "kind": "title"
+    },
+    {
+      "line": 1715,
+      "text": "Safety Tips",
+      "kind": "title"
+    },
+    {
+      "line": 1721,
+      "text": "About Us",
+      "kind": "title"
+    },
+    {
+      "line": 1723,
+      "text": "Shqiponja — Where hearts connect. v1.0.0",
+      "kind": "toast"
+    },
+    {
+      "line": 1727,
+      "text": "Restore Purchases",
+      "kind": "title"
+    },
+    {
+      "line": 1735,
+      "text": "Data Controls",
+      "kind": "jsx"
+    },
+    {
+      "line": 1770,
+      "text": "Danger Zone",
+      "kind": "jsx"
+    },
+    {
+      "line": 1779,
+      "text": "Export Your Data",
+      "kind": "jsx"
+    },
+    {
+      "line": 1790,
+      "text": "Preparing your data export...",
+      "kind": "toast"
+    },
+    {
+      "line": 1796,
+      "text": "Data exported successfully!",
+      "kind": "toast"
+    },
+    {
+      "line": 1798,
+      "text": "Failed to export data. Please try again.",
+      "kind": "toast"
+    },
+    {
+      "line": 1811,
+      "text": "Deactivate Account",
+      "kind": "jsx"
+    },
+    {
+      "line": 1829,
+      "text": "Permanent Deletion",
+      "kind": "jsx"
+    },
+    {
+      "line": 1843,
+      "text": "Are you absolutely sure?",
+      "kind": "jsx"
+    },
+    {
+      "line": 1903,
+      "text": "Admin",
+      "kind": "jsx"
+    },
+    {
+      "line": 1912,
+      "text": "Safety Console",
+      "kind": "title"
+    },
+    {
+      "line": 1918,
+      "text": "Analytics Dashboard",
+      "kind": "title"
+    },
+    {
+      "line": 2007,
+      "text": "Enter your current password and choose a new one",
+      "kind": "jsx"
+    },
+    {
+      "line": 2011,
+      "text": "Current Password",
+      "kind": "jsx"
+    },
+    {
+      "line": 2015,
+      "text": "Enter current password",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2022,
+      "text": "New Password",
+      "kind": "jsx"
+    },
+    {
+      "line": 2026,
+      "text": "Enter new password",
+      "kind": "placeholder"
+    },
+    {
+      "line": 2033,
+      "text": "Confirm New Password",
+      "kind": "jsx"
+    },
+    {
+      "line": 2037,
+      "text": "Confirm new password",
+      "kind": "placeholder"
+    }
+  ],
+  "src/pages/Spotted.tsx": [
+    {
+      "line": 148,
+      "text": "Failed to like. Try again.",
+      "kind": "toast"
+    },
+    {
+      "line": 154,
+      "text": "💛 Liked! They'll see your interest.",
+      "kind": "toast"
+    },
+    {
+      "line": 168,
+      "text": "Failed to save your location. Please try again.",
+      "kind": "toast"
+    },
+    {
+      "line": 174,
+      "text": "Location access denied. Please enable it in your browser settings.",
+      "kind": "toast"
+    },
+    {
+      "line": 196,
+      "text": "People you've crossed paths with",
+      "kind": "jsx"
+    }
+  ],
+  "src/pages/Support.tsx": [
+    {
+      "line": 54,
+      "text": "Support",
+      "kind": "jsx"
+    },
+    {
+      "line": 55,
+      "text": "We&apos;re here to help",
+      "kind": "jsx"
+    },
+    {
+      "line": 71,
+      "text": "Contact us",
+      "kind": "jsx"
+    },
+    {
+      "line": 89,
+      "text": "Frequently asked questions",
+      "kind": "jsx"
+    },
+    {
+      "line": 100,
+      "text": "Safety &amp; policies",
+      "kind": "jsx"
+    }
+  ],
+  "src/pages/WhoLikedYou.tsx": [
+    {
+      "line": 410,
+      "text": "Shqiponja",
+      "kind": "alt"
+    },
+    {
+      "line": 411,
+      "text": "Shqiponja",
+      "kind": "jsx"
+    },
+    {
+      "line": 992,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    },
+    {
+      "line": 1003,
+      "text": "Profile soundtrack",
+      "kind": "title"
+    }
+  ]
+}

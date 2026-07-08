@@ -76,7 +76,10 @@
     "releaseToRefresh": "↓ Zwolnij, aby odświeżyć",
     "share": "Udostępnij",
     "disable": "Wyłącz",
-    "online": "Online"
+    "online": "Online",
+    "userNotAuthenticated": "Użytkownik nieuwierzytelniony",
+    "albanianEagle": "Albański orzeł",
+    "happyAlbanianCouple": "Szczęśliwa albańska para"
   },
   "auth": {
     "signIn": "Zaloguj się",
@@ -294,7 +297,16 @@
     "discard": "Odrzuć",
     "roses": "Róże",
     "noBoosterDesc": "W Twojej okolicy nikt obecnie nie korzysta z serwisu Boost",
-    "getCoins": "Zdobądź monety"
+    "getCoins": "Zdobądź monety",
+    "premiumRoseBouquet": "Bukiet róż premium",
+    "failedPremiumRoses": "Nie udało się wysłać róż premium",
+    "sendRoses": "Wyślij róże",
+    "instantMessage": "Wiadomość błyskawiczna",
+    "undoLastAction": "Cofnij ostatnią akcję",
+    "boosterActive": "Booster jest już aktywny!",
+    "failedBooster": "Nie udało się aktywować boostera",
+    "premiumRequiredBooster": "Do aktywacji boostera wymagana jest subskrypcja premium",
+    "failedLike": "Nie udało się polubić. Spróbuj ponownie."
   },
   "matches": {
     "title": "Dopasowania",
@@ -719,7 +731,20 @@
     "deactivateDesc": "Twój profil zostanie natychmiast ukryty. Po upływie wybranego okresu Twoje konto wraz ze wszystkimi danymi zostanie trwale usunięte, chyba że zalogujesz się ponownie.",
     "deactivateFor": "Wyłącz na {{days}} dni",
     "updating": "Trwa aktualizacja...",
-    "updatePassword": "Zmień hasło"
+    "updatePassword": "Zmień hasło",
+    "enterEmail": "Wpisz swój adres e-mail",
+    "codeSent": "Kod weryfikacyjny wysłany na Twój e-mail!",
+    "enterEmailAndOtp": "Wpisz e-mail oraz kod OTP",
+    "emailVerified": "E-mail pomyślnie zweryfikowany!",
+    "signInFirst": "Najpierw się zaloguj.",
+    "adminEnabled": "Tryb administratora włączony.",
+    "failedAdmin": "Nie udało się włączyć trybu administratora.",
+    "cancelInstructions": "Aby anulować, dotknij subskrypcji i wybierz Anuluj.",
+    "emailAddress": "Adres e-mail",
+    "sixDigitCode": "6-cyfrowy kod",
+    "loginInformation": "Informacje logowania",
+    "contactSupportAction": "Skontaktuj się z pomocą",
+    "restorePurchases": "Przywróć zakupy"
   },
   "editProfile": {
     "heading": "Edytuj profil",
@@ -968,7 +993,11 @@
     "itsAMatch": "🎉 Pasuje! Możesz teraz z nimi rozmawiać!",
     "superlikeSent": "⚡ Superlike wysłano!",
     "failedSuperlike": "Nie udało się wysłać superlike",
-    "back": "Powrót"
+    "back": "Powrót",
+    "likedToast": "💛 Polubiono! Zobaczą Twoje zainteresowanie.",
+    "failedLocation": "Nie udało się zapisać Twojej lokalizacji. Spróbuj ponownie.",
+    "locationDenied": "Odmowa dostępu do lokalizacji. Włącz go w ustawieniach przeglądarki.",
+    "crossedPaths": "Osoby, które spotkałeś na swojej drodze"
   },
   "datePlanner": {
     "heading": "Kalendarz",
@@ -1021,7 +1050,8 @@
     "noTransactions": "Nie ma jeszcze żadnych transakcji",
     "invalidAmount": "Nieprawidłowa kwota",
     "failedUpdate": "Nie udało się zaktualizować portfela",
-    "coinsAdded": "Do Twojego portfela dodano {{coins}} monet."
+    "coinsAdded": "Do Twojego portfela dodano {{coins}} monet.",
+    "backToWallet": "Powrót do portfela"
   },
   "premiumSuccess": {
     "title": "Witamy w Premium!",
@@ -1306,7 +1336,8 @@
     "profileAnthem": "Hymn profilu",
     "anthemPlaceholder": "Piosenka, która cię opisuje, np. „Blinding Lights” – The Weeknd",
     "saveMusicTaste": "Zapisz swoje preferencje muzyczne 🎵",
-    "saved": "Twoje upodobania muzyczne zostały zapisane! 🎵"
+    "saved": "Twoje upodobania muzyczne zostały zapisane! 🎵",
+    "removeArtist": "Usuń artystę"
   },
   "notificationsCenter": {
     "title": "Powiadomienia",
@@ -1454,7 +1485,9 @@
     "removed": "Usunięto ścieżkę dźwiękową",
     "failedRemove": "Nie udało się usunąć",
     "removeSoundtrack": "Usuń ścieżkę dźwiękową",
-    "musicUrlHint": "https://youtube.com/watch?v=... lub https://open.spotify.com/track/..."
+    "musicUrlHint": "https://youtube.com/watch?v=... lub https://open.spotify.com/track/...",
+    "youtubePlayer": "Odtwarzacz YouTube",
+    "spotifyPlayer": "Odtwarzacz Spotify"
   },
   "profileVerification": {
     "title": "Zweryfikuj się",
@@ -1487,7 +1520,10 @@
     "cameraDenied": "Odmowa dostępu do aparatu. Zezwól na dostęp do aparatu lub prześlij zdjęcie.",
     "selfieFirst": "Najpierw prześlij swoje selfie.",
     "submitted": "Wniosek o weryfikację został wysłany! Rozpatrzymy go w ciągu 24–48 godzin.",
-    "failedSubmit": "Nie udało się wysłać żądania."
+    "failedSubmit": "Nie udało się wysłać żądania.",
+    "verification": "Weryfikacja",
+    "selfiePreview": "Podgląd selfie",
+    "idPreview": "Podgląd dokumentu"
   },
   "photoVerification": {
     "title": "Weryfikacja zdjęć",
@@ -1744,14 +1780,16 @@
   "callDialog": {
     "callFailed": "Połączenie nie powiodło się",
     "browserNotSupported": "Twoja przeglądarka nie obsługuje połączeń audio/wideo. Prosimy o skorzystanie z przeglądarki Chrome, Firefox, Safari (wersja 11 lub nowsza) lub Edge.",
-    "httpsRequired": "Połączenia audio i wideo wymagają protokołu HTTPS. Proszę skorzystać z bezpiecznego adresu URL serwisu ngrok (https://...)."
+    "httpsRequired": "Połączenia audio i wideo wymagają protokołu HTTPS. Proszę skorzystać z bezpiecznego adresu URL serwisu ngrok (https://...).",
+    "blockAndEnd": "Zablokuj użytkownika i zakończ połączenie"
   },
   "incomingCall": {
     "incoming": "Nadchodzące",
     "video": "Film",
     "voice": "Głos",
     "call": "Zadzwoń",
-    "from": "z"
+    "from": "z",
+    "blockCaller": "Zablokuj dzwoniącego"
   },
   "chatHeader": {
     "backToMatches": "Powrót do Matchów",
@@ -1795,7 +1833,12 @@
     "title": "Tylko dla dorosłych",
     "message": "Aby korzystać z serwisu Shqiponja, musisz mieć ukończone 18 lat.",
     "confirm": "Mam ponad 18 lat",
-    "exit": "Wyjście"
+    "exit": "Wyjście",
+    "restrictionNotice": "Informacja o ograniczeniu wiekowym",
+    "req18": "Co najmniej 18 lat (lub wiek pełnoletności w Twojej jurysdykcji)",
+    "reqLegal": "Prawnie zdolny do zawarcia tej umowy",
+    "reqLaws": "Zdolny do korzystania z tej usługi zgodnie ze wszystkimi obowiązującymi przepisami prawa",
+    "verifyToContinue": "Zweryfikuj swój wiek, aby kontynuować"
   },
   "radarNearby": {
     "title": "Radar",
@@ -2207,5 +2250,12 @@
     "Night Owl": "Nocny mark",
     "Early Bird": "Wczesna rezerwacja",
     "DIY Projects": "Projekty „zrób to sam”"
+  },
+  "support": {
+    "title": "Wsparcie",
+    "hereToHelp": "Jesteśmy tu, aby pomóc",
+    "contactUs": "Skontaktuj się z nami",
+    "faq": "Często zadawane pytania",
+    "safetyPolicies": "Bezpieczeństwo i zasady"
   }
 }

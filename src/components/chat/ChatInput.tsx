@@ -114,7 +114,11 @@ export function ChatInput({
         {imagePreview ? (
           <div className="container mx-auto max-w-2xl flex flex-col gap-2">
             <div className="relative inline-block w-fit">
-              <img src={imagePreview} alt="Preview" className="rounded-lg max-h-40 object-cover" />
+              <img
+                src={imagePreview}
+                alt={t("common.preview")}
+                className="rounded-lg max-h-40 object-cover"
+              />
               <Button
                 type="button"
                 variant="destructive"
@@ -196,7 +200,7 @@ export function ChatInput({
                 onClick={onDatePlan}
                 className="text-muted-foreground hover:text-foreground hover:bg-white/6 rounded-xl h-9 w-9"
                 disabled={blockedByYou || blockedYou}
-                title="Plan a date"
+                title={t("featuresPage.planDate")}
                 aria-label={t("chatInput.planADate")}
               >
                 <Calendar className="h-4.5 w-4.5" />
@@ -208,7 +212,7 @@ export function ChatInput({
                 onClick={onPhotoGallery}
                 className="text-muted-foreground hover:text-foreground hover:bg-white/6 rounded-xl h-9 w-9"
                 disabled={blockedByYou || blockedYou}
-                title="Send photo"
+                title={t("chatInput.sendPhoto")}
                 aria-label={t("chatInput.sendPhoto")}
               >
                 <ImageIcon className="h-4.5 w-4.5" />
@@ -220,7 +224,7 @@ export function ChatInput({
                 onClick={onPhotoCamera}
                 className="text-muted-foreground hover:text-foreground hover:bg-white/6 rounded-xl h-9 w-9"
                 disabled={blockedByYou || blockedYou}
-                title="Take photo"
+                title={t("common.takePhoto")}
                 aria-label={t("chatInput.takePhoto")}
               >
                 <Camera className="h-4.5 w-4.5" />
@@ -232,7 +236,7 @@ export function ChatInput({
                 onClick={onGifPicker}
                 className="text-muted-foreground hover:text-foreground hover:bg-white/6 rounded-xl h-9 w-9"
                 disabled={blockedByYou || blockedYou}
-                title="Send GIF"
+                title={t("chatInput.sendGif")}
                 aria-label={t("chatInput.sendGIF")}
               >
                 <span className="text-[11px] font-bold">GIF</span>

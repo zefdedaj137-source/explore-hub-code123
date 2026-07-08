@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import BottomNav from "@/components/BottomNav";
 import { useTranslation } from "react-i18next";
 
-const LAST_UPDATED = "July 2, 2026";
+const LAST_UPDATED = "July 8, 2026";
 const SUPPORT_EMAIL = "support@shqiponjat.xyz";
 
 type Section = {

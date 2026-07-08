@@ -1,0 +1,4606 @@
+{
+  "src/components/AgeGate.tsx": {
+    "usesT": true,
+    "count": 5,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Shqiponja is a dating platform for adults only.",
+        "key": "ageGate.shqiponjaIsADatingPlatformFor",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "By continuing, you confirm that you are:",
+        "key": "ageGate.byContinuingYouConfirmThatYou",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "We are committed to protecting minors and maintaining a safe dating environment. All users must verify their age during the signup process. Providing false information about your age may result in account termination and legal action.",
+        "key": "ageGate.weAreCommittedToProtectingMinors",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "By clicking \"I Confirm\", you certify that you meet the age requirement.",
+        "key": "ageGate.byClickingIConfirmYouCertify",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "If you are under 18, please exit this application. Continuing means you accept the terms above.",
+        "key": "ageGate.ifYouAreUnder18Please",
+        "isNew": true
+      }
+    ]
+  },
+  "src/components/BrowseProfiles.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Discover Albanian singles who share your values and aspirations",
+        "key": "browseProfiles.discoverAlbanianSinglesWhoShareYour",
+        "isNew": true
+      }
+    ]
+  },
+  "src/components/CallDialog.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "with",
+        "key": "callDialog.with",
+        "isNew": true
+      }
+    ]
+  },
+  "src/components/chat/ChatHeader.tsx": {
+    "usesT": true,
+    "count": 4,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Block user",
+        "key": "chatHeader.blockUser",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Unblock user",
+        "key": "chatHeader.unblockUser",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Unmatch",
+        "key": "matches.unmatch",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Report",
+        "key": "matches.report",
+        "isNew": false
+      }
+    ]
+  },
+  "src/components/chat/ChatInput.tsx": {
+    "usesT": true,
+    "count": 3,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Cancel",
+        "key": "common.cancel",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Send Photo",
+        "key": "chatInput.sendPhoto",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Cancel",
+        "key": "common.cancel",
+        "isNew": false
+      }
+    ]
+  },
+  "src/components/chat/MessageBubble.tsx": {
+    "usesT": true,
+    "count": 2,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "This message was deleted",
+        "key": "messageBubble.deleted",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Your browser doesn't support audio playback.",
+        "key": "messageBubble.audioNotSupported",
+        "isNew": false
+      }
+    ]
+  },
+  "src/components/DancingChallenge.tsx": {
+    "usesT": true,
+    "count": 12,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Join the exclusive Albanian dancing community",
+        "key": "dancingChallenge.joinTheExclusiveAlbanianDancingCommunity",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Match with dancers you rate above 5/10",
+        "key": "dancingChallenge.matchWithDancersYouRateAbove",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Join Valle Channel",
+        "key": "dancingChallenge.joinValleChannel",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Channel Member",
+        "key": "dancingChallenge.channelMember",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Show your moves and get rated! Rate above 5 to match 💃",
+        "key": "dancingChallenge.showYourMovesAndGetRated",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Leave Channel",
+        "key": "dancingChallenge.leaveChannel",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Start Recording",
+        "key": "dancingChallenge.startRecording",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Upload Video",
+        "key": "dancingChallenge.uploadVideo",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Stop Recording",
+        "key": "chatInput.stopRecording",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Upload Video",
+        "key": "dancingChallenge.uploadVideo",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "ratings)",
+        "key": "dancingChallenge.ratings",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Submit",
+        "key": "dancingChallenge.submit",
+        "isNew": true
+      }
+    ]
+  },
+  "src/components/DatingIdeas.tsx": {
+    "usesT": true,
+    "count": 2,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Creative date ideas that celebrate Albanian culture and create memorable moments",
+        "key": "datingIdeas.creativeDateIdeasThatCelebrateAlbanian",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Have a unique Albanian date idea? Share it with the community and inspire other couples!",
+        "key": "datingIdeas.haveAUniqueAlbanianDateIdea",
+        "isNew": true
+      }
+    ]
+  },
+  "src/components/discover/ProfileGridCard.tsx": {
+    "usesT": true,
+    "count": 2,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "\\u2713 Verified",
+        "key": "profileGridCard.u2713Verified",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      }
+    ]
+  },
+  "src/components/ErrorBoundary.tsx": {
+    "usesT": false,
+    "count": 4,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Something went wrong",
+        "key": "common.error",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "We encountered an unexpected error. Please try refreshing the page.",
+        "key": "errorBoundary.weEncounteredAnUnexpectedErrorPlease",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Refresh Page",
+        "key": "errorBoundary.refreshPage",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Go Home",
+        "key": "notFound.goHome",
+        "isNew": false
+      }
+    ],
+    "skippedNoT": true
+  },
+  "src/components/Hero.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Happy Albanian Couple",
+        "key": "common.happyAlbanianCouple",
+        "isNew": false
+      }
+    ]
+  },
+  "src/components/IncomingCallDialog.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Block caller",
+        "key": "incomingCall.blockCaller",
+        "isNew": false
+      }
+    ]
+  },
+  "src/components/LoveStories.tsx": {
+    "usesT": false,
+    "count": 6,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Real Stories",
+        "key": "loveStories.realStories",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Love Found Through",
+        "key": "loveStories.loveFoundThrough",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Thousands of Albanian couples found their person here. These are just a few of their stories.",
+        "key": "loveStories.thousandsOfAlbanianCouplesFoundTheir",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Join",
+        "key": "loveStories.join",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Albanian singles who found their",
+        "key": "loveStories.albanianSinglesWhoFoundTheir",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "dashuri",
+        "key": "hero.dashuri",
+        "isNew": false
+      }
+    ],
+    "skippedNoT": true
+  },
+  "src/components/MatchAnimation.tsx": {
+    "usesT": true,
+    "count": 5,
+    "entries": [
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Premium Rose Bouquet",
+        "key": "discover.premiumRoseBouquet",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Premium Rose Bouquet",
+        "key": "discover.premiumRoseBouquet",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Albanian Eagle",
+        "key": "common.albanianEagle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Albanian Eagle",
+        "key": "common.albanianEagle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Break the ice ✨",
+        "key": "matchAnimation.breakTheIce",
+        "isNew": true
+      }
+    ]
+  },
+  "src/components/Navbar.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Albanian Eagle",
+        "key": "common.albanianEagle",
+        "isNew": false
+      }
+    ]
+  },
+  "src/components/RadarNearby.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "You",
+        "key": "chatInput.you",
+        "isNew": false
+      }
+    ]
+  },
+  "src/components/TravelModeBadge.tsx": {
+    "usesT": false,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✈️ Traveling in",
+        "key": "travelModeBadge.travelingIn",
+        "isNew": true
+      }
+    ],
+    "skippedNoT": true
+  },
+  "src/components/VideoFeed.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You can't rate your own video",
+        "key": "videoFeed.youCanTRateYourOwn",
+        "isNew": true
+      }
+    ]
+  },
+  "src/components/VideoRecorder.tsx": {
+    "usesT": true,
+    "count": 4,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Dancing to:",
+        "key": "dancing.dancingTo",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Start Recording",
+        "key": "dancingChallenge.startRecording",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Upload Video",
+        "key": "dancingChallenge.uploadVideo",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Stop Recording",
+        "key": "chatInput.stopRecording",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/AgeVerification.tsx": {
+    "usesT": true,
+    "count": 6,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "User not authenticated",
+        "key": "common.userNotAuthenticated",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Verify Your Age",
+        "key": "ageVerification.verifyYourAge",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "We require all users to be 18 or older",
+        "key": "ageVerification.weRequireAllUsersToBe",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Date of Birth",
+        "key": "auth.dateOfBirth",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You must be at least 18 years old to use Shqiponja",
+        "key": "ageVerification.youMustBeAtLeast18",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Your date of birth is used only to verify you meet the age requirement and will be stored securely.",
+        "key": "ageVerification.yourDateOfBirthIsUsed",
+        "isNew": true
+      }
+    ]
+  },
+  "src/pages/AIMatchmaker.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "aria-label",
+        "text": "Go back",
+        "key": "common.goBack",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Auth.tsx": {
+    "usesT": true,
+    "count": 3,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "✅ Account created! Please check your email and click the confirmation link to complete registration.",
+        "key": "auth.accountCreatedPleaseCheckYourEmail",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Email",
+        "key": "auth.email",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Email",
+        "key": "auth.email",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/AuthCallback.tsx": {
+    "usesT": true,
+    "count": 2,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Please verify your age to continue",
+        "key": "ageGate.verifyToContinue",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Please verify your age to continue",
+        "key": "ageGate.verifyToContinue",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Chat.tsx": {
+    "usesT": true,
+    "count": 31,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "You already have an active date plan. Cancel it or wait for it to pass before creating a new one.",
+        "key": "chat.youAlreadyHaveAnActiveDate",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Upload photo",
+        "key": "common.uploadPhoto",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Take photo",
+        "key": "common.takePhoto",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✓ Verified",
+        "key": "weeklySpotlight.verified",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Video",
+        "key": "common.video",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✓ Verified",
+        "key": "weeklySpotlight.verified",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Story",
+        "key": "profile.story",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💼 Work",
+        "key": "chat.work",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🎓 Education",
+        "key": "chat.education",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "📏 Height",
+        "key": "chat.height",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♈ Zodiac",
+        "key": "chat.zodiac",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🙏 Religion",
+        "key": "chat.religion",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🌟 Lifestyle",
+        "key": "chat.lifestyle",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🍷 Drinking",
+        "key": "chat.drinking",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🚬 Smoking",
+        "key": "chat.smoking",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🐾 Pets",
+        "key": "chat.pets",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "About",
+        "key": "profile.about",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Shared Interests",
+        "key": "profile.sharedInterests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Looking For",
+        "key": "discover.lookingFor",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interests",
+        "key": "profile.interests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Soundtrack",
+        "key": "chat.soundtrack",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Close",
+        "key": "common.close",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Message",
+        "key": "chat.message",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Plan a Date",
+        "key": "featuresPage.planDate",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Plan a date with",
+        "key": "chat.planADateWith",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": ". They'll be notified in chat!",
+        "key": "chat.theyLlBeNotifiedInChat",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Story",
+        "key": "profile.story",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/CoinsSuccess.tsx": {
+    "usesT": true,
+    "count": 2,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Verifying your purchase…",
+        "key": "superlikeSuccess.verifying",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Back to Wallet",
+        "key": "wallet.backToWallet",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/DatePlanner.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "You already have an active date plan with this person. Cancel it or wait for it to pass before creating a new one.",
+        "key": "datePlanner.youAlreadyHaveAnActiveDate",
+        "isNew": true
+      }
+    ]
+  },
+  "src/pages/DateSpotSuggestions.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "aria-label",
+        "text": "Go back",
+        "key": "common.goBack",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Discover.tsx": {
+    "usesT": true,
+    "count": 164,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to send premium roses",
+        "key": "discover.failedPremiumRoses",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Discover",
+        "key": "nav.discover",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Fun & Games",
+        "key": "discover.funGames",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Dating Tools",
+        "key": "discover.datingTools",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Account",
+        "key": "settings.account",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Features",
+        "key": "nav.features",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "(km)",
+        "key": "discover.km",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Min",
+        "key": "discover.minPlaceholder",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Max",
+        "key": "discover.maxPlaceholder",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Min",
+        "key": "discover.minPlaceholder",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Max",
+        "key": "discover.maxPlaceholder",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Any",
+        "key": "common.any",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Any",
+        "key": "common.any",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Any",
+        "key": "common.any",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Any",
+        "key": "common.any",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Any",
+        "key": "common.any",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Any",
+        "key": "common.any",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Any",
+        "key": "common.any",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♈ Aries",
+        "key": "discover.aries",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♉ Taurus",
+        "key": "discover.taurus",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♊ Gemini",
+        "key": "discover.gemini",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♋ Cancer",
+        "key": "discover.cancer",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♌ Leo",
+        "key": "discover.leo",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♍ Virgo",
+        "key": "discover.virgo",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♎ Libra",
+        "key": "discover.libra",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♏ Scorpio",
+        "key": "discover.scorpio",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♐ Sagittarius",
+        "key": "discover.sagittarius",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♑ Capricorn",
+        "key": "discover.capricorn",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♒ Aquarius",
+        "key": "discover.aquarius",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♓ Pisces",
+        "key": "discover.pisces",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Get verified, height, lifestyle & more filters",
+        "key": "discover.getVerifiedHeightLifestyleMoreFilters",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Apply Filters",
+        "key": "discover.applyFilters",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Changes will apply after clicking \"Apply Filters\"",
+        "key": "discover.changesWillApplyAfterClickingApply",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "For You",
+        "key": "discover.forYou",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Last Active",
+        "key": "discover.lastActive",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Get your Blue Tick ✓",
+        "key": "discover.getYourBlueTick",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Verified profiles get 3× more matches. Tap to verify now.",
+        "key": "discover.verifiedProfilesGet3MoreMatches",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✓ Verified",
+        "key": "weeklySpotlight.verified",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Video",
+        "key": "common.video",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Online",
+        "key": "common.online",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "% Match",
+        "key": "discover.match",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✈️ Traveling",
+        "key": "profileCard.traveling",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "No photo",
+        "key": "common.noPhoto",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "See Full Profile",
+        "key": "discover.seeFullProfile",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Super Like",
+        "key": "discover.superlike",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Send Roses",
+        "key": "discover.sendRoses",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Roses",
+        "key": "discover.roses",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Instant Message",
+        "key": "discover.instantMessage",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Undo last action",
+        "key": "discover.undoLastAction",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Pass",
+        "key": "discover.pass",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Like",
+        "key": "common.like",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Spotlight Boost Active",
+        "key": "discover.spotlightBoostActive",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Time Remaining",
+        "key": "discover.timeRemaining",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Expires at",
+        "key": "discover.expiresAt",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You're being shown to more people in your area and appearing higher in their discovery feed.",
+        "key": "discover.youReBeingShownToMore",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Close",
+        "key": "common.close",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Activate Spotlight Boost",
+        "key": "discover.activateSpotlightBoost",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Get more visibility! Your profile will be shown to more people in your area. Use coins to activate a boost.",
+        "key": "discover.getMoreVisibilityYourProfileWill",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "3 Hours",
+        "key": "discover.3Hours",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Use 1 of your",
+        "key": "discover.use1OfYour",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "free boosts",
+        "key": "discover.freeBoosts",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "3 Hours",
+        "key": "discover.3Hours",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "5 coins",
+        "key": "discover.5Coins",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "6 Hours",
+        "key": "discover.6Hours",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "9 coins",
+        "key": "discover.9Coins",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "10 Hours",
+        "key": "discover.10Hours",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "13 coins",
+        "key": "discover.13Coins",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium Roses",
+        "key": "discover.premiumRoses",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Age",
+        "key": "discover.age",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💐 VIP Premium Roses Experience",
+        "key": "discover.vipPremiumRosesExperience",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "50 Coins",
+        "key": "discover.50Coins",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Wallet balance:",
+        "key": "discover.walletBalance",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Send Roses 💐",
+        "key": "discover.sendRoses",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Buy Coins",
+        "key": "discover.buyCoins",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Instant Message",
+        "key": "discover.instantMessage",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "/500 characters",
+        "key": "discover.500Characters",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Cancel",
+        "key": "common.cancel",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Send Message",
+        "key": "discover.sendMessage",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💡 Tip: Write something personalized to increase your chances of a response!",
+        "key": "discover.tipWriteSomethingPersonalizedToIncrease",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You have access to all premium features including unlimited swipes, advanced filters, and the ability to see who liked you.",
+        "key": "discover.youHaveAccessToAllPremium",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Unlimited Swipes ✓",
+        "key": "discover.unlimitedSwipes",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "See who liked you ✓",
+        "key": "discover.seeWhoLikedYou",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Advanced filters ✓",
+        "key": "discover.advancedFilters",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Unlimited Swipes",
+        "key": "profile.unlimitedSwipes",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "See who liked you",
+        "key": "profile.seeWhoLiked",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Advanced filters",
+        "key": "profile.advancedFilters",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Work",
+        "key": "editProfile.work",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Education",
+        "key": "discover.education",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Height",
+        "key": "whoLikedYou.height",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Zodiac",
+        "key": "whoLikedYou.zodiac",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Religion",
+        "key": "discover.religion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Lifestyle",
+        "key": "whoLikedYou.lifestyle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Drinking",
+        "key": "discover.drinking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Smoking",
+        "key": "discover.smoking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Pets",
+        "key": "whoLikedYou.pets",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "About",
+        "key": "profile.about",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Shared Interests",
+        "key": "profile.sharedInterests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Looking For",
+        "key": "discover.lookingFor",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interests",
+        "key": "profile.interests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Soundtrack",
+        "key": "chat.soundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Pass",
+        "key": "discover.pass",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Like",
+        "key": "common.like",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Send Roses",
+        "key": "discover.sendRoses",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Instant Chat",
+        "key": "discover.instantChat",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Get Superlikes",
+        "key": "discover.getSuperlikes",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Stand out from the crowd! Superlikes give you 3x more chances to match.",
+        "key": "discover.standOutFromTheCrowdSuperlikes",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You receive 5 free Superlikes every month. Top up any time below.",
+        "key": "discover.youReceive5FreeSuperlikesEvery",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium members get 5 free Superlikes every month!",
+        "key": "discover.premiumMembersGet5FreeSuperlikes",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Upgrade to Premium",
+        "key": "settings.upgradeToPremium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "People who view your profile will appear here",
+        "key": "discover.peopleWhoViewYourProfileWill",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Video Intro",
+        "key": "common.videoIntro",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "No photo",
+        "key": "common.noPhoto",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💼 Work",
+        "key": "chat.work",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🎓 Education",
+        "key": "chat.education",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "📏 Height",
+        "key": "chat.height",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♈ Zodiac",
+        "key": "chat.zodiac",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🙏 Religion",
+        "key": "chat.religion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🌟 Lifestyle",
+        "key": "chat.lifestyle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🍷 Drinking",
+        "key": "chat.drinking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🚬 Smoking",
+        "key": "chat.smoking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🐾 Pets",
+        "key": "chat.pets",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "About",
+        "key": "profile.about",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Shared Interests",
+        "key": "profile.sharedInterests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Looking For",
+        "key": "discover.lookingFor",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interests",
+        "key": "profile.interests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Soundtrack",
+        "key": "chat.soundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Instant Message",
+        "key": "discover.instantMessage",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✓ Verified",
+        "key": "weeklySpotlight.verified",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✈️ Traveling",
+        "key": "profileCard.traveling",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Video",
+        "key": "common.video",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "No photo",
+        "key": "common.noPhoto",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💼 Work",
+        "key": "chat.work",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🎓 Education",
+        "key": "chat.education",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "📏 Height",
+        "key": "chat.height",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♈ Zodiac",
+        "key": "chat.zodiac",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🙏 Religion",
+        "key": "chat.religion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🌟 Lifestyle",
+        "key": "chat.lifestyle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🍷 Drinking",
+        "key": "chat.drinking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🚬 Smoking",
+        "key": "chat.smoking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🐾 Pets",
+        "key": "chat.pets",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "About",
+        "key": "profile.about",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Shared Interests",
+        "key": "profile.sharedInterests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Looking For",
+        "key": "discover.lookingFor",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interests",
+        "key": "profile.interests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Soundtrack",
+        "key": "chat.soundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Send Instant Message",
+        "key": "discover.sendInstantMessage",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Story",
+        "key": "profile.story",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You have unsaved filter changes. Close without applying?",
+        "key": "discover.youHaveUnsavedFilterChangesClose",
+        "isNew": true
+      }
+    ]
+  },
+  "src/pages/EditProfile.tsx": {
+    "usesT": true,
+    "count": 33,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Profile:",
+        "key": "editProfile.profile",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "⭐ Premium",
+        "key": "editProfile.premium",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Bio",
+        "key": "profile.bio",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Save",
+        "key": "common.save",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Cancel",
+        "key": "common.cancel",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Edit",
+        "key": "common.edit",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "/5 selected",
+        "key": "editProfile.5Selected",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "No",
+        "key": "common.no",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Yes",
+        "key": "common.yes",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "No",
+        "key": "common.no",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "YouTube detected",
+        "key": "profileSoundtrack.youtubeDetected",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Could not detect YouTube or Spotify link",
+        "key": "editProfile.couldNotDetectYoutubeOrSpotify",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "YouTube player",
+        "key": "profileSoundtrack.youtubePlayer",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Spotify player",
+        "key": "profileSoundtrack.spotifyPlayer",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "No photo",
+        "key": "common.noPhoto",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💼 Work",
+        "key": "chat.work",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🎓 Education",
+        "key": "chat.education",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "📏 Height",
+        "key": "chat.height",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "cm",
+        "key": "editProfile.cm",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♈ Zodiac",
+        "key": "chat.zodiac",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🙏 Religion",
+        "key": "chat.religion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🌟 Lifestyle",
+        "key": "chat.lifestyle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🍷 Drinking",
+        "key": "chat.drinking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🚬 Smoking",
+        "key": "chat.smoking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🐾 Pets",
+        "key": "chat.pets",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "About",
+        "key": "profile.about",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Looking For",
+        "key": "discover.lookingFor",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interests",
+        "key": "profile.interests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Languages",
+        "key": "editProfile.languages",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Soundtrack",
+        "key": "chat.soundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Features.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Go back",
+        "key": "common.goBack",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/GameLobby.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "aria-label",
+        "text": "Go back",
+        "key": "common.goBack",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Games.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "aria-label",
+        "text": "Go back",
+        "key": "common.goBack",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/GameSessionMusic.tsx": {
+    "usesT": true,
+    "count": 5,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Music Lovers 🎵",
+        "key": "gameSessionMusic.musicLovers",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You",
+        "key": "chatInput.you",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You",
+        "key": "chatInput.you",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Question",
+        "key": "gameSessionMusic.question",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You",
+        "key": "chatInput.you",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/GhostModeAlert.tsx": {
+    "usesT": true,
+    "count": 2,
+    "entries": [
+      {
+        "line": null,
+        "kind": "aria-label",
+        "text": "Go back",
+        "key": "common.goBack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "ago",
+        "key": "ghostModeAlert.ago",
+        "isNew": true
+      }
+    ]
+  },
+  "src/pages/Matches.tsx": {
+    "usesT": true,
+    "count": 30,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✓ Verified",
+        "key": "weeklySpotlight.verified",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "✓ Verified",
+        "key": "weeklySpotlight.verified",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Story",
+        "key": "profile.story",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💼 Work",
+        "key": "chat.work",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🎓 Education",
+        "key": "chat.education",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "📏 Height",
+        "key": "chat.height",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♈ Zodiac",
+        "key": "chat.zodiac",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🙏 Religion",
+        "key": "chat.religion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🌟 Lifestyle",
+        "key": "chat.lifestyle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🍷 Drinking",
+        "key": "chat.drinking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🚬 Smoking",
+        "key": "chat.smoking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🐾 Pets",
+        "key": "chat.pets",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "About",
+        "key": "profile.about",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Shared Interests",
+        "key": "profile.sharedInterests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Looking For",
+        "key": "discover.lookingFor",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interests",
+        "key": "profile.interests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Soundtrack",
+        "key": "chat.soundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Close",
+        "key": "common.close",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Like",
+        "key": "common.like",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Message",
+        "key": "chat.message",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Send Reply",
+        "key": "matches.sendReply",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Chat with",
+        "key": "matches.chatWith",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "View and send messages in this instant message conversation",
+        "key": "matches.viewAndSendMessagesInThis",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💬 Messages stay here until you both like each other. Then they'll move to regular chat!",
+        "key": "matches.messagesStayHereUntilYouBoth",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "/ 20 messages sent",
+        "key": "matches.20MessagesSent",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "remaining",
+        "key": "matches.remaining",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Story",
+        "key": "profile.story",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/MatchInsights.tsx": {
+    "usesT": true,
+    "count": 6,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Back",
+        "key": "common.back",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "No matches yet.",
+        "key": "matchInsights.noMatchesYet",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "% match",
+        "key": "discover.match",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Ask about",
+        "key": "matchInsights.askAbout",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "AI summary",
+        "key": "matchInsights.aiSummary",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Message",
+        "key": "chat.message",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/MoodStatus.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "aria-label",
+        "text": "Go back",
+        "key": "common.goBack",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/MusicTaste.tsx": {
+    "usesT": true,
+    "count": 2,
+    "entries": [
+      {
+        "line": null,
+        "kind": "aria-label",
+        "text": "Go back",
+        "key": "common.goBack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Remove artist",
+        "key": "musicTaste.removeArtist",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/MyProfile.tsx": {
+    "usesT": true,
+    "count": 18,
+    "entries": [
+      {
+        "line": null,
+        "kind": "title",
+        "text": "My soundtrack",
+        "key": "profile.mySoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "My soundtrack",
+        "key": "profile.mySoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💼 Work",
+        "key": "chat.work",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🎓 Education",
+        "key": "chat.education",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "📏 Height",
+        "key": "chat.height",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♈ Zodiac",
+        "key": "chat.zodiac",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🙏 Religion",
+        "key": "chat.religion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🌿 Lifestyle",
+        "key": "myProfile.lifestyle",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🍷 Drinking",
+        "key": "chat.drinking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🚬 Smoking",
+        "key": "chat.smoking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🐾 Pets",
+        "key": "chat.pets",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "About",
+        "key": "profile.about",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Looking For",
+        "key": "discover.lookingFor",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interests",
+        "key": "profile.interests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Soundtrack",
+        "key": "chat.soundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Story",
+        "key": "profile.story",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Privacy.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Last updated:",
+        "key": "privacy.lastUpdated",
+        "isNew": true
+      }
+    ]
+  },
+  "src/pages/ProfileInsights.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Video",
+        "key": "common.video",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/ProfileSetup.tsx": {
+    "usesT": true,
+    "count": 3,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Location permission denied. You can still use the app but distance won't be shown.",
+        "key": "profileSetup.locationPermissionDeniedYouCanStill",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Profile",
+        "key": "common.profile",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Verification",
+        "key": "profileVerification.verification",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/ProfileSoundtrack.tsx": {
+    "usesT": true,
+    "count": 6,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "YouTube detected",
+        "key": "profileSoundtrack.youtubeDetected",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Spotify detected",
+        "key": "editProfile.spotifyDetected",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Could not detect YouTube or Spotify link. Please check the URL.",
+        "key": "profileSoundtrack.couldNotDetectYoutubeOrSpotify",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Preview",
+        "key": "common.preview",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "YouTube player",
+        "key": "profileSoundtrack.youtubePlayer",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Spotify player",
+        "key": "profileSoundtrack.spotifyPlayer",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/ProfileVerification.tsx": {
+    "usesT": true,
+    "count": 4,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Take a Selfie",
+        "key": "profileVerification.takeSelfie",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "Selfie preview",
+        "key": "profileVerification.selfiePreview",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Upload ID",
+        "key": "profileVerification.uploadId",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "alt",
+        "text": "ID preview",
+        "key": "profileVerification.idPreview",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Radar.tsx": {
+    "usesT": true,
+    "count": 17,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "m away",
+        "key": "radar.mAway",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "💼 Work",
+        "key": "chat.work",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🎓 Education",
+        "key": "chat.education",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "📏 Height",
+        "key": "chat.height",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "♈ Zodiac",
+        "key": "chat.zodiac",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🙏 Religion",
+        "key": "chat.religion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🌿 Lifestyle",
+        "key": "myProfile.lifestyle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🍷 Drinking",
+        "key": "chat.drinking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🚬 Smoking",
+        "key": "chat.smoking",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "🐾 Pets",
+        "key": "chat.pets",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "About",
+        "key": "profile.about",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Looking For",
+        "key": "discover.lookingFor",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interests",
+        "key": "profile.interests",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "away",
+        "key": "radar.awayText",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "📡 Radar shows users within 100 meters of your current location",
+        "key": "radar.radarShowsUsersWithin100Meters",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "⭐ Send superlikes to stand out and get noticed!",
+        "key": "radar.sendSuperlikesToStandOutAnd",
+        "isNew": true
+      }
+    ]
+  },
+  "src/pages/RecentlyViewed.tsx": {
+    "usesT": true,
+    "count": 2,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "profile",
+        "key": "common.profile",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "viewed",
+        "key": "recentlyViewed.viewed",
+        "isNew": true
+      }
+    ]
+  },
+  "src/pages/SafetyCheckIn.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "min",
+        "key": "discover.minPlaceholder",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Settings.tsx": {
+    "usesT": true,
+    "count": 177,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Premium subscription required to activate booster",
+        "key": "discover.premiumRequiredBooster",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Booster is already active!",
+        "key": "discover.boosterActive",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to activate booster",
+        "key": "discover.failedBooster",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Session expired. Please log in again.",
+        "key": "settings.sessionExpired",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Discovery settings updated successfully!",
+        "key": "settings.discoveryUpdated",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Discovery settings updated successfully!",
+        "key": "settings.discoveryUpdated",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to update discovery settings",
+        "key": "settings.failedDiscovery",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Invite link copied to clipboard!",
+        "key": "settings.linkCopied",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Notifications are not supported in this browser.",
+        "key": "settings.notificationsUnsupported",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Push notifications enabled.",
+        "key": "settings.pushEnabled",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Push notifications not enabled.",
+        "key": "settings.pushNotEnabled",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Push subscription saved.",
+        "key": "settings.pushSaved",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to enable push.",
+        "key": "settings.failedPush",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Push subscription removed.",
+        "key": "settings.pushRemoved",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to disable push.",
+        "key": "settings.failedDisablePush",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to submit request.",
+        "key": "settings.failedReport",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Spotlight Booster",
+        "key": "settings.spotlightBooster",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Be featured in \"Last Active\" and get up to 10x more profile views",
+        "key": "settings.boosterDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Booster Active!",
+        "key": "settings.boosterActive",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Your profile is in the spotlight. Expires at:",
+        "key": "settings.yourProfileIsInTheSpotlight",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "You're visible to everyone in \"Last Active\"",
+        "key": "settings.visibleInLastActive",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium Membership",
+        "key": "settings.premiumMembership",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Active",
+        "key": "common.active",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Manage your premium subscription",
+        "key": "settings.managePremiumDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium Benefits",
+        "key": "settings.premiumBenefits",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Unlimited swipes",
+        "key": "profile.unlimitedSwipes",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "See who liked you",
+        "key": "profile.seeWhoLiked",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Advanced filters",
+        "key": "profile.advancedFilters",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Spotlight booster access",
+        "key": "settings.spotlightAccess",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "No ads",
+        "key": "settings.noAds",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Opening subscription management...",
+        "key": "settings.openingSubscription",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Manage Subscription",
+        "key": "settings.manageSubscription",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Cancel Membership",
+        "key": "settings.cancelMembership",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Cancel Premium Membership?",
+        "key": "settings.cancelPremium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Are you sure you want to cancel your premium membership? You'll lose access to:",
+        "key": "settings.cancelPremiumConfirmDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "• Unlimited swipes",
+        "key": "settings.unlimitedSwipes",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "• See who liked you",
+        "key": "settings.seeWhoLikedYou",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "• Advanced filters",
+        "key": "settings.advancedFilters",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "• Spotlight booster",
+        "key": "settings.spotlightBooster",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Your subscription will remain active until the end of the current billing period.",
+        "key": "settings.subscriptionRemainActive",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Keep Premium",
+        "key": "settings.keepPremium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "To cancel, tap your subscription and select Cancel.",
+        "key": "settings.cancelInstructions",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Premium membership cancelled. You'll have access until the end of your billing period.",
+        "key": "settings.premiumCancelledSuccess",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to cancel membership. Please try again.",
+        "key": "settings.failedCancelMembership",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Cancel Membership",
+        "key": "settings.cancelMembership",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Travel Mode",
+        "key": "settings.travelMode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Account",
+        "key": "settings.account",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Account",
+        "key": "settings.account",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Verify Your Account",
+        "key": "profile.verifyAccount",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Email Address",
+        "key": "settings.emailAddress",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "your@email.com",
+        "key": "settings.yourEmailCom",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Send Verification Code",
+        "key": "settings.sendVerificationCode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Enter OTP Code",
+        "key": "auth.enterOtp",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "6-digit code",
+        "key": "settings.sixDigitCode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Verify Code",
+        "key": "settings.verifyCode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Edit Profile",
+        "key": "profile.editProfile",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Login Information",
+        "key": "settings.loginInformation",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Activity & History",
+        "key": "settings.activity",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Call History",
+        "key": "settings.callHistory",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Saved Profiles",
+        "key": "settings.savedProfiles",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Recently Viewed",
+        "key": "settings.recentlyViewed",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Activity Feed",
+        "key": "settings.activityFeed",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile Insights",
+        "key": "settings.profileInsights",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Match Insights",
+        "key": "settings.matchInsights",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Match Goals",
+        "key": "settings.matchGoals",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Stories",
+        "key": "common.stories",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium Feature",
+        "key": "settings.premiumFeature",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Unlock Activity & History — including call logs, recently viewed profiles, insights, and more — with a premium subscription.",
+        "key": "settings.unlockActivityHistoryIncludingCallLogs",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Upgrade to Premium",
+        "key": "settings.upgradeToPremium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Safety & Verification",
+        "key": "settings.safety",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Get Verified",
+        "key": "settings.getVerified",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Safety Tips",
+        "key": "settings.safetyTips",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Safety Check-in",
+        "key": "settings.safetyCheckIn",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Blocked Users",
+        "key": "settings.blockedUsers",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Preferences",
+        "key": "settings.preferences",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Discovery Settings",
+        "key": "settings.discoverySettings",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Interested In",
+        "key": "settings.interestedIn",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Men",
+        "key": "common.men",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Women",
+        "key": "common.women",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Everyone",
+        "key": "common.everyone",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Age Range:",
+        "key": "settings.ageRange",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Min Age",
+        "key": "settings.minAge",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Max Age",
+        "key": "settings.maxAge",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Maximum Distance",
+        "key": "settings.maximumDistance",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Show profiles within",
+        "key": "settings.showProfilesWithin",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "kilometers from your location",
+        "key": "settings.kilometersFromYourLocation",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Save Discovery Settings",
+        "key": "settings.saveDiscoverySettings",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Appearance (",
+        "key": "settings.appearance",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Dark Mode (Default)",
+        "key": "settings.darkMode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Light Mode (Brighter)",
+        "key": "settings.lightMode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "White Mode (Brightest)",
+        "key": "settings.whiteMode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Blue Mode (Sky Blue)",
+        "key": "settings.blueMode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Language / Gjuha",
+        "key": "settings.languageGjuha",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Privacy & Security",
+        "key": "settings.privacySecurity",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Incognito Mode",
+        "key": "settings.incognitoMode",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Hide your profile",
+        "key": "settings.incognitoDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Save Data",
+        "key": "settings.saveData",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Record profile view history",
+        "key": "settings.saveDataDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Notifications",
+        "key": "common.notifications",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "New Matches",
+        "key": "settings.newMatches",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Messages",
+        "key": "matches.messages",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Likes",
+        "key": "nav.likes",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Promotions",
+        "key": "settings.promotions",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Browser permission:",
+        "key": "settings.browserPermission",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Permission",
+        "key": "settings.permissionBtn",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Disable",
+        "key": "common.disable",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Subscribe",
+        "key": "settings.subscribeBtn",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Do Not Disturb",
+        "key": "settings.doNotDisturb",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Set quiet hours when you won't receive notifications",
+        "key": "settings.dndDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "From",
+        "key": "common.from",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "To",
+        "key": "settings.to",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "DND disabled",
+        "key": "settings.dndDisabled",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Clear",
+        "key": "settings.clear",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Quiet hours:",
+        "key": "settings.quietHours",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Notification Center",
+        "key": "settings.notificationCenter",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Community & Support",
+        "key": "settings.communitySupport",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Social & Community",
+        "key": "settings.social",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Wallet & Coins",
+        "key": "settings.walletCoins",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Invite Friends",
+        "key": "settings.inviteFriends",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Review Us",
+        "key": "settings.reviewUs",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Thank you for your support! ❤️",
+        "key": "settings.supportMsg",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Social Media",
+        "key": "settings.socialMedia",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Follow us @shqiponja on social media!",
+        "key": "settings.followUs",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Help & Legal",
+        "key": "settings.helpLegal",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Help Center",
+        "key": "settings.helpCenter",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Contact Support",
+        "key": "settings.contactSupportAction",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Image Guidelines",
+        "key": "settings.imageGuidelines",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Privacy Policy",
+        "key": "auth.privacyLink",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Terms & Conditions",
+        "key": "settings.termsTitle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Safety Tips",
+        "key": "settings.safetyTips",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "About Us",
+        "key": "settings.aboutUsTitle",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Shqiponja — Where hearts connect. v1.0.0",
+        "key": "settings.aboutApp",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Restore Purchases",
+        "key": "settings.restorePurchases",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Data Controls",
+        "key": "settings.dataControls",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Request Data Export",
+        "key": "settings.requestDataExport",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Request Data Deletion",
+        "key": "settings.requestDataDeletion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Account Management",
+        "key": "settings.accountManagement",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Danger Zone",
+        "key": "settings.dangerZone",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Export Your Data",
+        "key": "settings.exportData",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Download a copy of all your personal data (profile, matches, messages, likes) as a JSON file.",
+        "key": "settings.downloadDataDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Preparing your data export...",
+        "key": "settings.preparingExport",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Data exported successfully!",
+        "key": "settings.dataExported",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to export data. Please try again.",
+        "key": "settings.failedExport",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Download My Data",
+        "key": "settings.downloadMyData",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Deactivate Account",
+        "key": "settings.deactivate",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Temporarily hide your profile. After the chosen period, your account will be permanently deleted unless you log back in.",
+        "key": "settings.temporarilyHideYourProfileAfterThe",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Permanent Deletion",
+        "key": "settings.permanentDeletion",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Immediately and permanently delete your account, matches, messages, and all data. This cannot be undone.",
+        "key": "settings.deleteAccountDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Are you absolutely sure?",
+        "key": "settings.areYouSure",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "This will",
+        "key": "settings.thisWill",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "permanently",
+        "key": "settings.permanently",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "delete your account and remove all your data from our servers — including matches, messages, likes, and your profile. This action cannot be undone.",
+        "key": "settings.deleteYourAccountAndRemoveAll",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Delete Everything",
+        "key": "settings.deleteEverything",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Version 1.0.0",
+        "key": "settings.versionLabel",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Admin",
+        "key": "settings.adminSection",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Safety Console",
+        "key": "settings.safetyConsole",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Analytics Dashboard",
+        "key": "settings.analyticsDashboard",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Deactivate Account",
+        "key": "settings.deactivate",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Your profile will be hidden immediately. After the chosen period, your account and all data will be permanently deleted unless you log back in.",
+        "key": "settings.deactivateDesc",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Auto-delete after:",
+        "key": "settings.autoDeleteAfter",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "3 days",
+        "key": "settings.3Days",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "1 week",
+        "key": "settings.1Week",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "2 weeks",
+        "key": "settings.2Weeks",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "1 month (max)",
+        "key": "settings.1MonthMax",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Deactivate for",
+        "key": "settings.deactivateFor",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "days",
+        "key": "profile.days",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Change Password",
+        "key": "settings.changePassword",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Enter your current password and choose a new one",
+        "key": "settings.passwordDescription",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Current Password",
+        "key": "settings.currentPassword",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Enter current password",
+        "key": "settings.enterCurrentPasswordPlaceholder",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "New Password",
+        "key": "settings.newPassword",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Enter new password",
+        "key": "resetPassword.enterNewPassword",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Confirm New Password",
+        "key": "settings.confirmPassword",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "placeholder",
+        "text": "Confirm new password",
+        "key": "settings.confirmPassword",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Cancel",
+        "key": "common.cancel",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Spotted.tsx": {
+    "usesT": true,
+    "count": 6,
+    "entries": [
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to like. Try again.",
+        "key": "discover.failedLike",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "💛 Liked! They'll see your interest.",
+        "key": "radar.likedToast",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Failed to save your location. Please try again.",
+        "key": "radar.failedLocation",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "toast",
+        "text": "Location access denied. Please enable it in your browser settings.",
+        "key": "radar.locationDenied",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Spotted",
+        "key": "spotted.spotted",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "People you've crossed paths with",
+        "key": "radar.crossedPaths",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/SuperlikeSuccess.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Verifying your purchase…",
+        "key": "superlikeSuccess.verifying",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/Support.tsx": {
+    "usesT": false,
+    "count": 11,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Support",
+        "key": "footer.support",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "We're here to help",
+        "key": "support.hereToHelp",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Back",
+        "key": "common.back",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Contact us",
+        "key": "footer.contactUs",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Need help or want to report a problem? Email our support team and we'll get back to you",
+        "key": "support.needHelpOrWantToReport",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Frequently asked questions",
+        "key": "support.faq",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Safety & policies",
+        "key": "support.safetyPolicies",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "We have zero tolerance for objectionable content or abusive behavior. Learn more in our policies:",
+        "key": "support.weHaveZeroToleranceForObjectionable",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Safety Center",
+        "key": "safetyCenter.title",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Terms of Use (EULA)",
+        "key": "auth.termsLink",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Privacy Policy",
+        "key": "auth.privacyLink",
+        "isNew": false
+      }
+    ],
+    "skippedNoT": true
+  },
+  "src/pages/Terms.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Last updated:",
+        "key": "privacy.lastUpdated",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/VideoIntro.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Tip: Create a storage bucket named \"profile-videos\" with public access for preview.",
+        "key": "videoIntro.tipCreateAStorageBucketNamed",
+        "isNew": true
+      }
+    ]
+  },
+  "src/pages/Wallet.tsx": {
+    "usesT": true,
+    "count": 1,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Wallet",
+        "key": "wallet.title",
+        "isNew": false
+      }
+    ]
+  },
+  "src/pages/WhoLikedYou.tsx": {
+    "usesT": true,
+    "count": 9,
+    "entries": [
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "day streak",
+        "key": "whoLikedYou.dayStreak",
+        "isNew": true
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Super Like",
+        "key": "discover.superlike",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Premium",
+        "key": "common.premium",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Soundtrack",
+        "key": "chat.soundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "title",
+        "text": "Profile soundtrack",
+        "key": "editProfile.profileSoundtrack",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Pass",
+        "key": "discover.pass",
+        "isNew": false
+      },
+      {
+        "line": null,
+        "kind": "jsx",
+        "text": "Like Back",
+        "key": "whoLikedYou.likeBackButton",
+        "isNew": false
+      }
+    ]
+  }
+}

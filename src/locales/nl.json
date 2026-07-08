@@ -76,7 +76,10 @@
     "releaseToRefresh": "↓ Loslaten om te vernieuwen",
     "share": "Delen",
     "disable": "Uitschakelen",
-    "online": "Online"
+    "online": "Online",
+    "userNotAuthenticated": "Gebruiker niet geverifieerd",
+    "albanianEagle": "Albanese adelaar",
+    "happyAlbanianCouple": "Gelukkig Albanees paar"
   },
   "auth": {
     "signIn": "Inloggen",
@@ -294,7 +297,16 @@
     "discard": "Verwijderen",
     "roses": "Rozen",
     "noBoosterDesc": "Er zijn momenteel geen gebruikers in uw regio die Boost gebruiken",
-    "getCoins": "Munten krijgen"
+    "getCoins": "Munten krijgen",
+    "premiumRoseBouquet": "Premium rozenboeket",
+    "failedPremiumRoses": "Verzenden van premium rozen mislukt",
+    "sendRoses": "Rozen sturen",
+    "instantMessage": "Direct bericht",
+    "undoLastAction": "Laatste actie ongedaan maken",
+    "boosterActive": "Booster is al actief!",
+    "failedBooster": "Activeren van booster mislukt",
+    "premiumRequiredBooster": "Premium-abonnement vereist om booster te activeren",
+    "failedLike": "Liken mislukt. Probeer opnieuw."
   },
   "matches": {
     "title": "Matches",
@@ -719,7 +731,20 @@
     "deactivateDesc": "Je profiel wordt onmiddellijk verborgen. Na de gekozen periode worden je account en alle gegevens definitief verwijderd, tenzij je je opnieuw aanmeldt.",
     "deactivateFor": "{{days}} dagen deactiveren",
     "updating": "Bezig met bijwerken...",
-    "updatePassword": "Wachtwoord wijzigen"
+    "updatePassword": "Wachtwoord wijzigen",
+    "enterEmail": "Voer uw e-mailadres in",
+    "codeSent": "Verificatiecode naar uw e-mail verzonden!",
+    "enterEmailAndOtp": "Voer zowel e-mail als OTP-code in",
+    "emailVerified": "E-mail succesvol geverifieerd!",
+    "signInFirst": "Meld u eerst aan.",
+    "adminEnabled": "Beheerdersmodus ingeschakeld.",
+    "failedAdmin": "Inschakelen van beheerdersmodus mislukt.",
+    "cancelInstructions": "Tik om te annuleren op uw abonnement en kies Annuleren.",
+    "emailAddress": "E-mailadres",
+    "sixDigitCode": "6-cijferige code",
+    "loginInformation": "Aanmeldgegevens",
+    "contactSupportAction": "Contact met ondersteuning",
+    "restorePurchases": "Aankopen herstellen"
   },
   "editProfile": {
     "heading": "Profiel bewerken",
@@ -968,7 +993,11 @@
     "itsAMatch": "🎉 Het is een match! Je kunt nu met hen chatten!",
     "superlikeSent": "⚡ Superlike verzonden!",
     "failedSuperlike": "Het verzenden van superlike is mislukt",
-    "back": "Terug"
+    "back": "Terug",
+    "likedToast": "💛 Geliket! Ze zien je interesse.",
+    "failedLocation": "Uw locatie kon niet worden opgeslagen. Probeer opnieuw.",
+    "locationDenied": "Locatietoegang geweigerd. Schakel dit in bij uw browserinstellingen.",
+    "crossedPaths": "Mensen die je pad hebt gekruist"
   },
   "datePlanner": {
     "heading": "Agenda",
@@ -1021,7 +1050,8 @@
     "noTransactions": "Nog geen transacties",
     "invalidAmount": "Ongeldig muntbedrag",
     "failedUpdate": "Het bijwerken van de portemonnee is mislukt",
-    "coinsAdded": "Er zijn {{coins}} munten aan je portemonnee toegevoegd."
+    "coinsAdded": "Er zijn {{coins}} munten aan je portemonnee toegevoegd.",
+    "backToWallet": "Terug naar portemonnee"
   },
   "premiumSuccess": {
     "title": "Welkom bij Premium!",
@@ -1306,7 +1336,8 @@
     "profileAnthem": "Profiel Anthem",
     "anthemPlaceholder": "Een nummer dat bij je past, bijvoorbeeld Blinding Lights - The Weeknd",
     "saveMusicTaste": "Sla je muzieksmaak op 🎵",
-    "saved": "Muzieksmaak opgeslagen! 🎵"
+    "saved": "Muzieksmaak opgeslagen! 🎵",
+    "removeArtist": "Artiest verwijderen"
   },
   "notificationsCenter": {
     "title": "Meldingen",
@@ -1454,7 +1485,9 @@
     "removed": "Soundtrack verwijderd",
     "failedRemove": "Kan niet verwijderen",
     "removeSoundtrack": "Soundtrack verwijderen",
-    "musicUrlHint": "https://youtube.com/watch?v=... of https://open.spotify.com/track/..."
+    "musicUrlHint": "https://youtube.com/watch?v=... of https://open.spotify.com/track/...",
+    "youtubePlayer": "YouTube-speler",
+    "spotifyPlayer": "Spotify-speler"
   },
   "profileVerification": {
     "title": "Laat je verifiëren",
@@ -1487,7 +1520,10 @@
     "cameraDenied": "Toegang tot de camera geweigerd. Geef toestemming voor cameratoegang of upload in plaats daarvan een foto.",
     "selfieFirst": "Stuur eerst een selfie.",
     "submitted": "Verificatieverzoek verzonden! We zullen dit binnen 24 tot 48 uur beoordelen.",
-    "failedSubmit": "Het verzenden van het verzoek is mislukt."
+    "failedSubmit": "Het verzenden van het verzoek is mislukt.",
+    "verification": "Verificatie",
+    "selfiePreview": "Selfievoorbeeld",
+    "idPreview": "ID-voorbeeld"
   },
   "photoVerification": {
     "title": "Fotoverificatie",
@@ -1744,14 +1780,16 @@
   "callDialog": {
     "callFailed": "Oproep mislukt",
     "browserNotSupported": "Je browser ondersteunt geen audio- of videogesprekken. Gebruik Chrome, Firefox, Safari 11 of hoger, of Edge.",
-    "httpsRequired": "Voor audio- en videogesprekken is HTTPS vereist. Gebruik de beveiligde ngrok-URL (https://...)."
+    "httpsRequired": "Voor audio- en videogesprekken is HTTPS vereist. Gebruik de beveiligde ngrok-URL (https://...).",
+    "blockAndEnd": "Gebruiker blokkeren en gesprek beëindigen"
   },
   "incomingCall": {
     "incoming": "Inkomend",
     "video": "Video",
     "voice": "Stem",
     "call": "Bel",
-    "from": "van"
+    "from": "van",
+    "blockCaller": "Beller blokkeren"
   },
   "chatHeader": {
     "backToMatches": "Terug naar de matches",
@@ -1795,7 +1833,12 @@
     "title": "Alleen voor volwassenen",
     "message": "Je moet minimaal 18 jaar oud zijn om Shqiponja te gebruiken.",
     "confirm": "Ik ben 18 jaar of ouder",
-    "exit": "Afsluiten"
+    "exit": "Afsluiten",
+    "restrictionNotice": "Kennisgeving leeftijdsbeperking",
+    "req18": "Minstens 18 jaar oud (of de meerderjarigheid in uw rechtsgebied)",
+    "reqLegal": "Wettelijk bevoegd om deze overeenkomst aan te gaan",
+    "reqLaws": "In staat om deze dienst te gebruiken in overeenstemming met alle toepasselijke wetten en voorschriften",
+    "verifyToContinue": "Bevestig uw leeftijd om door te gaan"
   },
   "radarNearby": {
     "title": "Radar",
@@ -2207,5 +2250,12 @@
     "Night Owl": "Nachtbraker",
     "Early Bird": "Vroegboekkorting",
     "DIY Projects": "Klusprojecten"
+  },
+  "support": {
+    "title": "Ondersteuning",
+    "hereToHelp": "Wij helpen u graag",
+    "contactUs": "Neem contact op",
+    "faq": "Veelgestelde vragen",
+    "safetyPolicies": "Veiligheid & beleid"
   }
 }

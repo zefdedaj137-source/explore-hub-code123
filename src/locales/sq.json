@@ -76,7 +76,10 @@
     "share": "Ndaj",
     "disable": "Çaktivizo",
     "online": "On-line",
-    "mAway": "{{m}}m larg"
+    "mAway": "{{m}}m larg",
+    "userNotAuthenticated": "Përdoruesi nuk është i vërtetuar",
+    "albanianEagle": "Shqiponja",
+    "happyAlbanianCouple": "Çift i lumtur shqiptar"
   },
   "auth": {
     "signIn": "Hyr",
@@ -294,7 +297,16 @@
     "discard": "Hidhe poshtë",
     "roses": "Trëndafilat",
     "noBoosterDesc": "Nuk ka Stimulues Aktivë në zonën tënde",
-    "getCoins": "Merr monedha"
+    "getCoins": "Merr monedha",
+    "premiumRoseBouquet": "Buqetë trëndafilash premium",
+    "failedPremiumRoses": "Dërgimi i trëndafilave premium dështoi",
+    "sendRoses": "Dërgo trëndafila",
+    "instantMessage": "Mesazh i menjëhershëm",
+    "undoLastAction": "Zhbëj veprimin e fundit",
+    "boosterActive": "Boosteri është tashmë aktiv!",
+    "failedBooster": "Aktivizimi i boosterit dështoi",
+    "premiumRequiredBooster": "Kërkohet abonim premium për të aktivizuar boosterin",
+    "failedLike": "Pëlqimi dështoi. Provoni përsëri."
   },
   "matches": {
     "title": "Përputhjet",
@@ -719,7 +731,20 @@
     "deactivateDesc": "Profili juaj do të fshihet menjëherë. Pas periudhës së zgjedhur, llogaria juaj dhe të gjitha të dhënat do të fshihen përgjithmonë nëse nuk identifikoheni sërish.",
     "deactivateFor": "Çaktivizo për {{days}} ditë",
     "updating": "Duke përditësuar...",
-    "updatePassword": "Përditëso fjalëkalimin"
+    "updatePassword": "Përditëso fjalëkalimin",
+    "enterEmail": "Ju lutemi shkruani email-in tuaj",
+    "codeSent": "Kodi i verifikimit u dërgua në email-in tuaj!",
+    "enterEmailAndOtp": "Ju lutemi shkruani email-in dhe kodin OTP",
+    "emailVerified": "Email-i u verifikua me sukses!",
+    "signInFirst": "Ju lutemi identifikohuni së pari.",
+    "adminEnabled": "Modaliteti i administratorit u aktivizua.",
+    "failedAdmin": "Aktivizimi i modalitetit të administratorit dështoi.",
+    "cancelInstructions": "Për të anuluar, prekni abonimin tuaj dhe zgjidhni Anulo.",
+    "emailAddress": "Adresa e email-it",
+    "sixDigitCode": "Kod me 6 shifra",
+    "loginInformation": "Informacioni i hyrjes",
+    "contactSupportAction": "Kontaktoni mbështetjen",
+    "restorePurchases": "Rikthe blerjet"
   },
   "editProfile": {
     "heading": "Redakto Profilin",
@@ -960,7 +985,11 @@
     "itsAMatch": "🎉 Është një ndeshje! Tani mund të bisedoni me ta!",
     "superlikeSent": "⚡ Superpëlqim u dërgua!",
     "failedSuperlike": "Dështoi dërgimi i superpëlqimit",
-    "back": "Kthehu"
+    "back": "Kthehu",
+    "likedToast": "💛 U pëlqye! Ata do të shohin interesin tuaj.",
+    "failedLocation": "Ruajtja e vendndodhjes suaj dështoi. Ju lutemi provoni përsëri.",
+    "locationDenied": "Qasja në vendndodhje u refuzua. Ju lutemi aktivizojeni në cilësimet e shfletuesit.",
+    "crossedPaths": "Njerëz me të cilët keni kaluar rrugës"
   },
   "datePlanner": {
     "heading": "Planifikuesi i Takimeve",
@@ -1013,7 +1042,8 @@
     "noTransactions": "Nuk ka transaksione ende",
     "invalidAmount": "Sasi e pavlefshme monedhash",
     "failedUpdate": "Dështoi përditësimi i portofolit",
-    "coinsAdded": "Shtuat {{coins}} monedha në portofolin tuaj."
+    "coinsAdded": "Shtuat {{coins}} monedha në portofolin tuaj.",
+    "backToWallet": "Kthehu te portofoli"
   },
   "premiumSuccess": {
     "title": "Mirë se vini në Premium!",
@@ -1298,7 +1328,8 @@
     "profileAnthem": "Himni i Profilit",
     "anthemPlaceholder": "Kënga që ju përshkruan",
     "saveMusicTaste": "Ruaj Shijen Muzikore 🎵",
-    "saved": "Shija muzikore u ruajt! 🎵"
+    "saved": "Shija muzikore u ruajt! 🎵",
+    "removeArtist": "Hiq artistin"
   },
   "notificationsCenter": {
     "title": "Njoftimet",
@@ -1446,7 +1477,9 @@
     "removed": "Melodia e profilit u hoq",
     "failedRemove": "Dështoi heqja",
     "removeSoundtrack": "Hiq soundtrackun",
-    "musicUrlHint": "https://youtube.com/watch?v=... ose https://open.spotify.com/track/..."
+    "musicUrlHint": "https://youtube.com/watch?v=... ose https://open.spotify.com/track/...",
+    "youtubePlayer": "Luajtësi YouTube",
+    "spotifyPlayer": "Luajtësi Spotify"
   },
   "profileVerification": {
     "title": "Verifikohuni",
@@ -1479,7 +1512,10 @@
     "cameraDenied": "Aksesi i kamerës u refuzua. Ju lutemi lejoni aksesin e kamerës ose ngarkoni një foto.",
     "selfieFirst": "Ju lutemi siguroni fillimisht një selfie.",
     "submitted": "Kërkesa e verifikimit u dërgua! Do ta rishikojmë brenda 24-48 orësh.",
-    "failedSubmit": "Dështoi dërgimi i kërkesës."
+    "failedSubmit": "Dështoi dërgimi i kërkesës.",
+    "verification": "Verifikimi",
+    "selfiePreview": "Pamja e selfie-t",
+    "idPreview": "Pamja e ID-së"
   },
   "photoVerification": {
     "title": "Verifikimi me Foto",
@@ -1736,14 +1772,16 @@
   "callDialog": {
     "callFailed": "Thirrja Dështoi",
     "browserNotSupported": "Shfletuesi juaj nuk mbështet thirrjet audio/video. Ju lutemi përdorni Chrome, Firefox, Safari 11+, ose Edge.",
-    "httpsRequired": "Thirrjet audio/video kërkojnë HTTPS. Ju lutemi përdorni URL-në e sigurtë ngrok (https://...)."
+    "httpsRequired": "Thirrjet audio/video kërkojnë HTTPS. Ju lutemi përdorni URL-në e sigurtë ngrok (https://...).",
+    "blockAndEnd": "Blloko përdoruesin dhe mbyll telefonatën"
   },
   "incomingCall": {
     "incoming": "Thirrje",
     "video": "Video",
     "voice": "Zanore",
     "call": "Hyrëse",
-    "from": "nga"
+    "from": "nga",
+    "blockCaller": "Blloko telefonuesin"
   },
   "chatHeader": {
     "backToMatches": "Kthehu tek Përputhjet",
@@ -1787,7 +1825,12 @@
     "title": "Vetëm për të Rritur",
     "message": "Duhet të jeni të paktën 18 vjeç për të përdorur Shqiponja.",
     "confirm": "Jam 18+ vjeç",
-    "exit": "Dil"
+    "exit": "Dil",
+    "restrictionNotice": "Njoftim për kufizim moshe",
+    "req18": "Të paktën 18 vjeç (ose mosha e pjekurisë në juridiksionin tuaj)",
+    "reqLegal": "Ligjërisht i aftë të hyni në këtë marrëveshje",
+    "reqLaws": "I aftë të përdorni këtë shërbim në përputhje me të gjitha ligjet dhe rregulloret e zbatueshme",
+    "verifyToContinue": "Ju lutemi verifikoni moshën tuaj për të vazhduar"
   },
   "radarNearby": {
     "title": "Radar.",
@@ -2207,5 +2250,12 @@
     "Night Owl": "Bufi i natës",
     "Early Bird": "Prenotim i hershëm",
     "DIY Projects": "Projektet DIY"
+  },
+  "support": {
+    "title": "Mbështetje",
+    "hereToHelp": "Ne jemi këtu për t'ju ndihmuar",
+    "contactUs": "Na kontaktoni",
+    "faq": "Pyetjet e bëra shpesh",
+    "safetyPolicies": "Siguria dhe politikat"
   }
 }

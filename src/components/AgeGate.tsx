@@ -32,7 +32,7 @@ const AgeGate = () => {
       <Card className="w-full max-w-2xl p-8 rounded-2xl border-2 border-rose-500/50 bg-gradient-to-br from-card to-background shadow-[0_12px_40px_rgb(0,0,0,0.3)]">
         <div className="flex items-start gap-3 mb-4">
           <AlertCircle className="h-6 w-6 text-rose-500 flex-shrink-0 mt-0.5" />
-          <h2 className="text-2xl font-bold text-foreground">Age Restriction Notice</h2>
+          <h2 className="text-2xl font-bold text-foreground">{t("ageGate.restrictionNotice")}</h2>
         </div>
 
         <div className="space-y-4 mb-8 text-sm text-muted-foreground">
@@ -43,9 +43,9 @@ const AgeGate = () => {
             By continuing, you confirm that you are:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2">
-            <li>At least 18 years of age (or the age of majority in your jurisdiction)</li>
-            <li>Legally able to enter into this agreement</li>
-            <li>Able to use this service in accordance with all applicable laws and regulations</li>
+            <li>{t("ageGate.req18")}</li>
+            <li>{t("ageGate.reqLegal")}</li>
+            <li>{t("ageGate.reqLaws")}</li>
           </ul>
           <p>
             We are committed to protecting minors and maintaining a safe dating environment. All
