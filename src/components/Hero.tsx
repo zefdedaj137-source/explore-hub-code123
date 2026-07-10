@@ -106,7 +106,7 @@ const Hero = () => {
             <div className="relative rounded-3xl overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.15)]">
               <img
                 src={heroCouple}
-                alt="Happy Albanian Couple"
+                alt={t("common.happyAlbanianCouple")}
                 className="w-full h-auto object-cover aspect-[3/4]"
               />
               {/* Dark vignette */}

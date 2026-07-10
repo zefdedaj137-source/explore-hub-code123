@@ -885,7 +885,9 @@ const GameSessionMusic = () => {
             {/* Header */}
             <div className="text-center mb-4">
               <Music className="h-10 w-10 text-primary mx-auto mb-2" />
-              <h2 className="text-2xl font-bold text-primary">Music Lovers 🎵</h2>
+              <h2 className="text-2xl font-bold text-primary">
+                {t("gameSessionMusic.musicLovers")}
+              </h2>
               <p className="text-sm text-muted-foreground">
                 {t("gameSession.albanianMusicTrivia")}
               </p>
@@ -897,11 +899,11 @@ const GameSessionMusic = () => {
                 <Avatar className="h-12 w-12 border-2 border-primary/80">
                   <AvatarImage src={user?.user_metadata?.avatar_url} />
                   <AvatarFallback className="bg-gradient-to-br from-primary/80 to-pink-400 text-white">
-                    You
+                    {t("chatInput.you")}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-semibold">You</p>
+                  <p className="text-sm font-semibold">{t("chatInput.you")}</p>
                   <p className="text-2xl font-bold text-primary">{yourScore}</p>
                 </div>
               </div>
@@ -918,7 +920,7 @@ const GameSessionMusic = () => {
                     : t("gameSession.opponentTurn")}
                 </p>
                 <Badge variant="outline" className="mt-1">
-                  Question {questionNumber + 1}/6
+                  {t("gameSessionMusic.question")} {questionNumber + 1}/6
                 </Badge>
               </div>
 
@@ -1041,7 +1043,7 @@ const GameSessionMusic = () => {
                     <Avatar className="h-20 w-20 border-4 border-primary/80 mx-auto mb-2">
                       <AvatarImage src={user?.user_metadata?.avatar_url} />
                       <AvatarFallback className="bg-gradient-to-br from-primary/80 to-pink-400 text-white text-2xl">
-                        You
+                        {t("chatInput.you")}
                       </AvatarFallback>
                     </Avatar>
                     <p className="text-sm text-muted-foreground mb-1">

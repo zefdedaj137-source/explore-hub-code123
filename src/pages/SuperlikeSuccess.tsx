@@ -53,7 +53,7 @@ const SuperlikeSuccess = () => {
       <div className="min-h-dvh flex items-center justify-center bg-background">
         <div className="text-center space-y-3">
           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Verifying your purchase…</p>
+          <p className="text-muted-foreground">{t("superlikeSuccess.verifying")}</p>
         </div>
       </div>
     );
@@ -83,7 +83,8 @@ const SuperlikeSuccess = () => {
         <p className="text-muted-foreground mb-6">
           {t("superlikeSuccess.purchaseConfirmed")}{" "}
           <span className="font-bold text-foreground">
-            {superlikesAdded} {superlikesAdded !== 1 ? t("superlikeSuccess.plural") : t("superlikeSuccess.singular")}
+            {superlikesAdded}{" "}
+            {superlikesAdded !== 1 ? t("superlikeSuccess.plural") : t("superlikeSuccess.singular")}
           </span>{" "}
           {t("superlikeSuccess.readyToUse")}
         </p>

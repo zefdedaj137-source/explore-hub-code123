@@ -180,7 +180,7 @@ const MatchInsights = () => {
               onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {t("common.back")}
             </Button>
           </div>
         </div>
@@ -191,7 +191,7 @@ const MatchInsights = () => {
           </Card>
         ) : matches.length === 0 ? (
           <Card className="p-8 text-center rounded-2xl border-2 border-border">
-            No matches yet.
+            {t("matchInsights.noMatchesYet")}
           </Card>
         ) : (
           <>
@@ -234,7 +234,8 @@ const MatchInsights = () => {
                     </p>
                   </div>
                   <Badge className="ml-auto bg-primary text-white">
-                    {compatibilityScore}% match
+                    {compatibilityScore}
+                    {t("discover.match")}
                   </Badge>
                 </div>
 
@@ -274,7 +275,7 @@ const MatchInsights = () => {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">
-                      Ask about {sharedInterests[0] || "their weekend"}
+                      {t("matchInsights.askAbout")} {sharedInterests[0] || "their weekend"}
                     </Badge>
                     <Badge variant="outline">{t("matchInsights.inviteToEvent")}</Badge>
                     <Badge variant="outline">{t("matchInsights.sharePlaylist")}</Badge>
@@ -284,7 +285,7 @@ const MatchInsights = () => {
                 <Card className="p-4 rounded-2xl border border-primary/20 bg-primary/10/60">
                   <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                     <Users className="h-4 w-4" />
-                    AI summary
+                    {t("matchInsights.aiSummary")}
                   </div>
                   <p className="text-sm text-primary mt-2">
                     {compatibilityScore >= 80
@@ -299,7 +300,7 @@ const MatchInsights = () => {
                   className="w-full rounded-2xl"
                   onClick={() => navigate(`/chat/${selectedMatchId}`)}
                 >
-                  Message
+                  {t("chat.message")}
                 </Button>
               </Card>
             )}

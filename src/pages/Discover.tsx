@@ -1114,7 +1114,7 @@ const Discover = () => {
           });
           navigate("/wallet");
         } else {
-          toast.error("Failed to send premium roses");
+          toast.error(t("discover.failedPremiumRoses"));
         }
         setShowPremiumRosesDialog(false);
         setRosesTargetProfile(null);
@@ -2307,7 +2307,7 @@ const Discover = () => {
                   </SheetHeader>
                   <div className="py-4 space-y-1 max-h-[70vh] overflow-y-auto">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
-                      Discover
+                      {t("nav.discover")}
                     </p>
                     <Button
                       variant="ghost"
@@ -2361,7 +2361,7 @@ const Discover = () => {
 
                     <Separator className="my-2" />
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
-                      Fun & Games
+                      {t("discover.funGames")}
                     </p>
                     <Button
                       variant="ghost"
@@ -2374,7 +2374,7 @@ const Discover = () => {
 
                     <Separator className="my-2" />
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
-                      Dating Tools
+                      {t("discover.datingTools")}
                     </p>
                     <Button
                       variant="ghost"
@@ -2394,14 +2394,14 @@ const Discover = () => {
 
                     <Separator className="my-2" />
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
-                      Account
+                      {t("settings.account")}
                     </p>
                     <Button
                       variant="ghost"
                       className="w-full justify-start h-10"
                       onClick={() => navigate("/features")}
                     >
-                      <Star className="h-4 w-4 mr-2 text-primary" /> Features
+                      <Star className="h-4 w-4 mr-2 text-primary" /> {t("nav.features")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -2446,7 +2446,9 @@ const Discover = () => {
                   <div className="py-6 space-y-6">
                     {/* Basic Filters */}
                     <div className="space-y-2">
-                      <Label>{t("discover.distance")} (km)</Label>
+                      <Label>
+                        {t("discover.distance")} {t("discover.km")}
+                      </Label>
                       <Input
                         type="number"
                         value={tempFilters.maxDistance}
@@ -2483,7 +2485,7 @@ const Discover = () => {
                       <div className="flex gap-4">
                         <Input
                           type="number"
-                          placeholder="Min"
+                          placeholder={t("discover.minPlaceholder")}
                           value={tempFilters.minAge}
                           onChange={(e) =>
                             setTempFilters((prev) => ({
@@ -2496,7 +2498,7 @@ const Discover = () => {
                         />
                         <Input
                           type="number"
-                          placeholder="Max"
+                          placeholder={t("discover.maxPlaceholder")}
                           value={tempFilters.maxAge}
                           onChange={(e) =>
                             setTempFilters((prev) => ({
@@ -2591,7 +2593,7 @@ const Discover = () => {
                           <div className="flex gap-4">
                             <Input
                               type="number"
-                              placeholder="Min"
+                              placeholder={t("discover.minPlaceholder")}
                               value={tempFilters.minHeight || ""}
                               onChange={(e) =>
                                 setTempFilters((prev) => ({
@@ -2604,7 +2606,7 @@ const Discover = () => {
                             />
                             <Input
                               type="number"
-                              placeholder="Max"
+                              placeholder={t("discover.maxPlaceholder")}
                               value={tempFilters.maxHeight === 250 ? "" : tempFilters.maxHeight}
                               onChange={(e) =>
                                 setTempFilters((prev) => ({
@@ -2630,7 +2632,7 @@ const Discover = () => {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Any" />
+                              <SelectValue placeholder={t("common.any")} />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="any">{t("common.any")}</SelectItem>
@@ -2657,7 +2659,7 @@ const Discover = () => {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Any" />
+                              <SelectValue placeholder={t("common.any")} />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="any">{t("common.any")}</SelectItem>
@@ -2680,7 +2682,7 @@ const Discover = () => {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Any" />
+                              <SelectValue placeholder={t("common.any")} />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="any">{t("common.any")}</SelectItem>
@@ -2707,7 +2709,7 @@ const Discover = () => {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Any" />
+                              <SelectValue placeholder={t("common.any")} />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="any">{t("common.any")}</SelectItem>
@@ -2741,7 +2743,7 @@ const Discover = () => {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Any" />
+                              <SelectValue placeholder={t("common.any")} />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="any">{t("common.any")}</SelectItem>
@@ -2765,22 +2767,24 @@ const Discover = () => {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Any" />
+                              <SelectValue placeholder={t("common.any")} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="any">Any</SelectItem>
-                              <SelectItem value="Aries">♈ Aries</SelectItem>
-                              <SelectItem value="Taurus">♉ Taurus</SelectItem>
-                              <SelectItem value="Gemini">♊ Gemini</SelectItem>
-                              <SelectItem value="Cancer">♋ Cancer</SelectItem>
-                              <SelectItem value="Leo">♌ Leo</SelectItem>
-                              <SelectItem value="Virgo">♍ Virgo</SelectItem>
-                              <SelectItem value="Libra">♎ Libra</SelectItem>
-                              <SelectItem value="Scorpio">♏ Scorpio</SelectItem>
-                              <SelectItem value="Sagittarius">♐ Sagittarius</SelectItem>
-                              <SelectItem value="Capricorn">♑ Capricorn</SelectItem>
-                              <SelectItem value="Aquarius">♒ Aquarius</SelectItem>
-                              <SelectItem value="Pisces">♓ Pisces</SelectItem>
+                              <SelectItem value="any">{t("common.any")}</SelectItem>
+                              <SelectItem value="Aries">{t("discover.aries")}</SelectItem>
+                              <SelectItem value="Taurus">{t("discover.taurus")}</SelectItem>
+                              <SelectItem value="Gemini">{t("discover.gemini")}</SelectItem>
+                              <SelectItem value="Cancer">{t("discover.cancer")}</SelectItem>
+                              <SelectItem value="Leo">{t("discover.leo")}</SelectItem>
+                              <SelectItem value="Virgo">{t("discover.virgo")}</SelectItem>
+                              <SelectItem value="Libra">{t("discover.libra")}</SelectItem>
+                              <SelectItem value="Scorpio">{t("discover.scorpio")}</SelectItem>
+                              <SelectItem value="Sagittarius">
+                                {t("discover.sagittarius")}
+                              </SelectItem>
+                              <SelectItem value="Capricorn">{t("discover.capricorn")}</SelectItem>
+                              <SelectItem value="Aquarius">{t("discover.aquarius")}</SelectItem>
+                              <SelectItem value="Pisces">{t("discover.pisces")}</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -2795,7 +2799,7 @@ const Discover = () => {
                             {t("discover.unlockPremiumFilters")}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Get verified, height, lifestyle & more filters
+                            {t("discover.getVerifiedHeightLifestyleMoreFilters")}
                           </p>
                           <Button
                             size="sm"
@@ -2814,10 +2818,10 @@ const Discover = () => {
                         onClick={handleSaveFilters}
                         className="w-full bg-primary hover:bg-primary"
                       >
-                        Apply Filters
+                        {t("discover.applyFilters")}
                       </Button>
                       <p className="text-xs text-center text-muted-foreground">
-                        Changes will apply after clicking "Apply Filters"
+                        {t("discover.changesWillApplyAfterClickingApply")}
                       </p>
                     </div>
                   </div>
@@ -2836,7 +2840,7 @@ const Discover = () => {
                   : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-primary"
               }`}
             >
-              For You
+              {t("discover.forYou")}
             </button>
             <button
               onClick={() => setActiveTab("last-active")}
@@ -2846,7 +2850,7 @@ const Discover = () => {
                   : "bg-transparent text-muted-foreground border-border hover:border-primary/30 hover:text-primary"
               }`}
             >
-              Last Active
+              {t("discover.lastActive")}
             </button>
           </div>
         </div>
@@ -2870,9 +2874,9 @@ const Discover = () => {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-blue-300">Get your Blue Tick ✓</p>
+              <p className="text-sm font-semibold text-blue-300">{t("discover.getYourBlueTick")}</p>
               <p className="text-xs text-blue-400/70">
-                Verified profiles get 3× more matches. Tap to verify now.
+                {t("discover.verifiedProfilesGet3MoreMatches")}
               </p>
             </div>
             <svg
@@ -3030,22 +3034,22 @@ const Discover = () => {
                                 <div className="flex flex-wrap items-center gap-1 mb-2">
                                   {currentProfile.verified && (
                                     <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
-                                      ✓ Verified
+                                      {t("weeklySpotlight.verified")}
                                     </Badge>
                                   )}
                                   {currentProfile.is_premium && (
                                     <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none text-[10px] px-1.5 py-0 h-4">
-                                      Premium
+                                      {t("common.premium")}
                                     </Badge>
                                   )}
                                   {currentProfile.video_intro_url && (
                                     <Badge className="bg-background/70 text-white border-none text-[10px] px-1.5 py-0 h-4">
-                                      Video
+                                      {t("common.video")}
                                     </Badge>
                                   )}
                                   {isOnline(currentProfile.last_active) && (
                                     <Badge className="bg-green-500 text-white border-none text-[10px] px-1.5 py-0 h-4">
-                                      Online
+                                      {t("common.online")}
                                     </Badge>
                                   )}
                                   {(() => {
@@ -3053,7 +3057,8 @@ const Discover = () => {
                                     if (score >= 30)
                                       return (
                                         <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white border-none text-[10px] px-2 py-0 h-4 font-bold shadow-sm">
-                                          ❤️ {score}% Match
+                                          ❤️ {score}
+                                          {t("discover.match")}
                                         </Badge>
                                       );
                                     return null;
@@ -3072,7 +3077,7 @@ const Discover = () => {
                                   {currentProfile.travel_mode_active &&
                                     currentProfile.travel_city && (
                                       <Badge className="bg-blue-500/90 text-white border-none backdrop-blur-sm text-[10px] px-1.5 py-0 h-4">
-                                        ✈️ Traveling
+                                        {t("profileCard.traveling")}
                                       </Badge>
                                     )}
                                 </div>
@@ -3096,7 +3101,8 @@ const Discover = () => {
                                   ) : null}
                                   {currentProfile.distance_km != null && (
                                     <div className="backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
-                                      {formatDistance(currentProfile.distance_km)} away
+                                      {formatDistance(currentProfile.distance_km)}{" "}
+                                      {t("radar.awayText")}
                                     </div>
                                   )}
                                 </div>
@@ -3106,7 +3112,7 @@ const Discover = () => {
                         </>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          No photo
+                          {t("common.noPhoto")}
                         </div>
                       )}
                     </div>
@@ -3195,7 +3201,7 @@ const Discover = () => {
                         }}
                       >
                         <Info className="h-4 w-4 mr-2" />
-                        See Full Profile
+                        {t("discover.seeFullProfile")}
                       </Button>
                     </div>
                   </Card>
@@ -3227,7 +3233,7 @@ const Discover = () => {
                       <button
                         onClick={handleSuperlike}
                         disabled={isSuperliking}
-                        title="Super Like"
+                        title={t("discover.superlike")}
                         className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-full transition-all duration-200 hover:bg-primary/10 group disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isSuperliking ? (
@@ -3250,14 +3256,14 @@ const Discover = () => {
                           setRosesTargetProfile(currentProfile);
                           setShowPremiumRosesDialog(true);
                         }}
-                        title="Send Roses"
+                        title={t("discover.sendRoses")}
                         className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-full transition-all duration-200 hover:bg-rose-500/10 group"
                       >
                         <span className="text-sm leading-none group-hover:scale-110 transition-transform inline-block">
                           🌹
                         </span>
                         <span className="text-[9px] font-semibold text-rose-400/80 leading-none">
-                          Roses
+                          {t("discover.roses")}
                         </span>
                       </button>
                     )}
@@ -3271,7 +3277,7 @@ const Discover = () => {
                       <button
                         onClick={() => handleInstantMessage(currentProfile)}
                         disabled={instantMessageCredits === 0}
-                        title="Instant Message"
+                        title={t("discover.instantMessage")}
                         className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-full transition-all duration-200 hover:bg-primary/10 disabled:opacity-60 disabled:cursor-not-allowed group"
                       >
                         <MessageSquare className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
@@ -3292,7 +3298,7 @@ const Discover = () => {
                         className="rounded-full w-12 h-12 border-2 border-primary/30 hover:border-primary hover:bg-primary/10 shadow-md transition-all duration-200 hover:scale-110 disabled:opacity-40"
                         onClick={handleRewind}
                         disabled={lastActionHistory.length === 0 || rewindsRemaining <= 0}
-                        title="Undo last action"
+                        title={t("discover.undoLastAction")}
                       >
                         <RotateCcw className="h-5 w-5 text-primary" />
                       </Button>
@@ -3330,13 +3336,13 @@ const Discover = () => {
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-1.5 text-red-400">
                         <X className="h-4 w-4" />
-                        <span className="text-sm font-bold text-white">Pass</span>
+                        <span className="text-sm font-bold text-white">{t("discover.pass")}</span>
                         <span className="text-xs font-semibold text-white/70">←</span>
                       </div>
                       <div className="w-px h-6 bg-white/20" />
                       <div className="flex items-center gap-1.5 text-green-400">
                         <span className="text-xs font-semibold text-white/70">→</span>
-                        <span className="text-sm font-bold text-white">Like</span>
+                        <span className="text-sm font-bold text-white">{t("common.like")}</span>
                         <Heart className="h-4 w-4" />
                       </div>
                     </div>
@@ -3418,7 +3424,7 @@ const Discover = () => {
                 className="h-6 w-6 text-primary dark:text-primary animate-zap-shine"
                 fill="currentColor"
               />
-              Spotlight Boost Active
+              {t("discover.spotlightBoostActive")}
             </DialogTitle>
           </DialogHeader>
           <div className="py-6 space-y-4">
@@ -3432,7 +3438,7 @@ const Discover = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground dark:text-primary mb-2">
-                    Time Remaining
+                    {t("discover.timeRemaining")}
                   </p>
                   <p className="text-4xl font-bold text-primary dark:text-primary">
                     {boosterTimeRemaining}
@@ -3440,7 +3446,7 @@ const Discover = () => {
                 </div>
                 {boosterExpiresAt && (
                   <p className="text-xs text-muted-foreground dark:text-red-300/60">
-                    Expires at{" "}
+                    {t("discover.expiresAt")}{" "}
                     {new Date(boosterExpiresAt).toLocaleTimeString("en-US", {
                       hour: "numeric",
                       minute: "2-digit",
@@ -3456,10 +3462,7 @@ const Discover = () => {
                 <Sparkles className="h-5 w-5 text-green-600 dark:text-red-400 mt-0.5" />
                 <div className="text-sm text-green-800 dark:text-red-200">
                   <p className="font-semibold mb-1">{t("discover.profileBoosted")}</p>
-                  <p>
-                    You're being shown to more people in your area and appearing higher in their
-                    discovery feed.
-                  </p>
+                  <p>{t("discover.youReBeingShownToMore")}</p>
                 </div>
               </div>
             </div>
@@ -3469,7 +3472,7 @@ const Discover = () => {
               className="w-full dark:bg-red-900 dark:hover:bg-red-800 dark:text-red-100"
               variant="outline"
             >
-              Close
+              {t("common.close")}
             </Button>
           </div>
         </DialogContent>
@@ -3481,13 +3484,12 @@ const Discover = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 dark:text-primary">
               <Zap className="h-6 w-6 text-primary dark:text-primary" fill="currentColor" />
-              Activate Spotlight Boost
+              {t("discover.activateSpotlightBoost")}
             </DialogTitle>
           </DialogHeader>
           <div className="py-6 space-y-4">
             <p className="text-muted-foreground">
-              Get more visibility! Your profile will be shown to more people in your area. Use coins
-              to activate a boost.
+              {t("discover.getMoreVisibilityYourProfileWill")}
             </p>
 
             <div className="space-y-3">
@@ -3532,11 +3534,11 @@ const Discover = () => {
                     <div className="flex justify-between items-center">
                       <div>
                         <div className="font-bold text-lg flex items-center gap-2">
-                          3 Hours
+                          {t("discover.3Hours")}
                           <Badge className="bg-primary">{t("common.freeBadge")}</Badge>
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Use 1 of your {boostCredits} free boosts
+                          {t("discover.use1OfYour")} {boostCredits} {t("discover.freeBoosts")}
                         </div>
                       </div>
                       <Crown className="h-8 w-8 text-primary" />
@@ -3564,10 +3566,10 @@ const Discover = () => {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="font-bold text-lg">3 Hours</div>
+                    <div className="font-bold text-lg">{t("discover.3Hours")}</div>
                     <div className="text-sm text-muted-foreground">{t("discover.quickBoost")}</div>
                   </div>
-                  <div className="text-2xl font-bold text-primary">5 coins</div>
+                  <div className="text-2xl font-bold text-primary">{t("discover.5Coins")}</div>
                 </div>
               </button>
 
@@ -3579,10 +3581,10 @@ const Discover = () => {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="font-bold text-lg">6 Hours</div>
+                    <div className="font-bold text-lg">{t("discover.6Hours")}</div>
                     <div className="text-sm text-muted-foreground">{t("discover.mostPopular")}</div>
                   </div>
-                  <div className="text-2xl font-bold text-primary">9 coins</div>
+                  <div className="text-2xl font-bold text-primary">{t("discover.9Coins")}</div>
                 </div>
               </button>
 
@@ -3594,12 +3596,12 @@ const Discover = () => {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="font-bold text-lg">10 Hours</div>
+                    <div className="font-bold text-lg">{t("discover.10Hours")}</div>
                     <div className="text-sm text-muted-foreground">
                       {t("discover.bestValueBadge")}
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-primary">13 coins</div>
+                  <div className="text-2xl font-bold text-primary">{t("discover.13Coins")}</div>
                 </div>
               </button>
             </div>
@@ -3616,7 +3618,7 @@ const Discover = () => {
           <DialogHeader>
             <DialogTitle className="text-2xl sm:text-3xl font-bold text-center bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] bg-clip-text text-transparent flex items-center justify-center gap-2 sm:gap-3">
               <Flower2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-bounce" />
-              Premium Roses
+              {t("discover.premiumRoses")}
               <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-primary animate-pulse" />
             </DialogTitle>
           </DialogHeader>
@@ -3639,7 +3641,7 @@ const Discover = () => {
                       {rosesTargetProfile.full_name}
                     </h3>
                     <p className="text-sm text-muted-foreground dark:text-primary/60">
-                      Age {rosesTargetProfile.age}
+                      {t("discover.age")} {rosesTargetProfile.age}
                     </p>
                   </div>
                 </div>
@@ -3652,7 +3654,7 @@ const Discover = () => {
                   <Flower2 className="h-6 w-6 text-primary dark:text-primary mt-1 flex-shrink-0" />
                   <div>
                     <h4 className="font-bold text-lg text-primary dark:text-primary mb-2">
-                      💐 VIP Premium Roses Experience
+                      {t("discover.vipPremiumRosesExperience")}
                     </h4>
                     <ul className="space-y-2 text-sm text-foreground dark:text-primary/30">
                       <li className="flex items-center gap-2">
@@ -3690,10 +3692,10 @@ const Discover = () => {
                   <Crown className="h-6 w-6 text-primary animate-pulse" />
                   <div className="flex flex-col items-center">
                     <span className="text-2xl font-bold text-primary dark:text-primary/60">
-                      50 Coins
+                      {t("discover.50Coins")}
                     </span>
                     <span className="text-xs bg-primary text-white px-2 py-0.5 rounded-full mt-1">
-                      Wallet balance: {walletBalance}
+                      {t("discover.walletBalance")} {walletBalance}
                     </span>
                   </div>
                   <span className="text-sm text-muted-foreground dark:text-primary/80">
@@ -3710,7 +3712,7 @@ const Discover = () => {
                 className="w-full bg-gradient-to-r from-[hsl(350,98%,62%)] via-[hsl(5,98%,62%)] to-[hsl(15,100%,60%)] hover:brightness-110 text-white font-bold text-lg shadow-xl border-2 border-primary/30 "
               >
                 <Flower2 className="h-5 w-5 mr-2 animate-bounce" />
-                Send Roses 💐
+                {t("discover.sendRoses")}
               </Button>
               <div className="flex gap-3">
                 <Button
@@ -3726,7 +3728,7 @@ const Discover = () => {
                   onClick={() => navigate("/wallet")}
                 >
                   <Coins className="h-5 w-5 mr-2" />
-                  Buy Coins
+                  {t("discover.buyCoins")}
                 </Button>
               </div>
             </div>
@@ -3740,7 +3742,7 @@ const Discover = () => {
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary bg-clip-text text-transparent flex items-center gap-2">
               <MessageSquare className="h-6 w-6 text-primary" />
-              Instant Message
+              {t("discover.instantMessage")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -3770,7 +3772,8 @@ const Discover = () => {
                 className="resize-none"
               />
               <div className="text-xs text-muted-foreground text-right">
-                {instantMessageText.length}/500 characters
+                {instantMessageText.length}
+                {t("discover.500Characters")}
               </div>
             </div>
 
@@ -3790,7 +3793,7 @@ const Discover = () => {
                 onClick={() => setShowInstantMessageDialog(false)}
                 className="flex-1"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={sendInstantMessage}
@@ -3798,12 +3801,12 @@ const Discover = () => {
                 className="flex-1 bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary"
               >
                 <MessageSquare className="h-4 w-4 mr-2" />
-                Send Message
+                {t("discover.sendMessage")}
               </Button>
             </div>
 
             <div className="text-xs text-center text-muted-foreground border-t pt-3">
-              💡 Tip: Write something personalized to increase your chances of a response!
+              {t("discover.tipWriteSomethingPersonalizedToIncrease")}
             </div>
           </div>
         </DialogContent>
@@ -3824,22 +3827,19 @@ const Discover = () => {
                   <Crown className="h-8 w-8 text-accent-foreground" />
                 </div>
                 <h4 className="text-lg font-semibold">{t("discover.alreadyPremium")}</h4>
-                <p className="text-muted-foreground">
-                  You have access to all premium features including unlimited swipes, advanced
-                  filters, and the ability to see who liked you.
-                </p>
+                <p className="text-muted-foreground">{t("discover.youHaveAccessToAllPremium")}</p>
                 <ul className="space-y-2 text-left w-full">
                   <li className="flex items-center gap-2 text-primary">
                     <Heart className="h-5 w-5" />
-                    Unlimited Swipes ✓
+                    {t("discover.unlimitedSwipes")}
                   </li>
                   <li className="flex items-center gap-2 text-primary">
                     <MessageCircle className="h-5 w-5" />
-                    See who liked you ✓
+                    {t("discover.seeWhoLikedYou")}
                   </li>
                   <li className="flex items-center gap-2 text-primary">
                     <Settings className="h-5 w-5" />
-                    Advanced filters ✓
+                    {t("discover.advancedFilters")}
                   </li>
                 </ul>
               </div>
@@ -3850,15 +3850,15 @@ const Discover = () => {
               <ul className="space-y-2">
                 <li className="flex items-center gap-2">
                   <Heart className="h-5 w-5 text-primary" />
-                  Unlimited Swipes
+                  {t("profile.unlimitedSwipes")}
                 </li>
                 <li className="flex items-center gap-2">
                   <MessageCircle className="h-5 w-5 text-primary" />
-                  See who liked you
+                  {t("profile.seeWhoLiked")}
                 </li>
                 <li className="flex items-center gap-2">
                   <Settings className="h-5 w-5 text-primary" />
-                  Advanced filters
+                  {t("profile.advancedFilters")}
                 </li>
               </ul>
             </div>
@@ -3894,7 +3894,7 @@ const Discover = () => {
                   )}
                   {currentProfile.is_premium && (
                     <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
-                      Premium
+                      {t("common.premium")}
                     </Badge>
                   )}
                   {currentProfile.video_intro_url && (
@@ -3991,7 +3991,7 @@ const Discover = () => {
                     </span>
                     {currentProfile.distance_km && (
                       <span className="text-muted-foreground">
-                        • {formatDistance(currentProfile.distance_km)} away
+                        • {formatDistance(currentProfile.distance_km)} {t("radar.awayText")}
                       </span>
                     )}
                   </div>
@@ -4001,7 +4001,7 @@ const Discover = () => {
                     <span className="font-medium">{currentProfile.city}</span>
                     {currentProfile.distance_km && (
                       <span className="text-muted-foreground">
-                        • {formatDistance(currentProfile.distance_km)} away
+                        • {formatDistance(currentProfile.distance_km)} {t("radar.awayText")}
                       </span>
                     )}
                   </div>
@@ -4014,7 +4014,7 @@ const Discover = () => {
                       <span className="text-base">💼</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Work
+                          {t("editProfile.work")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate">
                           {currentProfile.work}
@@ -4027,7 +4027,7 @@ const Discover = () => {
                       <span className="text-base">🎓</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Education
+                          {t("discover.education")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate">
                           {currentProfile.education}
@@ -4040,7 +4040,7 @@ const Discover = () => {
                       <span className="text-base">📏</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Height
+                          {t("whoLikedYou.height")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate">
                           {currentProfile.height_cm
@@ -4055,7 +4055,7 @@ const Discover = () => {
                       <span className="text-base">♈</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Zodiac
+                          {t("whoLikedYou.zodiac")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate capitalize">
                           {currentProfile.zodiac_sign}
@@ -4068,7 +4068,7 @@ const Discover = () => {
                       <span className="text-base">🙏</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Religion
+                          {t("discover.religion")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate capitalize">
                           {currentProfile.religion}
@@ -4081,7 +4081,7 @@ const Discover = () => {
                       <span className="text-base">🌟</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Lifestyle
+                          {t("whoLikedYou.lifestyle")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate capitalize">
                           {currentProfile.lifestyle}
@@ -4094,7 +4094,7 @@ const Discover = () => {
                       <span className="text-base">🍷</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Drinking
+                          {t("discover.drinking")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate capitalize">
                           {currentProfile.drinking}
@@ -4107,7 +4107,7 @@ const Discover = () => {
                       <span className="text-base">🚬</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Smoking
+                          {t("discover.smoking")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate capitalize">
                           {currentProfile.smoking}
@@ -4120,7 +4120,7 @@ const Discover = () => {
                       <span className="text-base">🐾</span>
                       <div className="min-w-0">
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide leading-none mb-0.5">
-                          Pets
+                          {t("whoLikedYou.pets")}
                         </p>
                         <p className="font-semibold text-xs text-foreground truncate capitalize">
                           {currentProfile.pets}
@@ -4134,7 +4134,7 @@ const Discover = () => {
                 {currentProfile.bio && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-sm flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
-                      <span className="text-base">💬</span> About
+                      <span className="text-base">💬</span> {t("profile.about")}
                     </h3>
                     <p className="text-foreground text-sm leading-relaxed bg-muted/30 border border-border/40 p-3 rounded-xl">
                       {sanitizeText(currentProfile.bio || "")}
@@ -4148,7 +4148,7 @@ const Discover = () => {
                   myProfile.interests.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-sm flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
-                        <span className="text-base">✨</span> Shared Interests
+                        <span className="text-base">✨</span> {t("profile.sharedInterests")}
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
                         {currentProfile.interests
@@ -4174,7 +4174,7 @@ const Discover = () => {
                 {currentProfile.looking_for && currentProfile.looking_for.length > 0 && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-sm flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
-                      <span className="text-base">💕</span> Looking For
+                      <span className="text-base">💕</span> {t("discover.lookingFor")}
                     </h3>
                     <div className="flex flex-wrap gap-1.5">
                       {currentProfile.looking_for.map((item, idx) => (
@@ -4193,7 +4193,7 @@ const Discover = () => {
                 {currentProfile.interests && currentProfile.interests.length > 0 && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-sm flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
-                      <span className="text-base">✨</span> Interests
+                      <span className="text-base">✨</span> {t("profile.interests")}
                     </h3>
                     <div className="flex flex-wrap gap-1.5">
                       {currentProfile.interests.map((interest, idx) => (
@@ -4224,7 +4224,7 @@ const Discover = () => {
                     return (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">🎵</span> Soundtrack
+                          <span className="text-2xl">🎵</span> {t("chat.soundtrack")}
                         </h3>
                         {(currentProfile.soundtrack_title || currentProfile.soundtrack_artist) && (
                           <p className="text-sm text-muted-foreground">
@@ -4238,7 +4238,7 @@ const Discover = () => {
                           <div className="rounded-xl overflow-hidden aspect-video">
                             <iframe
                               src={`https://www.youtube.com/embed/${ytId}`}
-                              title="Profile soundtrack"
+                              title={t("editProfile.profileSoundtrack")}
                               className="w-full h-full"
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
@@ -4249,7 +4249,7 @@ const Discover = () => {
                           <div className="rounded-xl overflow-hidden">
                             <iframe
                               src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
-                              title="Profile soundtrack"
+                              title={t("editProfile.profileSoundtrack")}
                               className="w-full"
                               height="152"
                               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -4273,7 +4273,7 @@ const Discover = () => {
                     }}
                   >
                     <X className="h-5 w-5 mr-2" />
-                    Pass
+                    {t("discover.pass")}
                   </Button>
                   <Button
                     size="lg"
@@ -4284,7 +4284,7 @@ const Discover = () => {
                     }}
                   >
                     <Heart className="h-5 w-5 mr-2" />
-                    Like
+                    {t("common.like")}
                   </Button>
                 </div>
                 {!likedProfiles.has(currentProfile.id) && (
@@ -4299,7 +4299,7 @@ const Discover = () => {
                       }}
                     >
                       <span className="text-xl mr-2">🌹</span>
-                      Send Roses
+                      {t("discover.sendRoses")}
                     </Button>
                     <Button
                       size="lg"
@@ -4311,7 +4311,8 @@ const Discover = () => {
                       disabled={instantMessageCredits === 0}
                     >
                       <MessageSquare className="h-5 w-5 mr-2" />
-                      Instant Chat {instantMessageCredits > 0 && `(${instantMessageCredits})`}
+                      {t("discover.instantChat")}{" "}
+                      {instantMessageCredits > 0 && `(${instantMessageCredits})`}
                     </Button>
                   </div>
                 )}
@@ -4327,13 +4328,11 @@ const Discover = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl">
               <Sparkles className="h-6 w-6 text-primary" />
-              Get Superlikes
+              {t("discover.getSuperlikes")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <p className="text-muted-foreground">
-              Stand out from the crowd! Superlikes give you 3x more chances to match.
-            </p>
+            <p className="text-muted-foreground">{t("discover.standOutFromTheCrowdSuperlikes")}</p>
 
             {/* Premium Upsell — only show if not already premium */}
             {swipeLimit.isPremium ? (
@@ -4343,7 +4342,7 @@ const Discover = () => {
                   <div>
                     <h3 className="font-semibold">{t("discover.premiumMember")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      You receive 5 free Superlikes every month. Top up any time below.
+                      {t("discover.youReceive5FreeSuperlikesEvery")}
                     </p>
                   </div>
                 </div>
@@ -4355,7 +4354,7 @@ const Discover = () => {
                   <h3 className="font-semibold">{t("discover.premiumBenefit")}</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Premium members get 5 free Superlikes every month!
+                  {t("discover.premiumMembersGet5FreeSuperlikes")}
                 </p>
                 <Button
                   variant="outline"
@@ -4366,7 +4365,7 @@ const Discover = () => {
                   }}
                 >
                   <Crown className="h-4 w-4 mr-2" />
-                  Upgrade to Premium
+                  {t("settings.upgradeToPremium")}
                 </Button>
               </div>
             )}
@@ -4571,7 +4570,7 @@ const Discover = () => {
                     {t("discover.noProfileViews")}
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    People who view your profile will appear here
+                    {t("discover.peopleWhoViewYourProfileWill")}
                   </p>
                 </div>
               )
@@ -4656,12 +4655,12 @@ const Discover = () => {
                       )}
                       {p.is_premium && (
                         <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
-                          Premium
+                          {t("common.premium")}
                         </Badge>
                       )}
                       {p.video_intro_url && (
                         <Badge className="bg-background/80 text-white border-none">
-                          Video Intro
+                          {t("common.videoIntro")}
                         </Badge>
                       )}
                     </div>
@@ -4716,7 +4715,7 @@ const Discover = () => {
                         </>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          No photo
+                          {t("common.noPhoto")}
                         </div>
                       )}
                     </div>
@@ -4746,7 +4745,7 @@ const Discover = () => {
                         </span>
                         {p.distance_km && (
                           <span className="text-muted-foreground">
-                            • {formatDistance(p.distance_km)} away
+                            • {formatDistance(p.distance_km)} {t("radar.awayText")}
                           </span>
                         )}
                       </div>
@@ -4756,7 +4755,7 @@ const Discover = () => {
                         <span className="font-medium">{p.city}</span>
                         {p.distance_km && (
                           <span className="text-muted-foreground">
-                            • {formatDistance(p.distance_km)} away
+                            • {formatDistance(p.distance_km)} {t("radar.awayText")}
                           </span>
                         )}
                       </div>
@@ -4766,19 +4765,21 @@ const Discover = () => {
                     <div className="grid grid-cols-2 gap-4">
                       {p.work && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{t("chat.work")}</p>
                           <p className="font-semibold text-sm text-foreground">{p.work}</p>
                         </Card>
                       )}
                       {p.education && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.education")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.education}</p>
                         </Card>
                       )}
                       {(p.height_cm || p.height) && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{t("chat.height")}</p>
                           <p className="font-semibold text-sm text-foreground">
                             {p.height_cm ? `${p.height_cm} cm` : p.height}
                           </p>
@@ -4786,37 +4787,45 @@ const Discover = () => {
                       )}
                       {p.zodiac_sign && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{t("chat.zodiac")}</p>
                           <p className="font-semibold text-sm text-foreground">{p.zodiac_sign}</p>
                         </Card>
                       )}
                       {p.religion && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.religion")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.religion}</p>
                         </Card>
                       )}
                       {p.lifestyle && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.lifestyle")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.lifestyle}</p>
                         </Card>
                       )}
                       {p.drinking && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.drinking")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.drinking}</p>
                         </Card>
                       )}
                       {p.smoking && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.smoking")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.smoking}</p>
                         </Card>
                       )}
                       {p.pets && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{t("chat.pets")}</p>
                           <p className="font-semibold text-sm text-foreground">{p.pets}</p>
                         </Card>
                       )}
@@ -4826,7 +4835,7 @@ const Discover = () => {
                     {p.bio && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">💬</span> About
+                          <span className="text-2xl">💬</span> {t("profile.about")}
                         </h3>
                         <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                           {p.bio}
@@ -4841,7 +4850,7 @@ const Discover = () => {
                       myProfile.interests.length > 0 && (
                         <div className="space-y-2">
                           <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <span className="text-2xl">✨</span> Shared Interests
+                            <span className="text-2xl">✨</span> {t("profile.sharedInterests")}
                           </h3>
                           <div className="flex flex-wrap gap-2">
                             {p.interests
@@ -4864,7 +4873,7 @@ const Discover = () => {
                     {p.looking_for && p.looking_for.length > 0 && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">💕</span> Looking For
+                          <span className="text-2xl">💕</span> {t("discover.lookingFor")}
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {p.looking_for.map((item, idx) => (
@@ -4883,7 +4892,7 @@ const Discover = () => {
                     {p.interests && p.interests.length > 0 && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">✨</span> Interests
+                          <span className="text-2xl">✨</span> {t("profile.interests")}
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {p.interests.map((interest, idx) => (
@@ -4915,7 +4924,7 @@ const Discover = () => {
                         return (
                           <div className="space-y-2">
                             <h3 className="font-semibold text-lg flex items-center gap-2">
-                              <span className="text-2xl">🎵</span> Soundtrack
+                              <span className="text-2xl">🎵</span> {t("chat.soundtrack")}
                             </h3>
                             {(p.soundtrack_title || p.soundtrack_artist) && (
                               <p className="text-sm text-muted-foreground">
@@ -4927,7 +4936,7 @@ const Discover = () => {
                               <div className="rounded-xl overflow-hidden aspect-video">
                                 <iframe
                                   src={`https://www.youtube.com/embed/${ytId}`}
-                                  title="Profile soundtrack"
+                                  title={t("editProfile.profileSoundtrack")}
                                   className="w-full h-full"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen
@@ -4938,7 +4947,7 @@ const Discover = () => {
                               <div className="rounded-xl overflow-hidden">
                                 <iframe
                                   src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
-                                  title="Profile soundtrack"
+                                  title={t("editProfile.profileSoundtrack")}
                                   className="w-full"
                                   height="152"
                                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -4963,7 +4972,7 @@ const Discover = () => {
                           }}
                         >
                           <MessageCircle className="h-5 w-5 mr-2" />
-                          Instant Message
+                          {t("discover.instantMessage")}
                         </Button>
                         <Button
                           size="lg"
@@ -5075,22 +5084,22 @@ const Discover = () => {
                             <div className="flex flex-wrap items-center gap-1 mb-2">
                               {p.verified && (
                                 <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
-                                  ✓ Verified
+                                  {t("weeklySpotlight.verified")}
                                 </Badge>
                               )}
                               {p.is_premium && (
                                 <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none text-[10px] px-1.5 py-0 h-4">
-                                  Premium
+                                  {t("common.premium")}
                                 </Badge>
                               )}
                               {p.travel_mode_active && p.travel_city && (
                                 <Badge className="bg-blue-500/90 backdrop-blur-sm text-white border-none text-[10px] px-1.5 py-0 h-4">
-                                  ✈️ Traveling
+                                  {t("profileCard.traveling")}
                                 </Badge>
                               )}
                               {p.video_intro_url && (
                                 <Badge className="bg-background/70 text-white border-none text-[10px] px-1.5 py-0 h-4">
-                                  Video
+                                  {t("common.video")}
                                 </Badge>
                               )}
                             </div>
@@ -5110,7 +5119,7 @@ const Discover = () => {
                               ) : null}
                               {p.distance_km && (
                                 <div className="backdrop-blur-sm bg-card/10 px-3 py-1 rounded-full">
-                                  {formatDistance(p.distance_km)} away
+                                  {formatDistance(p.distance_km)} {t("radar.awayText")}
                                 </div>
                               )}
                             </div>
@@ -5118,7 +5127,7 @@ const Discover = () => {
                         </>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          No photo
+                          {t("common.noPhoto")}
                         </div>
                       )}
                     </div>
@@ -5143,19 +5152,21 @@ const Discover = () => {
                     <div className="grid grid-cols-2 gap-4">
                       {p.work && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{t("chat.work")}</p>
                           <p className="font-semibold text-sm text-foreground">{p.work}</p>
                         </Card>
                       )}
                       {p.education && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.education")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.education}</p>
                         </Card>
                       )}
                       {(p.height_cm || p.height) && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{t("chat.height")}</p>
                           <p className="font-semibold text-sm text-foreground">
                             {p.height_cm ? `${p.height_cm} cm` : p.height}
                           </p>
@@ -5163,37 +5174,45 @@ const Discover = () => {
                       )}
                       {p.zodiac_sign && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{t("chat.zodiac")}</p>
                           <p className="font-semibold text-sm text-foreground">{p.zodiac_sign}</p>
                         </Card>
                       )}
                       {p.religion && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.religion")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.religion}</p>
                         </Card>
                       )}
                       {p.lifestyle && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.lifestyle")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.lifestyle}</p>
                         </Card>
                       )}
                       {p.drinking && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.drinking")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.drinking}</p>
                         </Card>
                       )}
                       {p.smoking && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">
+                            {t("chat.smoking")}
+                          </p>
                           <p className="font-semibold text-sm text-foreground">{p.smoking}</p>
                         </Card>
                       )}
                       {p.pets && (
                         <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                          <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                          <p className="text-xs text-muted-foreground mb-1.5">{t("chat.pets")}</p>
                           <p className="font-semibold text-sm text-foreground">{p.pets}</p>
                         </Card>
                       )}
@@ -5203,7 +5222,7 @@ const Discover = () => {
                     {p.bio && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">💬</span> About
+                          <span className="text-2xl">💬</span> {t("profile.about")}
                         </h3>
                         <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                           {p.bio}
@@ -5218,7 +5237,7 @@ const Discover = () => {
                       myProfile.interests.length > 0 && (
                         <div className="space-y-2">
                           <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <span className="text-2xl">✨</span> Shared Interests
+                            <span className="text-2xl">✨</span> {t("profile.sharedInterests")}
                           </h3>
                           <div className="flex flex-wrap gap-2">
                             {p.interests
@@ -5241,7 +5260,7 @@ const Discover = () => {
                     {p.looking_for && p.looking_for.length > 0 && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">💕</span> Looking For
+                          <span className="text-2xl">💕</span> {t("discover.lookingFor")}
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {p.looking_for.map((item, idx) => (
@@ -5260,7 +5279,7 @@ const Discover = () => {
                     {p.interests && p.interests.length > 0 && (
                       <div className="space-y-2">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
-                          <span className="text-2xl">✨</span> Interests
+                          <span className="text-2xl">✨</span> {t("profile.interests")}
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {p.interests.map((interest, idx) => (
@@ -5292,7 +5311,7 @@ const Discover = () => {
                         return (
                           <div className="space-y-2">
                             <h3 className="font-semibold text-lg flex items-center gap-2">
-                              <span className="text-2xl">🎵</span> Soundtrack
+                              <span className="text-2xl">🎵</span> {t("chat.soundtrack")}
                             </h3>
                             {(p.soundtrack_title || p.soundtrack_artist) && (
                               <p className="text-sm text-muted-foreground">
@@ -5304,7 +5323,7 @@ const Discover = () => {
                               <div className="rounded-xl overflow-hidden aspect-video">
                                 <iframe
                                   src={`https://www.youtube.com/embed/${ytId}`}
-                                  title="Profile soundtrack"
+                                  title={t("editProfile.profileSoundtrack")}
                                   className="w-full h-full"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen
@@ -5315,7 +5334,7 @@ const Discover = () => {
                               <div className="rounded-xl overflow-hidden">
                                 <iframe
                                   src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
-                                  title="Profile soundtrack"
+                                  title={t("editProfile.profileSoundtrack")}
                                   className="w-full"
                                   height="152"
                                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -5339,7 +5358,7 @@ const Discover = () => {
                         }}
                       >
                         <MessageCircle className="h-5 w-5 mr-2" />
-                        Send Instant Message
+                        {t("discover.sendInstantMessage")}
                       </Button>
                     </div>
                   </div>
@@ -5455,7 +5474,7 @@ const Discover = () => {
               ) : (
                 <img
                   src={profileStories[storyViewerIndex].media_url}
-                  alt="Story"
+                  alt={t("profile.story")}
                   className="w-full aspect-[9/16] object-cover"
                 />
               )}
@@ -5510,7 +5529,7 @@ const Discover = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>{t("discover.discardFilters")}</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved filter changes. Close without applying?
+              {t("discover.youHaveUnsavedFilterChangesClose")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

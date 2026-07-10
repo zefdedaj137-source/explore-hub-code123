@@ -98,7 +98,7 @@ const MusicTaste = () => {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Go back"
+          aria-label={t("common.goBack")}
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
         >
           <ArrowLeft className="h-5 w-5" />
@@ -132,7 +132,7 @@ const MusicTaste = () => {
               >
                 🎤 {a}
                 <button
-                  title="Remove artist"
+                  title={t("musicTaste.removeArtist")}
                   onClick={() => setTopArtists(topArtists.filter((x) => x !== a))}
                 >
                   <X className="h-3 w-3" />

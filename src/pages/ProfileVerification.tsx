@@ -285,7 +285,7 @@ const ProfileVerification = () => {
                 <span className="h-6 w-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
                   1
                 </span>
-                Take a Selfie
+                {t("profileVerification.takeSelfie")}
                 <span className="text-red-500 text-xs font-normal ml-1">
                   {t("profileVerification.required")}
                 </span>
@@ -295,7 +295,7 @@ const ProfileVerification = () => {
                 <div className="relative">
                   <img
                     src={selfiePreview}
-                    alt="Selfie preview"
+                    alt={t("profileVerification.selfiePreview")}
                     className="w-full max-h-48 object-cover rounded-xl"
                   />
                   <Button
@@ -363,7 +363,7 @@ const ProfileVerification = () => {
                 <span className="h-6 w-6 rounded-full bg-muted text-muted-foreground text-xs flex items-center justify-center font-bold">
                   2
                 </span>
-                Upload ID
+                {t("profileVerification.uploadId")}
                 <span className="text-muted-foreground text-xs font-normal ml-1">
                   {t("profileVerification.optional")}
                 </span>
@@ -372,7 +372,7 @@ const ProfileVerification = () => {
                 <div className="relative">
                   <img
                     src={idPreview}
-                    alt="ID preview"
+                    alt={t("profileVerification.idPreview")}
                     className="w-full max-h-36 object-cover rounded-xl"
                   />
                   <Button

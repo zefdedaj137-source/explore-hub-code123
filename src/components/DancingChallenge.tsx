@@ -368,7 +368,7 @@ export default function DancingChallenge() {
             </div>
             <h1 className="text-4xl font-bold">{t("dancing.valleChannel")}</h1>
             <p className="text-xl text-muted-foreground">
-              Join the exclusive Albanian dancing community
+              {t("dancingChallenge.joinTheExclusiveAlbanianDancingCommunity")}
             </p>
           </div>
 
@@ -385,7 +385,7 @@ export default function DancingChallenge() {
               </li>
               <li className="flex items-start gap-2">
                 <Star className="h-5 w-5 text-primary mt-0.5" />
-                <span>Match with dancers you rate above 5/10</span>
+                <span>{t("dancingChallenge.matchWithDancersYouRateAbove")}</span>
               </li>
               <li className="flex items-start gap-2">
                 <Star className="h-5 w-5 text-primary mt-0.5" />
@@ -396,7 +396,7 @@ export default function DancingChallenge() {
 
           <Button onClick={joinChannel} size="lg" className="w-full">
             <Users className="mr-2 h-5 w-5" />
-            Join Valle Channel
+            {t("dancingChallenge.joinValleChannel")}
           </Button>
         </Card>
       </div>
@@ -411,15 +411,13 @@ export default function DancingChallenge() {
             <h1 className="text-4xl font-bold">{t("dancing.challenge")}</h1>
             <Badge variant="secondary" className="gap-1">
               <Users className="h-3 w-3" />
-              Channel Member
+              {t("dancingChallenge.channelMember")}
             </Badge>
           </div>
-          <p className="text-muted-foreground">
-            Show your moves and get rated! Rate above 5 to match 💃
-          </p>
+          <p className="text-muted-foreground">{t("dancingChallenge.showYourMovesAndGetRated")}</p>
           <Button onClick={leaveChannel} variant="outline" size="sm">
             <LogOut className="mr-2 h-4 w-4" />
-            Leave Channel
+            {t("dancingChallenge.leaveChannel")}
           </Button>
         </div>
 
@@ -447,11 +445,11 @@ export default function DancingChallenge() {
                 <>
                   <Button onClick={startRecording} size="lg">
                     <Video className="mr-2 h-5 w-5" />
-                    Start Recording
+                    {t("dancingChallenge.startRecording")}
                   </Button>
                   <Button onClick={() => fileInputRef.current?.click()} variant="outline" size="lg">
                     <Upload className="mr-2 h-5 w-5" />
-                    Upload Video
+                    {t("dancingChallenge.uploadVideo")}
                   </Button>
                   <input
                     ref={fileInputRef}
@@ -466,7 +464,7 @@ export default function DancingChallenge() {
 
               {isRecording && (
                 <Button onClick={stopRecording} variant="destructive" size="lg">
-                  Stop Recording
+                  {t("chatInput.stopRecording")}
                 </Button>
               )}
 
@@ -477,7 +475,7 @@ export default function DancingChallenge() {
                   ) : (
                     <Upload className="mr-2 h-5 w-5" />
                   )}
-                  Upload Video
+                  {t("dancingChallenge.uploadVideo")}
                 </Button>
               )}
             </div>
@@ -511,7 +509,7 @@ export default function DancingChallenge() {
                       <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
                       <span className="font-semibold">{video.average_rating.toFixed(1)} / 10</span>
                       <span className="text-sm text-muted-foreground">
-                        ({video.total_ratings} ratings)
+                        ({video.total_ratings} {t("dancingChallenge.ratings")}
                       </span>
                     </div>
 
@@ -533,7 +531,7 @@ export default function DancingChallenge() {
                           onClick={() => rateVideo(video.id, rating[video.id] || 0)}
                           size="sm"
                         >
-                          Submit
+                          {t("dancingChallenge.submit")}
                         </Button>
                       </div>
                     </div>

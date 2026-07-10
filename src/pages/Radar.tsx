@@ -474,7 +474,8 @@ export default function Radar() {
                     </span>
                     <Badge variant="default" className="bg-primary">
                       <MapPin className="h-3 w-3 mr-1" />
-                      {Math.round(selectedUser.distance * 1000)}m away
+                      {Math.round(selectedUser.distance * 1000)}
+                      {t("radar.mAway")}
                     </Badge>
                   </DialogTitle>
                 </DialogHeader>
@@ -554,7 +555,7 @@ export default function Radar() {
                       <span className="font-medium">{selectedUser.city}</span>
                       {selectedUser.distance && (
                         <span className="text-muted-foreground">
-                          📍 {formatDistance(selectedUser.distance)} away
+                          📍 {formatDistance(selectedUser.distance)} {t("radar.awayText")}
                         </span>
                       )}
                     </div>
@@ -564,13 +565,15 @@ export default function Radar() {
                   <div className="grid grid-cols-2 gap-4">
                     {selectedUser.work && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">{t("chat.work")}</p>
                         <p className="font-semibold text-sm text-foreground">{selectedUser.work}</p>
                       </Card>
                     )}
                     {selectedUser.education && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">
+                          {t("chat.education")}
+                        </p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.education}
                         </p>
@@ -578,7 +581,7 @@ export default function Radar() {
                     )}
                     {selectedUser.height && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">{t("chat.height")}</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.height}
                         </p>
@@ -586,7 +589,7 @@ export default function Radar() {
                     )}
                     {selectedUser.zodiac_sign && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">{t("chat.zodiac")}</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.zodiac_sign}
                         </p>
@@ -594,7 +597,7 @@ export default function Radar() {
                     )}
                     {selectedUser.religion && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">{t("chat.religion")}</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.religion}
                         </p>
@@ -602,7 +605,9 @@ export default function Radar() {
                     )}
                     {selectedUser.lifestyle && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">🌿 Lifestyle</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">
+                          {t("myProfile.lifestyle")}
+                        </p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.lifestyle}
                         </p>
@@ -610,7 +615,7 @@ export default function Radar() {
                     )}
                     {selectedUser.drinking && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">{t("chat.drinking")}</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.drinking}
                         </p>
@@ -618,7 +623,7 @@ export default function Radar() {
                     )}
                     {selectedUser.smoking && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">{t("chat.smoking")}</p>
                         <p className="font-semibold text-sm text-foreground">
                           {selectedUser.smoking}
                         </p>
@@ -626,7 +631,7 @@ export default function Radar() {
                     )}
                     {selectedUser.pets && (
                       <Card className="p-4 border-2 border-border hover:border-border/70 hover:shadow-lg transition-all duration-300 rounded-2xl bg-gradient-to-br from-card to-primary/10/20 backdrop-blur-sm">
-                        <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                        <p className="text-xs text-muted-foreground mb-1.5">{t("chat.pets")}</p>
                         <p className="font-semibold text-sm text-foreground">{selectedUser.pets}</p>
                       </Card>
                     )}
@@ -636,7 +641,7 @@ export default function Radar() {
                   {selectedUser.bio && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">📝</span> About
+                        <span className="text-2xl">📝</span> {t("profile.about")}
                       </h3>
                       <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                         {selectedUser.bio}
@@ -648,7 +653,7 @@ export default function Radar() {
                   {selectedUser.looking_for && selectedUser.looking_for.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">💖</span> Looking For
+                        <span className="text-2xl">💖</span> {t("discover.lookingFor")}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedUser.looking_for.map((item, idx) => (
@@ -667,7 +672,7 @@ export default function Radar() {
                   {selectedUser.interests && selectedUser.interests.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">🎯</span> Interests
+                        <span className="text-2xl">🎯</span> {t("profile.interests")}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedUser.interests.map((interest, idx) => (
@@ -692,7 +697,7 @@ export default function Radar() {
                         </div>
                         <div className="flex-1">
                           <p className="font-semibold text-foreground">
-                            {formatDistance(selectedUser.distance)} away
+                            {formatDistance(selectedUser.distance)} {t("radar.awayText")}
                           </p>
                           <p className="text-sm text-muted-foreground">{t("radar.closeTo")}</p>
                         </div>
@@ -746,8 +751,8 @@ export default function Radar() {
                 <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                 {t("radar.greenDot")}
               </p>
-              <p>📡 Radar shows users within 100 meters of your current location</p>
-              <p>⭐ Send superlikes to stand out and get noticed!</p>
+              <p>{t("radar.radarShowsUsersWithin100Meters")}</p>
+              <p>{t("radar.sendSuperlikesToStandOutAnd")}</p>
             </div>
           </CardContent>
         </Card>

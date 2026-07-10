@@ -115,7 +115,7 @@ const Wallet = () => {
             </div>
             <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
               <Coins className="h-4 w-4 mr-1" />
-              Wallet
+              {t("wallet.title")}
             </Badge>
           </div>
         </Card>

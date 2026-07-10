@@ -160,7 +160,7 @@ const SafetyCheckIn = () => {
                 variant={minutes === value ? "default" : "outline"}
                 onClick={() => setMinutes(value)}
               >
-                {value} min
+                {value} {t("discover.minPlaceholder")}
               </Button>
             ))}
           </div>

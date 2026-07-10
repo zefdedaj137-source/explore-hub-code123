@@ -41,7 +41,9 @@ const RadarNearby = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="text-transparent bg-clip-text bg-gradient-gold">{t("radarNearby.title")}</span>{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-gold">
+              {t("radarNearby.title")}
+            </span>{" "}
             <span className="text-foreground">{t("radarNearby.nearby")}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -67,7 +69,7 @@ const RadarNearby = () => {
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
               <div className="relative">
                 <div className="w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow border-4 border-accent/30">
-                  <img src={albanianEagle} alt="You" className="w-10 h-10" />
+                  <img src={albanianEagle} alt={t("chatInput.you")} className="w-10 h-10" />
                 </div>
                 {scanning && (
                   <div className="absolute inset-0 rounded-full border-4 border-accent animate-ping" />

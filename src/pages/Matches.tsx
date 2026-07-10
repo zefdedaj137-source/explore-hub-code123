@@ -1787,12 +1787,12 @@ const Matches = () => {
                         <div className="flex flex-wrap items-center gap-1 mb-2">
                           {viewingProfile.profile.verified && (
                             <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              ✓ Verified
+                              {t("weeklySpotlight.verified")}
                             </Badge>
                           )}
                           {viewingProfile.profile.is_premium && (
                             <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              Premium
+                              {t("common.premium")}
                             </Badge>
                           )}
                           {viewingProfile.profile.video_intro_url && (
@@ -1847,7 +1847,7 @@ const Matches = () => {
                         <div className="flex flex-wrap items-center gap-1 mb-2">
                           {viewingProfile.profile.verified && (
                             <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              ✓ Verified
+                              {t("weeklySpotlight.verified")}
                             </Badge>
                           )}
                         </div>
@@ -1902,7 +1902,7 @@ const Matches = () => {
                           ) : (
                             <img
                               src={story.media_url}
-                              alt="Story"
+                              alt={t("profile.story")}
                               className="w-full h-full object-cover"
                             />
                           )}
@@ -1919,7 +1919,7 @@ const Matches = () => {
                 <div className="grid grid-cols-2 gap-4">
                   {viewingProfile.profile.work && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.work")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.work}
                       </p>
@@ -1927,7 +1927,7 @@ const Matches = () => {
                   )}
                   {viewingProfile.profile.education && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.education")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.education}
                       </p>
@@ -1935,7 +1935,7 @@ const Matches = () => {
                   )}
                   {(viewingProfile.profile.height_cm || viewingProfile.profile.height) && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.height")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.height_cm
                           ? `${viewingProfile.profile.height_cm} cm`
@@ -1945,7 +1945,7 @@ const Matches = () => {
                   )}
                   {viewingProfile.profile.zodiac_sign && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.zodiac")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.zodiac_sign}
                       </p>
@@ -1953,7 +1953,7 @@ const Matches = () => {
                   )}
                   {viewingProfile.profile.religion && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.religion")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.religion}
                       </p>
@@ -1961,7 +1961,7 @@ const Matches = () => {
                   )}
                   {viewingProfile.profile.lifestyle && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.lifestyle")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.lifestyle}
                       </p>
@@ -1969,7 +1969,7 @@ const Matches = () => {
                   )}
                   {viewingProfile.profile.drinking && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.drinking")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.drinking}
                       </p>
@@ -1977,7 +1977,7 @@ const Matches = () => {
                   )}
                   {viewingProfile.profile.smoking && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.smoking")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.smoking}
                       </p>
@@ -1985,7 +1985,7 @@ const Matches = () => {
                   )}
                   {viewingProfile.profile.pets && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.pets")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {viewingProfile.profile.pets}
                       </p>
@@ -1997,7 +1997,7 @@ const Matches = () => {
                 {viewingProfile.profile.bio && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">💬</span> About
+                      <span className="text-2xl">💬</span> {t("profile.about")}
                     </h3>
                     <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                       {sanitizeText(viewingProfile.profile.bio)}
@@ -2011,7 +2011,7 @@ const Matches = () => {
                   myInterests.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">✨</span> Shared Interests
+                        <span className="text-2xl">✨</span> {t("profile.sharedInterests")}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {viewingProfile.profile.interests
@@ -2035,7 +2035,7 @@ const Matches = () => {
                   viewingProfile.profile.looking_for.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">💕</span> Looking For
+                        <span className="text-2xl">💕</span> {t("discover.lookingFor")}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {viewingProfile.profile.looking_for.map((item, idx) => (
@@ -2055,7 +2055,7 @@ const Matches = () => {
                   viewingProfile.profile.interests.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">✨</span> Interests
+                        <span className="text-2xl">✨</span> {t("profile.interests")}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {viewingProfile.profile.interests.map((interest, idx) => (
@@ -2075,7 +2075,7 @@ const Matches = () => {
                 {viewingProfile.profile.soundtrack_url && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">🎵</span> Soundtrack
+                      <span className="text-2xl">🎵</span> {t("chat.soundtrack")}
                     </h3>
                     {viewingProfile.profile.soundtrack_title && (
                       <p className="text-sm text-muted-foreground">
@@ -2097,7 +2097,7 @@ const Matches = () => {
                               className="w-full h-full"
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
-                              title="Profile soundtrack"
+                              title={t("editProfile.profileSoundtrack")}
                             />
                           </div>
                         ) : null;
@@ -2115,7 +2115,7 @@ const Matches = () => {
                               height="152"
                               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                               loading="lazy"
-                              title="Profile soundtrack"
+                              title={t("editProfile.profileSoundtrack")}
                             />
                           </div>
                         ) : null;
@@ -2131,7 +2131,7 @@ const Matches = () => {
                     className="flex-1"
                     onClick={() => setShowProfileDialog(false)}
                   >
-                    Close
+                    {t("common.close")}
                   </Button>
                   {isViewingFromInstantMessage ? (
                     <Button
@@ -2143,7 +2143,7 @@ const Matches = () => {
                       }}
                     >
                       <Heart className="h-5 w-5 mr-2" />
-                      Like
+                      {t("common.like")}
                     </Button>
                   ) : (
                     <Button
@@ -2156,7 +2156,7 @@ const Matches = () => {
                       }}
                     >
                       <MessageCircle className="h-5 w-5 mr-2" />
-                      Message
+                      {t("chat.message")}
                     </Button>
                   )}
                 </div>
@@ -2234,7 +2234,7 @@ const Matches = () => {
                   ) : (
                     <>
                       <MessageCircle className="h-4 w-4 mr-2" />
-                      Send Reply
+                      {t("matches.sendReply")}
                     </>
                   )}
                 </Button>
@@ -2252,16 +2252,14 @@ const Matches = () => {
               <MessageSquare className="h-5 w-5 text-primary" />
               {viewingConversation && (
                 <span>
-                  Chat with{" "}
+                  {t("matches.chatWith")}{" "}
                   {viewingConversation.is_sender
                     ? viewingConversation.receiver_name
                     : viewingConversation.sender_name}
                 </span>
               )}
             </DialogTitle>
-            <DialogDescription>
-              View and send messages in this instant message conversation
-            </DialogDescription>
+            <DialogDescription>{t("matches.viewAndSendMessagesInThis")}</DialogDescription>
           </DialogHeader>
 
           {viewingConversation && (
@@ -2304,19 +2302,20 @@ const Matches = () => {
               {/* Info Banner */}
               <div className="mt-3 p-2 bg-gradient-to-br from-primary/20 via-primary/20 to-primary/20 rounded-lg border border-border shadow-sm">
                 <p className="text-xs text-rose-800 text-center font-medium">
-                  💬 Messages stay here until you both like each other. Then they'll move to regular
-                  chat!
+                  {t("matches.messagesStayHereUntilYouBoth")}
                 </p>
               </div>
 
               {/* Message Counter */}
               <div className="mt-2 flex items-center justify-between px-2">
                 <p className="text-xs text-muted-foreground">
-                  {conversationMessages.filter((msg) => msg.is_sender).length} / 20 messages sent
+                  {conversationMessages.filter((msg) => msg.is_sender).length}{" "}
+                  {t("matches.20MessagesSent")}
                 </p>
                 {conversationMessages.filter((msg) => msg.is_sender).length >= 15 && (
                   <p className="text-xs text-rose-600 font-medium">
-                    {20 - conversationMessages.filter((msg) => msg.is_sender).length} remaining
+                    {20 - conversationMessages.filter((msg) => msg.is_sender).length}{" "}
+                    {t("matches.remaining")}
                   </p>
                 )}
               </div>
@@ -2399,7 +2398,7 @@ const Matches = () => {
               ) : (
                 <img
                   src={matchStories[matchStoryIndex].media_url}
-                  alt="Story"
+                  alt={t("profile.story")}
                   className="w-full aspect-[9/16] object-cover"
                 />
               )}

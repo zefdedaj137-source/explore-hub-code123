@@ -133,7 +133,9 @@ const Terms = () => {
               <FileText className="h-10 w-10 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">{t("terms.title")}</h1>
-                <p className="text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("privacy.lastUpdated")} {LAST_UPDATED}
+                </p>
               </div>
             </div>
             <Button

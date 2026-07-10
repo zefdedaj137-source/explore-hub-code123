@@ -76,10 +76,7 @@
     "releaseToRefresh": "↓ Release to refresh",
     "share": "Share",
     "disable": "Disable",
-    "online": "Online",
-    "userNotAuthenticated": "User not authenticated",
-    "albanianEagle": "Albanian Eagle",
-    "happyAlbanianCouple": "Happy Albanian Couple"
+    "online": "Online"
   },
   "auth": {
     "signIn": "Sign In",
@@ -132,7 +129,8 @@
     "signupFailed": "Sign up failed: {{error}}",
     "emailPlaceholder": "you@example.com",
     "phonePlaceholder": "Enter phone number",
-    "resetLinkDesc": "Enter your email and we'll send you a reset link"
+    "resetLinkDesc": "Enter your email and we'll send you a reset link",
+    "accountCreatedPleaseCheckYourEmail": "✅ Account created! Please check your email and click the confirmation link to complete registration."
   },
   "nav": {
     "discover": "Discover",
@@ -298,15 +296,64 @@
     "discard": "Discard",
     "roses": "Roses",
     "noBoosterDesc": "No users are currently using boost in your area",
-    "premiumRoseBouquet": "Premium Rose Bouquet",
-    "failedPremiumRoses": "Failed to send premium roses",
-    "sendRoses": "Send Roses",
-    "instantMessage": "Instant Message",
-    "undoLastAction": "Undo last action",
-    "boosterActive": "Booster is already active!",
-    "failedBooster": "Failed to activate booster",
-    "premiumRequiredBooster": "Premium subscription required to activate booster",
-    "failedLike": "Failed to like. Try again."
+    "funGames": "Fun & Games",
+    "datingTools": "Dating Tools",
+    "km": "(km)",
+    "aries": "♈ Aries",
+    "taurus": "♉ Taurus",
+    "gemini": "♊ Gemini",
+    "cancer": "♋ Cancer",
+    "leo": "♌ Leo",
+    "virgo": "♍ Virgo",
+    "libra": "♎ Libra",
+    "scorpio": "♏ Scorpio",
+    "sagittarius": "♐ Sagittarius",
+    "capricorn": "♑ Capricorn",
+    "aquarius": "♒ Aquarius",
+    "pisces": "♓ Pisces",
+    "getVerifiedHeightLifestyleMoreFilters": "Get verified, height, lifestyle & more filters",
+    "applyFilters": "Apply Filters",
+    "changesWillApplyAfterClickingApply": "Changes will apply after clicking \"Apply Filters\"",
+    "forYou": "For You",
+    "lastActive": "Last Active",
+    "getYourBlueTick": "Get your Blue Tick ✓",
+    "verifiedProfilesGet3MoreMatches": "Verified profiles get 3× more matches. Tap to verify now.",
+    "match": "% Match",
+    "seeFullProfile": "See Full Profile",
+    "spotlightBoostActive": "Spotlight Boost Active",
+    "timeRemaining": "Time Remaining",
+    "expiresAt": "Expires at",
+    "youReBeingShownToMore": "You're being shown to more people in your area and appearing higher in their discovery feed.",
+    "activateSpotlightBoost": "Activate Spotlight Boost",
+    "getMoreVisibilityYourProfileWill": "Get more visibility! Your profile will be shown to more people in your area. Use coins to activate a boost.",
+    "3Hours": "3 Hours",
+    "use1OfYour": "Use 1 of your",
+    "freeBoosts": "free boosts",
+    "5Coins": "5 coins",
+    "6Hours": "6 Hours",
+    "9Coins": "9 coins",
+    "10Hours": "10 Hours",
+    "13Coins": "13 coins",
+    "premiumRoses": "Premium Roses",
+    "vipPremiumRosesExperience": "💐 VIP Premium Roses Experience",
+    "50Coins": "50 Coins",
+    "walletBalance": "Wallet balance:",
+    "sendRoses": "Send Roses 💐",
+    "buyCoins": "Buy Coins",
+    "500Characters": "/500 characters",
+    "tipWriteSomethingPersonalizedToIncrease": "💡 Tip: Write something personalized to increase your chances of a response!",
+    "youHaveAccessToAllPremium": "You have access to all premium features including unlimited swipes, advanced filters, and the ability to see who liked you.",
+    "unlimitedSwipes": "Unlimited Swipes ✓",
+    "seeWhoLikedYou": "See who liked you ✓",
+    "advancedFilters": "Advanced filters ✓",
+    "instantChat": "Instant Chat",
+    "getSuperlikes": "Get Superlikes",
+    "standOutFromTheCrowdSuperlikes": "Stand out from the crowd! Superlikes give you 3x more chances to match.",
+    "youReceive5FreeSuperlikesEvery": "You receive 5 free Superlikes every month. Top up any time below.",
+    "premiumMembersGet5FreeSuperlikes": "Premium members get 5 free Superlikes every month!",
+    "peopleWhoViewYourProfileWill": "People who view your profile will appear here",
+    "sendInstantMessage": "Send Instant Message",
+    "youHaveUnsavedFilterChangesClose": "You have unsaved filter changes. Close without applying?"
   },
   "matches": {
     "title": "Matches",
@@ -375,7 +422,13 @@
     "matchCount": "{{count}} match",
     "matchCountPlural": "{{count}} matches",
     "instantMessageCount": "{{count}} instant message",
-    "instantMessageCountPlural": "{{count}} instant messages"
+    "instantMessageCountPlural": "{{count}} instant messages",
+    "sendReply": "Send Reply",
+    "chatWith": "Chat with",
+    "viewAndSendMessagesInThis": "View and send messages in this instant message conversation",
+    "messagesStayHereUntilYouBoth": "💬 Messages stay here until you both like each other. Then they'll move to regular chat!",
+    "20MessagesSent": "/ 20 messages sent",
+    "remaining": "remaining"
   },
   "chat": {
     "title": "Chat",
@@ -453,7 +506,21 @@
     "dateAcceptedMsg": "✅ Date accepted!\n📍 {{location}}\n🕐 {{date}}\n\nIt's a date! 🎉",
     "dateDeclinedMsg": "❌ Date declined.\n📍 {{location}}\n🕐 {{date}}",
     "datePlannedMsg": "📅 I planned a date!\n📍 {{location}}\n🕐 {{date}}{{notes}}\n\nCheck your Date Planner to accept!",
-    "dateCanceledMsg": "❌ Date plan canceled.\n📍 {{location}}\n🕐 {{date}}"
+    "dateCanceledMsg": "❌ Date plan canceled.\n📍 {{location}}\n🕐 {{date}}",
+    "youAlreadyHaveAnActiveDate": "You already have an active date plan. Cancel it or wait for it to pass before creating a new one.",
+    "work": "💼 Work",
+    "education": "🎓 Education",
+    "height": "📏 Height",
+    "zodiac": "♈ Zodiac",
+    "religion": "🙏 Religion",
+    "lifestyle": "🌟 Lifestyle",
+    "drinking": "🍷 Drinking",
+    "smoking": "🚬 Smoking",
+    "pets": "🐾 Pets",
+    "soundtrack": "Soundtrack",
+    "message": "Message",
+    "planADateWith": "Plan a date with",
+    "theyLlBeNotifiedInChat": ". They'll be notified in chat!"
   },
   "profile": {
     "myProfile": "My Profile",
@@ -732,19 +799,23 @@
     "deactivateFor": "Deactivate for {{days}} days",
     "updating": "Updating...",
     "updatePassword": "Update Password",
-    "enterEmail": "Please enter your email",
-    "codeSent": "Verification code sent to your email!",
-    "enterEmailAndOtp": "Please enter both email and OTP code",
-    "emailVerified": "Email verified successfully!",
-    "signInFirst": "Please sign in first.",
-    "adminEnabled": "Admin mode enabled.",
-    "failedAdmin": "Failed to enable admin mode.",
-    "cancelInstructions": "To cancel, tap your subscription and select Cancel.",
-    "emailAddress": "Email Address",
-    "sixDigitCode": "6-digit code",
-    "loginInformation": "Login Information",
-    "contactSupportAction": "Contact Support",
-    "restorePurchases": "Restore Purchases"
+    "yourProfileIsInTheSpotlight": "Your profile is in the spotlight. Expires at:",
+    "seeWhoLikedYou": "• See who liked you",
+    "advancedFilters": "• Advanced filters",
+    "yourEmailCom": "your@email.com",
+    "unlockActivityHistoryIncludingCallLogs": "Unlock Activity & History — including call logs, recently viewed profiles, insights, and more — with a premium subscription.",
+    "preferences": "Preferences",
+    "kilometersFromYourLocation": "kilometers from your location",
+    "communitySupport": "Community & Support",
+    "accountManagement": "Account Management",
+    "temporarilyHideYourProfileAfterThe": "Temporarily hide your profile. After the chosen period, your account will be permanently deleted unless you log back in.",
+    "thisWill": "This will",
+    "permanently": "permanently",
+    "deleteYourAccountAndRemoveAll": "delete your account and remove all your data from our servers — including matches, messages, likes, and your profile. This action cannot be undone.",
+    "3Days": "3 days",
+    "1Week": "1 week",
+    "2Weeks": "2 weeks",
+    "1MonthMax": "1 month (max)"
   },
   "editProfile": {
     "heading": "Edit Profile",
@@ -858,7 +929,12 @@
     "artistPlaceholder": "Artist",
     "removeSoundtrack": "Remove soundtrack",
     "yesNotLivingWithMe": "Yes, not living with me",
-    "spotifyDetected": "Spotify detected"
+    "spotifyDetected": "Spotify detected",
+    "profile": "Profile:",
+    "premium": "⭐ Premium",
+    "5Selected": "/5 selected",
+    "couldNotDetectYoutubeOrSpotify": "Could not detect YouTube or Spotify link",
+    "cm": "cm"
   },
   "profileSetup": {
     "heading": "Complete Your Profile",
@@ -929,7 +1005,8 @@
     "uploadPhoto": "Upload profile photo",
     "uploadSelfie": "Upload verification selfie",
     "cityHint": "e.g., Pristina, Tirana",
-    "countryHint": "e.g., Kosovo, Albania"
+    "countryHint": "e.g., Kosovo, Albania",
+    "locationPermissionDeniedYouCanStill": "Location permission denied. You can still use the app but distance won't be shown."
   },
   "spotted": {
     "locationRequired": "Location Required",
@@ -937,7 +1014,8 @@
     "noOneSpottedYet": "No one spotted yet",
     "noOneSpottedDesc": "As you move through your day, people within {{radius}}m of you in the last {{days}} days will appear here.",
     "goToRadar": "Go to Radar",
-    "showingPeople": "Showing people within {{radius}}m in the last {{days}} days"
+    "showingPeople": "Showing people within {{radius}}m in the last {{days}} days",
+    "spotted": "Spotted"
   },
   "whoLikedYou": {
     "heading": "Who Liked You",
@@ -970,7 +1048,8 @@
     "height": "Height",
     "lifestyle": "Lifestyle",
     "zodiac": "Zodiac",
-    "pets": "Pets"
+    "pets": "Pets",
+    "dayStreak": "day streak"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -994,10 +1073,9 @@
     "superlikeSent": "⚡ Superlike sent!",
     "failedSuperlike": "Failed to send superlike",
     "back": "Back",
-    "likedToast": "💛 Liked! They'll see your interest.",
-    "failedLocation": "Failed to save your location. Please try again.",
-    "locationDenied": "Location access denied. Please enable it in your browser settings.",
-    "crossedPaths": "People you've crossed paths with"
+    "mAway": "m away",
+    "radarShowsUsersWithin100Meters": "📡 Radar shows users within 100 meters of your current location",
+    "sendSuperlikesToStandOutAnd": "⭐ Send superlikes to stand out and get noticed!"
   },
   "datePlanner": {
     "heading": "Date Planner",
@@ -1028,7 +1106,8 @@
     "failedCreate": "Failed to create date plan.",
     "expired": "This date plan has already expired and cannot be accepted.",
     "failedUpdate": "Failed to update plan status.",
-    "planUpdated": "Plan updated."
+    "planUpdated": "Plan updated.",
+    "youAlreadyHaveAnActiveDate": "You already have an active date plan with this person. Cancel it or wait for it to pass before creating a new one."
   },
   "notifications": {
     "newMatch": "You have a new match!",
@@ -1050,8 +1129,7 @@
     "noTransactions": "No transactions yet",
     "invalidAmount": "Invalid coin amount",
     "failedUpdate": "Failed to update wallet",
-    "coinsAdded": "Added {{coins}} coins to your wallet.",
-    "backToWallet": "Back to Wallet"
+    "coinsAdded": "Added {{coins}} coins to your wallet."
   },
   "premiumSuccess": {
     "title": "Welcome to Premium!",
@@ -1094,7 +1172,10 @@
     "distance": "Distance",
     "basedOnLocation": "Based on latest location",
     "selectMatchPlaceholder": "Select match",
-    "noSharedInterests": "No shared interests yet"
+    "noSharedInterests": "No shared interests yet",
+    "noMatchesYet": "No matches yet.",
+    "askAbout": "Ask about",
+    "aiSummary": "AI summary"
   },
   "dancing": {
     "shareVideos": "Share your Albanian dancing videos with the community",
@@ -1121,7 +1202,9 @@
     "comingSoon": "Coming Soon",
     "titleWord1": "Dating",
     "titleWord2": "Ideas",
-    "shareTitle": "Share Your Date Ideas"
+    "shareTitle": "Share Your Date Ideas",
+    "creativeDateIdeasThatCelebrateAlbanian": "Creative date ideas that celebrate Albanian culture and create memorable moments",
+    "haveAUniqueAlbanianDateIdea": "Have a unique Albanian date idea? Share it with the community and inspire other couples!"
   },
   "activityFeed": {
     "title": "Activity Feed",
@@ -1336,8 +1419,7 @@
     "profileAnthem": "Profile Anthem",
     "anthemPlaceholder": "Song that describes you, e.g. Blinding Lights - The Weeknd",
     "saveMusicTaste": "Save Music Taste 🎵",
-    "saved": "Music taste saved! 🎵",
-    "removeArtist": "Remove artist"
+    "saved": "Music taste saved! 🎵"
   },
   "notificationsCenter": {
     "title": "Notifications",
@@ -1370,7 +1452,8 @@
     "noRecentlyViewed": "No recently viewed profiles yet.",
     "browseProfiles": "Browse some profiles in Discover to see them here.",
     "goToDiscover": "Go to Discover",
-    "failedLoad": "Failed to load recently viewed profiles."
+    "failedLoad": "Failed to load recently viewed profiles.",
+    "viewed": "viewed"
   },
   "profileInsights": {
     "title": "Profile Insights",
@@ -1464,7 +1547,8 @@
     "cameraError": "Could not access camera",
     "danceUploaded": "Dance video uploaded! 🎉",
     "failedUploadVideo": "Failed to upload video",
-    "urlPlaceholder": "https://..."
+    "urlPlaceholder": "https://...",
+    "tipCreateAStorageBucketNamed": "Tip: Create a storage bucket named \"profile-videos\" with public access for preview."
   },
   "profileSoundtrack": {
     "title": "Profile Soundtrack",
@@ -1486,8 +1570,7 @@
     "failedRemove": "Failed to remove",
     "removeSoundtrack": "Remove soundtrack",
     "musicUrlHint": "https://youtube.com/watch?v=... or https://open.spotify.com/track/...",
-    "youtubePlayer": "YouTube player",
-    "spotifyPlayer": "Spotify player"
+    "couldNotDetectYoutubeOrSpotify": "Could not detect YouTube or Spotify link. Please check the URL."
   },
   "profileVerification": {
     "title": "Get Verified",
@@ -1520,10 +1603,7 @@
     "cameraDenied": "Camera access denied. Please allow camera access or upload a photo instead.",
     "selfieFirst": "Please provide a selfie first.",
     "submitted": "Verification request submitted! We'll review it within 24-48h.",
-    "failedSubmit": "Failed to submit request.",
-    "verification": "Verification",
-    "selfiePreview": "Selfie preview",
-    "idPreview": "ID preview"
+    "failedSubmit": "Failed to submit request."
   },
   "photoVerification": {
     "title": "Photo Verification",
@@ -1781,15 +1861,14 @@
     "callFailed": "Call Failed",
     "browserNotSupported": "Your browser doesn't support audio/video calls. Please use Chrome, Firefox, Safari 11+, or Edge.",
     "httpsRequired": "Audio/video calls require HTTPS. Please use the secure ngrok URL (https://...).",
-    "blockAndEnd": "Block user and end call"
+    "with": "with"
   },
   "incomingCall": {
     "incoming": "Incoming",
     "video": "Video",
     "voice": "Voice",
     "call": "Call",
-    "from": "from",
-    "blockCaller": "Block caller"
+    "from": "from"
   },
   "chatHeader": {
     "backToMatches": "Back to matches",
@@ -1834,11 +1913,11 @@
     "message": "You must be at least 18 years old to use Shqiponja.",
     "confirm": "I am 18+ years old",
     "exit": "Exit",
-    "restrictionNotice": "Age Restriction Notice",
-    "req18": "At least 18 years of age (or the age of majority in your jurisdiction)",
-    "reqLegal": "Legally able to enter into this agreement",
-    "reqLaws": "Able to use this service in accordance with all applicable laws and regulations",
-    "verifyToContinue": "Please verify your age to continue"
+    "shqiponjaIsADatingPlatformFor": "Shqiponja is a dating platform for adults only.",
+    "byContinuingYouConfirmThatYou": "By continuing, you confirm that you are:",
+    "weAreCommittedToProtectingMinors": "We are committed to protecting minors and maintaining a safe dating environment. All users must verify their age during the signup process. Providing false information about your age may result in account termination and legal action.",
+    "byClickingIConfirmYouCertify": "By clicking \"I Confirm\", you certify that you meet the age requirement.",
+    "ifYouAreUnder18Please": "If you are under 18, please exit this application. Continuing means you accept the terms above."
   },
   "radarNearby": {
     "title": "Radar",
@@ -2103,7 +2182,8 @@
     "albanianMusicTrivia": "Albanian Music Trivia"
   },
   "browseProfiles": {
-    "title": "Meet Your Matches"
+    "title": "Meet Your Matches",
+    "discoverAlbanianSinglesWhoShareYour": "Discover Albanian singles who share your values and aspirations"
   },
   "interestsList": {
     "Dating": "Dating",
@@ -2251,11 +2331,59 @@
     "Early Bird": "Early Bird",
     "DIY Projects": "DIY Projects"
   },
+  "dancingChallenge": {
+    "joinTheExclusiveAlbanianDancingCommunity": "Join the exclusive Albanian dancing community",
+    "matchWithDancersYouRateAbove": "Match with dancers you rate above 5/10",
+    "joinValleChannel": "Join Valle Channel",
+    "channelMember": "Channel Member",
+    "showYourMovesAndGetRated": "Show your moves and get rated! Rate above 5 to match 💃",
+    "leaveChannel": "Leave Channel",
+    "startRecording": "Start Recording",
+    "uploadVideo": "Upload Video",
+    "ratings": "ratings)",
+    "submit": "Submit"
+  },
+  "profileGridCard": {
+    "u2713Verified": "✓ Verified"
+  },
+  "errorBoundary": {
+    "weEncounteredAnUnexpectedErrorPlease": "We encountered an unexpected error. Please try refreshing the page.",
+    "refreshPage": "Refresh Page"
+  },
+  "loveStories": {
+    "realStories": "Real Stories",
+    "loveFoundThrough": "Love Found Through",
+    "thousandsOfAlbanianCouplesFoundTheir": "Thousands of Albanian couples found their person here. These are just a few of their stories.",
+    "join": "Join",
+    "albanianSinglesWhoFoundTheir": "Albanian singles who found their"
+  },
+  "matchAnimation": {
+    "breakTheIce": "Break the ice ✨"
+  },
+  "travelModeBadge": {
+    "travelingIn": "✈️ Traveling in"
+  },
+  "videoFeed": {
+    "youCanTRateYourOwn": "You can't rate your own video"
+  },
+  "ageVerification": {
+    "verifyYourAge": "Verify Your Age",
+    "weRequireAllUsersToBe": "We require all users to be 18 or older",
+    "youMustBeAtLeast18": "You must be at least 18 years old to use Shqiponja",
+    "yourDateOfBirthIsUsed": "Your date of birth is used only to verify you meet the age requirement and will be stored securely."
+  },
+  "gameSessionMusic": {
+    "musicLovers": "Music Lovers 🎵",
+    "question": "Question"
+  },
+  "ghostModeAlert": {
+    "ago": "ago"
+  },
+  "myProfile": {
+    "lifestyle": "🌿 Lifestyle"
+  },
   "support": {
-    "title": "Support",
-    "hereToHelp": "We're here to help",
-    "contactUs": "Contact us",
-    "faq": "Frequently asked questions",
-    "safetyPolicies": "Safety & policies"
+    "needHelpOrWantToReport": "Need help or want to report a problem? Email our support team and we'll get back to you",
+    "weHaveZeroToleranceForObjectionable": "We have zero tolerance for objectionable content or abusive behavior. Learn more in our policies:"
   }
 }

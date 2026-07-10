@@ -128,7 +128,8 @@ const RecentlyViewed = () => {
         ) : (
           <>
             <p className="text-xs text-muted-foreground mb-3 px-1">
-              {profiles.length} profile{profiles.length !== 1 ? "s" : ""} viewed
+              {profiles.length} {t("common.profile")}
+              {profiles.length !== 1 ? "s" : ""} {t("recentlyViewed.viewed")}
             </p>
             <div className="space-y-4">
               {profiles.map((profile) => (

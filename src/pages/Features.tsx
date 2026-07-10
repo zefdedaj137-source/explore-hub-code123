@@ -63,7 +63,7 @@ const Features = () => {
           <button
             onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
             className="p-2 hover:bg-muted rounded-full transition-colors"
-            title="Go back"
+            title={t("common.goBack")}
           >
             <ArrowLeft className="h-5 w-5" />
           </button>

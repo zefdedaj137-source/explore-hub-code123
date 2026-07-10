@@ -740,7 +740,7 @@ export const CallDialog = ({
       <DialogContent className="sm:max-w-[600px] bg-[hsl(345,25%,20%)] text-white border-[hsl(345,70%,55%)]">
         <DialogHeader>
           <DialogTitle className="text-[hsl(25,85%,70%)]">
-            {callType === "video" ? "Video Call" : "Voice Call"} with {matchName}
+            {callType === "video" ? "Video Call" : "Voice Call"} {t("callDialog.with")} {matchName}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
             {callStatus === "connecting" && "Connecting..."}

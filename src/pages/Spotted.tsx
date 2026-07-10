@@ -145,13 +145,13 @@ const Spotted = () => {
 
     if (error) {
       if (error.code !== "23505") {
-        toast.error("Failed to like. Try again.");
+        toast.error(t("discover.failedLike"));
       }
       return;
     }
 
     setLikedIds((prev) => new Set([...prev, personId]));
-    toast.success("💛 Liked! They'll see your interest.");
+    toast.success(t("radar.likedToast"));
   };
 
   const handleRequestLocation = () => {
@@ -165,13 +165,13 @@ const Spotted = () => {
           .update({ latitude: lat, longitude: lng, location: `${lat},${lng}` })
           .eq("id", user.id);
         if (error) {
-          toast.error("Failed to save your location. Please try again.");
+          toast.error(t("radar.failedLocation"));
           return;
         }
         setMyLocation({ lat, lng });
         setLocationError(null);
       },
-      () => toast.error("Location access denied. Please enable it in your browser settings.")
+      () => toast.error(t("radar.locationDenied"))
     );
   };
 
@@ -191,9 +191,9 @@ const Spotted = () => {
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold flex items-center gap-2">
               <Navigation className="h-5 w-5 text-primary" />
-              Spotted
+              {t("spotted.spotted")}
             </h1>
-            <p className="text-xs text-muted-foreground">People you've crossed paths with</p>
+            <p className="text-xs text-muted-foreground">{t("radar.crossedPaths")}</p>
           </div>
           <Badge variant="secondary" className="shrink-0">
             <Users className="h-3 w-3 mr-1" />

@@ -38,24 +38,18 @@ const AgeGate = () => {
         <div className="space-y-4 mb-8 text-sm text-muted-foreground">
           <p>
             <strong className="text-foreground">
-              Shqiponja is a dating platform for adults only.
+              {t("ageGate.shqiponjaIsADatingPlatformFor")}
             </strong>{" "}
-            By continuing, you confirm that you are:
+            {t("ageGate.byContinuingYouConfirmThatYou")}
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2">
             <li>{t("ageGate.req18")}</li>
             <li>{t("ageGate.reqLegal")}</li>
             <li>{t("ageGate.reqLaws")}</li>
           </ul>
+          <p>{t("ageGate.weAreCommittedToProtectingMinors")}</p>
           <p>
-            We are committed to protecting minors and maintaining a safe dating environment. All
-            users must verify their age during the signup process. Providing false information about
-            your age may result in account termination and legal action.
-          </p>
-          <p>
-            <strong className="text-foreground">
-              By clicking "I Confirm", you certify that you meet the age requirement.
-            </strong>
+            <strong className="text-foreground">{t("ageGate.byClickingIConfirmYouCertify")}</strong>
           </p>
         </div>
 
@@ -72,8 +66,7 @@ const AgeGate = () => {
         </div>
 
         <p className="text-xs text-center text-muted-foreground mt-4">
-          If you are under 18, please exit this application. Continuing means you accept the terms
-          above.
+          {t("ageGate.ifYouAreUnder18Please")}
         </p>
       </Card>
     </div>

@@ -998,9 +998,7 @@ const Chat = () => {
         .limit(1);
 
       if (existingPlans && existingPlans.length > 0) {
-        toast.error(
-          "You already have an active date plan. Cancel it or wait for it to pass before creating a new one."
-        );
+        toast.error(t("chat.youAlreadyHaveAnActiveDate"));
         setCreatingDatePlan(false);
         return;
       }
@@ -1874,7 +1872,7 @@ const Chat = () => {
         accept="image/*"
         className="hidden"
         aria-label={t("chat.uploadPhoto")}
-        title="Upload photo"
+        title={t("common.uploadPhoto")}
         onChange={handlePhotoSelected}
       />
       <input
@@ -1883,7 +1881,7 @@ const Chat = () => {
         accept="image/*"
         className="hidden"
         aria-label={t("chat.takePhoto")}
-        title="Take photo"
+        title={t("common.takePhoto")}
         onChange={handlePhotoSelected}
       />
 
@@ -2066,17 +2064,17 @@ const Chat = () => {
                         <div className="flex flex-wrap items-center gap-1 mb-2">
                           {matchProfile.verified && (
                             <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              ✓ Verified
+                              {t("weeklySpotlight.verified")}
                             </Badge>
                           )}
                           {matchProfile.is_premium && (
                             <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              Premium
+                              {t("common.premium")}
                             </Badge>
                           )}
                           {matchProfile.video_intro_url && (
                             <Badge className="bg-background/70 text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              Video
+                              {t("common.video")}
                             </Badge>
                           )}
                         </div>
@@ -2126,12 +2124,12 @@ const Chat = () => {
                         <div className="flex flex-wrap items-center gap-1 mb-2">
                           {matchProfile.verified && (
                             <Badge className="bg-primary text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              ✓ Verified
+                              {t("weeklySpotlight.verified")}
                             </Badge>
                           )}
                           {matchProfile.is_premium && (
                             <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none text-[10px] px-1.5 py-0 h-4">
-                              Premium
+                              {t("common.premium")}
                             </Badge>
                           )}
                         </div>
@@ -2195,7 +2193,7 @@ const Chat = () => {
                           ) : (
                             <img
                               src={story.media_url}
-                              alt="Story"
+                              alt={t("profile.story")}
                               className="w-full h-full object-cover"
                             />
                           )}
@@ -2212,13 +2210,13 @@ const Chat = () => {
                 <div className="grid grid-cols-2 gap-4">
                   {matchProfile.work && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.work")}</p>
                       <p className="font-semibold text-sm text-foreground">{matchProfile.work}</p>
                     </Card>
                   )}
                   {matchProfile.education && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.education")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {matchProfile.education}
                       </p>
@@ -2226,7 +2224,7 @@ const Chat = () => {
                   )}
                   {(matchProfile.height_cm || matchProfile.height) && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.height")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {matchProfile.height_cm
                           ? `${matchProfile.height_cm} cm`
@@ -2236,7 +2234,7 @@ const Chat = () => {
                   )}
                   {matchProfile.zodiac_sign && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.zodiac")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {matchProfile.zodiac_sign}
                       </p>
@@ -2244,7 +2242,7 @@ const Chat = () => {
                   )}
                   {matchProfile.religion && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.religion")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {matchProfile.religion}
                       </p>
@@ -2252,7 +2250,7 @@ const Chat = () => {
                   )}
                   {matchProfile.lifestyle && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.lifestyle")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {matchProfile.lifestyle}
                       </p>
@@ -2260,7 +2258,7 @@ const Chat = () => {
                   )}
                   {matchProfile.drinking && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.drinking")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {matchProfile.drinking}
                       </p>
@@ -2268,7 +2266,7 @@ const Chat = () => {
                   )}
                   {matchProfile.smoking && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.smoking")}</p>
                       <p className="font-semibold text-sm text-foreground">
                         {matchProfile.smoking}
                       </p>
@@ -2276,7 +2274,7 @@ const Chat = () => {
                   )}
                   {matchProfile.pets && (
                     <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                      <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                      <p className="text-xs text-muted-foreground mb-1.5">{t("chat.pets")}</p>
                       <p className="font-semibold text-sm text-foreground">{matchProfile.pets}</p>
                     </Card>
                   )}
@@ -2286,7 +2284,7 @@ const Chat = () => {
                 {matchProfile.bio && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">💬</span> About
+                      <span className="text-2xl">💬</span> {t("profile.about")}
                     </h3>
                     <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                       {sanitizeText(matchProfile.bio || "")}
@@ -2300,7 +2298,7 @@ const Chat = () => {
                   myInterests.length > 0 && (
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg flex items-center gap-2">
-                        <span className="text-2xl">✨</span> Shared Interests
+                        <span className="text-2xl">✨</span> {t("profile.sharedInterests")}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {matchProfile.interests
@@ -2323,7 +2321,7 @@ const Chat = () => {
                 {matchProfile.looking_for && matchProfile.looking_for.length > 0 && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">💕</span> Looking For
+                      <span className="text-2xl">💕</span> {t("discover.lookingFor")}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {matchProfile.looking_for.map((item, idx) => (
@@ -2342,7 +2340,7 @@ const Chat = () => {
                 {matchProfile.interests && matchProfile.interests.length > 0 && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">✨</span> Interests
+                      <span className="text-2xl">✨</span> {t("profile.interests")}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {matchProfile.interests.map((interest, idx) => (
@@ -2362,7 +2360,7 @@ const Chat = () => {
                 {matchProfile.soundtrack_url && (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">🎵</span> Soundtrack
+                      <span className="text-2xl">🎵</span> {t("chat.soundtrack")}
                     </h3>
                     {matchProfile.soundtrack_title && (
                       <p className="text-sm text-muted-foreground">
@@ -2384,7 +2382,7 @@ const Chat = () => {
                               className="w-full h-full"
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
-                              title="Profile soundtrack"
+                              title={t("editProfile.profileSoundtrack")}
                             />
                           </div>
                         ) : null;
@@ -2402,7 +2400,7 @@ const Chat = () => {
                               height="152"
                               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                               loading="lazy"
-                              title="Profile soundtrack"
+                              title={t("editProfile.profileSoundtrack")}
                             />
                           </div>
                         ) : null;
@@ -2418,7 +2416,7 @@ const Chat = () => {
                     className="flex-1"
                     onClick={() => setShowProfileDialog(false)}
                   >
-                    Close
+                    {t("common.close")}
                   </Button>
                   <Button
                     size="lg"
@@ -2428,7 +2426,7 @@ const Chat = () => {
                     }}
                   >
                     <MessageCircle className="h-5 w-5 mr-2" />
-                    Message
+                    {t("chat.message")}
                   </Button>
                 </div>
               </div>
@@ -2443,10 +2441,11 @@ const Chat = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
-              Plan a Date
+              {t("featuresPage.planDate")}
             </DialogTitle>
             <DialogDescription>
-              Plan a date with {matchProfile?.full_name}. They'll be notified in chat!
+              {t("chat.planADateWith")} {matchProfile?.full_name}
+              {t("chat.theyLlBeNotifiedInChat")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-2">
@@ -2566,7 +2565,7 @@ const Chat = () => {
               ) : (
                 <img
                   src={matchStories[matchStoryIndex].media_url}
-                  alt="Story"
+                  alt={t("profile.story")}
                   className="w-full aspect-[9/16] object-cover"
                 />
               )}

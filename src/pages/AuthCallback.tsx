@@ -46,7 +46,7 @@ const AuthCallback = () => {
         if (!profile) {
           // New user - if they came via OAuth, they must verify age first
           if (requiresAgeVerification) {
-            toast.info("Please verify your age to continue");
+            toast.info(t("ageGate.verifyToContinue"));
             navigate("/age-verification", { replace: true });
           } else {
             toast.success(t("authCallback.welcome"));
@@ -60,7 +60,7 @@ const AuthCallback = () => {
             navigate("/discover", { replace: true });
           } else if (requiresAgeVerification) {
             // They came via OAuth and haven't verified age yet
-            toast.info("Please verify your age to continue");
+            toast.info(t("ageGate.verifyToContinue"));
             navigate("/age-verification", { replace: true });
           } else {
             // Legacy: Profile exists but age not verified - send to age verification or profile setup

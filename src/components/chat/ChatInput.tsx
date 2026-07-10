@@ -136,7 +136,7 @@ export function ChatInput({
                 className="border-border text-foreground hover:bg-primary/30"
                 onClick={onClearImage}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={onSendPhoto}
@@ -147,7 +147,7 @@ export function ChatInput({
                   "Sending..."
                 ) : (
                   <>
-                    <Send className="h-5 w-5 mr-1" /> Send Photo
+                    <Send className="h-5 w-5 mr-1" /> {t("chatInput.sendPhoto")}
                   </>
                 )}
               </Button>
@@ -164,7 +164,7 @@ export function ChatInput({
               className="border-border text-foreground hover:bg-primary/30"
               onClick={onCancelVoice}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={onSendVoice} className="bg-primary text-white hover:bg-primary">
               <Send className="h-5 w-5" />

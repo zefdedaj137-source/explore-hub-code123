@@ -76,10 +76,7 @@
     "releaseToRefresh": "↓ Loslaten om te vernieuwen",
     "share": "Delen",
     "disable": "Uitschakelen",
-    "online": "Online",
-    "userNotAuthenticated": "Gebruiker niet geverifieerd",
-    "albanianEagle": "Albanese adelaar",
-    "happyAlbanianCouple": "Gelukkig Albanees paar"
+    "online": "Online"
   },
   "auth": {
     "signIn": "Inloggen",
@@ -132,7 +129,8 @@
     "signupFailed": "Aanmelding mislukt: {{error}}",
     "emailPlaceholder": "jij@voorbeeld.com",
     "phonePlaceholder": "Voer het telefoonnummer in",
-    "resetLinkDesc": "Vul je e-mailadres in, dan sturen we je een link om je wachtwoord opnieuw in te stellen"
+    "resetLinkDesc": "Vul je e-mailadres in, dan sturen we je een link om je wachtwoord opnieuw in te stellen",
+    "accountCreatedPleaseCheckYourEmail": "✅ Je account is aangemaakt! Controleer je e-mail en klik op de bevestigingslink om de registratie te voltooien."
   },
   "nav": {
     "discover": "Ontdek",
@@ -298,15 +296,64 @@
     "roses": "Rozen",
     "noBoosterDesc": "Er zijn momenteel geen gebruikers in uw regio die Boost gebruiken",
     "getCoins": "Munten krijgen",
-    "premiumRoseBouquet": "Premium rozenboeket",
-    "failedPremiumRoses": "Verzenden van premium rozen mislukt",
-    "sendRoses": "Rozen sturen",
-    "instantMessage": "Direct bericht",
-    "undoLastAction": "Laatste actie ongedaan maken",
-    "boosterActive": "Booster is al actief!",
-    "failedBooster": "Activeren van booster mislukt",
-    "premiumRequiredBooster": "Premium-abonnement vereist om booster te activeren",
-    "failedLike": "Liken mislukt. Probeer opnieuw."
+    "funGames": "Plezier & Spelletjes",
+    "datingTools": "Datingtools",
+    "km": "(km)",
+    "aries": "♈ Ram",
+    "taurus": "♉ Stier",
+    "gemini": "♊ Tweelingen",
+    "cancer": "♋ Kanker",
+    "leo": "♌ Leo",
+    "virgo": "♍ Maagd",
+    "libra": "♎ Weegschaal",
+    "scorpio": "♏ Schorpioen",
+    "sagittarius": "♐ Boogschutter",
+    "capricorn": "♑ Steenbok",
+    "aquarius": "♒ Waterman",
+    "pisces": "♓ Vissen",
+    "getVerifiedHeightLifestyleMoreFilters": "Verificatie, lengte, levensstijl en meer filters",
+    "applyFilters": "Filters toepassen",
+    "changesWillApplyAfterClickingApply": "De wijzigingen worden doorgevoerd nadat u op \"Filters toepassen\" hebt geklikt\"",
+    "forYou": "Voor jou",
+    "lastActive": "Laatst actief",
+    "getYourBlueTick": "Zorg dat je het blauwe vinkje krijgt ✓",
+    "verifiedProfilesGet3MoreMatches": "Geverifieerde profielen krijgen 3× meer matches. Tik hier om je profiel nu te verifiëren.",
+    "match": "% Wedstrijd",
+    "seeFullProfile": "Bekijk het volledige profiel",
+    "spotlightBoostActive": "Spotlight Boost Active",
+    "timeRemaining": "Resterende tijd",
+    "expiresAt": "Verloopt op",
+    "youReBeingShownToMore": "Je wordt aan meer mensen in jouw omgeving getoond en verschijnt hoger in hun ontdekkingsfeed.",
+    "activateSpotlightBoost": "Spotlight Boost inschakelen",
+    "getMoreVisibilityYourProfileWill": "Zorg voor meer zichtbaarheid! Je profiel wordt aan meer mensen in jouw omgeving getoond. Gebruik munten om een boost te activeren.",
+    "3Hours": "3 Openingstijden",
+    "use1OfYour": "Gebruik 1 van je",
+    "freeBoosts": "gratis boosts",
+    "5Coins": "5 munten",
+    "6Hours": "6 Openingstijden",
+    "9Coins": "9 munten",
+    "10Hours": "10 Openingstijden",
+    "13Coins": "13 munten",
+    "premiumRoses": "Eersteklas rozen",
+    "vipPremiumRosesExperience": "💐 VIP Premium Rozenbeleving",
+    "50Coins": "50 Munten",
+    "walletBalance": "Saldo op de portemonnee:",
+    "sendRoses": "Rozen versturen 💐",
+    "buyCoins": "Munten kopen",
+    "500Characters": "/500 tekens",
+    "tipWriteSomethingPersonalizedToIncrease": "💡 Tip: Schrijf iets persoonlijks om je kansen op een reactie te vergroten!",
+    "youHaveAccessToAllPremium": "Je hebt toegang tot alle premiumfuncties, waaronder onbeperkt swipen, geavanceerde filters en de mogelijkheid om te zien wie jou leuk vond.",
+    "unlimitedSwipes": "Onbeperkt swipen ✓",
+    "seeWhoLikedYou": "Bekijk wie je leuk vond ✓",
+    "advancedFilters": "Geavanceerde filters ✓",
+    "instantChat": "Live chat",
+    "getSuperlikes": "Superlikes ontvangen",
+    "standOutFromTheCrowdSuperlikes": "Val op tussen de rest! Met Superlikes heb je drie keer zoveel kans op een match.",
+    "youReceive5FreeSuperlikesEvery": "Je krijgt elke maand 5 gratis Superlikes. Je kunt hieronder op elk moment je tegoed aanvullen.",
+    "premiumMembersGet5FreeSuperlikes": "Premiumleden krijgen elke maand 5 gratis Superlikes!",
+    "peopleWhoViewYourProfileWill": "Hier verschijnen de mensen die je profiel bekijken",
+    "sendInstantMessage": "Een chatbericht versturen",
+    "youHaveUnsavedFilterChangesClose": "Er zijn nog niet-opgeslagen wijzigingen in de filterinstellingen. Sluiten zonder toe te passen?"
   },
   "matches": {
     "title": "Matches",
@@ -375,7 +422,13 @@
     "matchCount": "{{count}} treffers",
     "matchCountPlural": "{{count}} resultaten",
     "instantMessageCount": "{{count}} chatberichten",
-    "instantMessageCountPlural": "{{count}} chatberichten"
+    "instantMessageCountPlural": "{{count}} chatberichten",
+    "sendReply": "Antwoord verzenden",
+    "chatWith": "Chat met",
+    "viewAndSendMessagesInThis": "Berichten in dit chatgesprek bekijken en versturen",
+    "messagesStayHereUntilYouBoth": "💬 Berichten blijven hier staan totdat jullie elkaar allebei leuk vinden. Daarna worden ze verplaatst naar de gewone chat!",
+    "20MessagesSent": "/ 20 verzonden berichten",
+    "remaining": "resterend"
   },
   "chat": {
     "title": "Chat",
@@ -453,7 +506,21 @@
     "dateAcceptedMsg": "✅ Afspraak bevestigd!\n📍 {{location}}\n🕐 {{date}}\n\nHet is zover! 🎉",
     "dateDeclinedMsg": "❌ Afgewezen.\n📍 {{location}}\n🕐 {{date}}",
     "datePlannedMsg": "📅 Ik heb een afspraak gepland!\n📍 {{locatie}}\n🕐 {{datum}}{{opmerkingen}}\n\nKijk in je agenda om te bevestigen!",
-    "dateCanceledMsg": "❌ Afspraak geannuleerd.\n📍 {{location}}\n🕐 {{date}}"
+    "dateCanceledMsg": "❌ Afspraak geannuleerd.\n📍 {{location}}\n🕐 {{date}}",
+    "youAlreadyHaveAnActiveDate": "Je hebt al een actief dateplan. Zeg dit op of wacht tot het is verlopen voordat je een nieuw plan aanmaakt.",
+    "work": "💼 Werk",
+    "education": "🎓 Onderwijs",
+    "height": "📏 Hoogte",
+    "zodiac": "♈ Dierenriem",
+    "religion": "🙏 Religie",
+    "lifestyle": "🌟 Levensstijl",
+    "drinking": "🍷 Drinken",
+    "smoking": "🚬 Roken",
+    "pets": "🐾 Huisdieren",
+    "soundtrack": "Soundtrack",
+    "message": "Bericht",
+    "planADateWith": "Plan een afspraakje met",
+    "theyLlBeNotifiedInChat": ". Ze krijgen een melding in de chat!"
   },
   "profile": {
     "myProfile": "Mijn profiel",
@@ -549,12 +616,12 @@
     "men": "Maar",
     "women": "Vrouwen",
     "everyone": "Iedereen",
-    "ageRange": "Leeftijdsgroep",
+    "ageRange": "Leeftijdsgroep:",
     "minAge": "Minimumleeftijd",
     "maxAge": "Maximale leeftijd",
     "maximumDistance": "Maximale afstand",
     "km": "km",
-    "showProfilesWithin": "Toon profielen binnen {{distance}} km van je locatie",
+    "showProfilesWithin": "Profielen weergeven binnen",
     "saveDiscoverySettings": "Instellingen voor 'Ontdekken' opslaan",
     "activity": "Activiteiten & Geschiedenis",
     "callHistory": "Belgeschiedenis",
@@ -587,7 +654,7 @@
     "safetyCheckInDesc": "Laat iemand weten dat je in orde bent",
     "blockedUsers": "Geblokkeerde gebruikers",
     "blockedUsersDesc": "Beheer je blokkeerlijst",
-    "appearance": "Uiterlijk",
+    "appearance": "Uiterlijk (",
     "privacySecurity": "Privacy en veiligheid",
     "incognitoMode": "Incognitomodus",
     "incognitoDesc": "Verberg je profiel",
@@ -622,13 +689,13 @@
     "verifyingCode": "Bezig met controleren...",
     "verifyCode": "Code verifiëren",
     "sendingCodeTo": "Code verzenden naar",
-    "spotlightBooster": "Spotlight-booster",
+    "spotlightBooster": "• Spotlight-versterker",
     "boosterActive": "Booster actief!",
     "boosterDesc": "Kom in de rubriek \"Laatst actief\" en krijg tot wel 10 keer meer profielweergaven",
     "premiumMembership": "Premium-lidmaatschap",
     "autoDeleteAfter": "Automatisch verwijderen na:",
     "languageGjuha": "Taal / Gjuha",
-    "browserPermission": "Browsermachtiging",
+    "browserPermission": "Browsermachtiging:",
     "discovery": "Instellingen voor 'Ontdekken'",
     "discoveryDesc": "Pas je zoekvoorkeuren aan",
     "activityHistory": "Activiteiten & Geschiedenis",
@@ -692,7 +759,7 @@
     "boosterExpires": "Je profiel staat in de schijnwerpers. Verloopt om: {{time}}",
     "visibleInLastActive": "Je bent voor iedereen zichtbaar onder 'Laatst actief'",
     "managePremiumDesc": "Beheer je premiumabonnement",
-    "unlimitedSwipes": "Onbeperkt swipen",
+    "unlimitedSwipes": "• Onbeperkt swipen",
     "seeWhoLiked": "Bekijk wie je leuk vond",
     "advancedFiltersFeature": "Geavanceerde filters",
     "spotlightAccess": "Toegang tot de Spotlight-booster",
@@ -706,7 +773,7 @@
     "permissionBtn": "Toestemming",
     "disableBtn": "Uitschakelen",
     "subscribeBtn": "Abonneren",
-    "quietHours": "Rusttijden: {{start}} – {{end}}",
+    "quietHours": "Rusttijden:",
     "imageGuidelines": "Richtlijnen voor afbeeldingen",
     "imageGuidelinesDesc": "Richtlijnen voor afbeeldingen",
     "privacyPolicyTitle": "Privacybeleid",
@@ -729,22 +796,26 @@
     "analyticsDashboardDesc": "Bekijk de belangrijkste statistieken",
     "cancelPremiumConfirmDesc": "Weet je zeker dat je je premiumlidmaatschap wilt opzeggen? Je verliest dan de toegang tot:",
     "deactivateDesc": "Je profiel wordt onmiddellijk verborgen. Na de gekozen periode worden je account en alle gegevens definitief verwijderd, tenzij je je opnieuw aanmeldt.",
-    "deactivateFor": "{{days}} dagen deactiveren",
+    "deactivateFor": "Deactiveren voor",
     "updating": "Bezig met bijwerken...",
     "updatePassword": "Wachtwoord wijzigen",
-    "enterEmail": "Voer uw e-mailadres in",
-    "codeSent": "Verificatiecode naar uw e-mail verzonden!",
-    "enterEmailAndOtp": "Voer zowel e-mail als OTP-code in",
-    "emailVerified": "E-mail succesvol geverifieerd!",
-    "signInFirst": "Meld u eerst aan.",
-    "adminEnabled": "Beheerdersmodus ingeschakeld.",
-    "failedAdmin": "Inschakelen van beheerdersmodus mislukt.",
-    "cancelInstructions": "Tik om te annuleren op uw abonnement en kies Annuleren.",
-    "emailAddress": "E-mailadres",
-    "sixDigitCode": "6-cijferige code",
-    "loginInformation": "Aanmeldgegevens",
-    "contactSupportAction": "Contact met ondersteuning",
-    "restorePurchases": "Aankopen herstellen"
+    "yourProfileIsInTheSpotlight": "Je profiel staat in de schijnwerpers. Verloopt op:",
+    "seeWhoLikedYou": "• Bekijk wie je leuk vond",
+    "advancedFilters": "• Geavanceerde filters",
+    "yourEmailCom": "your@email.com",
+    "unlockActivityHistoryIncludingCallLogs": "Krijg toegang tot activiteiten en geschiedenis — waaronder belgeschiedenis, recent bekeken profielen, inzichten en meer — met een premiumabonnement.",
+    "preferences": "Voorkeuren",
+    "kilometersFromYourLocation": "kilometer vanaf je locatie",
+    "communitySupport": "Gemeenschap & Ondersteuning",
+    "accountManagement": "Accountbeheer",
+    "temporarilyHideYourProfileAfterThe": "Verberg je profiel tijdelijk. Na de gekozen periode wordt je account definitief verwijderd, tenzij je opnieuw inlogt.",
+    "thisWill": "Dit zal",
+    "permanently": "blijvend",
+    "deleteYourAccountAndRemoveAll": "je account verwijderen en al je gegevens van onze servers verwijderen — inclusief wedstrijden, berichten, likes en je profiel. Deze handeling kan niet ongedaan worden gemaakt.",
+    "3Days": "3 dagen",
+    "1Week": "1 week",
+    "2Weeks": "2 weken",
+    "1MonthMax": "1 maand (max.)"
   },
   "editProfile": {
     "heading": "Profiel bewerken",
@@ -858,7 +929,12 @@
     "artistPlaceholder": "Kunstenaar",
     "removeSoundtrack": "Soundtrack verwijderen",
     "yesNotLivingWithMe": "Ja, ze woont niet bij mij",
-    "spotifyDetected": "Spotify gedetecteerd"
+    "spotifyDetected": "Spotify gedetecteerd",
+    "profile": "Profiel:",
+    "premium": "⭐ Premium",
+    "5Selected": "/5 geselecteerd",
+    "couldNotDetectYoutubeOrSpotify": "Er kon geen YouTube- of Spotify-link worden gedetecteerd",
+    "cm": "cm"
   },
   "profileSetup": {
     "heading": "Vul je profiel aan",
@@ -929,7 +1005,8 @@
     "uploadPhoto": "Profielfoto uploaden",
     "uploadSelfie": "Verificatieselfie uploaden",
     "cityHint": "bijv. Pristina, Tirana",
-    "countryHint": "bijvoorbeeld Kosovo, Albanië"
+    "countryHint": "bijvoorbeeld Kosovo, Albanië",
+    "locationPermissionDeniedYouCanStill": "Toestemming voor locatiegegevens geweigerd. Je kunt de app nog steeds gebruiken, maar de afstand wordt niet weergegeven."
   },
   "spotted": {
     "locationRequired": "Locatie vereist",
@@ -937,7 +1014,8 @@
     "noOneSpottedYet": "Er is nog niemand gezien",
     "noOneSpottedDesc": "Naarmate je dag vordert, verschijnen hier mensen die zich de afgelopen {{days}} dagen binnen {{radius}} meter van je bevonden.",
     "goToRadar": "Ga naar Radar",
-    "showingPeople": "Mensen binnen {{radius}} m in de afgelopen {{days}} dagen weergeven"
+    "showingPeople": "Mensen binnen {{radius}} m in de afgelopen {{days}} dagen weergeven",
+    "spotted": "Gezien"
   },
   "whoLikedYou": {
     "heading": "Wie vond je leuk",
@@ -970,7 +1048,8 @@
     "height": "Hoogte",
     "lifestyle": "Levensstijl",
     "zodiac": "Sterrenbeeld",
-    "pets": "Huisdieren"
+    "pets": "Huisdieren",
+    "dayStreak": "aantal opeenvolgende dagen"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -994,10 +1073,9 @@
     "superlikeSent": "⚡ Superlike verzonden!",
     "failedSuperlike": "Het verzenden van superlike is mislukt",
     "back": "Terug",
-    "likedToast": "💛 Geliket! Ze zien je interesse.",
-    "failedLocation": "Uw locatie kon niet worden opgeslagen. Probeer opnieuw.",
-    "locationDenied": "Locatietoegang geweigerd. Schakel dit in bij uw browserinstellingen.",
-    "crossedPaths": "Mensen die je pad hebt gekruist"
+    "mAway": "m verderop",
+    "radarShowsUsersWithin100Meters": "📡 Radar toont gebruikers binnen 100 meter van je huidige locatie",
+    "sendSuperlikesToStandOutAnd": "⭐ Stuur superlikes om op te vallen en de aandacht te trekken!"
   },
   "datePlanner": {
     "heading": "Agenda",
@@ -1028,7 +1106,8 @@
     "failedCreate": "Het is niet gelukt om een afspraak aan te maken.",
     "expired": "Deze afspraak is al verlopen en kan niet meer worden geaccepteerd.",
     "failedUpdate": "Het is niet gelukt om de status van het plan bij te werken.",
-    "planUpdated": "Plan bijgewerkt."
+    "planUpdated": "Plan bijgewerkt.",
+    "youAlreadyHaveAnActiveDate": "Je hebt al een afspraak met deze persoon. Zeg die af of wacht tot die voorbij is voordat je een nieuwe maakt."
   },
   "notifications": {
     "newMatch": "Je hebt een nieuwe match!",
@@ -1050,8 +1129,7 @@
     "noTransactions": "Nog geen transacties",
     "invalidAmount": "Ongeldig muntbedrag",
     "failedUpdate": "Het bijwerken van de portemonnee is mislukt",
-    "coinsAdded": "Er zijn {{coins}} munten aan je portemonnee toegevoegd.",
-    "backToWallet": "Terug naar portemonnee"
+    "coinsAdded": "Er zijn {{coins}} munten aan je portemonnee toegevoegd."
   },
   "premiumSuccess": {
     "title": "Welkom bij Premium!",
@@ -1094,7 +1172,10 @@
     "distance": "Afstand",
     "basedOnLocation": "Op basis van de meest recente locatie",
     "selectMatchPlaceholder": "Match selecteren",
-    "noSharedInterests": "Nog geen gemeenschappelijke interesses"
+    "noSharedInterests": "Nog geen gemeenschappelijke interesses",
+    "noMatchesYet": "Nog geen resultaten.",
+    "askAbout": "Vraag naar",
+    "aiSummary": "AI-samenvatting"
   },
   "dancing": {
     "shareVideos": "Deel je video’s van Albanese dansen met de community",
@@ -1121,7 +1202,9 @@
     "comingSoon": "Binnenkort beschikbaar",
     "titleWord1": "Voormalig",
     "titleWord2": "Ideeën",
-    "shareTitle": "Deel je date-ideeën"
+    "shareTitle": "Deel je date-ideeën",
+    "creativeDateIdeasThatCelebrateAlbanian": "Creatieve date-ideeën die de Albanese cultuur in de schijnwerpers zetten en voor onvergetelijke momenten zorgen",
+    "haveAUniqueAlbanianDateIdea": "Heb je een uniek idee voor een date in Albanië? Deel het met de community en inspireer andere stellen!"
   },
   "activityFeed": {
     "title": "Activiteitenfeed",
@@ -1336,8 +1419,7 @@
     "profileAnthem": "Profiel Anthem",
     "anthemPlaceholder": "Een nummer dat bij je past, bijvoorbeeld Blinding Lights - The Weeknd",
     "saveMusicTaste": "Sla je muzieksmaak op 🎵",
-    "saved": "Muzieksmaak opgeslagen! 🎵",
-    "removeArtist": "Artiest verwijderen"
+    "saved": "Muzieksmaak opgeslagen! 🎵"
   },
   "notificationsCenter": {
     "title": "Meldingen",
@@ -1370,7 +1452,8 @@
     "noRecentlyViewed": "Er zijn nog geen recent bekeken profielen.",
     "browseProfiles": "Bekijk enkele profielen in Ontdek om ze hier te zien.",
     "goToDiscover": "Ga naar Ontdekken",
-    "failedLoad": "Het laden van recent bekeken profielen is mislukt."
+    "failedLoad": "Het laden van recent bekeken profielen is mislukt.",
+    "viewed": "bekeken"
   },
   "profileInsights": {
     "title": "Profielinzichten",
@@ -1464,7 +1547,8 @@
     "cameraError": "Er kon geen verbinding worden gemaakt met de camera",
     "danceUploaded": "Dansvideo geüpload! 🎉",
     "failedUploadVideo": "Het uploaden van de video is mislukt",
-    "urlPlaceholder": "https://..."
+    "urlPlaceholder": "https://...",
+    "tipCreateAStorageBucketNamed": "Tip: Maak een opslagbucket aan met de naam \"profile-videos\" en openbare toegang voor het bekijken van voorbeelden."
   },
   "profileSoundtrack": {
     "title": "Profielmuziek",
@@ -1486,8 +1570,7 @@
     "failedRemove": "Kan niet verwijderen",
     "removeSoundtrack": "Soundtrack verwijderen",
     "musicUrlHint": "https://youtube.com/watch?v=... of https://open.spotify.com/track/...",
-    "youtubePlayer": "YouTube-speler",
-    "spotifyPlayer": "Spotify-speler"
+    "couldNotDetectYoutubeOrSpotify": "Er kon geen YouTube- of Spotify-link worden gedetecteerd. Controleer de URL alstublieft.."
   },
   "profileVerification": {
     "title": "Laat je verifiëren",
@@ -1520,10 +1603,7 @@
     "cameraDenied": "Toegang tot de camera geweigerd. Geef toestemming voor cameratoegang of upload in plaats daarvan een foto.",
     "selfieFirst": "Stuur eerst een selfie.",
     "submitted": "Verificatieverzoek verzonden! We zullen dit binnen 24 tot 48 uur beoordelen.",
-    "failedSubmit": "Het verzenden van het verzoek is mislukt.",
-    "verification": "Verificatie",
-    "selfiePreview": "Selfievoorbeeld",
-    "idPreview": "ID-voorbeeld"
+    "failedSubmit": "Het verzenden van het verzoek is mislukt."
   },
   "photoVerification": {
     "title": "Fotoverificatie",
@@ -1781,15 +1861,14 @@
     "callFailed": "Oproep mislukt",
     "browserNotSupported": "Je browser ondersteunt geen audio- of videogesprekken. Gebruik Chrome, Firefox, Safari 11 of hoger, of Edge.",
     "httpsRequired": "Voor audio- en videogesprekken is HTTPS vereist. Gebruik de beveiligde ngrok-URL (https://...).",
-    "blockAndEnd": "Gebruiker blokkeren en gesprek beëindigen"
+    "with": "met"
   },
   "incomingCall": {
     "incoming": "Inkomend",
     "video": "Video",
     "voice": "Stem",
     "call": "Bel",
-    "from": "van",
-    "blockCaller": "Beller blokkeren"
+    "from": "van"
   },
   "chatHeader": {
     "backToMatches": "Terug naar de matches",
@@ -1834,11 +1913,11 @@
     "message": "Je moet minimaal 18 jaar oud zijn om Shqiponja te gebruiken.",
     "confirm": "Ik ben 18 jaar of ouder",
     "exit": "Afsluiten",
-    "restrictionNotice": "Kennisgeving leeftijdsbeperking",
-    "req18": "Minstens 18 jaar oud (of de meerderjarigheid in uw rechtsgebied)",
-    "reqLegal": "Wettelijk bevoegd om deze overeenkomst aan te gaan",
-    "reqLaws": "In staat om deze dienst te gebruiken in overeenstemming met alle toepasselijke wetten en voorschriften",
-    "verifyToContinue": "Bevestig uw leeftijd om door te gaan"
+    "shqiponjaIsADatingPlatformFor": "Shqiponja is een datingplatform uitsluitend voor volwassenen.",
+    "byContinuingYouConfirmThatYou": "Door verder te gaan, bevestigt u dat u:",
+    "weAreCommittedToProtectingMinors": "Wij zetten ons in voor de bescherming van minderjarigen en het handhaven van een veilige datingomgeving. Alle gebruikers moeten tijdens het aanmeldingsproces hun leeftijd verifiëren. Het verstrekken van valse informatie over je leeftijd kan leiden tot beëindiging van je account en juridische stappen..",
+    "byClickingIConfirmYouCertify": "Door op „Ik bevestig“ te klikken, verklaar je dat je aan de leeftijdsvereiste voldoet.",
+    "ifYouAreUnder18Please": "Als je jonger bent dan 18 jaar, verzoeken wij je deze aanvraag te verlaten. Als je doorgaat, betekent dit dat je akkoord gaat met de bovenstaande voorwaarden."
   },
   "radarNearby": {
     "title": "Radar",
@@ -1871,7 +1950,7 @@
   },
   "privacy": {
     "title": "Privacybeleid",
-    "lastUpdated": "Laatst bijgewerkt: 31 januari 2026",
+    "lastUpdated": "Laatst bijgewerkt:",
     "back": "Terug",
     "p1": "We verzamelen de gegevens die u verstrekt om de dienst te kunnen leveren, waaronder profielgegevens, foto’s, berichten en gebruiksgegevens.",
     "p2": "We gebruiken deze gegevens om overeenkomsten te tonen, de veiligheid te verbeteren en je ervaring te personaliseren. Je kunt op elk moment een kopie van je gegevens opvragen of je account verwijderen.",
@@ -2103,7 +2182,8 @@
     "albanianMusicTrivia": "Weetjes over Albanese muziek"
   },
   "browseProfiles": {
-    "title": "Maak kennis met je matches"
+    "title": "Maak kennis met je matches",
+    "discoverAlbanianSinglesWhoShareYour": "Ontdek Albanese singles die jouw waarden en ambities delen"
   },
   "interestsList": {
     "Dating": "Voormalig",
@@ -2251,11 +2331,59 @@
     "Early Bird": "Vroegboekkorting",
     "DIY Projects": "Klusprojecten"
   },
+  "dancingChallenge": {
+    "joinTheExclusiveAlbanianDancingCommunity": "Word lid van de exclusieve Albanese dansgemeenschap",
+    "matchWithDancersYouRateAbove": "Zoek dansers die je hoger hebt beoordeeld 5/10",
+    "joinValleChannel": "Word lid van Valle Channel",
+    "channelMember": "Kanaallid",
+    "showYourMovesAndGetRated": "Laat zien wat je in huis hebt en krijg een beoordeling! Behaal een score van meer dan 5 om een match te krijgen 💃",
+    "leaveChannel": "Kanaal verlaten",
+    "startRecording": "Opname starten",
+    "uploadVideo": "Video uploaden",
+    "ratings": "beoordelingen)",
+    "submit": "Verzenden"
+  },
+  "profileGridCard": {
+    "u2713Verified": "✓ Geverifieerd"
+  },
+  "errorBoundary": {
+    "weEncounteredAnUnexpectedErrorPlease": "Er is een onverwachte fout opgetreden. Probeer de pagina opnieuw te laden..",
+    "refreshPage": "Pagina vernieuwen"
+  },
+  "loveStories": {
+    "realStories": "Echte verhalen",
+    "loveFoundThrough": "Liefde gevonden via",
+    "thousandsOfAlbanianCouplesFoundTheir": "Duizenden Albanese stellen hebben hier hun partner gevonden. Dit zijn slechts enkele van hun verhalen.",
+    "join": "Doe mee",
+    "albanianSinglesWhoFoundTheir": "Albanese singles die hun"
+  },
+  "matchAnimation": {
+    "breakTheIce": "Het ijs breken ✨"
+  },
+  "travelModeBadge": {
+    "travelingIn": "✈️ Reizen in"
+  },
+  "videoFeed": {
+    "youCanTRateYourOwn": "Je kunt je eigen video niet beoordelen"
+  },
+  "ageVerification": {
+    "verifyYourAge": "Controleer je leeftijd",
+    "weRequireAllUsersToBe": "We eisen dat alle gebruikers 18 jaar of ouder zijn",
+    "youMustBeAtLeast18": "Je moet minstens 18 jaar oud zijn om Shqiponja te kunnen gebruiken",
+    "yourDateOfBirthIsUsed": "Je geboortedatum wordt uitsluitend gebruikt om te controleren of je aan de leeftijdsvereiste voldoet en wordt veilig opgeslagen."
+  },
+  "gameSessionMusic": {
+    "musicLovers": "Muziekliefhebbers 🎵",
+    "question": "Vraag"
+  },
+  "ghostModeAlert": {
+    "ago": "geleden"
+  },
+  "myProfile": {
+    "lifestyle": "🌿 Levensstijl"
+  },
   "support": {
-    "title": "Ondersteuning",
-    "hereToHelp": "Wij helpen u graag",
-    "contactUs": "Neem contact op",
-    "faq": "Veelgestelde vragen",
-    "safetyPolicies": "Veiligheid & beleid"
+    "needHelpOrWantToReport": "Heb je hulp nodig of wil je een probleem melden? Stuur een e-mail naar ons ondersteuningsteam en we nemen contact met je op",
+    "weHaveZeroToleranceForObjectionable": "We hanteren een nultolerantiebeleid ten aanzien van aanstootgevende inhoud of beledigend gedrag. Lees meer in ons beleid:"
   }
 }

@@ -200,7 +200,7 @@ export const MatchAnimation = ({
                     >
                       <img
                         src={roseBouquet}
-                        alt="Premium Rose Bouquet"
+                        alt={t("discover.premiumRoseBouquet")}
                         className="w-64 h-64 object-contain drop-shadow-[0_20px_40px_rgba(220,38,38,0.5)]"
                       />
                     </motion.div>
@@ -219,7 +219,7 @@ export const MatchAnimation = ({
                     >
                       <motion.img
                         src={roseBouquet}
-                        alt="Premium Rose Bouquet"
+                        alt={t("discover.premiumRoseBouquet")}
                         className="w-64 h-64 object-contain drop-shadow-[0_20px_40px_rgba(220,38,38,0.5)]"
                         animate={{ opacity: [1, 0] }}
                         transition={{ duration: 0.8 }}
@@ -278,7 +278,7 @@ export const MatchAnimation = ({
                     >
                       <img
                         src={albanianEagle}
-                        alt="Albanian Eagle"
+                        alt={t("common.albanianEagle")}
                         className="w-48 h-48 object-contain drop-shadow-card"
                       />
                     </motion.div>
@@ -296,7 +296,7 @@ export const MatchAnimation = ({
                     >
                       <motion.img
                         src={albanianEagle}
-                        alt="Albanian Eagle"
+                        alt={t("common.albanianEagle")}
                         className="absolute inset-0 w-48 h-48 object-contain"
                         animate={{ opacity: [1, 0] }}
                         transition={{ duration: 0.8 }}
@@ -414,7 +414,7 @@ export const MatchAnimation = ({
               {onChatNow && (
                 <div className="space-y-2">
                   <p className="text-xs text-white/50 text-center font-medium uppercase tracking-wider">
-                    Break the ice ✨
+                    {t("matchAnimation.breakTheIce")}
                   </p>
                   {icebreakers.map((opener, i) => (
                     <button

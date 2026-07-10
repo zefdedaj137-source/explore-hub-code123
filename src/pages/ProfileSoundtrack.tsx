@@ -195,7 +195,7 @@ const ProfileSoundtrack = () => {
                   <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
                     <path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.4 31.4 0 000 12a31.4 31.4 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.4 31.4 0 0024 12a31.4 31.4 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
                   </svg>
-                  YouTube detected
+                  {t("profileSoundtrack.youtubeDetected")}
                 </span>
               )}
               {source === "spotify" && (
@@ -203,7 +203,7 @@ const ProfileSoundtrack = () => {
                   <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
                     <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.5 17.3c-.2.3-.6.4-1 .2-2.7-1.6-6-2-10-1.1-.4.1-.8-.1-.9-.5-.1-.4.1-.8.5-.9 4.3-1 8.1-.6 11.1 1.2.4.3.5.7.3 1.1zm1.5-3.3c-.3.4-.8.5-1.2.3-3-1.9-7.7-2.4-11.3-1.3-.4.1-.9-.1-1.1-.6-.1-.4.1-.9.6-1.1 4.1-1.3 9.2-.7 12.7 1.5.4.2.5.8.3 1.2zm.1-3.4c-3.7-2.2-9.7-2.4-13.2-1.3-.5.2-1.1-.1-1.3-.6-.2-.5.1-1.1.6-1.3 4-1.2 10.7-1 14.9 1.5.5.3.6.9.4 1.4-.3.4-.9.6-1.4.3z" />
                   </svg>
-                  Spotify detected
+                  {t("editProfile.spotifyDetected")}
                 </span>
               )}
             </div>
@@ -211,7 +211,7 @@ const ProfileSoundtrack = () => {
 
           {songUrl && !source && songUrl.length > 10 && (
             <p className="text-sm text-destructive">
-              Could not detect YouTube or Spotify link. Please check the URL.
+              {t("profileSoundtrack.couldNotDetectYoutubeOrSpotify")}
             </p>
           )}
         </Card>
@@ -235,13 +235,13 @@ const ProfileSoundtrack = () => {
         {embedId && source && (
           <Card className="p-4 space-y-3 border-primary/20">
             <h2 className="font-semibold flex items-center gap-2">
-              <ExternalLink className="h-4 w-4 text-primary" /> Preview
+              <ExternalLink className="h-4 w-4 text-primary" /> {t("common.preview")}
             </h2>
             {source === "youtube" && (
               <div className="rounded-xl overflow-hidden aspect-video">
                 <iframe
                   src={`https://www.youtube.com/embed/${embedId}`}
-                  title="YouTube player"
+                  title={t("profileSoundtrack.youtubePlayer")}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -252,7 +252,7 @@ const ProfileSoundtrack = () => {
               <div className="rounded-xl overflow-hidden">
                 <iframe
                   src={`https://open.spotify.com/embed/track/${embedId}?theme=0`}
-                  title="Spotify player"
+                  title={t("profileSoundtrack.spotifyPlayer")}
                   className="w-full"
                   height="152"
                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"

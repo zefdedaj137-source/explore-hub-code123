@@ -124,9 +124,7 @@ const ProfileSetup = () => {
     } catch (error) {
       const geoError = error as GeolocationPositionError;
       if (geoError.code === 1) {
-        toast.error(
-          "Location permission denied. You can still use the app but distance won't be shown."
-        );
+        toast.error(t("profileSetup.locationPermissionDeniedYouCanStill"));
       } else if (geoError.code === 2) {
         toast.error(t("profileSetup.locationUnavailable"));
       } else {
@@ -449,7 +447,11 @@ const ProfileSetup = () => {
               <div className="relative">
                 {profilePhoto ? (
                   <div className="relative aspect-square rounded-xl overflow-hidden border-4 border-primary/30">
-                    <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                    <img
+                      src={profilePhoto}
+                      alt={t("common.profile")}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ) : (
                   <div
@@ -522,7 +524,7 @@ const ProfileSetup = () => {
                   <div className="relative aspect-square rounded-xl overflow-hidden border-4 border-accent/30">
                     <img
                       src={selfiePhoto}
-                      alt="Verification"
+                      alt={t("profileVerification.verification")}
                       className="w-full h-full object-cover"
                     />
                   </div>

@@ -130,7 +130,7 @@ const VideoIntro = () => {
             disabled={uploading}
           />
           <p className="text-xs text-muted-foreground">
-            Tip: Create a storage bucket named "profile-videos" with public access for preview.
+            {t("videoIntro.tipCreateAStorageBucketNamed")}
           </p>
           <Button className="w-full" disabled={uploading}>
             <Upload className="h-4 w-4 mr-2" />

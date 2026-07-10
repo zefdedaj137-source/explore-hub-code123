@@ -36,7 +36,7 @@ const Navbar = () => {
         >
           <img
             src={albanianEagle}
-            alt="Albanian Eagle"
+            alt={t("common.albanianEagle")}
             className="h-7 w-7 opacity-90 group-hover:opacity-100 transition-opacity"
           />
           <span className="text-xl font-bold font-serif bg-gradient-to-r from-[hsl(350,65%,65%)] to-[hsl(38,55%,62%)] bg-clip-text text-transparent tracking-wide">

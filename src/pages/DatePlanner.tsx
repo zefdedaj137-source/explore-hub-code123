@@ -239,9 +239,7 @@ const DatePlanner = () => {
         .limit(1);
 
       if (existingPlans && existingPlans.length > 0) {
-        toast.error(
-          "You already have an active date plan with this person. Cancel it or wait for it to pass before creating a new one."
-        );
+        toast.error(t("datePlanner.youAlreadyHaveAnActiveDate"));
         return;
       }
 

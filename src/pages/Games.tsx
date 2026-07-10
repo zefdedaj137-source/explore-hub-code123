@@ -17,7 +17,7 @@ const Games = () => {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Go back"
+            aria-label={t("common.goBack")}
             onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
             className="rounded-full"
           >

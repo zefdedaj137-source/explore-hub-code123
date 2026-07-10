@@ -76,10 +76,7 @@
     "releaseToRefresh": "↓ Suelta para actualizar",
     "share": "Compartir",
     "disable": "Desactivar",
-    "online": "En línea",
-    "userNotAuthenticated": "Usuario no autenticado",
-    "albanianEagle": "Águila albanesa",
-    "happyAlbanianCouple": "Feliz pareja albanesa"
+    "online": "En línea"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -132,7 +129,8 @@
     "signupFailed": "Error al registrarse: {{error}}",
     "emailPlaceholder": "tu@ejemplo.com",
     "phonePlaceholder": "Introduce tu número de teléfono",
-    "resetLinkDesc": "Introduce tu correo electrónico y te enviaremos un enlace para restablecer la contraseña"
+    "resetLinkDesc": "Introduce tu correo electrónico y te enviaremos un enlace para restablecer la contraseña",
+    "accountCreatedPleaseCheckYourEmail": "✅ ¡Cuenta creada! Por favor, revisa tu correo electrónico y haz clic en el enlace de confirmación para completar el registro.."
   },
   "nav": {
     "discover": "Descubre",
@@ -298,15 +296,64 @@
     "roses": "Rosas",
     "noBoosterDesc": "En este momento, ningún usuario está utilizando Boost en tu zona",
     "getCoins": "Obtener monedas",
-    "premiumRoseBouquet": "Ramo de rosas premium",
-    "failedPremiumRoses": "No se pudieron enviar las rosas premium",
-    "sendRoses": "Enviar rosas",
-    "instantMessage": "Mensaje instantáneo",
-    "undoLastAction": "Deshacer última acción",
-    "boosterActive": "¡El potenciador ya está activo!",
-    "failedBooster": "No se pudo activar el potenciador",
-    "premiumRequiredBooster": "Se requiere suscripción premium para activar el potenciador",
-    "failedLike": "Error al dar me gusta. Inténtalo de nuevo."
+    "funGames": "Diversión y juegos",
+    "datingTools": "Herramientas para citas",
+    "km": "(km)",
+    "aries": "♈ Aries",
+    "taurus": "♉ Tauro",
+    "gemini": "♊ Géminis",
+    "cancer": "♋ Cáncer",
+    "leo": "♌ Leo",
+    "virgo": "♍ Virgo",
+    "libra": "♎ Libra",
+    "scorpio": "♏ Escorpio",
+    "sagittarius": "♐ Sagitario",
+    "capricorn": "♑ Capricornio",
+    "aquarius": "♒ Acuario",
+    "pisces": "♓ Piscis",
+    "getVerifiedHeightLifestyleMoreFilters": "Filtros de verificación, altura, estilo de vida y mucho más",
+    "applyFilters": "Aplicar filtros",
+    "changesWillApplyAfterClickingApply": "Los cambios se aplicarán tras hacer clic en «Aplicar filtros».\"",
+    "forYou": "Para ti",
+    "lastActive": "Última actividad",
+    "getYourBlueTick": "Consigue tu marca azul ✓",
+    "verifiedProfilesGet3MoreMatches": "Los perfiles verificados obtienen tres veces más coincidencias. Toca aquí para verificarte ahora..",
+    "match": "% Partido",
+    "seeFullProfile": "Ver perfil completo",
+    "spotlightBoostActive": "Spotlight Boost Active",
+    "timeRemaining": "Tiempo restante",
+    "expiresAt": "Caduca el",
+    "youReBeingShownToMore": "Tu perfil se muestra a más personas de tu zona y aparece en una posición más alta en su feed de descubrimiento..",
+    "activateSpotlightBoost": "Activar Spotlight Boost",
+    "getMoreVisibilityYourProfileWill": "¡Consigue más visibilidad! Tu perfil se mostrará a más personas de tu zona. Usa monedas para activar un impulso.",
+    "3Hours": "3 Horario",
+    "use1OfYour": "Utiliza 1 de tus",
+    "freeBoosts": "potenciadores gratis",
+    "5Coins": "5 monedas",
+    "6Hours": "6 Horario",
+    "9Coins": "9 monedas",
+    "10Hours": "10 Horario",
+    "13Coins": "13 monedas",
+    "premiumRoses": "Rosas de primera calidad",
+    "vipPremiumRosesExperience": "💐 Experiencia VIP Premium con rosas",
+    "50Coins": "50 Monedas",
+    "walletBalance": "Saldo de la cartera:",
+    "sendRoses": "Enviar rosas 💐",
+    "buyCoins": "Comprar monedas",
+    "500Characters": "/500 personajes",
+    "tipWriteSomethingPersonalizedToIncrease": "💡 Consejo: Escribe algo personalizado para aumentar tus posibilidades de obtener una respuesta.!",
+    "youHaveAccessToAllPremium": "Tienes acceso a todas las funciones premium, incluyendo deslizamientos ilimitados, filtros avanzados y la posibilidad de ver quién te ha dado «Me gusta»..",
+    "unlimitedSwipes": "Deslizamientos ilimitados ✓",
+    "seeWhoLikedYou": "Descubre quién te ha dado un «Me gusta» ✓",
+    "advancedFilters": "Filtros avanzados ✓",
+    "instantChat": "Chat instantáneo",
+    "getSuperlikes": "Consigue «Superlikes»",
+    "standOutFromTheCrowdSuperlikes": "¡Destaca entre la multitud! Los «Superlikes» te dan tres veces más posibilidades de conseguir un emparejamiento.",
+    "youReceive5FreeSuperlikesEvery": "Recibes 5 «Superlikes» gratis cada mes. Recarga tu saldo en cualquier momento a continuación.",
+    "premiumMembersGet5FreeSuperlikes": "Los miembros Premium reciben 5 «Superlikes» gratis cada mes!",
+    "peopleWhoViewYourProfileWill": "Las personas que vean tu perfil aparecerán aquí",
+    "sendInstantMessage": "Enviar mensaje instantáneo",
+    "youHaveUnsavedFilterChangesClose": "Hay cambios en los filtros que no se han guardado. Cerrar sin aplicar?"
   },
   "matches": {
     "title": "Matches",
@@ -375,7 +422,13 @@
     "matchCount": "{{count}} coincidencia",
     "matchCountPlural": "{{count}} resultados",
     "instantMessageCount": "{{count}} mensajes instantáneos",
-    "instantMessageCountPlural": "{{count}} mensajes instantáneos"
+    "instantMessageCountPlural": "{{count}} mensajes instantáneos",
+    "sendReply": "Enviar respuesta",
+    "chatWith": "Chatea con",
+    "viewAndSendMessagesInThis": "Ver y enviar mensajes en esta conversación de mensajería instantánea",
+    "messagesStayHereUntilYouBoth": "💬 Los mensajes se quedan aquí hasta que os deis «Me gusta» mutuamente. Entonces pasarán al chat normal.!",
+    "20MessagesSent": "/ 20 mensajes enviados",
+    "remaining": "restante"
   },
   "chat": {
     "title": "Chat",
@@ -453,7 +506,21 @@
     "dateAcceptedMsg": "✅ ¡Cita confirmada!\n📍 {{location}}\n🕐 {{date}}\n\n¡Quedamos! 🎉",
     "dateDeclinedMsg": "❌ Cita rechazada.\n📍 {{location}}\n🕐 {{date}}",
     "datePlannedMsg": "📅 ¡He organizado una cita!\n📍 {{location}}\n🕐 {{date}}{{notes}}\n\n¡Echa un vistazo a tu agenda para confirmar tu asistencia!",
-    "dateCanceledMsg": "❌ Cita cancelada.\n📍 {{location}}\n🕐 {{date}}"
+    "dateCanceledMsg": "❌ Cita cancelada.\n📍 {{location}}\n🕐 {{date}}",
+    "youAlreadyHaveAnActiveDate": "Ya tienes una cita programada. Cancélala o espera a que pase antes de crear una nueva..",
+    "work": "💼 Trabajo",
+    "education": "🎓 Educación",
+    "height": "📏 Altura",
+    "zodiac": "♈ Zodíaco",
+    "religion": "🙏 Religión",
+    "lifestyle": "🌟 Estilo de vida",
+    "drinking": "🍷 Beber",
+    "smoking": "🚬 Tabaquismo",
+    "pets": "🐾 Mascotas",
+    "soundtrack": "Banda sonora",
+    "message": "Mensaje",
+    "planADateWith": "Organiza una cita con",
+    "theyLlBeNotifiedInChat": ". Se les avisará por el chat!"
   },
   "profile": {
     "myProfile": "Mi perfil",
@@ -549,12 +616,12 @@
     "men": "Pero",
     "women": "Mujeres",
     "everyone": "Todos",
-    "ageRange": "Edad recomendada",
+    "ageRange": "Edad recomendada:",
     "minAge": "Edad mínima",
     "maxAge": "Edad máxima",
     "maximumDistance": "Distancia máxima",
     "km": "km",
-    "showProfilesWithin": "Mostrar perfiles a una distancia de {{distance}} km de tu ubicación",
+    "showProfilesWithin": "Mostrar perfiles dentro de",
     "saveDiscoverySettings": "Guardar la configuración de Discovery",
     "activity": "Actividad e historia",
     "callHistory": "Historial de llamadas",
@@ -587,7 +654,7 @@
     "safetyCheckInDesc": "Avísale a alguien de que estás bien",
     "blockedUsers": "Usuarios bloqueados",
     "blockedUsersDesc": "Gestiona tu lista de bloqueados",
-    "appearance": "Apariencia",
+    "appearance": "Aspecto (",
     "privacySecurity": "Privacidad y seguridad",
     "incognitoMode": "Modo incógnito",
     "incognitoDesc": "Ocultar tu perfil",
@@ -622,13 +689,13 @@
     "verifyingCode": "Comprobando...",
     "verifyCode": "Verificar código",
     "sendingCodeTo": "Envío de código a",
-    "spotlightBooster": "Potenciador de foco",
+    "spotlightBooster": "• Amplificador de foco",
     "boosterActive": "¡Booster activo!",
     "boosterDesc": "Aparece en la sección «Últimos activos» y consigue hasta 10 veces más visitas a tu perfil",
     "premiumMembership": "Suscripción Premium",
     "autoDeleteAfter": "Eliminar automáticamente tras:",
     "languageGjuha": "Idioma / Gjuha",
-    "browserPermission": "Permiso del navegador",
+    "browserPermission": "Permiso del navegador:",
     "discovery": "Configuración de búsqueda",
     "discoveryDesc": "Personaliza tus preferencias de búsqueda",
     "activityHistory": "Actividad e historia",
@@ -692,7 +759,7 @@
     "boosterExpires": "Tu perfil está en el punto de mira. Caduca a las: {{time}}",
     "visibleInLastActive": "En «Última actividad» puedes ver a todo el mundo",
     "managePremiumDesc": "Gestiona tu suscripción premium",
-    "unlimitedSwipes": "Deslizamientos ilimitados",
+    "unlimitedSwipes": "• Deslizamientos ilimitados",
     "seeWhoLiked": "Mira quién te ha dado «Me gusta»",
     "advancedFiltersFeature": "Filtros avanzados",
     "spotlightAccess": "Acceso al amplificador de foco",
@@ -706,7 +773,7 @@
     "permissionBtn": "Autorización",
     "disableBtn": "Desactivar",
     "subscribeBtn": "Suscríbete",
-    "quietHours": "Horario de silencio: {{start}} – {{end}}",
+    "quietHours": "Horario de silencio:",
     "imageGuidelines": "Directrices sobre imágenes",
     "imageGuidelinesDesc": "Directrices sobre imágenes",
     "privacyPolicyTitle": "Política de privacidad",
@@ -729,22 +796,26 @@
     "analyticsDashboardDesc": "Ver métricas clave",
     "cancelPremiumConfirmDesc": "¿Estás seguro de que quieres cancelar tu suscripción premium? Perderás el acceso a:",
     "deactivateDesc": "Tu perfil quedará oculto de inmediato. Transcurrido el plazo elegido, tu cuenta y todos tus datos se eliminarán de forma definitiva, a menos que vuelvas a iniciar sesión.",
-    "deactivateFor": "Desactivar durante {{days}} días",
+    "deactivateFor": "Desactivar para",
     "updating": "Actualizando...",
     "updatePassword": "Actualizar contraseña",
-    "enterEmail": "Introduce tu correo electrónico",
-    "codeSent": "¡Código de verificación enviado a tu correo!",
-    "enterEmailAndOtp": "Introduce el correo y el código OTP",
-    "emailVerified": "¡Correo verificado con éxito!",
-    "signInFirst": "Inicia sesión primero.",
-    "adminEnabled": "Modo administrador activado.",
-    "failedAdmin": "No se pudo activar el modo administrador.",
-    "cancelInstructions": "Para cancelar, toca tu suscripción y selecciona Cancelar.",
-    "emailAddress": "Correo electrónico",
-    "sixDigitCode": "Código de 6 dígitos",
-    "loginInformation": "Información de inicio de sesión",
-    "contactSupportAction": "Contactar con soporte",
-    "restorePurchases": "Restaurar compras"
+    "yourProfileIsInTheSpotlight": "Tu perfil está en primer plano. Caduca el:",
+    "seeWhoLikedYou": "• Descubre quién te ha dado un «Me gusta»",
+    "advancedFilters": "• Filtros avanzados",
+    "yourEmailCom": "your@email.com",
+    "unlockActivityHistoryIncludingCallLogs": "Accede a la actividad y al historial —incluidos los registros de llamadas, los perfiles vistos recientemente, las estadísticas y mucho más— con una suscripción premium.",
+    "preferences": "Preferencias",
+    "kilometersFromYourLocation": "kilómetros desde tu ubicación",
+    "communitySupport": "Comunidad y asistencia",
+    "accountManagement": "Gestión de cuentas",
+    "temporarilyHideYourProfileAfterThe": "Oculta tu perfil temporalmente. Transcurrido el plazo elegido, tu cuenta se eliminará definitivamente, a menos que vuelvas a iniciar sesión..",
+    "thisWill": "Esto hará que",
+    "permanently": "de forma permanente",
+    "deleteYourAccountAndRemoveAll": "Eliminar tu cuenta y borrar todos tus datos de nuestros servidores, incluyendo las coincidencias, los mensajes, los «me gusta» y tu perfil. Esta acción no se puede deshacer..",
+    "3Days": "3 días",
+    "1Week": "1 semana",
+    "2Weeks": "2 semanas",
+    "1MonthMax": "1 mes (máx.)"
   },
   "editProfile": {
     "heading": "Editar perfil",
@@ -858,7 +929,12 @@
     "artistPlaceholder": "Artista",
     "removeSoundtrack": "Eliminar la banda sonora",
     "yesNotLivingWithMe": "Sí, no vive conmigo",
-    "spotifyDetected": "Spotify ha detectado"
+    "spotifyDetected": "Spotify ha detectado",
+    "profile": "Perfil:",
+    "premium": "⭐ Premium",
+    "5Selected": "/5 seleccionado",
+    "couldNotDetectYoutubeOrSpotify": "No se ha podido detectar el enlace de YouTube o Spotify",
+    "cm": "cm"
   },
   "profileSetup": {
     "heading": "Completa tu perfil",
@@ -929,7 +1005,8 @@
     "uploadPhoto": "Subir foto de perfil",
     "uploadSelfie": "Subir una selfie de verificación",
     "cityHint": "p. ej., Pristina, Tirana",
-    "countryHint": "por ejemplo, Kosovo, Albania"
+    "countryHint": "por ejemplo, Kosovo, Albania",
+    "locationPermissionDeniedYouCanStill": "Se ha denegado el permiso de ubicación. Puedes seguir utilizando la aplicación, pero no se mostrará la distancia.."
   },
   "spotted": {
     "locationRequired": "Se requiere indicar la ubicación",
@@ -937,7 +1014,8 @@
     "noOneSpottedYet": "Todavía no se ha visto a nadie",
     "noOneSpottedDesc": "A lo largo del día, aquí aparecerán las personas que se hayan encontrado a una distancia de {{radius}} m de ti en los últimos {{days}} días.",
     "goToRadar": "Ir a Radar",
-    "showingPeople": "Mostrando personas en un radio de {{radius}} m durante los últimos {{days}} días"
+    "showingPeople": "Mostrando personas en un radio de {{radius}} m durante los últimos {{days}} días",
+    "spotted": "Visto"
   },
   "whoLikedYou": {
     "heading": "A quién le has gustado",
@@ -970,7 +1048,8 @@
     "height": "Altura",
     "lifestyle": "Estilo de vida",
     "zodiac": "Zodíaco",
-    "pets": "Mascotas"
+    "pets": "Mascotas",
+    "dayStreak": "racha de días"
   },
   "radar": {
     "tabLabel": "Radar",
@@ -994,10 +1073,9 @@
     "superlikeSent": "⚡ Superlike ¡Enviado!",
     "failedSuperlike": "No se ha podido enviar superlike",
     "back": "Atrás",
-    "likedToast": "💛 ¡Te gusta! Verán tu interés.",
-    "failedLocation": "No se pudo guardar tu ubicación. Inténtalo de nuevo.",
-    "locationDenied": "Acceso a la ubicación denegado. Actívalo en la configuración de tu navegador.",
-    "crossedPaths": "Personas con las que te has cruzado"
+    "mAway": "m de distancia",
+    "radarShowsUsersWithin100Meters": "📡 El radar muestra a los usuarios que se encuentran a menos de 100 metros de tu ubicación actual",
+    "sendSuperlikesToStandOutAnd": "⭐ Envía «superlikes» para destacar y llamar la atención!"
   },
   "datePlanner": {
     "heading": "Agenda",
@@ -1028,7 +1106,8 @@
     "failedCreate": "No se ha podido crear el plan de citas.",
     "expired": "Esta cita ya ha caducado y no se puede aceptar.",
     "failedUpdate": "No se ha podido actualizar el estado del plan.",
-    "planUpdated": "Plan actualizado."
+    "planUpdated": "Plan actualizado.",
+    "youAlreadyHaveAnActiveDate": "Ya tienes una cita programada con esta persona. Cancélala o espera a que pase antes de concertar otra nueva.."
   },
   "notifications": {
     "newMatch": "¡Tienes una nueva coincidencia!",
@@ -1050,8 +1129,7 @@
     "noTransactions": "Aún no hay transacciones",
     "invalidAmount": "Importe de la moneda no válido",
     "failedUpdate": "No se ha podido actualizar el monedero",
-    "coinsAdded": "Se han añadido {{coins}} monedas a tu monedero.",
-    "backToWallet": "Volver a la cartera"
+    "coinsAdded": "Se han añadido {{coins}} monedas a tu monedero."
   },
   "premiumSuccess": {
     "title": "¡Bienvenido a Premium!",
@@ -1094,7 +1172,10 @@
     "distance": "Distancia",
     "basedOnLocation": "Según la última ubicación",
     "selectMatchPlaceholder": "Seleccionar match",
-    "noSharedInterests": "Aún no hay intereses comunes"
+    "noSharedInterests": "Aún no hay intereses comunes",
+    "noMatchesYet": "Aún no hay resultados.",
+    "askAbout": "Pregunta por",
+    "aiSummary": "Resumen generado por IA"
   },
   "dancing": {
     "shareVideos": "Comparte tus vídeos de bailes albaneses con la comunidad",
@@ -1121,7 +1202,9 @@
     "comingSoon": "Próximamente",
     "titleWord1": "Antiguo",
     "titleWord2": "Ideas",
-    "shareTitle": "Comparte tus ideas para citas"
+    "shareTitle": "Comparte tus ideas para citas",
+    "creativeDateIdeasThatCelebrateAlbanian": "Ideas creativas para citas que rinden homenaje a la cultura albanesa y crean momentos inolvidables",
+    "haveAUniqueAlbanianDateIdea": "¿Se te ocurre alguna idea original para una cita albanesa? Compártela con la comunidad e inspira a otras parejas!"
   },
   "activityFeed": {
     "title": "Feed de actividad",
@@ -1336,8 +1419,7 @@
     "profileAnthem": "Perfil de Anthem",
     "anthemPlaceholder": "Una canción que te describa, por ejemplo, «Blinding Lights» de The Weeknd",
     "saveMusicTaste": "Guarda tus gustos musicales 🎵",
-    "saved": "¡Gusto musical guardado! 🎵",
-    "removeArtist": "Eliminar artista"
+    "saved": "¡Gusto musical guardado! 🎵"
   },
   "notificationsCenter": {
     "title": "Notificaciones",
@@ -1370,7 +1452,8 @@
     "noRecentlyViewed": "Aún no hay perfiles vistos recientemente.",
     "browseProfiles": "Echa un vistazo a algunos perfiles en «Descubrir» para verlos aquí.",
     "goToDiscover": "Ir a «Descubrir»",
-    "failedLoad": "No se han podido cargar los perfiles vistos recientemente."
+    "failedLoad": "No se han podido cargar los perfiles vistos recientemente.",
+    "viewed": "visto"
   },
   "profileInsights": {
     "title": "Datos del perfil",
@@ -1464,7 +1547,8 @@
     "cameraError": "No se ha podido acceder a la cámara",
     "danceUploaded": "¡Ya está subido el vídeo de baile! 🎉",
     "failedUploadVideo": "No se ha podido subir el vídeo",
-    "urlPlaceholder": "https://..."
+    "urlPlaceholder": "https://...",
+    "tipCreateAStorageBucketNamed": "Consejo: Crea un depósito llamado «profile-videos» con acceso público para la vista previa.."
   },
   "profileSoundtrack": {
     "title": "Banda sonora del perfil",
@@ -1486,8 +1570,7 @@
     "failedRemove": "No se ha podido eliminar",
     "removeSoundtrack": "Eliminar la banda sonora",
     "musicUrlHint": "https://youtube.com/watch?v=... o https://open.spotify.com/track/...",
-    "youtubePlayer": "Reproductor de YouTube",
-    "spotifyPlayer": "Reproductor de Spotify"
+    "couldNotDetectYoutubeOrSpotify": "No se ha podido detectar el enlace de YouTube o Spotify. Comprueba la URL, por favor.."
   },
   "profileVerification": {
     "title": "Verificar cuenta",
@@ -1520,10 +1603,7 @@
     "cameraDenied": "Se ha denegado el acceso a la cámara. Por favor, permite el acceso a la cámara o sube una foto en su lugar.",
     "selfieFirst": "Por favor, envía primero una selfie.",
     "submitted": "¡Solicitud de verificación enviada! La revisaremos en un plazo de 24 a 48 horas.",
-    "failedSubmit": "No se ha podido enviar la solicitud.",
-    "verification": "Verificación",
-    "selfiePreview": "Vista previa del selfie",
-    "idPreview": "Vista previa del documento"
+    "failedSubmit": "No se ha podido enviar la solicitud."
   },
   "photoVerification": {
     "title": "Verificación mediante fotografía",
@@ -1781,15 +1861,14 @@
     "callFailed": "Llamada fallida",
     "browserNotSupported": "Tu navegador no admite llamadas de audio o vídeo. Utiliza Chrome, Firefox, Safari 11 o una versión posterior, o Edge.",
     "httpsRequired": "Las llamadas de audio y vídeo requieren HTTPS. Utiliza la URL segura de ngrok (https://...).",
-    "blockAndEnd": "Bloquear usuario y finalizar llamada"
+    "with": "con"
   },
   "incomingCall": {
     "incoming": "Entrantes",
     "video": "Vídeo",
     "voice": "Voz",
     "call": "Llamar",
-    "from": "de",
-    "blockCaller": "Bloquear llamante"
+    "from": "de"
   },
   "chatHeader": {
     "backToMatches": "Volver a los matches",
@@ -1834,11 +1913,11 @@
     "message": "Debes tener al menos 18 años para utilizar Shqiponja.",
     "confirm": "Tengo más de 18 años",
     "exit": "Salir",
-    "restrictionNotice": "Aviso de restricción de edad",
-    "req18": "Al menos 18 años de edad (o la mayoría de edad en tu jurisdicción)",
-    "reqLegal": "Legalmente capaz de celebrar este acuerdo",
-    "reqLaws": "Capaz de usar este servicio de acuerdo con todas las leyes y regulaciones aplicables",
-    "verifyToContinue": "Verifica tu edad para continuar"
+    "shqiponjaIsADatingPlatformFor": "Shqiponja es una plataforma de citas exclusiva para adultos.",
+    "byContinuingYouConfirmThatYou": "Al continuar, confirmas que eres:",
+    "weAreCommittedToProtectingMinors": "Nos comprometemos a proteger a los menores y a garantizar un entorno seguro para las citas. Todos los usuarios deben verificar su edad durante el proceso de registro. Facilitar información falsa sobre tu edad puede dar lugar a la cancelación de la cuenta y a acciones legales..",
+    "byClickingIConfirmYouCertify": "Al hacer clic en «Confirmo», certificas que cumples con el requisito de edad..",
+    "ifYouAreUnder18Please": "Si eres menor de 18 años, sal de esta aplicación. Si continúas, significa que aceptas las condiciones anteriores.."
   },
   "radarNearby": {
     "title": "Radar",
@@ -1871,7 +1950,7 @@
   },
   "privacy": {
     "title": "Política de privacidad",
-    "lastUpdated": "Última actualización: 31 de enero de 2026",
+    "lastUpdated": "Última actualización:",
     "back": "Atrás",
     "p1": "Recopilamos la información que nos facilitas para prestarte el servicio, incluidos los datos de tu perfil, las fotos, los mensajes y los datos de uso.",
     "p2": "Utilizamos estos datos para mostrarte sugerencias, mejorar la seguridad y personalizar tu experiencia. Puedes solicitar una copia de tus datos o eliminar tu cuenta en cualquier momento.",
@@ -2103,7 +2182,8 @@
     "albanianMusicTrivia": "Curiosidades sobre la música albanesa"
   },
   "browseProfiles": {
-    "title": "Conoce a tus parejas"
+    "title": "Conoce a tus parejas",
+    "discoverAlbanianSinglesWhoShareYour": "Descubre a solteros albaneses que comparten tus valores y aspiraciones"
   },
   "interestsList": {
     "Dating": "Antiguo",
@@ -2251,11 +2331,59 @@
     "Early Bird": "Reserva anticipada",
     "DIY Projects": "Proyectos de bricolaje"
   },
+  "dancingChallenge": {
+    "joinTheExclusiveAlbanianDancingCommunity": "Únete a la exclusiva comunidad de baile albanés",
+    "matchWithDancersYouRateAbove": "Emparejate con bailarines a los que hayas valorado mejor 5/10",
+    "joinValleChannel": "Únete a Valle Channel",
+    "channelMember": "Miembro del canal",
+    "showYourMovesAndGetRated": "¡Demuestra tus movimientos y que te puntúen! Consigue una puntuación superior a 5 para emparejarte 💃",
+    "leaveChannel": "Salir del canal",
+    "startRecording": "Empezar a grabar",
+    "uploadVideo": "Subir vídeo",
+    "ratings": "valoraciones)",
+    "submit": "Enviar"
+  },
+  "profileGridCard": {
+    "u2713Verified": "✓ Verificado"
+  },
+  "errorBoundary": {
+    "weEncounteredAnUnexpectedErrorPlease": "Se ha producido un error inesperado. Intenta actualizar la página..",
+    "refreshPage": "Actualizar página"
+  },
+  "loveStories": {
+    "realStories": "Historias reales",
+    "loveFoundThrough": "El amor encontrado a través de",
+    "thousandsOfAlbanianCouplesFoundTheir": "Miles de parejas albanesas han encontrado a su media naranja aquí. Estas son solo algunas de sus historias.",
+    "join": "Únete",
+    "albanianSinglesWhoFoundTheir": "Solteros albaneses que encontraron a su"
+  },
+  "matchAnimation": {
+    "breakTheIce": "Romper el hielo ✨"
+  },
+  "travelModeBadge": {
+    "travelingIn": "✈️ Viajar por"
+  },
+  "videoFeed": {
+    "youCanTRateYourOwn": "No puedes puntuar tu propio vídeo"
+  },
+  "ageVerification": {
+    "verifyYourAge": "Comprueba tu edad",
+    "weRequireAllUsersToBe": "Exigimos que todos los usuarios tengan 18 años o más.",
+    "youMustBeAtLeast18": "Debes tener al menos 18 años para utilizar Shqiponja",
+    "yourDateOfBirthIsUsed": "Tu fecha de nacimiento se utiliza únicamente para comprobar que cumples el requisito de edad y se almacenará de forma segura.."
+  },
+  "gameSessionMusic": {
+    "musicLovers": "Amantes de la música 🎵",
+    "question": "Pregunta"
+  },
+  "ghostModeAlert": {
+    "ago": "hace"
+  },
+  "myProfile": {
+    "lifestyle": "🌿 Estilo de vida"
+  },
   "support": {
-    "title": "Soporte",
-    "hereToHelp": "Estamos aquí para ayudarte",
-    "contactUs": "Contáctanos",
-    "faq": "Preguntas frecuentes",
-    "safetyPolicies": "Seguridad y políticas"
+    "needHelpOrWantToReport": "¿Necesitas ayuda o quieres informar de un problema? Envía un correo electrónico a nuestro equipo de asistencia y nos pondremos en contacto contigo.",
+    "weHaveZeroToleranceForObjectionable": "Tenemos tolerancia cero con los contenidos inapropiados o las conductas abusivas. Obtén más información en nuestras políticas.:"
   }
 }

@@ -53,7 +53,7 @@ const AgeVerification = () => {
     }
 
     if (!user) {
-      toast.error("User not authenticated");
+      toast.error(t("common.userNotAuthenticated"));
       navigate("/auth");
       return;
     }
@@ -116,10 +116,10 @@ const AgeVerification = () => {
             <div className="absolute -inset-1 rounded-2xl opacity-30 blur-xl bg-gradient-to-br from-[#e8274b] to-[#ff6b35]" />
           </div>
           <h1 className="text-3xl font-bold mb-1 font-serif dark:text-white/95 text-foreground">
-            Verify Your Age
+            {t("ageVerification.verifyYourAge")}
           </h1>
           <p className="text-sm dark:text-white/[0.38] text-muted-foreground">
-            We require all users to be 18 or older
+            {t("ageVerification.weRequireAllUsersToBe")}
           </p>
         </div>
 
@@ -132,7 +132,7 @@ const AgeVerification = () => {
                 className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
               >
                 <CalendarDays className="h-4 w-4" />
-                Date of Birth
+                {t("auth.dateOfBirth")}
               </Label>
               <Input
                 id="birthdate"
@@ -144,7 +144,7 @@ const AgeVerification = () => {
                 className="rounded-xl dark:border-0 dark:text-white focus-visible:ring-1 focus-visible:ring-rose-500/50 dark:bg-white/[0.07] bg-white border border-black/10 text-foreground"
               />
               <p className="text-xs dark:text-white/35 text-muted-foreground">
-                You must be at least 18 years old to use Shqiponja
+                {t("ageVerification.youMustBeAtLeast18")}
               </p>
             </div>
 
@@ -190,8 +190,7 @@ const AgeVerification = () => {
             </Button>
 
             <p className="text-xs text-center dark:text-white/40 text-muted-foreground">
-              Your date of birth is used only to verify you meet the age requirement and will be
-              stored securely.
+              {t("ageVerification.yourDateOfBirthIsUsed")}
             </p>
           </form>
         </Card>

@@ -111,7 +111,7 @@ const MoodStatus = () => {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Go back"
+          aria-label={t("common.goBack")}
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
         >
           <ArrowLeft className="h-5 w-5" />

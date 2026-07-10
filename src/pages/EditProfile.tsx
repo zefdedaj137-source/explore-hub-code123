@@ -1049,11 +1049,12 @@ const EditProfile = () => {
                     {t("editProfile.preview")}
                   </Button>
                   <div className="text-sm text-muted-foreground">
-                    Profile: <span className="font-bold text-primary">{profileCompletion}%</span>
+                    {t("editProfile.profile")}{" "}
+                    <span className="font-bold text-primary">{profileCompletion}%</span>
                   </div>
                   {isPremium && (
                     <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white border-0">
-                      ⭐ Premium
+                      {t("editProfile.premium")}
                     </Badge>
                   )}
                 </div>
@@ -1327,7 +1328,7 @@ const EditProfile = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="bio">Bio</Label>
+                      <Label htmlFor="bio">{t("profile.bio")}</Label>
                       <Textarea
                         id="bio"
                         name="bio"
@@ -1358,14 +1359,14 @@ const EditProfile = () => {
                                 size="sm"
                                 onClick={() => savePrompt(p.prompt, newPromptAnswer)}
                               >
-                                Save
+                                {t("common.save")}
                               </Button>
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => setEditingPromptIdx(null)}
                               >
-                                Cancel
+                                {t("common.cancel")}
                               </Button>
                             </div>
                           ) : (
@@ -1380,7 +1381,7 @@ const EditProfile = () => {
                                     setNewPromptAnswer(p.answer);
                                   }}
                                 >
-                                  Edit
+                                  {t("common.edit")}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -1537,7 +1538,8 @@ const EditProfile = () => {
                           </div>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          {formData.interests.length}/5 selected
+                          {formData.interests.length}
+                          {t("editProfile.5Selected")}
                         </p>
                       </div>
                     </div>
@@ -1729,7 +1731,7 @@ const EditProfile = () => {
                             <SelectValue placeholder={t("editProfile.kidsPlaceholder")} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="no">No</SelectItem>
+                            <SelectItem value="no">{t("common.no")}</SelectItem>
                             <SelectItem value="yes-living-with-me">
                               {t("editProfile.yesLivingWithMe")}
                             </SelectItem>
@@ -1751,8 +1753,8 @@ const EditProfile = () => {
                           <SelectValue placeholder={t("editProfile.wantKidsPlaceholder")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="yes">Yes</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
+                          <SelectItem value="yes">{t("common.yes")}</SelectItem>
+                          <SelectItem value="no">{t("common.no")}</SelectItem>
                           <SelectItem value="maybe">{t("editProfile.maybe")}</SelectItem>
                           <SelectItem value="open-to-discussion">
                             {t("editProfile.openToDiscussion")}
@@ -1798,7 +1800,7 @@ const EditProfile = () => {
                       />
                       {soundtrackSource === "youtube" && (
                         <p className="text-sm text-red-500 font-medium flex items-center gap-1">
-                          YouTube detected
+                          {t("profileSoundtrack.youtubeDetected")}
                         </p>
                       )}
                       {soundtrackSource === "spotify" && (
@@ -1808,7 +1810,7 @@ const EditProfile = () => {
                       )}
                       {soundtrackUrl && !soundtrackSource && soundtrackUrl.length > 10 && (
                         <p className="text-sm text-destructive">
-                          Could not detect YouTube or Spotify link
+                          {t("editProfile.couldNotDetectYoutubeOrSpotify")}
                         </p>
                       )}
                     </div>
@@ -1856,7 +1858,7 @@ const EditProfile = () => {
                           <div className="rounded-xl overflow-hidden aspect-video">
                             <iframe
                               src={`https://www.youtube.com/embed/${soundtrackEmbedId}`}
-                              title="YouTube player"
+                              title={t("profileSoundtrack.youtubePlayer")}
                               className="w-full h-full"
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
@@ -1867,7 +1869,7 @@ const EditProfile = () => {
                           <div className="rounded-xl overflow-hidden">
                             <iframe
                               src={`https://open.spotify.com/embed/track/${soundtrackEmbedId}?theme=0`}
-                              title="Spotify player"
+                              title={t("profileSoundtrack.spotifyPlayer")}
                               className="w-full"
                               height="152"
                               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -1921,7 +1923,7 @@ const EditProfile = () => {
               )}
               {isPremium && (
                 <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
-                  Premium
+                  {t("common.premium")}
                 </Badge>
               )}
               {profile?.video_intro_url && (
@@ -1991,7 +1993,7 @@ const EditProfile = () => {
                 </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  No photo
+                  {t("common.noPhoto")}
                 </div>
               )}
             </div>
@@ -2025,25 +2027,27 @@ const EditProfile = () => {
             <div className="grid grid-cols-2 gap-4">
               {formData.work && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.work")}</p>
                   <p className="font-semibold text-sm text-foreground">{formData.work}</p>
                 </Card>
               )}
               {formData.education && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.education")}</p>
                   <p className="font-semibold text-sm text-foreground">{formData.education}</p>
                 </Card>
               )}
               {formData.height_cm && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
-                  <p className="font-semibold text-sm text-foreground">{formData.height_cm} cm</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.height")}</p>
+                  <p className="font-semibold text-sm text-foreground">
+                    {formData.height_cm} {t("editProfile.cm")}
+                  </p>
                 </Card>
               )}
               {formData.zodiac_sign && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.zodiac")}</p>
                   <p className="font-semibold text-sm text-foreground capitalize">
                     {formData.zodiac_sign}
                   </p>
@@ -2051,7 +2055,7 @@ const EditProfile = () => {
               )}
               {formData.religion && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.religion")}</p>
                   <p className="font-semibold text-sm text-foreground capitalize">
                     {formData.religion}
                   </p>
@@ -2059,7 +2063,7 @@ const EditProfile = () => {
               )}
               {formData.lifestyle && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🌟 Lifestyle</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.lifestyle")}</p>
                   <p className="font-semibold text-sm text-foreground capitalize">
                     {formData.lifestyle}
                   </p>
@@ -2067,7 +2071,7 @@ const EditProfile = () => {
               )}
               {formData.drinking && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.drinking")}</p>
                   <p className="font-semibold text-sm text-foreground capitalize">
                     {formData.drinking.replace("-", " ")}
                   </p>
@@ -2075,7 +2079,7 @@ const EditProfile = () => {
               )}
               {formData.smoking && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.smoking")}</p>
                   <p className="font-semibold text-sm text-foreground capitalize">
                     {formData.smoking.replace("-", " ")}
                   </p>
@@ -2083,7 +2087,7 @@ const EditProfile = () => {
               )}
               {formData.pets && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.pets")}</p>
                   <p className="font-semibold text-sm text-foreground capitalize">
                     {formData.pets.replace("-", " ")}
                   </p>
@@ -2095,7 +2099,7 @@ const EditProfile = () => {
             {formData.bio && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">💬</span> About
+                  <span className="text-2xl">💬</span> {t("profile.about")}
                 </h3>
                 <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                   {formData.bio}
@@ -2107,7 +2111,7 @@ const EditProfile = () => {
             {formData.looking_for.length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">💕</span> Looking For
+                  <span className="text-2xl">💕</span> {t("discover.lookingFor")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {formData.looking_for.map((item, idx) => (
@@ -2126,7 +2130,7 @@ const EditProfile = () => {
             {formData.interests.length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">✨</span> Interests
+                  <span className="text-2xl">✨</span> {t("profile.interests")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {formData.interests.map((interest, idx) => (
@@ -2146,7 +2150,7 @@ const EditProfile = () => {
             {formData.languages.length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">🌍</span> Languages
+                  <span className="text-2xl">🌍</span> {t("editProfile.languages")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {formData.languages.map((language, idx) => (
@@ -2178,7 +2182,7 @@ const EditProfile = () => {
                 return (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">🎵</span> Soundtrack
+                      <span className="text-2xl">🎵</span> {t("chat.soundtrack")}
                     </h3>
                     {(profile.soundtrack_title || profile.soundtrack_artist) && (
                       <p className="text-sm text-muted-foreground">
@@ -2190,7 +2194,7 @@ const EditProfile = () => {
                       <div className="rounded-xl overflow-hidden aspect-video">
                         <iframe
                           src={`https://www.youtube.com/embed/${ytId}`}
-                          title="Profile soundtrack"
+                          title={t("editProfile.profileSoundtrack")}
                           className="w-full h-full"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
@@ -2201,7 +2205,7 @@ const EditProfile = () => {
                       <div className="rounded-xl overflow-hidden">
                         <iframe
                           src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
-                          title="Profile soundtrack"
+                          title={t("editProfile.profileSoundtrack")}
                           className="w-full"
                           height="152"
                           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"

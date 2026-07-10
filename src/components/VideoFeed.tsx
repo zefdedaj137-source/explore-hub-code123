@@ -190,7 +190,7 @@ export const VideoFeed = ({ refreshTrigger }: { refreshTrigger: number }) => {
 
             {user?.id === video.user_id && (
               <p className="text-sm text-muted-foreground text-center">
-                You can't rate your own video
+                {t("videoFeed.youCanTRateYourOwn")}
               </p>
             )}
           </div>

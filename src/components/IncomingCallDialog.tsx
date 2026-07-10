@@ -242,7 +242,7 @@ export const IncomingCallDialog = ({ onAccept }: IncomingCallDialogProps) => {
               size="icon"
               className="rounded-full h-16 w-16 bg-red-700 hover:bg-red-800"
               onClick={handleBlock}
-              title="Block caller"
+              title={t("incomingCall.blockCaller")}
             >
               <Ban className="h-8 w-8" />
             </Button>

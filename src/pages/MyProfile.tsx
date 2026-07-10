@@ -607,7 +607,7 @@ const MyProfile = () => {
                     <div className="rounded-xl overflow-hidden aspect-video">
                       <iframe
                         src={`https://www.youtube.com/embed/${ytId}`}
-                        title="My soundtrack"
+                        title={t("profile.mySoundtrack")}
                         className="w-full h-full"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -618,7 +618,7 @@ const MyProfile = () => {
                     <div className="rounded-xl overflow-hidden">
                       <iframe
                         src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
-                        title="My soundtrack"
+                        title={t("profile.mySoundtrack")}
                         className="w-full"
                         height="152"
                         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -864,19 +864,19 @@ const MyProfile = () => {
             <div className="grid grid-cols-2 gap-4">
               {profile.work && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">💼 Work</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.work")}</p>
                   <p className="font-semibold text-sm text-foreground">{profile.work}</p>
                 </Card>
               )}
               {profile.education && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🎓 Education</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.education")}</p>
                   <p className="font-semibold text-sm text-foreground">{profile.education}</p>
                 </Card>
               )}
               {(profile.height_cm || profile.height) && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">📏 Height</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.height")}</p>
                   <p className="font-semibold text-sm text-foreground">
                     {profile.height_cm ? `${profile.height_cm} cm` : profile.height}
                   </p>
@@ -884,37 +884,37 @@ const MyProfile = () => {
               )}
               {profile.zodiac_sign && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">♈ Zodiac</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.zodiac")}</p>
                   <p className="font-semibold text-sm text-foreground">{profile.zodiac_sign}</p>
                 </Card>
               )}
               {profile.religion && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🙏 Religion</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.religion")}</p>
                   <p className="font-semibold text-sm text-foreground">{profile.religion}</p>
                 </Card>
               )}
               {profile.lifestyle && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🌿 Lifestyle</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("myProfile.lifestyle")}</p>
                   <p className="font-semibold text-sm text-foreground">{profile.lifestyle}</p>
                 </Card>
               )}
               {profile.drinking && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🍷 Drinking</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.drinking")}</p>
                   <p className="font-semibold text-sm text-foreground">{profile.drinking}</p>
                 </Card>
               )}
               {profile.smoking && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🚬 Smoking</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.smoking")}</p>
                   <p className="font-semibold text-sm text-foreground">{profile.smoking}</p>
                 </Card>
               )}
               {profile.pets && (
                 <Card className="p-4 border-primary/20 hover:border-border transition-colors">
-                  <p className="text-xs text-muted-foreground mb-1.5">🐾 Pets</p>
+                  <p className="text-xs text-muted-foreground mb-1.5">{t("chat.pets")}</p>
                   <p className="font-semibold text-sm text-foreground">{profile.pets}</p>
                 </Card>
               )}
@@ -924,7 +924,7 @@ const MyProfile = () => {
             {profile.bio && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">??</span> About
+                  <span className="text-2xl">??</span> {t("profile.about")}
                 </h3>
                 <p className="text-foreground leading-relaxed bg-background p-4 rounded-lg">
                   {profile.bio}
@@ -936,7 +936,7 @@ const MyProfile = () => {
             {(profile.looking_for || []).length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">??</span> Looking For
+                  <span className="text-2xl">??</span> {t("discover.lookingFor")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {(profile.looking_for || []).map((item, idx) => (
@@ -955,7 +955,7 @@ const MyProfile = () => {
             {(profile.interests || []).length > 0 && (
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <span className="text-2xl">?</span> Interests
+                  <span className="text-2xl">?</span> {t("profile.interests")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {(profile.interests || []).map((interest) => (
@@ -987,7 +987,7 @@ const MyProfile = () => {
                 return (
                   <div className="space-y-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
-                      <span className="text-2xl">??</span> Soundtrack
+                      <span className="text-2xl">??</span> {t("chat.soundtrack")}
                     </h3>
                     {(profile.soundtrack_title || profile.soundtrack_artist) && (
                       <p className="text-sm text-muted-foreground">
@@ -999,7 +999,7 @@ const MyProfile = () => {
                       <div className="rounded-xl overflow-hidden aspect-video">
                         <iframe
                           src={`https://www.youtube.com/embed/${ytId}`}
-                          title="Profile soundtrack"
+                          title={t("editProfile.profileSoundtrack")}
                           className="w-full h-full"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
@@ -1010,7 +1010,7 @@ const MyProfile = () => {
                       <div className="rounded-xl overflow-hidden">
                         <iframe
                           src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
-                          title="Profile soundtrack"
+                          title={t("editProfile.profileSoundtrack")}
                           className="w-full"
                           height="152"
                           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -1076,7 +1076,7 @@ const MyProfile = () => {
               ) : (
                 <img
                   src={myStories[storyViewerIndex].media_url}
-                  alt="Story"
+                  alt={t("profile.story")}
                   className="w-full aspect-[9/16] object-cover"
                 />
               )}

@@ -174,7 +174,7 @@ export function ChatHeader({
                     className="text-primary focus:text-primary focus:bg-primary/10"
                   >
                     <Ban className="h-4 w-4 mr-2" />
-                    Block user
+                    {t("chatHeader.blockUser")}
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem
@@ -182,7 +182,7 @@ export function ChatHeader({
                     className="text-primary focus:text-primary focus:bg-primary/10"
                   >
                     <ShieldCheck className="h-4 w-4 mr-2" />
-                    Unblock user
+                    {t("chatHeader.unblockUser")}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
@@ -190,14 +190,14 @@ export function ChatHeader({
                   className="text-primary focus:text-primary focus:bg-primary/10"
                 >
                   <UserX className="h-4 w-4 mr-2" />
-                  Unmatch
+                  {t("matches.unmatch")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={onReport}
                   className="text-primary focus:text-primary focus:bg-primary/10"
                 >
                   <Ban className="h-4 w-4 mr-2" />
-                  Report
+                  {t("matches.report")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

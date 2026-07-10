@@ -170,7 +170,9 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
         {currentSong && (
           <div className="flex items-center gap-2 p-3 bg-accent/10 rounded-lg">
             <Music className="h-5 w-5 text-accent" />
-            <span className="font-semibold">Dancing to: {currentSong}</span>
+            <span className="font-semibold">
+              {t("dancing.dancingTo")} {currentSong}
+            </span>
           </div>
         )}
 
@@ -191,7 +193,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
                 disabled={uploading}
               >
                 <Play className="h-5 w-5 mr-2" />
-                Start Recording
+                {t("dancingChallenge.startRecording")}
               </Button>
               <Button
                 onClick={() => fileInputRef.current?.click()}
@@ -200,7 +202,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
                 disabled={uploading}
               >
                 <Upload className="h-5 w-5 mr-2" />
-                Upload Video
+                {t("dancingChallenge.uploadVideo")}
               </Button>
               <input
                 ref={fileInputRef}
@@ -215,7 +217,7 @@ export const VideoRecorder = ({ onVideoUploaded }: { onVideoUploaded: () => void
           ) : (
             <Button onClick={stopRecording} variant="destructive" className="flex-1">
               <StopCircle className="h-5 w-5 mr-2" />
-              Stop Recording
+              {t("chatInput.stopRecording")}
             </Button>
           )}
         </div>

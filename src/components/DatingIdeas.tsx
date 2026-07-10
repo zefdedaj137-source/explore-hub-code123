@@ -80,7 +80,7 @@ const DatingIdeas = () => {
             <span className="text-foreground">{t("datingIdeas.titleWord2")}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Creative date ideas that celebrate Albanian culture and create memorable moments
+            {t("datingIdeas.creativeDateIdeasThatCelebrateAlbanian")}
           </p>
         </div>
 
@@ -123,8 +123,7 @@ const DatingIdeas = () => {
               {t("datingIdeas.shareTitle")}
             </h3>
             <p className="text-muted-foreground mb-6">
-              Have a unique Albanian date idea? Share it with the community and inspire other
-              couples!
+              {t("datingIdeas.haveAUniqueAlbanianDateIdea")}
             </p>
             <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-primary text-primary-foreground font-semibold cursor-pointer hover:opacity-90 transition-opacity shadow-elegant border-2 border-accent/30">
               <Heart className="h-4 w-4" />

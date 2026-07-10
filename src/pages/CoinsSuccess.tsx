@@ -56,7 +56,7 @@ const CoinsSuccess = () => {
       <div className="min-h-dvh flex items-center justify-center bg-background">
         <div className="text-center space-y-3">
           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Verifying your purchase…</p>
+          <p className="text-muted-foreground">{t("superlikeSuccess.verifying")}</p>
         </div>
       </div>
     );
@@ -67,7 +67,7 @@ const CoinsSuccess = () => {
       <div className="min-h-dvh flex items-center justify-center bg-background p-4">
         <Card className="p-6 max-w-sm w-full text-center space-y-4">
           <p className="text-destructive font-medium">{error}</p>
-          <Button onClick={() => navigate("/wallet")}>Back to Wallet</Button>
+          <Button onClick={() => navigate("/wallet")}>{t("wallet.backToWallet")}</Button>
         </Card>
       </div>
     );

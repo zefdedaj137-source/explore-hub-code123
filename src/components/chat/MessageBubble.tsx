@@ -88,7 +88,7 @@ export function MessageBubble({
         >
           {message.deleted_at ? (
             <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <Trash2 className="h-3 w-3" /> This message was deleted
+              <Trash2 className="h-3 w-3" /> {t("messageBubble.deleted")}
             </p>
           ) : message.image_url ? (
             <img
@@ -103,7 +103,7 @@ export function MessageBubble({
               <audio controls className="max-w-full h-8">
                 <source src={message.voice_url} type="audio/webm" />
                 <source src={message.voice_url} type="audio/mp4" />
-                Your browser doesn&apos;t support audio playback.
+                {t("messageBubble.audioNotSupported")}
               </audio>
             </div>
           ) : (

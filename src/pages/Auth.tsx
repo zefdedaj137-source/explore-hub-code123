@@ -220,12 +220,9 @@ const Auth = () => {
             .catch((err) => logger.error("Welcome email failed:", err));
 
           if (!data.user.email_confirmed_at) {
-            toast.success(
-              "✅ Account created! Please check your email and click the confirmation link to complete registration.",
-              {
-                duration: 6000,
-              }
-            );
+            toast.success(t("auth.accountCreatedPleaseCheckYourEmail"), {
+              duration: 6000,
+            });
             if (import.meta.env.DEV)
               logger.log("📧 Email confirmation required. Waiting for user to confirm email...");
 
@@ -400,7 +397,7 @@ const Auth = () => {
                   className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
                 >
                   <Mail className="h-4 w-4" />
-                  Email
+                  {t("auth.email")}
                 </Label>
                 <Input
                   id="email"
@@ -440,7 +437,7 @@ const Auth = () => {
                   className="flex items-center gap-2 text-sm font-medium dark:text-white/60 text-muted-foreground"
                 >
                   <Mail className="h-4 w-4" />
-                  Email
+                  {t("auth.email")}
                 </Label>
                 <Input
                   id="email"

@@ -76,10 +76,7 @@
     "share": "Ndaj",
     "disable": "Çaktivizo",
     "online": "On-line",
-    "mAway": "{{m}}m larg",
-    "userNotAuthenticated": "Përdoruesi nuk është i vërtetuar",
-    "albanianEagle": "Shqiponja",
-    "happyAlbanianCouple": "Çift i lumtur shqiptar"
+    "mAway": "{{m}}m larg"
   },
   "auth": {
     "signIn": "Hyr",
@@ -132,7 +129,8 @@
     "signupFailed": "Regjistrimi dështoi: {{error}}",
     "emailPlaceholder": "ju@shembull.com",
     "phonePlaceholder": "Shkruani numrin e telefonit",
-    "resetLinkDesc": "Shkruani emailin tuaj dhe ne do t'ju dërgojmë një link rivendosjeje"
+    "resetLinkDesc": "Shkruani emailin tuaj dhe ne do t'ju dërgojmë një link rivendosjeje",
+    "accountCreatedPleaseCheckYourEmail": "✅ Llogaria u krijua! Ju lutemi kontrolloni email-in tuaj dhe klikoni lidhjen e konfirmimit për të përfunduar regjistrimin."
   },
   "nav": {
     "discover": "Zbulo",
@@ -298,15 +296,64 @@
     "roses": "Trëndafilat",
     "noBoosterDesc": "Nuk ka Stimulues Aktivë në zonën tënde",
     "getCoins": "Merr monedha",
-    "premiumRoseBouquet": "Buqetë trëndafilash premium",
-    "failedPremiumRoses": "Dërgimi i trëndafilave premium dështoi",
-    "sendRoses": "Dërgo trëndafila",
-    "instantMessage": "Mesazh i menjëhershëm",
-    "undoLastAction": "Zhbëj veprimin e fundit",
-    "boosterActive": "Boosteri është tashmë aktiv!",
-    "failedBooster": "Aktivizimi i boosterit dështoi",
-    "premiumRequiredBooster": "Kërkohet abonim premium për të aktivizuar boosterin",
-    "failedLike": "Pëlqimi dështoi. Provoni përsëri."
+    "funGames": "Lojëra Argëtuese",
+    "datingTools": "Mjete Takimesh",
+    "km": "(km)",
+    "aries": "♈ Dashi",
+    "taurus": "♉ Demi",
+    "gemini": "♊ Binjakët",
+    "cancer": "♋ Gaforrja",
+    "leo": "♌ Luani",
+    "virgo": "♍ Virgjëresha",
+    "libra": "♎ Peshorja",
+    "scorpio": "♏ Akrepi",
+    "sagittarius": "♐ Shigjetari",
+    "capricorn": "♑ Bricjapi",
+    "aquarius": "♒ Ujori",
+    "pisces": "♓ Peshqit",
+    "getVerifiedHeightLifestyleMoreFilters": "Merr filtra për verifikim, gjatësi, stil jetese dhe më shumë",
+    "applyFilters": "Zbato Filtrat",
+    "changesWillApplyAfterClickingApply": "Ndryshimet do të zbatohen pasi të klikoni \"Zbato Filtrat\"",
+    "forYou": "Për Ty",
+    "lastActive": "Aktiv së Fundmi",
+    "getYourBlueTick": "Merr Shenjën Blu ✓",
+    "verifiedProfilesGet3MoreMatches": "Profilet e verifikuara marrin 3× më shumë përputhje. Prekni për t'u verifikuar tani.",
+    "match": "% Përputhje",
+    "seeFullProfile": "Shiko Profilin e Plotë",
+    "spotlightBoostActive": "Spotlight Boost Aktiv",
+    "timeRemaining": "Koha e Mbetur",
+    "expiresAt": "Skadon më",
+    "youReBeingShownToMore": "Po u shfaqeni më shumë personave në zonën tuaj dhe po shfaqeni më lart në listën e tyre të zbulimit.",
+    "activateSpotlightBoost": "Aktivizo Spotlight Boost",
+    "getMoreVisibilityYourProfileWill": "Merr më shumë dukshmëri! Profili juaj do t'u shfaqet më shumë personave në zonën tuaj. Përdorni monedha për të aktivizuar një boost.",
+    "3Hours": "3 Orë",
+    "use1OfYour": "Përdor 1 nga",
+    "freeBoosts": "boost-et falas",
+    "5Coins": "5 monedha",
+    "6Hours": "6 Orë",
+    "9Coins": "9 monedha",
+    "10Hours": "10 Orë",
+    "13Coins": "13 monedha",
+    "premiumRoses": "Trëndafila Premium",
+    "vipPremiumRosesExperience": "💐 Përvoja VIP e Trëndafilave Premium",
+    "50Coins": "50 Monedha",
+    "walletBalance": "Bilanci i portofolit:",
+    "sendRoses": "Dërgo Trëndafila 💐",
+    "buyCoins": "Bli Monedha",
+    "500Characters": "/500 karaktere",
+    "tipWriteSomethingPersonalizedToIncrease": "💡 Këshillë: Shkruani diçka të personalizuar për të rritur shanset për një përgjigje!",
+    "youHaveAccessToAllPremium": "Ju keni akses në të gjitha veçoritë premium, përfshirë rrëshqitje të pakufizuara, filtra të avancuar dhe mundësinë për të parë kush ju ka pëlqyer.",
+    "unlimitedSwipes": "Rrëshqitje të Pakufizuara ✓",
+    "seeWhoLikedYou": "Shiko kush të pëlqeu ✓",
+    "advancedFilters": "Filtra të avancuar ✓",
+    "instantChat": "Bisedë e Menjëhershme",
+    "getSuperlikes": "Merr Superlikes",
+    "standOutFromTheCrowdSuperlikes": "Dallohu nga të tjerët! Superlikes të japin 3x më shumë shanse për t'u përputhur.",
+    "youReceive5FreeSuperlikesEvery": "Merrni 5 Superlikes falas çdo muaj. Rimbushni në çdo kohë më poshtë.",
+    "premiumMembersGet5FreeSuperlikes": "Anëtarët premium marrin 5 Superlikes falas çdo muaj!",
+    "peopleWhoViewYourProfileWill": "Personat që shohin profilin tuaj do të shfaqen këtu",
+    "sendInstantMessage": "Dërgo Mesazh të Menjëhershëm",
+    "youHaveUnsavedFilterChangesClose": "Keni ndryshime të paruajtura filtrash. Të mbyllet pa i zbatuar?"
   },
   "matches": {
     "title": "Përputhjet",
@@ -375,7 +422,13 @@
     "matchCount": "{{count}} ndeshje",
     "matchCountPlural": "{{count}} ndeshje",
     "instantMessageCount": "{{count}} mesazh i çastit",
-    "instantMessageCountPlural": "{{count}} mesazhe të çastit"
+    "instantMessageCountPlural": "{{count}} mesazhe të çastit",
+    "sendReply": "Dërgo Përgjigje",
+    "chatWith": "Bisedo me",
+    "viewAndSendMessagesInThis": "Shiko dhe dërgo mesazhe në këtë bisedë të mesazheve të menjëhershme",
+    "messagesStayHereUntilYouBoth": "💬 Mesazhet qëndrojnë këtu derisa të pëlqeni njëri-tjetrin. Më pas ato do të kalojnë te biseda e zakonshme!",
+    "20MessagesSent": "/ 20 mesazhe të dërguara",
+    "remaining": "të mbetura"
   },
   "chat": {
     "title": "Biseda",
@@ -453,7 +506,21 @@
     "dateAcceptedMsg": "✅ Takimi u pranua!\n📍 {{location}}\n🕐 {{date}}\n\nJa koha! 🎉",
     "dateDeclinedMsg": "❌ Takimi u refuzua.\n📍 {{location}}\n🕐 {{date}}",
     "datePlannedMsg": "📅 Planifikova një takim!\n📍 {{location}}\n🕐 {{date}}{{notes}}\n\nKontrolloni Planifikuesin e Takimeve për të pranuar!",
-    "dateCanceledMsg": "❌ Takimi u anulua.\n📍 {{location}}\n🕐 {{date}}"
+    "dateCanceledMsg": "❌ Takimi u anulua.\n📍 {{location}}\n🕐 {{date}}",
+    "youAlreadyHaveAnActiveDate": "Ju tashmë keni një plan takimi aktiv. Anuloni ose prisni derisa të kalojë përpara se të krijoni një të ri.",
+    "work": "💼 Punë",
+    "education": "🎓 Arsim",
+    "height": "📏 Gjatësi",
+    "zodiac": "♈ Shenja e zodiakut",
+    "religion": "🙏 Feja",
+    "lifestyle": "🌟 Stili i jetesës",
+    "drinking": "🍷 Pije",
+    "smoking": "🚬 Duhani",
+    "pets": "🐾 Kafshë shtëpiake",
+    "soundtrack": "Muzika",
+    "message": "Mesazh",
+    "planADateWith": "Planifiko një takim me",
+    "theyLlBeNotifiedInChat": ". Ata do të njoftohen në bisedë!"
   },
   "profile": {
     "myProfile": "Profili Im",
@@ -732,19 +799,23 @@
     "deactivateFor": "Çaktivizo për {{days}} ditë",
     "updating": "Duke përditësuar...",
     "updatePassword": "Përditëso fjalëkalimin",
-    "enterEmail": "Ju lutemi shkruani email-in tuaj",
-    "codeSent": "Kodi i verifikimit u dërgua në email-in tuaj!",
-    "enterEmailAndOtp": "Ju lutemi shkruani email-in dhe kodin OTP",
-    "emailVerified": "Email-i u verifikua me sukses!",
-    "signInFirst": "Ju lutemi identifikohuni së pari.",
-    "adminEnabled": "Modaliteti i administratorit u aktivizua.",
-    "failedAdmin": "Aktivizimi i modalitetit të administratorit dështoi.",
-    "cancelInstructions": "Për të anuluar, prekni abonimin tuaj dhe zgjidhni Anulo.",
-    "emailAddress": "Adresa e email-it",
-    "sixDigitCode": "Kod me 6 shifra",
-    "loginInformation": "Informacioni i hyrjes",
-    "contactSupportAction": "Kontaktoni mbështetjen",
-    "restorePurchases": "Rikthe blerjet"
+    "yourProfileIsInTheSpotlight": "Profili juaj është në qendër të vëmendjes. Skadon më:",
+    "seeWhoLikedYou": "• Shiko kush të pëlqeu",
+    "advancedFilters": "• Filtra të avancuar",
+    "yourEmailCom": "juaj@email.com",
+    "unlockActivityHistoryIncludingCallLogs": "Zhblloko Aktivitetin dhe Historinë — përfshirë regjistrat e telefonatave, profilet e shikuara së fundmi, njohuritë dhe më shumë — me një abonim premium.",
+    "preferences": "Preferencat",
+    "kilometersFromYourLocation": "kilometra nga vendndodhja juaj",
+    "communitySupport": "Komuniteti dhe Mbështetja",
+    "accountManagement": "Menaxhimi i Llogarisë",
+    "temporarilyHideYourProfileAfterThe": "Fshihni përkohësisht profilin tuaj. Pas periudhës së zgjedhur, llogaria juaj do të fshihet përgjithmonë, përveç nëse hyni sërish.",
+    "thisWill": "Kjo do të",
+    "permanently": "përgjithmonë",
+    "deleteYourAccountAndRemoveAll": "fshini llogarinë tuaj dhe hiqni të gjitha të dhënat tuaja nga serverët tanë — përfshirë përputhjet, mesazhet, pëlqimet dhe profilin tuaj. Ky veprim nuk mund të zhbëhet.",
+    "3Days": "3 ditë",
+    "1Week": "1 javë",
+    "2Weeks": "2 javë",
+    "1MonthMax": "1 muaj (maksimumi)"
   },
   "editProfile": {
     "heading": "Redakto Profilin",
@@ -858,7 +929,12 @@
     "artistPlaceholder": "Artisti",
     "removeSoundtrack": "Hiq soundtrackun",
     "yesNotLivingWithMe": "Po, nuk jeton me mua",
-    "spotifyDetected": "Spotify u zbulua"
+    "spotifyDetected": "Spotify u zbulua",
+    "profile": "Profili:",
+    "premium": "⭐ Premium",
+    "5Selected": "/5 të zgjedhura",
+    "couldNotDetectYoutubeOrSpotify": "Nuk u zbulua lidhje YouTube ose Spotify",
+    "cm": "cm"
   },
   "profileSetup": {
     "heading": "Plotëso Profilin Tënd",
@@ -929,7 +1005,8 @@
     "uploadPhoto": "Ngarko foto profili",
     "uploadSelfie": "Ngarko selfie verifikimi",
     "cityHint": "p.sh., Prishtinë, Tiranë",
-    "countryHint": "p.sh., Kosovë, Shqipëri"
+    "countryHint": "p.sh., Kosovë, Shqipëri",
+    "locationPermissionDeniedYouCanStill": "Leja për vendndodhjen u refuzua. Mund ta përdorni ende aplikacionin, por distanca nuk do të shfaqet."
   },
   "whoLikedYou": {
     "heading": "Kush të Pëlqeu",
@@ -962,7 +1039,8 @@
     "height": "Lartësia",
     "lifestyle": "Stili i jetesës",
     "zodiac": "Zodiak",
-    "pets": "Kafshët shtëpiake"
+    "pets": "Kafshët shtëpiake",
+    "dayStreak": "ditë rresht"
   },
   "radar": {
     "tabLabel": "Radar.",
@@ -986,10 +1064,9 @@
     "superlikeSent": "⚡ Superpëlqim u dërgua!",
     "failedSuperlike": "Dështoi dërgimi i superpëlqimit",
     "back": "Kthehu",
-    "likedToast": "💛 U pëlqye! Ata do të shohin interesin tuaj.",
-    "failedLocation": "Ruajtja e vendndodhjes suaj dështoi. Ju lutemi provoni përsëri.",
-    "locationDenied": "Qasja në vendndodhje u refuzua. Ju lutemi aktivizojeni në cilësimet e shfletuesit.",
-    "crossedPaths": "Njerëz me të cilët keni kaluar rrugës"
+    "mAway": "m larg",
+    "radarShowsUsersWithin100Meters": "📡 Radari shfaq përdoruesit brenda 100 metrave nga vendndodhja juaj aktuale",
+    "sendSuperlikesToStandOutAnd": "⭐ Dërgoni superlikes për t'u dalluar dhe për t'u vënë re!"
   },
   "datePlanner": {
     "heading": "Planifikuesi i Takimeve",
@@ -1020,7 +1097,8 @@
     "failedCreate": "Dështoi krijimi i planit të takimit.",
     "expired": "Ky plan takimi ka skaduar tashmë dhe nuk mund të pranohet.",
     "failedUpdate": "Dështoi përditësimi i statusit të planit.",
-    "planUpdated": "Plani u përditësua."
+    "planUpdated": "Plani u përditësua.",
+    "youAlreadyHaveAnActiveDate": "Ju tashmë keni një plan takimi aktiv me këtë person. Anuloni ose prisni derisa të kalojë përpara se të krijoni një të ri."
   },
   "notifications": {
     "newMatch": "Keni një përputhje të re!",
@@ -1042,8 +1120,7 @@
     "noTransactions": "Nuk ka transaksione ende",
     "invalidAmount": "Sasi e pavlefshme monedhash",
     "failedUpdate": "Dështoi përditësimi i portofolit",
-    "coinsAdded": "Shtuat {{coins}} monedha në portofolin tuaj.",
-    "backToWallet": "Kthehu te portofoli"
+    "coinsAdded": "Shtuat {{coins}} monedha në portofolin tuaj."
   },
   "premiumSuccess": {
     "title": "Mirë se vini në Premium!",
@@ -1086,7 +1163,10 @@
     "distance": "Distanca",
     "basedOnLocation": "Bazuar në vendndodhjen e fundit",
     "selectMatchPlaceholder": "Zgjidhni ndeshjen",
-    "noSharedInterests": "Nuk ka interesa të përbashkëta akoma"
+    "noSharedInterests": "Nuk ka interesa të përbashkëta akoma",
+    "noMatchesYet": "Ende asnjë përputhje.",
+    "askAbout": "Pyet për",
+    "aiSummary": "Përmbledhje AI"
   },
   "dancing": {
     "shareVideos": "Ndani videot tuaja të vallëzimit shqiptar me komunitetin",
@@ -1113,7 +1193,9 @@
     "comingSoon": "Së shpejti",
     "titleWord1": "Takime",
     "titleWord2": "Ide",
-    "shareTitle": "Ndani Idetë Tuaja për Takime"
+    "shareTitle": "Ndani Idetë Tuaja për Takime",
+    "creativeDateIdeasThatCelebrateAlbanian": "Ide kreative takimesh që festojnë kulturën shqiptare dhe krijojnë momente të paharrueshme",
+    "haveAUniqueAlbanianDateIdea": "Keni një ide unike shqiptare për takim? Ndajeni me komunitetin dhe frymëzoni çifte të tjera!"
   },
   "activityFeed": {
     "title": "Ushqimi i Aktivitetit",
@@ -1328,8 +1410,7 @@
     "profileAnthem": "Himni i Profilit",
     "anthemPlaceholder": "Kënga që ju përshkruan",
     "saveMusicTaste": "Ruaj Shijen Muzikore 🎵",
-    "saved": "Shija muzikore u ruajt! 🎵",
-    "removeArtist": "Hiq artistin"
+    "saved": "Shija muzikore u ruajt! 🎵"
   },
   "notificationsCenter": {
     "title": "Njoftimet",
@@ -1362,7 +1443,8 @@
     "noRecentlyViewed": "Ende nuk ka profile të shikuara kohët e fundit.",
     "browseProfiles": "Shfletoni disa profile në Zbulo për t'i parë këtu.",
     "goToDiscover": "Shko te Zbulo",
-    "failedLoad": "Dështoi ngarkimi i profileve të shikuara kohët e fundit."
+    "failedLoad": "Dështoi ngarkimi i profileve të shikuara kohët e fundit.",
+    "viewed": "parë"
   },
   "profileInsights": {
     "title": "Statistikat e Profilit",
@@ -1456,7 +1538,8 @@
     "cameraError": "Nuk mund të aksesohet kamera",
     "danceUploaded": "Videoja e vallëzimit u ngarkua! 🎉",
     "failedUploadVideo": "Dështoi ngarkimi i videos",
-    "urlPlaceholder": "https://"
+    "urlPlaceholder": "https://",
+    "tipCreateAStorageBucketNamed": "Këshillë: Krijoni një kovë ruajtjeje me emrin \"profile-videos\" me akses publik për parapamje."
   },
   "profileSoundtrack": {
     "title": "Sfondi Muzikor i Profilit",
@@ -1478,8 +1561,7 @@
     "failedRemove": "Dështoi heqja",
     "removeSoundtrack": "Hiq soundtrackun",
     "musicUrlHint": "https://youtube.com/watch?v=... ose https://open.spotify.com/track/...",
-    "youtubePlayer": "Luajtësi YouTube",
-    "spotifyPlayer": "Luajtësi Spotify"
+    "couldNotDetectYoutubeOrSpotify": "Nuk u zbulua lidhje YouTube ose Spotify. Ju lutemi kontrolloni URL-në."
   },
   "profileVerification": {
     "title": "Verifikohuni",
@@ -1512,10 +1594,7 @@
     "cameraDenied": "Aksesi i kamerës u refuzua. Ju lutemi lejoni aksesin e kamerës ose ngarkoni një foto.",
     "selfieFirst": "Ju lutemi siguroni fillimisht një selfie.",
     "submitted": "Kërkesa e verifikimit u dërgua! Do ta rishikojmë brenda 24-48 orësh.",
-    "failedSubmit": "Dështoi dërgimi i kërkesës.",
-    "verification": "Verifikimi",
-    "selfiePreview": "Pamja e selfie-t",
-    "idPreview": "Pamja e ID-së"
+    "failedSubmit": "Dështoi dërgimi i kërkesës."
   },
   "photoVerification": {
     "title": "Verifikimi me Foto",
@@ -1773,15 +1852,14 @@
     "callFailed": "Thirrja Dështoi",
     "browserNotSupported": "Shfletuesi juaj nuk mbështet thirrjet audio/video. Ju lutemi përdorni Chrome, Firefox, Safari 11+, ose Edge.",
     "httpsRequired": "Thirrjet audio/video kërkojnë HTTPS. Ju lutemi përdorni URL-në e sigurtë ngrok (https://...).",
-    "blockAndEnd": "Blloko përdoruesin dhe mbyll telefonatën"
+    "with": "me"
   },
   "incomingCall": {
     "incoming": "Thirrje",
     "video": "Video",
     "voice": "Zanore",
     "call": "Hyrëse",
-    "from": "nga",
-    "blockCaller": "Blloko telefonuesin"
+    "from": "nga"
   },
   "chatHeader": {
     "backToMatches": "Kthehu tek Përputhjet",
@@ -1826,11 +1904,11 @@
     "message": "Duhet të jeni të paktën 18 vjeç për të përdorur Shqiponja.",
     "confirm": "Jam 18+ vjeç",
     "exit": "Dil",
-    "restrictionNotice": "Njoftim për kufizim moshe",
-    "req18": "Të paktën 18 vjeç (ose mosha e pjekurisë në juridiksionin tuaj)",
-    "reqLegal": "Ligjërisht i aftë të hyni në këtë marrëveshje",
-    "reqLaws": "I aftë të përdorni këtë shërbim në përputhje me të gjitha ligjet dhe rregulloret e zbatueshme",
-    "verifyToContinue": "Ju lutemi verifikoni moshën tuaj për të vazhduar"
+    "shqiponjaIsADatingPlatformFor": "Shqiponja është një platformë takimesh vetëm për të rritur.",
+    "byContinuingYouConfirmThatYou": "Duke vazhduar, ju konfirmoni se jeni:",
+    "weAreCommittedToProtectingMinors": "Ne jemi të përkushtuar për të mbrojtur të miturit dhe për të ruajtur një mjedis të sigurt takimesh. Të gjithë përdoruesit duhet të verifikojnë moshën e tyre gjatë procesit të regjistrimit. Dhënia e informacionit të rremë për moshën tuaj mund të rezultojë në mbylljen e llogarisë dhe në veprime ligjore.",
+    "byClickingIConfirmYouCertify": "Duke klikuar \"Konfirmoj\", ju vërtetoni se plotësoni kërkesën për moshën.",
+    "ifYouAreUnder18Please": "Nëse jeni nën 18 vjeç, ju lutemi dilni nga ky aplikacion. Vazhdimi nënkupton se pranoni kushtet e mësipërme."
   },
   "radarNearby": {
     "title": "Radar.",
@@ -2095,7 +2173,8 @@
     "inviteReceived": "Dikush ju ftoi të luani!"
   },
   "browseProfiles": {
-    "title": "Takoni Ndeshjet Tuaja"
+    "title": "Takoni Ndeshjet Tuaja",
+    "discoverAlbanianSinglesWhoShareYour": "Zbuloni beqarë shqiptarë që ndajnë vlerat dhe aspiratat tuaja"
   },
   "spotted": {
     "locationRequired": "Kërkohet vendndodhja",
@@ -2103,7 +2182,8 @@
     "noOneSpottedYet": "Askush nuk është vënë re ende",
     "noOneSpottedDesc": "Ndërsa lëvizni nëpër ditën tuaj, njerëzit brenda {{radius}}m nga ju në {{days}} ditët e fundit do të shfaqen këtu.",
     "goToRadar": "Shko te Radari",
-    "showingPeople": "Shfaqja e njerëzve brenda {{radius}}m në {{days}} ditët e fundit"
+    "showingPeople": "Shfaqja e njerëzve brenda {{radius}}m në {{days}} ditët e fundit",
+    "spotted": "Të Vënë Re"
   },
   "interestsList": {
     "Dating": "Për takimin.",
@@ -2251,11 +2331,59 @@
     "Early Bird": "Prenotim i hershëm",
     "DIY Projects": "Projektet DIY"
   },
+  "dancingChallenge": {
+    "joinTheExclusiveAlbanianDancingCommunity": "Bashkohuni me komunitetin ekskluziv shqiptar të vallëzimit",
+    "matchWithDancersYouRateAbove": "Përputhuni me vallëzuesit që i vlerësoni mbi 5/10",
+    "joinValleChannel": "Bashkohu me Kanalin Valle",
+    "channelMember": "Anëtar i Kanalit",
+    "showYourMovesAndGetRated": "Trego lëvizjet e tua dhe vlerësohu! Vlerëso mbi 5 për t'u përputhur 💃",
+    "leaveChannel": "Largohu nga Kanali",
+    "startRecording": "Fillo Regjistrimin",
+    "uploadVideo": "Ngarko Video",
+    "ratings": "vlerësime)",
+    "submit": "Dërgo"
+  },
+  "profileGridCard": {
+    "u2713Verified": "✓ E verifikuar"
+  },
+  "errorBoundary": {
+    "weEncounteredAnUnexpectedErrorPlease": "Hasëm një gabim të papritur. Ju lutemi provoni të rifreskoni faqen.",
+    "refreshPage": "Rifresko Faqen"
+  },
+  "loveStories": {
+    "realStories": "Histori Reale",
+    "loveFoundThrough": "Dashuria e Gjetur Përmes",
+    "thousandsOfAlbanianCouplesFoundTheir": "Mijëra çifte shqiptare gjetën personin e tyre këtu. Këto janë vetëm disa nga historitë e tyre.",
+    "join": "Bashkohu",
+    "albanianSinglesWhoFoundTheir": "Beqarë shqiptarë që gjetën"
+  },
+  "matchAnimation": {
+    "breakTheIce": "Thyej akullin ✨"
+  },
+  "travelModeBadge": {
+    "travelingIn": "✈️ Duke udhëtuar në"
+  },
+  "videoFeed": {
+    "youCanTRateYourOwn": "Nuk mund ta vlerësoni videon tuaj"
+  },
+  "ageVerification": {
+    "verifyYourAge": "Verifiko Moshën Tënde",
+    "weRequireAllUsersToBe": "Ne kërkojmë që të gjithë përdoruesit të jenë 18 vjeç ose më shumë",
+    "youMustBeAtLeast18": "Duhet të jeni të paktën 18 vjeç për të përdorur Shqiponjën",
+    "yourDateOfBirthIsUsed": "Data juaj e lindjes përdoret vetëm për të verifikuar se plotësoni kërkesën për moshën dhe do të ruhet në mënyrë të sigurt."
+  },
+  "gameSessionMusic": {
+    "musicLovers": "Dashamirës të Muzikës 🎵",
+    "question": "Pyetje"
+  },
+  "ghostModeAlert": {
+    "ago": "më parë"
+  },
+  "myProfile": {
+    "lifestyle": "🌿 Stili i jetesës"
+  },
   "support": {
-    "title": "Mbështetje",
-    "hereToHelp": "Ne jemi këtu për t'ju ndihmuar",
-    "contactUs": "Na kontaktoni",
-    "faq": "Pyetjet e bëra shpesh",
-    "safetyPolicies": "Siguria dhe politikat"
+    "needHelpOrWantToReport": "Keni nevojë për ndihmë ose dëshironi të raportoni një problem? Na dërgoni email ekipit tonë të mbështetjes dhe do t'ju përgjigjemi",
+    "weHaveZeroToleranceForObjectionable": "Ne kemi tolerancë zero për përmbajtje të papërshtatshme ose sjellje abuzive. Mësoni më shumë në politikat tona:"
   }
 }

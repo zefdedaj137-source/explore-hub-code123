@@ -127,7 +127,7 @@ const GhostModeAlert = () => {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Go back"
+          aria-label={t("common.goBack")}
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/discover"))}
         >
           <ArrowLeft className="h-5 w-5" />
@@ -170,7 +170,8 @@ const GhostModeAlert = () => {
                     <h3 className="font-semibold">{a.partnerName}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="outline" className="text-xs">
-                        <Clock className="h-3 w-3 mr-1" /> {formatTime(a.hoursSinceReply)} ago
+                        <Clock className="h-3 w-3 mr-1" /> {formatTime(a.hoursSinceReply)}{" "}
+                        {t("ghostModeAlert.ago")}
                       </Badge>
                     </div>
                   </div>

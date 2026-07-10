@@ -426,7 +426,7 @@ const WhoLikedYou = () => {
               {isPremium && (
                 <Badge className="bg-gradient-to-r from-primary to-primary/90 text-white border-none">
                   <Crown className="h-3 w-3 mr-1" />
-                  Premium
+                  {t("common.premium")}
                 </Badge>
               )}
             </h1>
@@ -448,7 +448,7 @@ const WhoLikedYou = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-foreground flex items-center gap-1">
-                    {streakCount} day streak {streakCount >= 2 ? "🔥" : ""}
+                    {streakCount} {t("whoLikedYou.dayStreak")} {streakCount >= 2 ? "🔥" : ""}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {streakCount < 3
@@ -545,7 +545,7 @@ const WhoLikedYou = () => {
                   {like.is_superlike && (
                     <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-yellow-400/90 backdrop-blur-sm text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
                       <Sparkles className="h-3 w-3" />
-                      Super Like
+                      {t("discover.superlike")}
                     </div>
                   )}
 
@@ -699,7 +699,7 @@ const WhoLikedYou = () => {
                       )}
                       {p.is_premium && (
                         <Badge className="bg-gradient-to-r from-[hsl(350,98%,62%)] to-[hsl(15,100%,60%)] text-white border-none">
-                          Premium
+                          {t("common.premium")}
                         </Badge>
                       )}
                       {p.video_intro_url && (
@@ -977,7 +977,7 @@ const WhoLikedYou = () => {
                         return (
                           <div className="space-y-2">
                             <h3 className="font-semibold text-lg flex items-center gap-2">
-                              <span className="text-2xl">🎵</span> Soundtrack
+                              <span className="text-2xl">🎵</span> {t("chat.soundtrack")}
                             </h3>
                             {(p.soundtrack_title || p.soundtrack_artist) && (
                               <p className="text-sm text-muted-foreground">
@@ -989,7 +989,7 @@ const WhoLikedYou = () => {
                               <div className="rounded-xl overflow-hidden aspect-video">
                                 <iframe
                                   src={`https://www.youtube.com/embed/${ytId}`}
-                                  title="Profile soundtrack"
+                                  title={t("editProfile.profileSoundtrack")}
                                   className="w-full h-full"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen
@@ -1000,7 +1000,7 @@ const WhoLikedYou = () => {
                               <div className="rounded-xl overflow-hidden">
                                 <iframe
                                   src={`https://open.spotify.com/embed/track/${spId}?theme=0`}
-                                  title="Profile soundtrack"
+                                  title={t("editProfile.profileSoundtrack")}
                                   className="w-full"
                                   height="152"
                                   allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -1026,7 +1026,7 @@ const WhoLikedYou = () => {
                         }}
                       >
                         <X className="h-5 w-5 mr-2" />
-                        Pass
+                        {t("discover.pass")}
                       </Button>
                       <Button
                         size="lg"
@@ -1037,7 +1037,7 @@ const WhoLikedYou = () => {
                         }}
                       >
                         <Heart className="h-5 w-5 mr-2" />
-                        Like Back
+                        {t("whoLikedYou.likeBackButton")}
                       </Button>
                     </div>
                   </div>

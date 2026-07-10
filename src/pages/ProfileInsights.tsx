@@ -244,7 +244,7 @@ const ProfileInsights = () => {
                         />
                         {viewer.video_intro_url && (
                           <span className="absolute -bottom-1 -right-1 bg-primary text-white text-[10px] px-2 py-0.5 rounded-full shadow">
-                            Video
+                            {t("common.video")}
                           </span>
                         )}
                       </div>
