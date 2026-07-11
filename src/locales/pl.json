@@ -1697,7 +1697,7 @@
     "greatMatch": "Świetny Match",
     "goodMatch": "Dobre dopasowanie",
     "potentialMatch": "Potencjalne dopasowanie",
-    "compatibilityLabel": "{{score}}% {{label}}"
+    "compatibilityLabel": "{{wynik}}% {{etykieta}}"
   },
   "hero": {
     "premiumDating": "Najlepsze serwisy randkowe w Albanii",

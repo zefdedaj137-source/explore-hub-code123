@@ -1697,7 +1697,7 @@
     "greatMatch": "Una match fantastica",
     "goodMatch": "Ottima scelta",
     "potentialMatch": "Possibile corrispondenza",
-    "compatibilityLabel": "{{score}}% {{label}}"
+    "compatibilityLabel": "{{punteggio}}% {{etichetta}}"
   },
   "hero": {
     "premiumDating": "Incontri albanesi di alta qualità",
@@ -2212,7 +2212,7 @@
     "Baseball": "Baseball",
     "Music": "Musica",
     "Guitar": "Chitarra",
-    "Piano": "Piano",
+    "Piano": "Pianoforte",
     "Singing": "Cantare",
     "Art": "Tipo",
     "Photography": "Fotografia",

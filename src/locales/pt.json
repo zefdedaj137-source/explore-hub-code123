@@ -1697,7 +1697,7 @@
     "greatMatch": "Ótimo match",
     "goodMatch": "Boa combinação",
     "potentialMatch": "Possível correspondência",
-    "compatibilityLabel": "{{score}}% {{label}}"
+    "compatibilityLabel": "{{pontuação}}% {{etiqueta}}"
   },
   "hero": {
     "premiumDating": "Namoro albanês premium",
@@ -2076,7 +2076,7 @@
     "accept": "Aceitar",
     "decline": "Declínio",
     "onlinePlayers": "Jogadores online",
-    "onlineCount": "{{count}} online",
+    "onlineCount": "{{contagem}} online",
     "noPlayersTitle": "Nenhum jogador online",
     "noPlayersDesc": "Seja o primeiro a chegar! Outros jogadores vão se juntar a nós em breve.",
     "autoUpdates": "Esta lista é atualizada automaticamente a cada 10 segundos",
@@ -2146,7 +2146,7 @@
     "danceToSong": "Dance ao som de {{song}} por 10 segundos",
     "startDancing": "Comece a dançar",
     "getReadyDance": "Preparem-se para dançar!",
-    "recTime": "REC {{time}}s",
+    "recTime": "REC s",
     "previewDance": "Veja uma prévia da sua dança 💃",
     "recordAgain": "Gravar novamente",
     "sendVideo": "Enviar vídeo 🚀",
@@ -2261,7 +2261,7 @@
     "Street Food": "Comida de rua",
     "Kebabs": "Kebabs",
     "Pastries": "Doces",
-    "Curry": "Curry",
+    "Curry": "Caril",
     "Dumplings": "Bolinhos",
     "Travel": "Viagens",
     "Camping": "Acampamento",
