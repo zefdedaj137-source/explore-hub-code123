@@ -3877,7 +3877,7 @@ const Discover = () => {
       {/* Full Profile Dialog */}
       <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
         <DialogContent
-          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          className="top-4 translate-y-0 sm:top-[50%] sm:-translate-y-1/2 w-[calc(100vw-1.5rem)] max-w-md sm:max-w-lg h-[calc(100dvh-2rem)] sm:h-auto max-h-[calc(100dvh-2rem)] sm:max-h-[88vh] overflow-y-auto overflow-x-hidden overscroll-contain"
           aria-describedby={undefined}
         >
           {currentProfile && (
